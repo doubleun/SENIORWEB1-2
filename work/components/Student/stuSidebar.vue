@@ -3,7 +3,7 @@
     v-model="drawer"
     fixed
     app
-    color="#253b6e"
+    color="#253B6E"
     dark
     width="310"
   >
@@ -80,65 +80,65 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/Student/stuHome",
+          to: "/"
         },
         {
           icon: "mdi-numeric-1-box",
           title: "Group",
-          to: "/Student/stuCreateGroup",
+          to: "/Student/stuCreateGroup"
         },
         {
           icon: "mdi-numeric-2-box",
           title: "Topic",
-          to: "/Student/stuTopicEvaluationForm",
+          to: "/Student/stuTopicEvaluationForm"
         },
         {
           icon: "mdi-numeric-3-box",
           title: "Proposal",
-          to: "/Student/stuProposalEvaluationForm",
+          to: "/Student/stuProposalEvaluationForm"
         },
         {
           icon: "mdi-numeric-4-box",
           title: "Progress 1",
-          to: "/Student/stuProgress1EvaluationForm",
+          to: "/Student/stuProgress1EvaluationForm"
         },
         {
           icon: "mdi-numeric-5-box",
           title: "Progress 2",
-          to: "/Student/stuProgress2EvaluationForm",
+          to: "/Student/stuProgress2EvaluationForm"
         },
         {
           icon: "mdi-numeric-6-box",
           title: "Progress 3",
-          to: "/Student/stuProgress3EvaluationForm",
+          to: "/Student/stuProgress3EvaluationForm"
         },
         {
           icon: "mdi-numeric-7-box",
           title: "Final Presentation",
-          to: "/Student/stuFinalPresentationEvaluationForm",
-        },
+          to: "/Student/stuFinalPresentationEvaluationForm"
+        }
       ],
       documents: [
         {
           title: "Abstract",
-          to: "/Student/stuAbstractForm",
+          to: "/Student/stuAbstractForm"
         },
         {
           title: "Full Document",
-          to: "/Student/stuFullDocumentForm",
+          to: "/Student/stuFullDocumentForm"
         },
         {
           title: "Other Resource",
-          to: "/Student/stuOtherResourceForm",
-        },
+          to: "/Student/stuOtherResourceForm"
+        }
       ],
       reevaluations: [
         {
           icon: "mdi-file-refresh",
           title: "Re - evaluation",
-          to: "/Student/stuReevaluationForm",
-        },
-      ],
+          to: "/Student/stuReevaluationForm"
+        }
+      ]
     };
   },
   computed: {
@@ -148,9 +148,8 @@ export default {
       },
       set(newVal) {
         this.$store.commit("set_drawer", newVal);
-      },
-    },
-  },
+      }
+    }
+  }
 };
 </script>
-
