@@ -7,21 +7,17 @@
         <Nuxt />
       </v-container>
     </v-main>
-
-  
   </v-app>
 </template>
 
 <script>
-import Appbar from "@/components/Global/mainAppbar"
-import Sidebar from "@/components/Student/stuSidebar"
+import Appbar from "@/components/Global/mainAppbar";
+import Sidebar from "@/components/Student/stuSidebar";
 
 export default {
-  components:{
+  components: {
     Appbar,
     Sidebar
-    
-  },
-  
+  }
 };
 </script>

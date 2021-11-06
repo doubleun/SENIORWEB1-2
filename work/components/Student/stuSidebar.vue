@@ -48,64 +48,64 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/",
+          to: "/"
         },
         {
           icon: "mdi-numeric-1-box",
           title: "Group",
-          to: "/Senior1/Student/stuCreateGroup",
+          to: "/Senior1/Student/stuCreateGroup"
         },
         {
           icon: "mdi-numeric-2-box",
           title: "Topic",
-          to: "/Senior1/Student/stuTopicEvaluationForm",
+          to: "/Senior1/Student/stuTopicEvaluationForm"
         },
         {
           icon: "mdi-numeric-3-box",
           title: "Proposal",
-          to: "/Senior1/Student/stuProposalEvaluationForm",
+          to: "/Senior1/Student/stuProposalEvaluationForm"
         },
         {
           icon: "mdi-numeric-4-box",
           title: "Progress 1",
-          to: "/Senior1/Student/stuProgress1EvaluationForm",
+          to: "/Senior1/Student/progress1"
         },
         {
           icon: "mdi-numeric-5-box",
           title: "Progress 2",
-          to: "/Senior1/Student/stuProgress2EvaluationForm",
+          to: "/Senior1/Student/progress2"
         },
         {
           icon: "mdi-numeric-6-box",
           title: "Progress 3",
-          to: "/Senior1/Student/stuProgress3EvaluationForm",
+          to: "/Senior1/Student/progress3"
         },
         {
           icon: "mdi-numeric-7-box",
           title: "Progress 4",
-          to: "/Senior1/Student/stuProgress3EvaluationForm",
+          to: "/Senior1/Student/progress4"
         },
         {
           icon: "mdi-numeric-8-box",
           title: "Final Presentation",
-          to: "/Senior1/Student/stuFinalPresentationEvaluationForm",
+          to: "/Senior1/Student/stuFinalPresentationEvaluationForm"
         },
         {
           icon: "mdi-numeric-9-box",
           title: "Final Documentation",
-          to: "/Senior1/Student/stuFinalDocumentationEvaluationForm",
+          to: "/Senior1/Student/stuFinalDocumentationEvaluationForm"
         },
         {
           icon: "mdi-file",
           title: "Evaluation Result",
-          to: "/Senior1/Student/stuEvaluationResult",
+          to: "/Senior1/Student/stuEvaluationResult"
         },
         {
           icon: "mdi-file-refresh",
           title: "Re - evaluation",
-          to: "/Senior1/Student/stuReEvaluation",
-        },
-      ],
+          to: "/Senior1/Student/stuReEvaluation"
+        }
+      ]
     };
   },
   computed: {
@@ -115,8 +115,8 @@ export default {
       },
       set(newVal) {
         this.$store.commit("set_drawer", newVal);
-      },
-    },
-  },
+      }
+    }
+  }
 };
 </script>
