@@ -1,7 +1,5 @@
 <template>
   <div>
-    
-
     <!-- Card Upload File -->
     <v-card class="content justify-center mt-5" height="400">
       <v-row>
@@ -40,7 +38,7 @@
     <!-- Submit button -->
     <v-row class="text-center"
       ><v-col
-        ><v-btn rounded dark color="indigo"  class="mt-10">
+        ><v-btn rounded dark color="indigo" class="mt-10">
           Submit
         </v-btn></v-col
       ></v-row
@@ -51,10 +49,10 @@
 export default {
   data: () => ({
     rules: [
-      (value) =>
-        !value || value.size < 2000000 || "File size should be less than 2 MB",
-    ],
-  }),
+      value =>
+        !value || value.size < 2000000 || "File size should be less than 2 MB"
+    ]
+  })
 };
 </script>
 <style scoped>

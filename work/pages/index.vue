@@ -29,7 +29,7 @@
 
             <v-col cols="12" sm="6" md="6" lg="6">
               <div class="btn_login" align="center" justify="center">
-                <v-btn x-large class="btnpadding" nuxt to ="/senior"
+                <v-btn x-large class="btnpadding" nuxt to="/senior"
                   ><v-icon>mdi-account</v-icon>
                   Login
                 </v-btn>
@@ -46,7 +46,6 @@
                 <v-card-text align="center" justify="center">
                   <div class="myDiv2" align-center justify-center>
                     <v-text-field
-                      v-model="search"
                       clearable
                       hide-details
                       label="Search topic something"
@@ -128,13 +127,13 @@ export default {
       "Multimedia Technology and Animation",
       "Software Engineering"
     ]
-  })
+  }),
+  layout: "empty"
 };
 </script>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Acme&display=swap");
-
 #app {
   font-family: "Kanit", sans-serif;
 }
@@ -195,7 +194,7 @@ h1 {
   color: white;
 }
 .background {
-  background-color: #E3F2FD;
+  background-color: #e3f2fd;
 }
 .floatright {
   float: right;
@@ -264,16 +263,16 @@ h1 {
 }
 /* Portrait */
 @media only screen and (max-device-width: 375px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 1) {
-  .btn_login{
+  .btn_login {
     float: none;
   }
-  .login{
+  .login {
     float: none;
   }
   .floatleft {
     float: none;
   }
-  #element1{
+  #element1 {
     align-content: center;
   }
 }

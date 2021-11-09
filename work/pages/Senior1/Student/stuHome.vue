@@ -85,6 +85,7 @@
 </template>
 <script>
 export default {
+  layout: "empty",
   components: {},
   data() {
     return {

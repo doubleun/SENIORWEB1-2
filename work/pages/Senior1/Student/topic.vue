@@ -1,5 +1,7 @@
 <template>
-  <allSubmission title="Topic" />
+  <div>
+    <allSubmission title="Topic" />
+  </div>
 </template>
 
 <script>

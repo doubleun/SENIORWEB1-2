@@ -12,7 +12,7 @@
 
 <script>
 import Appbar from "@/components/Global/mainAppbar";
-import Sidebar from "@/components/Student/stuSidebar";
+import Sidebar from "@/components/stuSidebar";
 
 export default {
   components: {

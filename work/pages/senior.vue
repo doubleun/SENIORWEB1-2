@@ -29,7 +29,7 @@
                   />
                 </div>
               </v-col>
-              <br><br><br>
+              <br /><br /><br />
             </v-row>
             <v-card-text class="text--primary">
               <center>
@@ -43,25 +43,29 @@
               </center>
             </v-card-text>
 
-            <div class="buttonsenior1and2">
+            <nuxt-link
+              to="/Senior1/Student/topic"
+              tag="div"
+              class="buttonsenior1and2"
+            >
               <v-btn text style="width:300px;height:100px">
-               <v-card-text class="text--primary">
-              <center>
-                <div><h3>SENIOR PROJECT 1</h3></div>
-                <div><h4>SEM 1/2564</h4></div>
-              </center>
-            </v-card-text>
+                <v-card-text class="text--primary">
+                  <center>
+                    <div><h3>SENIOR PROJECT 1</h3></div>
+                    <div><h4>SEM 1/2564</h4></div>
+                  </center>
+                </v-card-text>
               </v-btn>
-            </div>
+            </nuxt-link>
             <br />
             <div class="buttonsenior1and2">
               <v-btn text style="width:300px;height:100px">
                 <v-card-text class="text--primary">
-              <center>
-                <div><h3>SENIOR PROJECT 2</h3></div>
-                <div><h4>SEM 2/2564</h4></div>
-              </center>
-            </v-card-text>
+                  <center>
+                    <div><h3>SENIOR PROJECT 2</h3></div>
+                    <div><h4>SEM 2/2564</h4></div>
+                  </center>
+                </v-card-text>
               </v-btn>
             </div>
           </v-card>
@@ -76,7 +80,8 @@ import itbackground from "../static/bg.png";
 export default {
   data: () => ({
     image: itbackground
-  })
+  }),
+  layout: "empty"
 };
 </script>
 
@@ -91,6 +96,8 @@ export default {
 }
 .out_box {
   padding-top: 10%;
+  margin-inline: auto;
+  width: fit-content;
 }
 .iconit {
   padding-left: 26%;
@@ -112,9 +119,9 @@ export default {
   height: 200px;
   width: 50%;
 }
-.v-btn:hover {
+.v-btn *:hover {
   background-color: #1a237e; /* blue */
-  color: white;
+  color: white !important;
 }
 .buttonsenior1and2 {
   padding-left: 20%;
@@ -124,7 +131,7 @@ export default {
   padding-top: 5%;
   
 }*/
-.sem1{
+.sem1 {
   padding-top: 10%;
 }
 </style>

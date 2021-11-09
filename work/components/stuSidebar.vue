@@ -1,12 +1,5 @@
 <template>
-  <v-navigation-drawer
-    v-model="drawer"
-    fixed
-    app
-    color="#253B6E"
-    dark
-    width="310"
-  >
+  <v-navigation-drawer fixed app color="#253B6E" dark width="310">
     <v-col class="mt-3">
       <v-row class="justify-center">
         <!-- Logo and website name -->
@@ -107,17 +100,17 @@ export default {
         }
       ]
     };
-  },
-  computed: {
-    drawer: {
-      get() {
-        return this.$store.state.drawer;
-      },
-      set(newVal) {
-        this.$store.commit("set_drawer", newVal);
-      }
-    }
   }
+  // computed: {
+  //   drawer: {
+  //     get() {
+  //       return this.$store.state.drawer;
+  //     },
+  //     set(newVal) {
+  //       this.$store.commit("set_drawer", newVal);
+  //     }
+  //   }
+  // }
 };
 </script>
 
