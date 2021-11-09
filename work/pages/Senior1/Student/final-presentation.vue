@@ -1,5 +1,5 @@
 <template>
-  <allSubmission title="Progress 1" />
+  <allSubmission title="Final Presentation" />
 </template>
 
 <script>

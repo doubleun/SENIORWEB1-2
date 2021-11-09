@@ -1,7 +1,5 @@
 <template>
   <div>
-    <Appbar />
-    <Sidebar />
     <h2 class="header-title mb-2 mt-5">Home</h2>
     <v-divider></v-divider>
     <v-card class="content mt-5">
@@ -86,13 +84,8 @@
   </div>
 </template>
 <script>
-import Appbar from "@/components/Global/mainAppbar";
-import Sidebar from "@/components/Student/stuSidebar";
 export default {
-  components: {
-    Appbar,
-    Sidebar,
-  },
+  components: {},
   data() {
     return {
       page: 1,
@@ -101,23 +94,23 @@ export default {
           title:
             "Announcement Progress 2 of Computer Science and Innovation has been postponed until October 31, 2021.",
 
-          date: "13-9-2021",
+          date: "13-9-2021"
         },
         {
           title:
             "Announcement from the School of Information Technology Regarding the delivery schedule for every project By all disciplines affiliated with the office, all legs postpone the promotion until October 11, 2021.",
 
-          date: "16-9-102021",
+          date: "16-9-102021"
         },
         {
           title:
             "Announcement from the School of Information Technology Regarding server shutdown for system maintenance on October 1, 2021",
 
-          date: "18-9-2021",
-        },
-      ],
+          date: "18-9-2021"
+        }
+      ]
     };
-  },
+  }
 };
 </script>
 <style scoped>
