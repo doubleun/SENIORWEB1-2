@@ -35,62 +35,67 @@
             <!-- Part : project member -->
             <div class="projectMember">
               <h4 class="font-weight-bold">Project Member</h4>
-              <h5 class="font-weight-bold mt-5">Student 1</h5>
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    ref="stuName"
-                    v-model="stuName"
-                    :rules="[() => !!stuName || 'This field is required']"
-                    required
-                    label="Student Name"
-                    outlined
-                    dense
-                    class="mt-5"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    ref="stuPhoneNumber"
-                    v-model="stuPhoneNumber"
-                    :rules="[
-                      () => !!stuPhoneNumber || 'This field is required',
-                    ]"
-                    required
-                    label="Student Phone Number"
-                    outlined
-                    dense
-                  >
-                  </v-text-field>
-                  <div class="mb-5">
-                    <a href="#" class="text-decoration-underline"
-                      >+ Add Member</a
+              <!-- Student -->
+              <!-- Loop the "projectMembers" array and render each student fields -->
+              <div v-for="member in projectMembers" :key="member">
+                <h5 class="font-weight-bold mt-5">Student {{ member }}</h5>
+                <v-row>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      ref="stuName"
+                      v-model="stuName"
+                      :rules="[() => !!stuName || 'This field is required']"
+                      required
+                      label="Student Name"
+                      outlined
+                      dense
+                      class="mt-5"
                     >
-                  </div>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    ref="stuID"
-                    v-model="stuID"
-                    :rules="[() => !!stuID || 'This field is required']"
-                    required
-                    label="Student ID"
-                    outlined
-                    dense
-                    class="mt-5"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    ref="stuEmail"
-                    v-model="stuEmail"
-                    :rules="emailRules"
-                    required
-                    label="Student Lamduan Mail"
-                    outlined
-                    dense
-                  >
-                  </v-text-field>
-                </v-col>
-              </v-row>
+                    </v-text-field>
+                    <v-text-field
+                      ref="stuPhoneNumber"
+                      v-model="stuPhoneNumber"
+                      :rules="[
+                        () => !!stuPhoneNumber || 'This field is required'
+                      ]"
+                      required
+                      label="Student Phone Number"
+                      outlined
+                      dense
+                    >
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      ref="stuID"
+                      v-model="stuID"
+                      :rules="[() => !!stuID || 'This field is required']"
+                      required
+                      label="Student ID"
+                      outlined
+                      dense
+                      class="mt-5"
+                    >
+                    </v-text-field>
+                    <v-text-field
+                      ref="stuEmail"
+                      v-model="stuEmail"
+                      :rules="emailRules"
+                      required
+                      label="Student Lamduan Mail"
+                      outlined
+                      dense
+                    >
+                    </v-text-field>
+                  </v-col>
+                </v-row>
+              </div>
+            </div>
+            <!-- Add member -->
+            <div class="mb-5" v-show="projectMembers.length < 4">
+              <a class="text-decoration-underline" @click="addMemberFields"
+                >+ Add Member</a
+              >
             </div>
             <!-- Part : project advisor -->
             <div class="projectAdvisor">
@@ -123,7 +128,7 @@
                     ref="committee1Name"
                     v-model="committee1Name"
                     :rules="[
-                      () => !!committee1Name || 'This field is required',
+                      () => !!committee1Name || 'This field is required'
                     ]"
                     required
                     label="Committee One Name"
@@ -134,7 +139,7 @@
                     ref="committee2Name"
                     v-model="committee2Name"
                     :rules="[
-                      () => !!committee2Name || 'This field is required',
+                      () => !!committee2Name || 'This field is required'
                     ]"
                     required
                     label="Committee Two Name"
@@ -169,13 +174,22 @@ export default {
     committee1Name: "",
     committee2Name: "",
     emailRules: [
-      (v) => !!v || "E-mail is required",
-      (v) =>
+      v => !!v || "E-mail is required",
+      v =>
         /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
           v
-        ) || "E-mail must be valid",
+        ) || "E-mail must be valid"
     ],
+    projectMembers: [1]
   }),
+  methods: {
+    addMemberFields() {
+      this.projectMembers = [
+        ...this.projectMembers,
+        this.projectMembers.slice(-1)[0] + 1
+      ];
+    }
+  }
 };
 </script>
 <style scoped>
