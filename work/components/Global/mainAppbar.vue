@@ -1,6 +1,6 @@
 <template lang="html">
   <!-- Appbar -->
-  <v-app-bar fixed app :elevation="0" color="white">
+  <v-app-bar fixed app :elevation="0" :color="theme">
     <!-- Hamberbur -->
     <!-- <v-app-bar-nav-icon @click.stop="toggleDrawer" /> -->
     <v-spacer></v-spacer>
@@ -8,7 +8,13 @@
     <v-menu offset-y>
       <template v-slot:activator="{ on }">
         <!-- Display name button -->
-        <v-btn text :ripple="false" v-on="on" id="no-background-hover">
+        <v-btn
+          text
+          :ripple="false"
+          v-on="on"
+          id="no-background-hover"
+          :style="theme === 'transparent' ? 'color: white' : 'color: inherit'"
+        >
           <h3 style="margin-inline-end: 1rem">
             ANUTHEP TAYNGAM
           </h3>
@@ -39,6 +45,7 @@ export default {
   data: () => ({
     items: [{ icon: "mdi-logout", title: "Logout", route: "/" }]
   }),
+  props: ["theme"],
   methods: {
     toggleDrawer() {
       this.$store.commit("set_drawer", !this.$store.state.drawer);

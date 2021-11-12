@@ -99,15 +99,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Preview file -->
-        <!-- <div
-          class="progress-preview-container"
-          :style="uploadSrc ? 'display: unset' : 'display: none'"
-        >
-          <v-card-title>Preview</v-card-title>
-          <embed :src="uploadSrc" class="progress-file-preview" />
-        </div> -->
       </div>
     </v-card>
   </main>
