@@ -1,7 +1,5 @@
 const con = require("../config/db");
 
-
-
 testuser = async (req, res) => {
 
     return res.status(200).send('hellow')

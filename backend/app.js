@@ -8,6 +8,7 @@ const config = require("./src/config/db");
 
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const dateRoutes = require('./src/routes/dateRoutes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ============ Routes ============
 app.use("/user",userRoutes);
+// app.use("/date",dateRoutes);
 
 
 // ============ Starting server ============
