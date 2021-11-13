@@ -10,6 +10,6 @@ export default {
   components: {
     groupDataTable,
   },
-  layout: "coordinator",
+  layout: "coordinatorsidebar",
 };
 </script>

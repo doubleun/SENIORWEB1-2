@@ -27,7 +27,7 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/"
+          to: "/Senior1/coordinator/home"
         },
         {
           icon: "people_alt",

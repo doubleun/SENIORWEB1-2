@@ -7,9 +7,9 @@
 <script>
 import groupDataTable from "@/components/Coordinator/groupDataTable";
 export default {
+  layout: "coordinatorsidebar",
   components: {
     groupDataTable,
   },
-  layout: "coordinator",
 };
 </script>

@@ -27,42 +27,42 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/"
+          to: "/Senior1/coordinator/home"
         },
         {
           icon: "mdi-account-multiple-plus",
           title: "Group Request",
-          to: "/Senior1/Coordinator/groupInfo"
+          to: "/Senior1/Coordinator/groupRequest"
         },
         {
           icon: "mdi-account-multiple",
           title: "Committee",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/committee"
         },
         {
           icon: "mdi-account-group",
           title: "My Advisee",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/myAdvisee"
         },
         {
           icon: "mdi-account-cog",
           title: "Use Manage",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/Coordinator/"
         },
         {
           icon: "mdi-alpha-p-circle",
           title: "Score",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/Coordinator/"
         },
         {
           icon: "mdi-calendar-month",
           title: "Due Date",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/Coordinator/"
         },
         {
           icon: "mdi-file-document",
           title: "Criteria",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/Coordinator/"
         },
       ]
     };

@@ -8,7 +8,7 @@
 import cardStatus from "@/components/Coordinator/homeCardStatus";
 import announcement from "@/components/Coordinator/homeAnnouncement";
 export default {
-  layout: "coordinator",
+  layout: "coordinatorsidebar",
   components: {
     cardStatus,
     announcement,

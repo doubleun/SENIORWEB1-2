@@ -15,9 +15,11 @@
         </v-card-title>
         <v-data-table :headers="headers" :items="items" :search="search">
           <template v-slot:item.groupName="{ item }">
+            <v-row class="mb-6 pa-5 justify-space-around" no-gutters>
             <div style="cursor: pointer" @click="pushOtherPage">
               {{ item.groupName }}
             </div>
+            </v-row>
           </template>
         </v-data-table>
       </v-card>
@@ -32,13 +34,15 @@ export default {
       headers: [
         {
           text: "GROUP NAME",
-          align: "start",
-          sortable: false,
+          align: "center",
           value: "groupName",
         },
-        { text: "MEMBER", value: "member" },
-        { text: "ADVISOR", value: "advisor" },
-        { text: "COMMITTEE", value: "committee" },
+        { text: "MEMBER", value: "member",
+        align: "center", },
+        { text: "ADVISOR", value: "advisor",
+        align: "center", },
+        { text: "COMMITTEE", value: "committee" ,
+        align: "center",},
       ],
       items: [
         {
