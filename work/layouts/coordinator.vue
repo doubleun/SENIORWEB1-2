@@ -1,12 +1,14 @@
 <template>
   <v-app dark>
-    <Appbar theme="white" />
-    <Sidebar :items="items" theme="default" />
-    <v-main>
-      <v-container>
-        <Nuxt />
-      </v-container>
-    </v-main>
+    <Sidebar :items="items" theme="white" />
+    <div class="it-background">
+      <v-main>
+        <Appbar theme="transparent" />
+        <v-container>
+          <Nuxt />
+        </v-container>
+      </v-main>
+    </div>
   </v-app>
 </template>
 
@@ -29,58 +31,48 @@ export default {
         },
         {
           icon: "people_alt",
-          title: "Group",
-          to: "/Senior1/Student/stuCreateGroup"
-        },
-        {
-          icon: "topic",
-          title: "Topic",
-          to: "/Senior1/Student/topic"
-        },
-        {
-          icon: "forum",
-          title: "Proposal",
-          to: "/Senior1/Student/proposal"
+          title: "Group Info",
+          to: "/Senior1/Coordinator/groupInfo"
         },
         {
           icon: "mdi-numeric-1-circle",
           title: "Progress 1",
-          to: "/Senior1/Student/progress1"
+          to: "/Senior1/Coordinator/progress"
         },
         {
           icon: "mdi-numeric-2-circle",
           title: "Progress 2",
-          to: "/Senior1/Student/progress2"
+          to: "/Senior1/Coordinator/progress"
         },
         {
           icon: "mdi-numeric-3-circle",
           title: "Progress 3",
-          to: "/Senior1/Student/progress3"
+          to: "/Senior1/Coordinator/progress"
         },
         {
           icon: "mdi-numeric-4-circle",
           title: "Progress 4",
-          to: "/Senior1/Student/progress4"
+          to: "/Senior1/Coordinator/progress"
         },
         {
           icon: "co_present",
           title: "Final Presentation",
-          to: "/Senior1/Student/final-presentation"
+          to: "/Senior1/Coordinator/progress"
         },
         {
           icon: "text_snippet",
           title: "Final Documentation",
-          to: "/Senior1/Student/final-document"
+          to: "/Senior1/Coordinator/progress"
         },
         {
           icon: "stacked_bar_chart",
           title: "Evaluation Result",
-          to: "/Senior1/Student/evaluation-results"
+          to: "/Senior1/Coordinator/evaluationResult"
         },
         {
           icon: "mdi-restore",
           title: "Re - evaluation",
-          to: "/Senior1/Student/stuReEvaluation"
+          to: "/Senior1/Coordinator/progress"
         }
       ]
     };
@@ -88,7 +80,12 @@ export default {
 };
 </script>
 <style scoped>
-.v-main {
-  background-color: #edf2f9 !important;
+.it-background {
+  /* background-color: #1b5cb6 !important; */
+  background-image: url("@/static/bg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  height: 30rem;
 }
 </style>
