@@ -4,6 +4,7 @@ const path = require('path');
 const multer = require("multer");
 const mysql = require("mysql");
 const config = require("./src/config/db");
+var _ = require('lodash');
 
 
 const authRoutes = require('./src/routes/authRoutes');
