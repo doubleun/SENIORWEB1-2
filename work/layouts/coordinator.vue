@@ -81,11 +81,15 @@ export default {
 </script>
 <style scoped>
 .it-background {
-  /* background-color: #1b5cb6 !important; */
+  background-color: #edf2f9 !important;
+}
+.it-background::before {
+  position: absolute;
+  content: "";
   background-image: url("@/static/bg.png");
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
   height: 30rem;
+  width: 100%;
 }
 </style>
