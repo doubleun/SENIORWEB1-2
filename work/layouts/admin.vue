@@ -27,42 +27,32 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/Senior1/Coordinator/"
-        },
-        {
-          icon: "mdi-account-multiple-plus",
-          title: "Group Request",
-          to: "/Senior1/Coordinator/groupRequest"
-        },
-        {
-          icon: "mdi-account-multiple",
-          title: "Committee",
-          to: "/Senior1/coordinator/committee"
+          to: "/senior1/admin/"
         },
         {
           icon: "mdi-account-group",
-          title: "My Advisee",
-          to: "/Senior1/coordinator/myAdvisee"
+          title: "Group",
+          to: "/senior1/admin/group"
         },
         {
           icon: "mdi-account-cog",
-          title: "User Manage",
-          to: "/Senior1/Coordinator/userManage"
+          title: "Manage Student",
+          to: "/senior1/admin/student"
         },
         {
-          icon: "mdi-alpha-p-circle",
-          title: "Score",
-          to: "/Senior1/Coordinator/score"
+          icon: "mdi-office-building-cog",
+          title: "Manage Teacher",
+          to: "/senior1/admin/teacher"
         },
         {
-          icon: "mdi-calendar-month",
-          title: "Due Date",
-          to: "/Senior1/Coordinator/dueDate"
-        },
-        {
-          icon: "mdi-file-document",
+          icon: "mdi-clipboard-check-multiple",
           title: "Criteria",
-          to: "/Senior1/Coordinator/criteria"
+          to: "/senior1/admin/criteria"
+        },
+        {
+          icon: "mdi-clipboard-text-clock",
+          title: "Semester Date",
+          to: "/senior1/admin/semesterDate"
         }
       ]
     };

@@ -50,12 +50,7 @@
             <div class="score-criteria-input-flex">
               <div v-for="role in editScoreRoles" :key="role.id">
                 <v-subheader>{{ role.name }}</v-subheader>
-                <v-text-field
-                  v-model="advisor"
-                  outlined
-                  dense
-                  hide-details
-                ></v-text-field>
+                <v-text-field outlined dense hide-details></v-text-field>
               </div>
             </div>
 

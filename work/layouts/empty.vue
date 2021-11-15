@@ -1,8 +1,9 @@
 <template>
-  <div>
-    <Landing v-if="$nuxt.$route.path === '/'" />
-    <Senior v-if="$nuxt.$route.path === '/senior'" />
-  </div>
+  <v-app dark>
+    <v-main>
+      <Nuxt />
+    </v-main>
+  </v-app>
 </template>
 
 <script>

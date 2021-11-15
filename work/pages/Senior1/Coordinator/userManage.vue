@@ -19,7 +19,6 @@
         </v-col>
         <v-col cols="6" sm="6" md="6" lg="6">
           <div class="login" align="center" justify="center">
-            
             <v-row>
               <v-btn
                 :loading="loading3"
@@ -49,7 +48,7 @@ export default {
   components: {
     userDataTable
   },
-  layout: "coordinator"
+  layout: "coordinatorsidebar"
 };
 </script>
 

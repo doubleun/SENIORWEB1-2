@@ -33,7 +33,6 @@
         </v-col>
         <v-col cols="4" sm="4" md="4" lg="4">
           <div class="login" align="center" justify="center">
-            
             <v-row>
               <v-btn
                 :loading="loading3"
@@ -60,7 +59,7 @@ export default {
   components: {
     scoreDataTable
   },
-  layout: "coordinator"
+  layout: "coordinatorsidebar"
 };
 </script>
 <style scoped>
@@ -79,7 +78,7 @@ export default {
   margin-right: 3px;
   width: 100%;
 }
-.h4{
+.h4 {
   color: white;
 }
 </style>
