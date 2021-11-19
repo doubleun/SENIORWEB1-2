@@ -9,20 +9,19 @@ login = passport.authenticate('google', {
 redirect = passport.authenticate('google', {
     successRedirect: '/user',
     failureRedirect: '/auth',
-    failureFlash: true
-    // req.flash('success_msg', 'Successfully Registered')
 });
 
 
 //log out
 logout = (req, res) => {
     req.logOut();
-    res.redirect("/");
+    res.redirect("/auth");
 }
 
 // test
 test = (req, res) => {
-    res.send('login')
+
+    res.send(req.data)
 }
 
 module.exports = {

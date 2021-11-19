@@ -2,8 +2,21 @@ const con = require("../config/db");
 
 testuser = async (req, res) => {
 
-    res.json(req.user+req.userRole)
+    res.json(req.user)
 
+}
+
+countUser = async (req, res) => {
+    const sql = "SELECT  (SELECT COUNT(*) FROM   permission WHERE Permission_Role=0 OR Permission_Role=1 OR Permission_Role=2) AS student,(SELECT COUNT(*) FROM   permission WHERE Permission_Role=3) AS teacher,(SELECT COUNT(*) FROM   groups) AS groups"
+
+    await con.query(sql, (err, result, fields) => {
+        if (err) {
+            res.status(500).send("Internal Server Error");
+        } else {
+            console.log(result)
+            res.status(200).json(result)
+        }
+    });
 }
 
 getAllUser = async (req, res) => {
@@ -17,17 +30,10 @@ getAllUser = async (req, res) => {
             res.status(200).json(result)
         }
     });
-    // console.log(data.result)
-
-    // console.log(err.sqlMessage)
-    // res.status(500).send("Internal Server Error");
-
-    // con.query(sql,(err,result,fields)=>{
-    //     if()
-    // })
 }
 
 module.exports = {
     getAllUser,
     testuser,
+    countUser
 };
