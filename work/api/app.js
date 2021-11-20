@@ -57,15 +57,11 @@ app.use("/auth", authRoutes);
 app.use("/announc", announcRoutes);
 app.use("/group", groupRoutes);
 
-app.get("/test", (req, res) => {
-  res.send("Good");
-});
-
 // ============ Starting server ============
-const PORT = process.env.PORT || 3500;
-app.listen(PORT, () => {
-  console.log("Server is starting at port " + PORT);
-});
+// const PORT = process.env.PORT || 3500;
+// app.listen(PORT, () => {
+//   console.log("Server is starting at port " + PORT);
+// });
 
 // ============ export server ============
-// module.exports = app;
+module.exports = app;

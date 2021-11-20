@@ -44,7 +44,7 @@
             </v-card-text>
 
             <nuxt-link
-              to="/Senior1/Student/topic"
+              to="/api/auth/google"
               tag="div"
               class="buttonsenior1and2"
             >
