@@ -43,11 +43,12 @@
               </center>
             </v-card-text>
 
-            <nuxt-link
+            <!-- <nuxt-link
               to="/api/auth/google"
               tag="div"
               class="buttonsenior1and2"
-            >
+            > -->
+            <a href="/api/auth/google">
               <v-btn text style="width:300px;height:100px">
                 <v-card-text class="text--primary">
                   <center>
@@ -56,7 +57,8 @@
                   </center>
                 </v-card-text>
               </v-btn>
-            </nuxt-link>
+            </a>
+            <!-- </nuxt-link> -->
             <br />
             <div class="buttonsenior1and2">
               <v-btn text style="width:300px;height:100px">

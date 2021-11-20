@@ -56,6 +56,9 @@ app.use("/user", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/announc", announcRoutes);
 app.use("/group", groupRoutes);
+app.get("/test", (req, res) => {
+  res.send("test");
+});
 
 // ============ Starting server ============
 // const PORT = process.env.PORT || 3500;
