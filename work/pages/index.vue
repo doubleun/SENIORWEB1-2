@@ -29,10 +29,12 @@
 
             <v-col cols="12" sm="6" md="6" lg="6">
               <div class="btn_login" align="center" justify="center">
-                <v-btn x-large class="btnpadding" nuxt to="/senior"
-                  ><v-icon>mdi-account</v-icon>
-                  Login
-                </v-btn>
+                <a href="/api/auth/google">
+                  <v-btn x-large class="btnpadding"
+                    ><v-icon>mdi-account</v-icon>
+                    Login
+                  </v-btn>
+                </a>
               </div>
             </v-col>
           </v-row>

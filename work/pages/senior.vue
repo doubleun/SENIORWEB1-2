@@ -48,28 +48,35 @@
               tag="div"
               class="buttonsenior1and2"
             > -->
-            <a href="/api/auth/google">
-              <v-btn text style="width:300px;height:100px">
-                <v-card-text class="text--primary">
-                  <center>
-                    <div><h3>SENIOR PROJECT 1</h3></div>
-                    <div><h4>SEM 1/2564</h4></div>
-                  </center>
-                </v-card-text>
-              </v-btn>
-            </a>
+            <v-btn
+              text
+              style="width:300px;height:100px"
+              class="buttonsenior1and2"
+              @click="() => route(1)"
+            >
+              <v-card-text class="text--primary">
+                <center>
+                  <div><h3>SENIOR PROJECT 1</h3></div>
+                  <div><h4>SEM 1/2564</h4></div>
+                </center>
+              </v-card-text>
+            </v-btn>
             <!-- </nuxt-link> -->
             <br />
-            <div class="buttonsenior1and2">
-              <v-btn text style="width:300px;height:100px">
-                <v-card-text class="text--primary">
-                  <center>
-                    <div><h3>SENIOR PROJECT 2</h3></div>
-                    <div><h4>SEM 2/2564</h4></div>
-                  </center>
-                </v-card-text>
-              </v-btn>
-            </div>
+            <!-- <div class="buttonsenior1and2"> -->
+            <v-btn
+              text
+              style="width:300px;height:100px"
+              class="buttonsenior1and2"
+            >
+              <v-card-text class="text--primary">
+                <center>
+                  <div><h3>SENIOR PROJECT 2</h3></div>
+                  <div><h4>SEM 2/2564</h4></div>
+                </center>
+              </v-card-text>
+            </v-btn>
+            <!-- </div> -->
           </v-card>
         </v-main>
       </div>
@@ -83,6 +90,40 @@ export default {
   data: () => ({
     image: itbackground
   }),
+  methods: {
+    // test() {
+    //   console.log(this.$store.state.auth.currentUser);
+    //   console.log(this.$router);
+    // }
+    route(semester) {
+      switch (this.$store.state.auth.currentUser.role) {
+        case 0: {
+          this.$router.push(`/Senior${semester}/coordinator/`);
+          break;
+        }
+        case 1: {
+          this.$router.push(`/Senior${semester}/advisor/`);
+          break;
+        }
+        case 2: {
+          this.$router.push(`/Senior${semester}/committee/`);
+          break;
+        }
+        case 3: {
+          this.$router.push(`/Senior${semester}/student/`);
+          break;
+        }
+        case 99: {
+          this.$router.push(`/Senior${semester}/admin/`);
+          break;
+        }
+      }
+    }
+  },
+  mounted() {
+    // Sets current user after DOM is rendered
+    this.$store.dispatch("auth/login");
+  },
   layout: "empty"
 };
 </script>
@@ -126,7 +167,9 @@ export default {
   color: white !important;
 }
 .buttonsenior1and2 {
-  padding-left: 20%;
+  /* padding-left: 20%; */
+  display: block;
+  margin: auto;
 }
 /*
 .logo {
