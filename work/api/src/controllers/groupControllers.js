@@ -5,9 +5,12 @@ createGroup = async () => {
 }
 
 // get all group
-getAll = async (req, res) => {
-    const sql = 'SELECT * FROM `groups`'
-    await con.query(sql, (err, result, fields) => {
+// TODO: get by major
+getByMajor = async (req, res) => {
+    const major = req.body.Major
+
+    const sql = 'SELECT * FROM `groups` WHERE Major = ?'
+    await con.query(sql, [major], (err, result, fields) => {
         if (err) {
             console.log(err)
             res.status(500).send("Internal Server Error");
@@ -18,4 +21,18 @@ getAll = async (req, res) => {
     })
 }
 
-module.exports = { getAll }
+deletes = async (req, res) => {
+    const groupId = req.body.Group_ID
+    const sql = 'UPDATE `groups` SET `Group_Status` = 0 WHERE `Group_ID` = ?;'
+    await con.query(sql, [groupId], (err, result, fields) => {
+        if (err) {
+            console.log(err)
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.status(200).json(result)
+        }
+
+    })
+}
+
+module.exports = { getByMajor, deletes }
