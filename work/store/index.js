@@ -1,9 +1,12 @@
-export const state = () => ({
-    drawer: false,
-  })
-  
-  export const mutations = {
-    set_drawer(state, newVal) {
-      state.drawer = newVal
-    },
-  }
+// !Before backend merge
+// export const state = () => ({
+//     drawer: false,
+//   })
+
+//   export const mutations = {
+//     set_drawer(state, newVal) {
+//       state.drawer = newVal
+//     },
+//   }
+
+export const state = () => {};

@@ -7,14 +7,14 @@ login = passport.authenticate("google", {
 });
 
 redirect = passport.authenticate("google", {
-  successRedirect: "/api/user",
+  successRedirect: "/senior",
   failureRedirect: "/"
 });
 
 //log out
 logout = (req, res) => {
   req.logOut();
-  res.redirect("/auth");
+  res.redirect("/");
 };
 
 // test

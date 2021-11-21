@@ -15,8 +15,8 @@ passport.use(
     (accessToken, refreshToken, profile, done) => {
       // console.log(profile)
       // console.log(profile.displayName)
-      console.log(profile.emails[0].value);
-      console.log(profile.photos[0].value);
+      // console.log(profile.emails[0].value);
+      // console.log(profile.photos[0].value);
 
       const user = {
         name: profile.displayName,
@@ -30,11 +30,6 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  console.log(user);
-  done(null, user);
-});
-
-passport.deserializeUser((user, done) => {
   const sqlAdmin = "SELECT * FROM `users` WHERE User_Email=?";
   con.query(sqlAdmin, user.email, (err, result, fields) => {
     if (err) {
@@ -43,7 +38,7 @@ passport.deserializeUser((user, done) => {
       console.log(err);
       console.log("Internal Server Error");
     } else {
-      console.log(result);
+      // console.log(result);
       if (result.length == 0) {
         data = { message: "Can not login, Please contact School of IT" };
         done(null, data);
@@ -69,7 +64,7 @@ passport.deserializeUser((user, done) => {
         console.log(err);
         console.log("Internal Server Error");
       } else {
-        console.log(result);
+        // console.log(result);
         if (result.length == 0) {
           data = { message: "Can not login, Please contact School of IT" };
           done(null, data);
@@ -83,8 +78,8 @@ passport.deserializeUser((user, done) => {
             parseInt(today.getMonth() + 1) +
             "-" +
             today.getDate();
-          console.log(result[0].start <= today);
-          console.log(result[0].end >= today);
+          // console.log(result[0].start <= today);
+          // console.log(result[0].end >= today);
           if (result[0].start <= today && result[0].end >= today) {
             user.role = result[0].Permission_Role;
             done(null, user);
@@ -97,4 +92,8 @@ passport.deserializeUser((user, done) => {
       }
     });
   }
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
 });

@@ -38,8 +38,12 @@ export default {
     "@nuxtjs/vuetify"
   ],
 
+  axios: {
+    credentials: true
+  },
+
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: [],
+  modules: ["@nuxtjs/axios"],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
@@ -61,6 +65,34 @@ export default {
   },
 
   serverMiddleware: [{ path: "/api", handler: "~/api/app.js" }],
+
+  // // Auth
+  // //! The commented out is an alternative, to use the backend redirect needs to be rewrote
+  // auth: {
+  //   redirect: {
+  //     login: "/",
+  //     logout: "/logout",
+  //     home: "/",
+  //     callback: false
+  //   },
+  //   strategies: {
+  //     google: {
+  //       clientId: process.env.GOOGLE_CLIENT_ID,
+  //       // codeChallengeMethod: "",
+  //       // responseType: "id_token token",
+  //       // scope: ["profile", "email"],
+  //       // resonseType: "code",
+  //       // codeChallengeMethod: "S256", // Required because the default causes google to throw invalid request
+  //       // responseType: "code", // Required because the default 'token' includes rejected nonce arg
+  //       // accessType: "offline", // Required to ensure we get a long lived refresh token
+  //       // grantType: "authorization_code",
+  //       // endpoints: {
+  //       // token: "http://localhost:3000/api/auth/google",
+  //       // }
+  //       redirectUri: "http://localhost:3000/senior"
+  //     }
+  //   }
+  // },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {}

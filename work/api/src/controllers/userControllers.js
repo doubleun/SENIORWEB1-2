@@ -5,7 +5,7 @@ const readXlsxFile = require("read-excel-file/node");
 const { result } = require("lodash");
 
 getUser = async (req, res) => {
-  res.status(200).send(req.user);
+  res.status(200).json(req.user);
 };
 
 countUser = async (req, res) => {
