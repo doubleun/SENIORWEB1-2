@@ -1,9 +1,134 @@
 <template>
+<div>
+  <!-- Final Presentation -->
+      <div class="coordinator-edit-grade-criteria">
+      <v-dialog v-model="dialog" persistent max-width="1000px" class=" mb-2 mt-1 mb-0 ">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn color="indigo" dark v-bind="attrs" v-on="on" class="btEdit">
+            EDIT
+          </v-btn>
+        </template>
+        <v-card>
+          <v-card-title>
+            <span class="text-h5">Final Presentation</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="6" sm="6" md="6" lg="6">
+                    <v-subheader>Topic</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Advisor</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 1</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 2</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+
+                <!--Topic 2 -->
+                <v-col cols="6" sm="6" md="6" lg="6">
+                    <v-subheader>Topic</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Advisor</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 1</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 2</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <!-- Topic 3-->
+                <v-col cols="6" sm="6" md="6" lg="6">
+                    <v-subheader>Topic</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Advisor</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 1</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 2</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <!-- Topic 4 -->
+                <v-col cols="6" sm="6" md="6" lg="6">
+                    <v-subheader>Topic</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Advisor</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 1</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 2</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <!-- Topic 5 -->
+                <v-col cols="6" sm="6" md="6" lg="6">
+                    <v-subheader>Topic</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Advisor</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 1</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="2" sm="2" md="2" lg="2">
+                    <v-subheader>Committee 2</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <!-- sum advisor and committee-->
+                <v-col cols="6" sm="6" md="6" lg="6">
+                    <v-subheader>Sum multiply Advisor</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+                <v-col cols="6" sm="6" md="6" lg="6">
+                    <v-subheader>Sum multiply Committee</v-subheader>
+                  <v-text-field outlined dense hide-details required></v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="dialog = false">
+              Close
+            </v-btn>
+            <v-btn color="blue darken-1" text @click="dialog = false">
+              Save
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      </div>
   <v-card class="progress-criteria-card">
     <v-card-title>
       <h4>Final Presentation</h4>
     </v-card-title>
-
+     
     <!-- Grade criteria table -->
     <div class="progress-criteria-content">
       <!-- Table attr -->
@@ -21,6 +146,7 @@
       </template>
     </div>
   </v-card>
+  </div>
 </template>
 
 <script>

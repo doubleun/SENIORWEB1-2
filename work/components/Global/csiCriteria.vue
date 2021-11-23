@@ -1,24 +1,38 @@
 <template>
   <section>
     <main class="coordinator-criteria-main">
+      <h1>Criteria</h1>
       
-
      
-      <CsiCriteria class="coordinator-criteria-grade-card" />
+      <ProgressCriteriaArr class="coordinator-criteria-grade-card" />
     
+      
+      
+      <Progress2CriteriaArr class="coordinator-criteria-grade-card" />
     
+      
+      <FinalpresentCriteriaArr class="coordinator-criteria-grade-card" />
+    
+
+      
+      <FinaldocumentCriteriaArr class="coordinator-criteria-grade-card" />
     </main>
   </section>
 </template>
 
 <script>
-import CsiCriteria from "@/components/Global/csiCriteria";
-
+import ProgressCriteriaArr from "@/components/Coordinator/csiDatatableprogress1";
+import Progress2CriteriaArr from "@/components/Coordinator/csiDatatableprogress2";
+import FinalpresentCriteriaArr from "@/components/Coordinator/csiDatatablefinalpresentation";
+import FinaldocumentCriteriaArr from "@/components/Coordinator/csiDatatablefinaldocument";
 
 export default {
   layout: "coordinatorsidebar",
   components: {
-    CsiCriteria
+    ProgressCriteriaArr,
+    Progress2CriteriaArr,
+    FinalpresentCriteriaArr,
+    FinaldocumentCriteriaArr
   },
   data() {
     return {
