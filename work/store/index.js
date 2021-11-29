@@ -10,3 +10,10 @@
 //   }
 
 export const state = () => {};
+
+export const actions = {
+  async nuxtServerInit({ dispatch }) {
+    console.log("ServerInit!");
+    await dispatch("auth/login");
+  }
+};

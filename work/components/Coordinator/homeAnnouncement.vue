@@ -74,17 +74,17 @@
           <!-- Card result of announcement -->
           <div class="cardAnnouncement">
             <v-card
-              v-for="announcement in announce"
-              :key="announcement.title"
+              v-for="(announcement, index) in announcements"
+              :key="index"
               class="mb-5 elevation-0"
             >
               <v-card-text>
                 <h3 class="font-weight-bold">
                   <v-icon small>mdi-checkbox-blank-circle</v-icon>
-                  {{ announcement.title }}
+                  {{ announcement.Text }}
                 </h3>
 
-                announced on : {{ announcement.date }}
+                announced on : {{ announcement.Publish_Date }}
               </v-card-text>
             </v-card>
             <div class="cardPagination">
@@ -112,27 +112,29 @@ export default {
     menu: false,
     modal: false,
     dialog: false,
-    page: 1,
-    announce: [
-      {
-        title:
-          "Announcement Progress 2 of Computer Science and Innovation has been postponed until October 31, 2021.",
+    page: 1
+    // announce: [
+    //   {
+    //     title:
+    //       "Announcement Progress 2 of Computer Science and Innovation has been postponed until October 31, 2021.",
 
-        date: "13-9-2021",
-      },
-      {
-        title:
-          "Announcement from the School of Information Technology Regarding the delivery schedule for every project By all disciplines affiliated with the office, all legs postpone the promotion until October 11, 2021.",
+    //     date: "13-9-2021",
+    //   },
+    //   {
+    //     title:
+    //       "Announcement from the School of Information Technology Regarding the delivery schedule for every project By all disciplines affiliated with the office, all legs postpone the promotion until October 11, 2021.",
 
-        date: "16-9-102021",
-      },
-      {
-        title:
-          "Announcement from the School of Information Technology Regarding server shutdown for system maintenance on October 1, 2021",
+    //     date: "16-9-102021",
+    //   },
+    //   {
+    //     title:
+    //       "Announcement from the School of Information Technology Regarding server shutdown for system maintenance on October 1, 2021",
 
-        date: "18-9-2021",
-      },
-    ],
+    //     date: "18-9-2021",
+    //   },
+    // ],
   }),
+  props: ["announcements"],
+  methods: {}
 };
 </script>

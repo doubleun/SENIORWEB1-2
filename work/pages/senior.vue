@@ -68,6 +68,7 @@
               text
               style="width:300px;height:100px"
               class="buttonsenior1and2"
+              @click="testAsync"
             >
               <v-card-text class="text--primary">
                 <center>
@@ -91,11 +92,16 @@ export default {
     image: itbackground
   }),
   methods: {
-    // test() {
-    //   console.log(this.$store.state.auth.currentUser);
-    //   console.log(this.$router);
-    // }
+    test() {
+      console.log(this.$store.state.auth);
+    },
+    async testAsync() {
+      console.log(this.$store.state);
+      // const res = await this.$axios.$get("http://localhost:3000/api/user");
+      // console.log(res);
+    },
     route(semester) {
+      console.log(this.$store.state.auth.currentUser.role);
       switch (this.$store.state.auth.currentUser.role) {
         case 0: {
           this.$router.push(`/Senior${semester}/coordinator/`);
@@ -122,8 +128,9 @@ export default {
   },
   mounted() {
     // Sets current user after DOM is rendered
-    this.$store.dispatch("auth/login");
+    // this.$store.dispatch("auth/login");
   },
+  middleware: "authenticated",
   layout: "empty"
 };
 </script>

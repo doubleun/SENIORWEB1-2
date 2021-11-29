@@ -1,7 +1,7 @@
 <template>
   <div>
     <CardStatus />
-    <Announcement />
+    <Announcement :announcements="announcements" />
   </div>
 </template>
 <script>
@@ -12,6 +12,13 @@ export default {
   components: {
     CardStatus,
     Announcement
+  },
+  middleware: "authenticated",
+  async asyncData(context) {
+    const announcements = await context.$axios.$get(
+      "http://localhost:3000/api/announc/all"
+    );
+    return { announcements };
   }
 };
 </script>
