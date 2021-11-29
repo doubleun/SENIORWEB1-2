@@ -10,8 +10,8 @@
           <v-select :items="programsArr" dense solo hide-details off />
         </div>
         <div>
-          <p class="white--text">Semester</p>
-          <v-select :items="semestersArr" dense solo hide-details />
+          <p class="white--text">Role</p>
+          <v-select :items="roleArr" dense solo hide-details />
         </div>
         <div>
           <v-btn color="light"
@@ -34,12 +34,67 @@
             <p :key="teacher.id + 2">{{ teacher.name }}</p>
             <p :key="teacher.id + 3">{{ teacher.program }}</p>
             <p :key="teacher.id + 4">{{ teacher.role }}</p>
-            <v-btn
+
+            <!-- Edit score criteria button -->
+            <v-dialog
+              v-model="teacher.editDialog"
+              width="500"
               :key="teacher.id + 5"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="blue darken-4"
+                  class="white--text"
+                  v-on="on"
+                  v-bind="attrs"
+                  ><v-icon>mdi-pen</v-icon> Edit</v-btn
+                >
+              </template>
+
+              <!-- Edit teacher dialog -->
+              <v-card class="edit-teacher-dialog-card">
+                <v-card-title class="text-h5">
+                  Edit teacher role
+                </v-card-title>
+
+                <div class="edit-teacher-input-flex">
+                  <div v-for="(attr, index) in attrs.slice(0, 3)" :key="index">
+                    <v-subheader>{{ attr }}</v-subheader>
+                    <v-text-field
+                      outlined
+                      dense
+                      hide-details
+                      disabled
+                    ></v-text-field>
+                  </div>
+                  <div>
+                    <v-subheader>ROLE</v-subheader>
+                    <v-select :items="roleArr" dense filled hide-details off />
+                  </div>
+                </div>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <!-- <v-btn
               color="primary"
               class="admin-teacher-manage-edit-btn"
               ><v-icon>mdi-pen</v-icon> Edit</v-btn
-            >
+            > -->
+                  <v-btn
+                    color="secondary"
+                    text
+                    @click="teacher.editDialog = false"
+                  >
+                    Cancel
+                  </v-btn>
+                  <v-btn color="primary" @click="teacher.editDialog = false">
+                    Save
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </template>
         </template>
       </LongTableCard>
@@ -57,78 +112,89 @@ export default {
   },
   data: () => ({
     programsArr: ["Information and Communication Engineering"],
-    semestersArr: ["1/2021", "2/2021"],
-    attrs: ["ID", "NAME", "EMAIL", "SEMESTER", "ACTION"],
+    roleArr: ["Coordinator", "Teacher"],
+    attrs: ["EMAIL", "NAME", "STUDY PROGRAM", "ROLE", "ACTION"],
     teachersArr: [
       {
         id: 1,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false,
+        editDialog: false
       },
       {
         id: 2,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       },
       {
         id: 3,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       },
       {
         id: 4,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       },
       {
         id: 5,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       },
       {
         id: 6,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       },
       {
         id: 7,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       },
       {
         id: 8,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       },
       {
         id: 9,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       },
       {
         id: 10,
         email: "surapong@lamduan.mfu.ac.th",
         name: "Worasak Rueangsirarak",
         role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation"
+        program: "Digital Technology for Buisiness Innovation",
+        editDialog: false
       }
     ]
   })
@@ -168,7 +234,7 @@ export default {
 
 /* Reduce the second select box's width */
 .admin-teacher-manage-actions > div:nth-child(2n) {
-  width: 10%;
+  width: 20%;
 }
 .admin-teacher-manage-actions > div:first-child {
   width: 36%;
@@ -202,5 +268,33 @@ export default {
   .admin-teacher-manage-main .admin-teacher-manage-edit-btn i {
     font-size: 18px;
   }
+}
+
+/* Edit teacher dialog */
+.edit-teacher-dialog-card {
+  padding: 1rem;
+}
+.edit-teacher-input-flex {
+  display: flex;
+  flex-wrap: wrap;
+  margin-inline: auto;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 1.4rem;
+}
+.edit-teacher-input-flex .v-subheader {
+  padding: 0 !important;
+}
+.edit-teacher-input-flex p {
+  font-size: 20px;
+  height: 40px;
+  margin: 0;
+}
+.edit-teacher-input-flex > div {
+  width: 46%;
+}
+.edit-teacher-dialog-card hr {
+  margin-block: 1rem;
 }
 </style>

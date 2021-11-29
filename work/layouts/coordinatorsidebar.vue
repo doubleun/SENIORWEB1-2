@@ -2,8 +2,8 @@
   <v-app dark>
     <Sidebar :items="items" theme="white" />
     <div class="it-background">
+      <Appbar theme="transparent" />
       <v-main>
-        <Appbar theme="transparent" />
         <v-container>
           <Nuxt />
         </v-container>

@@ -11,9 +11,10 @@ const Role = require('../config/role')
 // SeniorOne: 'One',
 // SeniorOne: 'Two'
 
+// TODO: check req.user.role with role of api
 checkLogin = (req, res, next) => {
-
     if (!req.user) {
+        console.log('not login')
         res.redirect("/auth");
     }
     else {
@@ -21,23 +22,7 @@ checkLogin = (req, res, next) => {
     }
 }
 
-// checkRole = (req, res, role, next) => {
-//     if (role === 99) {
-//         next();
-//     } else {
-//         res.redirect(Role.);
 
-//     }
-// }
-
-// checkAdmin = (req, res, role = '', senior = '', next) => {
-//     if (role == 99) {
-//         next();
-//     } else {
-//         res.redirect(Role.);
-
-//     }
-// }
 
 module.exports = { checkLogin }
 

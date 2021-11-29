@@ -7,13 +7,5 @@
 </template>
 
 <script>
-import Landing from "@/pages/index";
-import Senior from "@/pages/senior";
-
-export default {
-  components: {
-    Landing,
-    Senior
-  }
-};
+export default {};
 </script>

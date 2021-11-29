@@ -1,11 +1,11 @@
-const authRouter = require('express').Router();
+const authRouter = require("express").Router();
 const authControllers = require("../controllers/authControllers");
-const { checkPermission, checkLogin } = require('./permission');
+const { checkPermission, checkLogin } = require("./permission");
 
-authRouter.get('/', authControllers.test);
-authRouter.get('/google', authControllers.login);
-authRouter.get('/logout', authControllers.logout);
-authRouter.get('/google/redirect', authControllers.redirect);
+authRouter.get("/", authControllers.test);
+authRouter.get("/google", authControllers.login);
+authRouter.get("/logout", authControllers.logout);
+authRouter.get("/google/redirect", authControllers.redirect);
 
 module.exports = authRouter;
 
@@ -21,7 +21,6 @@ module.exports = authRouter;
 //     successRedirect: '/',
 //     failureRedirect: '/senior'
 // }));
-
 
 // //log out
 // router.get("/", (req, res) => {
