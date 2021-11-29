@@ -106,7 +106,9 @@ export default {
     return {
       programsArr: ["Information and Communication Engineering"],
       editGradeDialog: false,
-      gradeCriteriaArr: ["S", "U"]
+      gradeCriteriaArr: ["S", "U"],
+      high: 0,
+      low: 0
     };
   }
 };

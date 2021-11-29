@@ -2,13 +2,13 @@
   <v-card class="grade-criteria-card">
     <v-card-title>
       <h4>Grade Criteria</h4>
-      <v-text-field
+      <!-- <v-text-field
         label="Search"
         outlined
         dense
         hide-details
         class="grade-criteria-search"
-      ></v-text-field>
+      ></v-text-field> -->
     </v-card-title>
 
     <!-- Grade criteria table -->

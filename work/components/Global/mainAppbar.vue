@@ -1,6 +1,6 @@
 <template lang="html">
   <!-- Appbar -->
-  <v-app-bar fixed app :elevation="0" :color="theme">
+  <v-app-bar app :elevation="0" :color="theme" absolute>
     <!-- Hamberbur -->
     <!-- <v-app-bar-nav-icon @click.stop="toggleDrawer" /> -->
     <v-spacer></v-spacer>

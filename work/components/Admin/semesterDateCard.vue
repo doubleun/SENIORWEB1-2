@@ -11,10 +11,10 @@
 
       <!-- Table records -->
       <template v-for="data in dummyData">
-        <p :key="data.topic + 1">{{ data.semester }}</p>
-        <p :key="data.topic + 2">{{ data.startDate }}</p>
-        <p :key="data.topic + 3">{{ data.endDate }}</p>
-        <div :key="data.topic + 5">
+        <p :key="data.semester + 9">{{ data.semester }}</p>
+        <p :key="data.semester + 99">{{ data.startDate }}</p>
+        <p :key="data.semester + 999">{{ data.endDate }}</p>
+        <div :key="data.semester + 9999">
           <!-- Edit assign date -->
           <v-menu
             :ref="'startDateMenu' + data.id"

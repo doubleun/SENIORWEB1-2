@@ -1,77 +1,111 @@
-const con = require('../config/db')
+const con = require("../config/db");
 
 // For admin announcement use major id 99, (see major id in major table)
 
 // get announcment by major id
 getById = async (req, res) => {
-    const MajorID = req.body.MajorID
-    console.log(MajorID)
-    const sql = 'SELECT * FROM `announcements` WHERE Major_ID=?'
-    await con.query(sql, MajorID, (err, result, fields) => {
-        if (err) {
-            console.log(err)
-            res.status(500).send("Internal Server Error");
-        } else {
-            res.status(200).json(result)
-        }
-    })
-}
+  const MajorID = req.body.MajorID;
+  console.log(MajorID);
+  const sql = "SELECT * FROM `announcements` WHERE Major_ID=?";
+  await con.query(sql, MajorID, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res
+        .status(500)
+        .json({ msg: "Internal Server Error", status: 500 })
+        .end();
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
 
 // get all announcment
 getAll = async (req, res) => {
-    const MajorID = req.body.MajorID
-    console.log(MajorID)
-    const sql = 'SELECT * FROM `announcements`'
-    await con.query(sql, MajorID, (err, result, fields) => {
-        if (err) {
-            console.log(err)
-            res.status(500).send("Internal Server Error");
-        } else {
-            res.status(200).json(result)
-        }
-    })
-}
+  const MajorID = req.body.MajorID;
+  console.log(MajorID);
+  const sql = "SELECT * FROM `announcements`";
+  await con.query(sql, MajorID, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res
+        .status(500)
+        .json({ msg: "Internal Server Error", status: 500 })
+        .end();
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
 
 // add announcement
 add = async (req, res) => {
-    const { Text, MajorID } = req.body
-    const sql = 'INSERT INTO announcements ( Text, Major_ID) VALUES(?,?)'
-    await con.query(sql, [Text, MajorID], (err, result, fields) => {
-        if (err) {
-            console.log(err)
-            res.status(500).send("Internal Server Error");
-        } else {
-            res.status(200).send('add announcement successed').end()
-        }
-    })
-}
+  const { Text, MajorID } = req.body;
+  const sql = "INSERT INTO announcements ( Text, Major_ID) VALUES(?,?)";
+  await con.query(sql, [Text, MajorID], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res
+        .status(500)
+        .json({ msg: "Internal Server Error", status: 500 })
+        .end();
+    } else {
+      res
+        .status(200)
+        .json({ msg: "add announcement successed", status: 200 })
+        .end();
+    }
+  });
+};
 
 // edit announcement
 edit = async (req, res) => {
-    const { Text, MajorID } = req.body
-    const sql = 'UPDATE `announcements` SET `Text` = ? WHERE Announcement_ID = ?;'
-    await con.query(sql, [Text, MajorID], (err, result, fields) => {
-        if (err) {
-            console.log(err)
-            res.status(500).send("Internal Server Error");
-        } else {
-            res.status(200).send('add announcement successed').end()
-        }
-    })
-}
+  const { AnnouncementID, Text, MajorID } = req.body;
+  console.log("AnnouncementID: ", AnnouncementID);
+  console.log("Text: ", Text);
+  console.log("MajorID: ", MajorID);
+  const sql =
+    "UPDATE `announcements` SET `Text` = ?, `Major_ID` = ? WHERE Announcement_ID = ?;";
+  await con.query(
+    sql,
+    [Text, MajorID, AnnouncementID],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res
+          .status(500)
+          .json({ msg: "Internal Server Error", status: 500 })
+          .end();
+      } else {
+        res
+          .status(200)
+          .json({ msg: "edit announcement successed", status: 200 })
+          .end();
+      }
+    }
+  );
+};
 
 // delete announcement
 deletes = async (req, res) => {
-    const { MajorID } = req.body
-    const sql = 'DELETE FROM `announcements` WHERE `announcements`.`Announcement_ID` = ?'
-    await con.query(sql, [Text, MajorID], (err, result, fields) => {
-        if (err) {
-            console.log(err)
-            res.status(500).send("Internal Server Error");
-        } else {
-            res.status(200).send('add announcement successed').end()
-        }
-    })
-}
+  const { Announcement_ID } = req.body;
+  console.log("body:", req.body);
+  console.log("AnnounceID:", Announcement_ID);
+  const sql = "DELETE FROM `announcements` WHERE `Announcement_ID` = ?";
+  await con.query(sql, [Announcement_ID], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res
+        .status(500)
+        .json({ msg: "Internal Server Error", status: 500 })
+        .end();
+    } else {
+      res
+        .status(200)
+        .json({ msg: "delete announcement successed", status: 200 })
+        .end();
+    }
+  });
+};
 
-module.exports = { getById, add, getAll, edit, deletes }
+module.exports = { getById, add, getAll, edit, deletes };

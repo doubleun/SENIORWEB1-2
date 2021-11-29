@@ -64,6 +64,9 @@ export default {
     }
   },
 
+  router: {
+    middleware: "authenticated"
+  },
   serverMiddleware: [{ path: "/api", handler: "~/api/app.js" }],
 
   // // Auth
