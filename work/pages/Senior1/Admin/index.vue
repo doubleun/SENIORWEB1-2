@@ -6,7 +6,7 @@
 </template>
 <script>
 import CardStatus from "@/components/Coordinator/homeCardStatus";
-import Announcement from "@/components/Coordinator/homeAnnouncement";
+import Announcement from "@/components/Coordinator/homeAnnouncementAdmin";
 export default {
   layout: "admin",
   components: {

@@ -106,7 +106,7 @@
           <!-- Card result of announcement -->
           <div class="cardAnnouncement">
             <v-card
-              v-for="(announcement, index) in announcements"
+              v-for="(announcement, index) in displayAnnounce"
               :key="index"
               class="mb-5 elevation-0"
             >
@@ -202,7 +202,7 @@
               <v-row class="justify-end">
                 <v-pagination
                   v-model="page"
-                  :length="4"
+                  :length="pageLength"
                   prev-icon="mdi-menu-left"
                   next-icon="mdi-menu-right"
                 ></v-pagination>
