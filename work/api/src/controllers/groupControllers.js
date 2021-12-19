@@ -80,6 +80,21 @@ getByMajor = async (req, res) => {
     })
 }
 
+getByRole = async (req, res) => {
+    const Email = req.body.Email
+
+    const sql = 'SELECT COUNT(Group_Member_ID) AS commitee,(SELECT COUNT(Group_Member_ID) FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 0) AS advicee FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 1;'
+    await con.query(sql, [Email,Email], async(err, result, fields)  => {
+        if (err) {
+            console.log(err)
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.status(200).json(result)
+        }
+
+    })
+}
+
 deletes = async (req, res) => {
     const groupId = req.body.Group_ID
     const sql = 'UPDATE `groups` SET `Group_Status` = 0 WHERE `Group_ID` = ?;'
@@ -108,4 +123,4 @@ statusgroup = async (req, res) => {
     })
 }
 
-module.exports = { getAll, createGroup,statusgroup, getByMajor, deletes}
+module.exports = { getAll, createGroup,statusgroup, getByMajor, deletes, getByRole}
