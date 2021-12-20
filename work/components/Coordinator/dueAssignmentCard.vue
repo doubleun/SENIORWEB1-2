@@ -34,7 +34,7 @@
                 v-on="on"
                 v-bind="attrs"
               >
-                <v-icon>mdi-calendar-month</v-icon> EDIT
+                <v-icon>mdi-calendar-month</v-icon> ASSIGN DATE
               </v-btn>
             </template>
             <v-date-picker

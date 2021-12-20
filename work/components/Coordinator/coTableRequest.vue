@@ -7,18 +7,19 @@
     class="elevation-1"
   >
     <template v-slot:top>
-      
-      <v-toolbar flat>
-        
-       
+        <v-card-title>    
         <v-spacer></v-spacer>
-        <v-text-field
+        <v-col md ="3">
+          <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
             label="Search"
             single-line
             hide-details
+            outlined
           ></v-text-field>
+        </v-col>
+        </v-card-title>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
             <v-card-title class="text-h6"
@@ -36,10 +37,7 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-         <v-dialog
-      v-model="dialog"
-      max-width="290"
-    >
+         <v-dialog v-model="dialog" max-width="290">
       <v-card>
         <v-card-title class="text-h5">
           Confirmation of joining the group?
@@ -70,14 +68,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-      </v-toolbar>
     </template>
     <template v-slot:item.actions="{ item }">
-      <!-- <div class="justify-space-around">
-          <v-icon> mdi-close </v-icon>
-          <v-icon> mdi-check </v-icon>
-      </div> -->
-      <v-row class="justify-center" no-gutters>
+      <v-row class="mb-6 pa-5 justify-center" no-gutters>
         <v-col md="3">
             <v-btn color="success" small @click.stop="dialog = true">
               <v-icon> mdi-check </v-icon>
@@ -106,12 +99,12 @@ export default {
       {
         text: "GROUP NAME",
         align: "center",
-        value: "groupName",width: 250 
+        value: "groupName",
       },
-      { text: "MEMBER", value: "member", align: "center",width: 250 },
+      { text: "MEMBER", value: "member", align: "center",},
       { text: "ADVISOR", value: "advisor", align: "center" },
-      { text: "COMMITTEE", value: "committee", align: "center" ,width: 240 },
-      { text: "Actions", value: "actions", sortable: false, align: "center",width: 170  },
+      { text: "COMMITTEE", value: "committee", align: "center" ,},
+      { text: "Actions", value: "actions", sortable: false, align: "center",width: 200  },
     ],
     desserts: [],
     editedIndex: -1,

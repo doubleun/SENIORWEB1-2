@@ -25,8 +25,8 @@ export default {
     return {
       items: [
         {
-          icon: "mdi-home",
-          title: "Home",
+          icon: "mdi-arrow-left",
+          title: "Back",
           to: "/Senior1/Coordinator/"
         },
         {

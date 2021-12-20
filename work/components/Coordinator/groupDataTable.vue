@@ -5,20 +5,34 @@
       <v-card>
         <v-card-title>
           <v-spacer></v-spacer>
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="Search"
-            single-line
-            hide-details
-          ></v-text-field>
+          <v-col md ="3"><v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+              outlined
+            ></v-text-field
+          ></v-col>
         </v-card-title>
         <v-data-table :headers="headers" :items="items" :search="search">
           <template v-slot:item.groupName="{ item }">
             <v-row class="mb-6 pa-5 justify-space-around" no-gutters>
-            <div style="cursor: pointer" @click="pushOtherPage">
-              {{ item.groupName }}
-            </div>
+              <div style="cursor: pointer">
+                {{ item.groupName }}
+              </div>
+            </v-row>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-row class="justify-center" no-gutters>
+              <v-col md="3">
+                <v-row align="center" justify="space-around">
+                  <v-btn color="primary" @click="pushOtherPage">
+                    <v-icon left> mdi-eye-arrow-right </v-icon>
+                    View
+                  </v-btn>
+                </v-row>
+              </v-col>
             </v-row>
           </template>
         </v-data-table>
@@ -37,12 +51,16 @@ export default {
           align: "center",
           value: "groupName",
         },
-        { text: "MEMBER", value: "member",
-        align: "center", },
-        { text: "ADVISOR", value: "advisor",
-        align: "center", },
-        { text: "COMMITTEE", value: "committee" ,
-        align: "center",},
+        { text: "MEMBER", value: "member", align: "center" },
+        { text: "ADVISOR", value: "advisor", align: "center" },
+        { text: "COMMITTEE", value: "committee", align: "center" },
+        {
+          text: "Actions",
+          value: "actions",
+          sortable: false,
+          align: "center",
+          width: 170,
+        },
       ],
       items: [
         {
