@@ -5,7 +5,7 @@ var userRouter = require("express").Router();
 
 userRouter.get("/", UserControllers.getUser);
 userRouter.get("/getalluser", UserControllers.getAllUser);
-userRouter.get("/amount", UserControllers.countUser);
+userRouter.post("/amount", UserControllers.countUser);
 userRouter.post("/importstudent", UserControllers.uploadfile);
 userRouter.post("/importteacher", UserControllers.uploadfileteacher);
 
