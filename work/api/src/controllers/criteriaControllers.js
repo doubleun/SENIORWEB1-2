@@ -28,24 +28,6 @@ getScoreByMajor = async (req, res) => {
   });
 };
 
-<<<<<<< Updated upstream
-// Add new score criterias
-// post = async (req, res) => {
-//   const majorId = req.body.Major_ID;
-//   const progressId = req.body.Progress_ID;
-//   const sql = "INSERT INTO scorecriterias()";
-//   await con.query(sql, (err, result, fields) => {
-//     if (err) {
-//       console.log(err);
-//       res.status(500).send("Internal Server Error");
-//     } else {
-//       res.status(200).json(result);
-//     }
-//   });
-// };
-
-module.exports = { getAllMajor, getByMajor };
-=======
 // Edit score criterias
 editScoreCriteria = async (req, res) => {
   const {
@@ -189,4 +171,3 @@ module.exports = {
   getGradeByMajor,
   editGradeCriteria
 };
->>>>>>> Stashed changes
