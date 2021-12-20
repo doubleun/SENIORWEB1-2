@@ -1,5 +1,6 @@
 export default function({ store, redirect }) {
-  // If the user is not authenticated, redirect to landing page
+  // TODO: HERE!!
+  // If user is already logged in, and is in the home page redirect them based on thir roles
   if (
     !store.state.auth.isAuthenticated ||
     store.state.auth.currentUser === ""
