@@ -35,141 +35,6 @@ getAllUser = async (req, res) => {
   });
 };
 
-addoneUser = async (req, res) => {
-  const User_Identity_ID = req.body.User_Identity_ID;
-  const User_Name = req.body.User_Name;
-  const User_Email = req.body.User_Email;
-  const User_Phone = req.body.User_Phone;
-  const User_Role = req.body.User_Role;
-  const Major_ID = req.body.Major_ID;
-  const academic_term = req.body.academic_term;
-  const year = req.body.year;
-  var sql =
-    "INSERT INTO users (`User_Identity_ID`, `User_Name`, `User_Email`, `User_Phone`, `User_Role`, `Major_ID`) VALUES(?,?,?,?,?,?) ";
-    var sql2 = "INSERT INTO `permission`( `User_Status`, `User_Email`, `Permission_Role`, `Project_on_term_ID`) VALUES (1,?,1, (SELECT Project_on_term_ID from projectonterm WHERE Academic_Year =? AND Academic_Term = ?)) "
-  await con.query(
-    sql,
-    [
-      User_Identity_ID,
-      User_Name,
-      User_Email,
-      User_Phone,
-      User_Role,
-      Major_ID,
-      User_Identity_ID,
-      User_Name,
-      User_Phone,
-      User_Role,
-      Major_ID,
-
-    ],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err.code);
-        if (err.code == "ER_DUP_ENTRY") {
-          res.status(500).send("Duplicate data");
-        } else {
-          res.status(500).send("Internal Server Error");
-        }
-      } else {
-        con.query(
-          sql2,
-          [
-            User_Email,
-            year,
-            academic_term,
-          ],
-          (err, result2, fields2) => {
-            if (err) {
-              console.log(err.code);
-
-              res.status(500).send("Internal Server Error");
-            } else {
-              
-                res.status(200).send("success");
-              
-            }
-          }
-        );
-      }
-    }
-  );
-};
-
-editoneUser = async (req, res) => {
-  const User_Identity_ID = req.body.User_Identity_ID;
-  const User_Name = req.body.User_Name;
-  const User_Email = req.body.User_Email;
-  const User_Phone = req.body.User_Phone;
-  const User_Role = req.body.User_Role;
-  const Major_ID = req.body.Major_ID;
-  const academic_term = req.body.academic_term;
-  const year = req.body.year;
-  var sql =
-    "UPDATE `users` SET `User_Identity_ID`=?,`User_Name`=?,`User_Email`=?,`User_Phone`=?,`User_Role`= ?,`Major_ID`=? WHERE `User_Email`=?";
-    var sql2 =
-    "UPDATE `permission` SET `User_Status`=1,`Permission_Role`=1,`Project_on_term_ID`=(SELECT Project_on_term_ID from projectonterm WHERE Academic_Year =? AND Academic_Term = ?) WHERE `User_Email`=?";
-
-  await con.query(
-    sql,
-    [
-      year,
-      academic_term,
-      User_Email
-    ],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err.code);
-        if (err.code == "ER_DUP_ENTRY") {
-          res.status(500).send("Duplicate data");
-        } else {
-          res.status(500).send("Internal Server Error");
-        }
-      } else {
-        con.query(
-          sql2,
-          [
-            User_Identity_ID,
-            User_Name,
-            User_Email,
-            User_Phone,
-            User_Role,
-            Major_ID,
-            User_Email
-          ],
-          (err, result, fields) => {
-            if (err) {
-                res.status(500).send("Internal Server Error");
-            } else {
-              res.status(200).send("success");
-            }
-          }
-        );
-      }
-    }
-  );
-};
-
-deleteuser = async (req, res) => {
-  const User_Email = req.body.User_Email;
-  const sql = "DELETE FROM `users` WHERE `users`.`User_Email` = ?";
-  var sql2 =
-    "UPDATE `permission` SET `User_Status`=0, WHERE `User_Email`=?";
-  await con.query(sql, [User_Email], (err, result, fields) => {
-    if (err) {
-      console.log(err.code);
-    } else {
-      con.query(sql2, [User_Email], (err2, result, fields) => {
-        if (err2) {
-          console.log(err2.code);
-        } else {
-          res.status(200).send("success");
-        }
-      });
-    }
-  });
-};
-
 uploadfile = async (req, res) => {
   try {
     if (!req.files) {
@@ -247,12 +112,86 @@ uploadfile = async (req, res) => {
   }
 };
 
+uploadfileteacher = async (req, res) => {
+  try {
+    if (!req.files) {
+      res.send({
+        status: false,
+        message: "No file uploaded"
+      });
+    } else {
+      //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
+      let avatar = req.files[""];
+      const{Major,Senior} = req.body
+
+      //Use the mv() method to place the file in upload directory (i.e. "uploads")
+      let name = Date.now() + "_" + avatar.name
+      avatar.mv("uploads/excel/" + name);
+     
+      var sql = "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) "
+      
+      var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
+        let semiter 
+        let term 
+        let coursec
+        let errorcou = 0;
+        for (let i = 8; i < rows.length; i++) {
+          
+          rows[i][0] = rows[i][1]+"@lamduan.mfu.ac.th"
+          term =rows[1][0].split(" ")[4]
+          semiter =  rows[1][0].split(" ")[6]
+          if(term == "FIRST"){
+            term=1
+          }else if(term == "SECOND"){
+            term=2
+          }
+          coursec = rows[4][0].split(" ")[4]
+          
+          // con.query(
+          //   sql,
+          //   [
+          //     rows[i][0],
+          //     rows[i][1],
+          //     rows[i][2],
+          //     "0",
+          //     coursec,
+          //     Major,
+          //     semiter,
+          //     term,
+          //     Senior,
+          //     rows[i][2],
+          //     coursec
+          //   ],
+          //   (err, result, fields) => {
+          //     if (err) {
+                
+          //       console.log(err.code);
+          //       if (err.code == "ER_DUP_ENTRY") {
+          //         res.status(500).send("Duplicate data");
+          //       } else {
+          //         res.status(500).send("Internal Server Error");
+          //       }
+          //     } else {
+          //       if(i==rows.length-1){
+          //         res.status(200).send("success");
+          //       }
+          //     }
+          //   }
+          // );
+        }
+        
+      });
+    }
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
 module.exports = {
   getAllUser,
-  addoneUser,
+  uploadfileteacher,
   uploadfile,
-  deleteuser,
-  editoneUser,
   countUser,
   getUser
 };
