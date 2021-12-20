@@ -6,9 +6,7 @@ var userRouter = require("express").Router();
 userRouter.get("/", UserControllers.getUser);
 userRouter.get("/getalluser", UserControllers.getAllUser);
 userRouter.get("/amount", UserControllers.countUser);
-userRouter.post("/importuser", UserControllers.uploadfile);
-userRouter.post("/adduser", UserControllers.addoneUser);
-userRouter.delete("/deleteuser", UserControllers.deleteuser);
-userRouter.put("/edituser", UserControllers.editoneUser);
+userRouter.post("/importstudent", UserControllers.uploadfile);
+userRouter.post("/importteacher", UserControllers.uploadfileteacher);
 
 module.exports = userRouter;
