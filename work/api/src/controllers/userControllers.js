@@ -9,10 +9,11 @@ getUser = async (req, res) => {
 };
 
 countUser = async (req, res) => {
+  const {Project_on_term_ID} = req.body
   const sql =
-    "SELECT  (SELECT COUNT(*) FROM permission WHERE Permission_Role=0 OR Permission_Role=1 OR Permission_Role=2) AS student,(SELECT COUNT(*) FROM   permission WHERE Permission_Role=3) AS teacher,(SELECT COUNT(*) FROM   groups) AS groups";
+    "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
 
-  await con.query(sql, (err, result, fields) => {
+  await con.query(sql,[Project_on_term_ID,Project_on_term_ID], (err, result, fields) => {
     if (err) {
       res.status(500).send("Internal Server Error");
     } else {
