@@ -2,7 +2,7 @@ export default {
   // asynchronous
   async login(state) {
     const user = await this.$axios.$get("http://localhost:3000/api/user");
-    if (user.email && user.email !== "") {
+    if (user.email !== null && user.email !== "") {
       await state.commit("SET_USER", user);
     } else {
       await state.commit("SET_USER", false);

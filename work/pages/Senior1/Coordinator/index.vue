@@ -1,7 +1,7 @@
 <template>
   <div>
     <CardStatus />
-    <Announcement />
+    <Announcement :announcements="announcements" editable />
   </div>
 </template>
 <script>
@@ -12,6 +12,15 @@ export default {
   components: {
     CardStatus,
     Announcement
+  },
+  async asyncData(context) {
+    const announcements = await context.$axios.$post(
+      "http://localhost:3000/api/announc/major",
+      {
+        MajorID: context.store.state.auth.currentUser.major
+      }
+    );
+    return { announcements };
   }
 };
 </script>

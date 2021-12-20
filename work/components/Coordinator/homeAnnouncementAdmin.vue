@@ -24,7 +24,7 @@
         <!-- Dialog -->
         <v-dialog v-model="dialog" max-width="600px">
           <template v-slot:activator="{ on }">
-            <v-btn rounded dark color="indigo" v-on="on" v-if="editable">
+            <v-btn rounded dark color="indigo" v-on="on">
               Add announcement
             </v-btn>
             <!-- <v-btn @click="test">test</v-btn> -->
@@ -122,7 +122,7 @@
                 </div>
 
                 <!-- Edit and delete announcement buttons -->
-                <div class="announceButtons" v-if="editable">
+                <div class="announceButtons">
                   <!-- Edit announcement dialog -->
                   <v-dialog v-model="announcement.modal" max-width="600px">
                     <template v-slot:activator="{ on }">
@@ -262,10 +262,7 @@ export default {
       return Math.ceil(this.announcements.length / 4);
     }
   },
-  props: {
-    announcements: Array,
-    editable: Boolean
-  },
+  props: ["announcements"],
   methods: {
     test() {
       // console.log(this.$store.state.auth);

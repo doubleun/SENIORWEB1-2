@@ -47,12 +47,13 @@
       </v-row>
     </v-card>
     <v-card class="content mt-5">
+      <!-- 
       <div class="carousel mt-5">
         <v-alert color="indigo lighten-5">
           <h3 class="font-weight-bold">Announcement</h3>
         </v-alert>
 
-        <!-- Card result of announcement -->
+        Card result of announcement
         <div class="cardAnnouncement">
           <v-card
             v-for="announcement in info"
@@ -78,14 +79,16 @@
               ></v-pagination>
             </v-row>
           </div>
-        </div>
-      </div>
+        </div> -->
+      <Announcement :announcements="announcements" />
+      <!-- </div> -->
     </v-card>
   </div>
 </template>
 <script>
+import Announcement from "@/components/Coordinator/homeAnnouncement";
 export default {
-  components: {},
+  components: { Announcement },
   data() {
     return {
       page: 1,
@@ -110,6 +113,15 @@ export default {
         }
       ]
     };
+  },
+  async asyncData(context) {
+    const announcements = await context.$axios.$post(
+      "http://localhost:3000/api/announc/major",
+      {
+        MajorID: context.store.state.auth.currentUser.major
+      }
+    );
+    return { announcements };
   }
 };
 </script>

@@ -104,7 +104,12 @@ export default {
   },
   data() {
     return {
-      programsArr: ["Information and Communication Engineering"],
+      programsArr: [
+        "Information and Communication Engineering",
+        "Computer Engineering",
+        "Computer Science",
+        "Software Engineering"
+      ],
       editGradeDialog: false,
       gradeCriteriaArr: ["S", "U"],
       high: 0,
