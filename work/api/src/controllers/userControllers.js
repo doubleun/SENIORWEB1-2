@@ -4,7 +4,6 @@ const fs = require("fs");
 const readXlsxFile = require("read-excel-file/node");
 const { result } = require("lodash");
 
-
 getUser = async (req, res) => {
   res.status(200).json(req.user);
 };
@@ -181,51 +180,49 @@ uploadfile = async (req, res) => {
     } else {
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
       let avatar = req.files[""];
+      const{Major,Senior} = req.body
 
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
       let name = Date.now() + "_" + avatar.name
-      avatar.mv("uploads/" + name);
-      var data = [];
-      let count = 0;
-      var sql2 = "INSERT INTO `permission`( `User_Status`, `User_Email`, `Permission_Role`, `Project_on_term_ID`) VALUES (1,?,1, (SELECT Project_on_term_ID from projectonterm WHERE Academic_Year =? AND Academic_Term = ?)) "
-      var sql =
-        "INSERT INTO users (`User_Identity_ID`, `User_Name`, `User_Email`, `User_Phone`, `User_Role`, `Major_ID`) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE User_Identity_ID=? , User_Name = ? , User_Phone = ? , User_Role = ? , Major_ID = ?;";
-      var obj = readXlsxFile("uploads/" + name).then(rows => {
-        for (let i = 1; i < rows.length; i++) {
-          if (rows[i][4] == "teacher") {
-            rows[i][4] = 0;
-          } else {
-            rows[i][4] = 1;
+      avatar.mv("uploads/excel/" + name);
+     
+      var sql = "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) "
+      
+      var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
+        let semiter 
+        let term 
+        let coursec
+        let errorcou = 0;
+        for (let i = 8; i < rows.length; i++) {
+          
+          rows[i][0] = rows[i][1]+"@lamduan.mfu.ac.th"
+          term =rows[1][0].split(" ")[4]
+          semiter =  rows[1][0].split(" ")[6]
+          if(term == "FIRST"){
+            term=1
+          }else if(term == "SECOND"){
+            term=2
           }
-          if (rows[i][5] == "CSI") {
-            rows[i][5] = 1;
-          } else if (rows[i][5] == "SE") {
-            rows[i][5] = 1;
-          } else if (rows[i][5] == "CE") {
-            rows[i][5] = 1;
-          } else if (rows[i][5] == "ICE") {
-            rows[i][5] = 1;
-          }
-          // data.push(rows[i])]
-          // console.log(rows[i][0])
+          coursec = rows[4][0].split(" ")[4]
+          
           con.query(
             sql,
             [
               rows[i][0],
               rows[i][1],
               rows[i][2],
-              rows[i][3],
-              rows[i][4],
-              rows[i][5],
-              rows[i][0],
-              rows[i][1],
-              rows[i][3],
-              rows[i][4],
-              rows[i][5],
-
+              "1",
+              coursec,
+              Major,
+              semiter,
+              term,
+              Senior,
+              rows[i][2],
+              coursec
             ],
             (err, result, fields) => {
               if (err) {
+                
                 console.log(err.code);
                 if (err.code == "ER_DUP_ENTRY") {
                   res.status(500).send("Duplicate data");
@@ -233,33 +230,15 @@ uploadfile = async (req, res) => {
                   res.status(500).send("Internal Server Error");
                 }
               } else {
-
-                con.query(
-                  sql2,
-                  [
-                    rows[i][2],
-                    rows[i][7],
-                    rows[i][8],
-                  ],
-                  (err, result2, fields2) => {
-                    if (err) {
-                      console.log(err.code);
-
-                      res.status(500).send("Internal Server Error");
-                    } else {
-                      count++;
-                      if (count == rows.length - 1) {
-                        res.status(200).send("success");
-                      }
-                    }
-                  }
-                );
-                // res.status(200).send("success");
-
+                if(i==rows.length-1){
+                  res.status(200).send("success");
+                }
+                // 
               }
             }
           );
         }
+        
       });
     }
   } catch (err) {
