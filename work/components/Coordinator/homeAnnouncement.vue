@@ -24,7 +24,7 @@
         <!-- Dialog -->
         <v-dialog v-model="dialog" max-width="600px">
           <template v-slot:activator="{ on }">
-            <v-btn rounded dark color="indigo" v-on="on">
+            <v-btn rounded dark color="indigo" v-on="on" v-if="editable">
               Add announcement
             </v-btn>
             <!-- <v-btn @click="test">test</v-btn> -->
@@ -106,7 +106,7 @@
           <!-- Card result of announcement -->
           <div class="cardAnnouncement">
             <v-card
-              v-for="(announcement, index) in announcements"
+              v-for="(announcement, index) in displayAnnounce"
               :key="index"
               class="mb-5 elevation-0"
             >
@@ -122,7 +122,7 @@
                 </div>
 
                 <!-- Edit and delete announcement buttons -->
-                <div class="announceButtons">
+                <div class="announceButtons" v-if="editable">
                   <!-- Edit announcement dialog -->
                   <v-dialog v-model="announcement.modal" max-width="600px">
                     <template v-slot:activator="{ on }">
@@ -202,7 +202,7 @@
               <v-row class="justify-end">
                 <v-pagination
                   v-model="page"
-                  :length="4"
+                  :length="pageLength"
                   prev-icon="mdi-menu-left"
                   next-icon="mdi-menu-right"
                 ></v-pagination>
@@ -262,7 +262,10 @@ export default {
       return Math.ceil(this.announcements.length / 4);
     }
   },
-  props: ["announcements"],
+  props: {
+    announcements: Array,
+    editable: Boolean
+  },
   methods: {
     test() {
       // console.log(this.$store.state.auth);

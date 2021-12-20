@@ -40,16 +40,20 @@ passport.serializeUser((user, done) => {
     } else {
       // console.log(result);
       if (result.length == 0) {
-        data = { message: "Can not login, Please contact School of IT" };
+        data = { message: "Cant find user in database" };
         done(null, data);
-        console.log("Can not login, Please contact School of IT");
+        console.log("Cant find user in database");
       } else {
-        if (result[0].User_Role == 99) {
-          user.role = result[0].User_Role;
-          done(null, user);
-        } else {
-          normalUser();
-        }
+        user.role = result[0].User_Role;
+        user.major = result[0].Major_ID;
+        // console.log("Serialize: ", user);
+        done(null, user);
+        // if (result[0].User_Role == 99) {
+        //   user.role = result[0].User_Role;
+        //   done(null, user);
+        // } else {
+        //   normalUser();
+        // }
       }
     }
   });
@@ -78,8 +82,8 @@ passport.serializeUser((user, done) => {
             parseInt(today.getMonth() + 1) +
             "-" +
             today.getDate();
-          // console.log(result[0].start <= today);
-          // console.log(result[0].end >= today);
+          console.log(result[0].start <= today);
+          console.log(result[0].end >= today);
           if (result[0].start <= today && result[0].end >= today) {
             user.role = result[0].Permission_Role;
             done(null, user);
