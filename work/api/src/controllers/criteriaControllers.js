@@ -42,4 +42,4 @@ getByMajor = async (req, res) => {
 //   });
 // };
 
-module.exports = { getAllMajor, getByMajor, post };
+module.exports = { getAllMajor, getByMajor };
