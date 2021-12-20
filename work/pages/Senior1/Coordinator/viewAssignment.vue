@@ -1,21 +1,42 @@
 <template>
   <section>
     <main class="due-assignment-card-main">
-      <h1>Due Date</h1>
+      <h1>Document</h1>
 
       <!-- Assignment card -->
-      <v-card>
+      <!-- <v-card>
         <v-card-title>
           Progress 1
-        </v-card-title>
+        </v-card-title> -->
 
-        <!-- Content -->
-        <div class="due-assignment-thumbnail-container">
+      <!-- Content -->
+      <!-- <div class="due-assignment-thumbnail-container">
           <template v-for="thumb in displayArr">
             <p class="due-assignment-thumbnail" :key="thumb">{{ thumb }}</p>
           </template>
-        </div>
-        <v-pagination v-model="page" :length="pageLength" circle></v-pagination>
+        </div> -->
+      <!-- <v-pagination v-model="page" :length="pageLength" circle></v-pagination>
+      </v-card> -->
+      <v-card>
+        <v-card-title>
+          List Documents
+          <v-spacer></v-spacer>
+          <v-col md="3"
+            ><v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+              outlined
+            ></v-text-field
+          ></v-col>
+        </v-card-title>
+        <v-data-table
+          :headers="headers"
+          :items="desserts"
+          :search="search"
+        ></v-data-table>
       </v-card>
     </main>
   </section>
@@ -28,20 +49,38 @@ export default {
     return {
       page: 1,
       tempArr: [...Array(32).keys()],
-      eachPageArr: []
+      eachPageArr: [],
+      search: "",
+      headers: [
+        {
+          text: "Name File",
+          value: "namefile",
+          align: "center",
+        },
+        { text: "Type", value: "type", align: "center" },
+        { text: "Date", value: "date", align: "center" },
+        { text: "Size", value: "size", align: "center" },
+      ],
+      desserts: [
+        {
+          namefile: "document progress 1.doc",
+          type: "Doc",
+          date: "11/12/2021",
+          size: "2.8 MB",
+        },
+      ],
     };
   },
-  computed: {
-    displayArr() {
-      // 16 is the maximum thumbnails we want to show
-      const startIndex = 16 * (this.page - 1);
-      const endIndex = startIndex + 16;
-      return this.tempArr.slice(startIndex, endIndex);
-    },
-    pageLength() {
-      return Math.ceil(this.tempArr.length / 16);
-    }
-  }
+  // computed: {
+  //   displayArr() {
+  //     const startIndex = 16 * (this.page - 1);
+  //     const endIndex = startIndex + 16;
+  //     return this.tempArr.slice(startIndex, endIndex);
+  //   },
+  //   pageLength() {
+  //     return Math.ceil(this.tempArr.length / 16);
+  //   },
+  // },
 };
 </script>
 

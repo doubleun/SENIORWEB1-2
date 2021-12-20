@@ -64,6 +64,11 @@ export default {
           title: "Committee",
           to: "/Senior1/coordinator/committee",
         },
+        {
+          icon: "mdi-clipboard-text",
+          title: "Doucment",
+          to: "/Senior1/coordinator/viewAssignment",
+        },
       ],
     };
   },
