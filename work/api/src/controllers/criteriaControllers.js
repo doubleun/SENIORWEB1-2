@@ -27,19 +27,19 @@ getByMajor = async (req, res) => {
   });
 };
 
-// Add new score criterias
-// post = async (req, res) => {
-//   const majorId = req.body.Major_ID;
-//   const progressId = req.body.Progress_ID;
-//   const sql = "INSERT INTO scorecriterias()";
-//   await con.query(sql, (err, result, fields) => {
-//     if (err) {
-//       console.log(err);
-//       res.status(500).send("Internal Server Error");
-//     } else {
-//       res.status(200).json(result);
-//     }
-//   });
-// };
+// Edit score criterias
+editCriteria = async (req, res) => {
+  const majorId = req.body.Major_ID;
+  const progressId = req.body.Progress_ID;
+  const sql = "INSERT INTO scorecriterias()";
+  await con.query(sql, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
 
-module.exports = { getAllMajor, getByMajor };
+module.exports = { getAllMajor, getByMajor, editCriteria };
