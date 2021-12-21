@@ -21,34 +21,72 @@
           <v-btn color="success"
             ><v-icon>mdi-microsoft-excel</v-icon> Export to Excel</v-btn
           >
-          <v-btn color="error"><v-icon>mdi-trash-can</v-icon> Delete</v-btn>
+          <v-btn color="error" @click="dialog1 = true"><v-icon>mdi-trash-can</v-icon> Delete</v-btn>
         </div>
       </div>
-
-      <!-- Group table card -->
-      <LongTableCard tableTitle="Group">
-        <template v-slot:data>
-          <!-- Table attributes -->
-          <template v-for="attr in attrs">
-            <h5 :key="attr">{{ attr }}</h5>
+      <v-dialog
+          v-model="dialog1"
+          max-width="500px"
+        >
+          <v-card>
+            <v-card-title>
+              <span>Delete this?</span>
+            </v-card-title>
+            <v-card-text>
+              Have you confirmed to delete this?
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="light"
+                text
+                right
+                @click="dialog1 = false"
+              >
+                Close
+              </v-btn>
+              <v-btn
+                color="primary"
+                right
+                @click="dialog1 = false"
+              >
+                Yes
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      <v-card>
+        <v-card-title>
+          Group List
+          <v-spacer></v-spacer>
+          <v-col md="3"
+            ><v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+              outlined
+            ></v-text-field
+          ></v-col>
+        </v-card-title>
+        <v-data-table
+          v-model="selected"
+          :headers="headers"
+          :single-select="singleSelect"
+          item-key="groupName"
+          :items="items"
+          show-select
+        >
+          <template v-slot:item.groupName="{ item }">
+            <v-row class="mb-6 pa-5 justify-space-around" no-gutters>
+              <div style="cursor: pointer">
+                {{ item.groupName }}
+              </div>
+            </v-row>
           </template>
-
-          <!-- Table data -->
-          <template v-for="group in groupsArr">
-            <div :key="group.id + 1" class="group-manage-checkbox-container">
-              <v-checkbox v-model="checkbox" value="John" hide-details dense>
-                <template v-slot:label>
-                  <h5>{{ group.name }}</h5>
-                </template>
-              </v-checkbox>
-            </div>
-            <p :key="group.id + 2">{{ group.member }}</p>
-            <p :key="group.id + 3">{{ group.program }}</p>
-            <p :key="group.id + 4">{{ group.advisor }}</p>
-            <p :key="group.id + 5">{{ group.committee.join(", ") }}</p>
-          </template>
-        </template>
-      </LongTableCard>
+        </v-data-table>
+      </v-card>
     </main>
   </section>
 </template>
@@ -59,96 +97,44 @@ import LongTableCard from "@/components/Admin/longTableCard";
 export default {
   layout: "admin",
   components: {
-    LongTableCard
+    LongTableCard,
   },
-  data: () => ({
-    programsArr: ["Information and Communication Engineering"],
-    yearsArr: ["2021"],
-    semestersArr: ["1/2021", "2/2021"],
-    attrs: ["GROUP NAME", "MEMBER", "PROGRAM", "ADVISOR", "COMMITTEE"],
-    groupsArr: [
-      {
-        id: 1,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 2,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 3,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 4,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 5,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 6,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 7,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 8,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 9,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 10,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      }
-    ]
-  })
+  data() {
+    return {
+      dialog1: false,
+      singleSelect: false,
+      selected: [],
+      headers: [
+        {
+          text: "GROUP NAME",
+          align: "center",
+          sortable: false,
+          value: "groupName",
+        },
+        { text: "MEMBER", align: "center", value: "member" },
+        { text: "PROGRAM", align: "center", value: "program" },
+        { text: "ADVISOR", align: "center", value: "adviosr" },
+        { text: "COMMITTEE", align: "center", value: "committee" },
+      ],
+      items: [
+        {
+          groupName:
+            "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
+          member: "Anuthep Tayngam, Pipat Marsri",
+          program: "Computer Science and Innovation",
+          adviosr: "Surapong Uttama",
+          committee: "Khwnuta Kirimasthong, Sarawut Jaijma",
+        },
+        {
+          groupName: "Ablefetch: Online Platform for Freelancing Service",
+          member: "Sasreen Abdunsomad, Pipat Marsri",
+          program: "Computer Science and Innovation",
+          adviosr: "Nilubon Kurubanjerdjit ",
+          committee: "Soontarin Nupap, Khwunta Kirimasthong",
+        },
+      ],
+    };
+  },
 };
 </script>
 
