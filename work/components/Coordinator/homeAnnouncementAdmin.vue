@@ -35,56 +35,29 @@
             </v-card-title>
             <v-card-text>
               <v-container>
-                <v-text-field
-                  v-model="MajorID"
-                  hint="Major ID for this announcement to be display on"
-                  label="MajorID"
-                  type="number"
-                  :disabled="allMajor"
-                ></v-text-field>
-                <v-checkbox v-model="allMajor" label="All major"></v-checkbox>
                 <v-col>
+                  <h3>Detail Announcement</h3>
                   <v-textarea
                     outlined
                     name="detailAnnouncement"
                     label="Text"
                     v-model="Text"
                   ></v-textarea>
+                  <!-- <v-text-field
+                  v-model="MajorID"
+                  hint="Major ID for this announcement to be display on"
+                  label="Major"
+                  type="number"
+                  :disabled="allMajor"
+                ></v-text-field> -->
+                  <h3>Major</h3>
+                  <v-select
+                    :items="items"
+                    label="Select Major"
+                    outlined
+                  ></v-select>
+                  <v-checkbox v-model="allMajor" label="All major"></v-checkbox>
                 </v-col>
-                <!--
-                  //* DATE *//
-                -->
-                <!-- <v-col cols="12" sm="6" md="4">
-                  <v-menu
-                    ref="menu"
-                    v-model="menu"
-                    :close-on-content-click="false"
-                    :return-value.sync="date"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        v-model="date"
-                        label="Announced Date"
-                        prepend-icon="mdi-calendar"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker v-model="date" no-title scrollable>
-                      <v-spacer></v-spacer>
-                      <v-btn text color="red" @click="menu = false">
-                        Cancel
-                      </v-btn>
-                      <v-btn text color="green" @click="$refs.menu.save(date)">
-                        OK
-                      </v-btn>
-                    </v-date-picker>
-                  </v-menu>
-                </v-col> -->
               </v-container>
             </v-card-text>
             <v-card-actions>
@@ -138,17 +111,6 @@
                       </v-card-title>
                       <v-card-text>
                         <v-container>
-                          <v-text-field
-                            hint="Major ID for this announcement to be display on"
-                            label="MajorID"
-                            type="number"
-                            v-model="announcement.Major_ID"
-                            :disabled="announcement.allMajor"
-                          ></v-text-field>
-                          <v-checkbox
-                            v-model="announcement.allMajor"
-                            label="All major"
-                          ></v-checkbox>
                           <v-col>
                             <v-textarea
                               outlined
@@ -156,6 +118,16 @@
                               label="Text"
                               v-model="announcement.Text"
                             ></v-textarea>
+                            <h3>Major</h3>
+                            <v-select
+                              :items="items"
+                              label="Select Major"
+                              outlined
+                            ></v-select>
+                            <v-checkbox
+                              v-model="announcement.allMajor"
+                              label="All major"
+                            ></v-checkbox>
                           </v-col>
                         </v-container>
                       </v-card-text>
@@ -191,7 +163,7 @@
                     large
                     color="red darken-2"
                     :id="announcement.Announcement_ID"
-                    @click="e => handleDeleteAnnouncement(e.target.id)"
+                    @click="(e) => handleDeleteAnnouncement(e.target.id)"
                   >
                     mdi-delete-forever-outline
                   </v-icon>
@@ -229,7 +201,7 @@ export default {
     allMajor: false,
     MajorID: 0,
     Text: "",
-    availableMajors: [1, 2, 3, 4, 5, 6, 7, 99]
+    availableMajors: [1, 2, 3, 4, 5, 6, 7, 99],
     // announce: [
     //   {
     //     title:
@@ -260,7 +232,7 @@ export default {
     },
     pageLength() {
       return Math.ceil(this.announcements.length / 4);
-    }
+    },
   },
   props: ["announcements"],
   methods: {
@@ -281,7 +253,7 @@ export default {
         "http://localhost:3000/api/announc/add",
         {
           Text: this.Text,
-          MajorID: selectedMajor
+          MajorID: selectedMajor,
         }
       );
       if (res.status === 200) {
@@ -295,8 +267,8 @@ export default {
           {
             Text: this.Text,
             Major_ID: selectedMajor,
-            Publish_Date: "please refresh"
-          }
+            Publish_Date: "please refresh",
+          },
         ];
 
         // Clear text
@@ -316,8 +288,8 @@ export default {
           "http://localhost:3000/api/announc/delete",
           {
             data: {
-              Announcement_ID: id
-            }
+              Announcement_ID: id,
+            },
           }
         );
         if (res.status === 200) {
@@ -326,7 +298,7 @@ export default {
 
           // Update UI items
           this.announcements = this.announcements.filter(
-            itm => itm.Announcement_ID !== parseInt(id)
+            (itm) => itm.Announcement_ID !== parseInt(id)
           );
         } else {
           this.snackbarText =
@@ -349,7 +321,7 @@ export default {
         {
           AnnouncementID: announcementId,
           Text: text,
-          MajorID: selectedMajor
+          MajorID: selectedMajor,
         }
       );
 
@@ -363,8 +335,8 @@ export default {
         this.submitSnackbar = true;
         this.dialog = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style>

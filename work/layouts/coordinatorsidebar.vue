@@ -19,7 +19,7 @@ import Sidebar from "@/components/Student/stuSidebar";
 export default {
   components: {
     Appbar,
-    Sidebar
+    Sidebar,
   },
   data() {
     return {
@@ -27,27 +27,22 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/Senior1/Coordinator/"
-        },
-        {
-          icon: "mdi-account-multiple-plus",
-          title: "Group Request",
-          to: "/Senior1/Coordinator/groupRequest"
-        },
-        {
-          icon: "mdi-account-multiple",
-          title: "Committee",
-          to: "/Senior1/coordinator/committee"
-        },
-        {
-          icon: "mdi-account-group",
-          title: "My Advisee",
-          to: "/Senior1/coordinator/myAdvisee"
+          to: "/Senior1/Coordinator/",
         },
         {
           icon: "mdi-account-cog",
           title: "User Manage",
-          to: "/Senior1/Coordinator/userManage"
+          to: "/Senior1/Coordinator/userManage",
+        },
+        {
+          icon: "mdi-calendar-month",
+          title: "Due Date",
+          to: "/Senior1/Coordinator/dueDate",
+        },
+        {
+          icon: "mdi-file-document",
+          title: "Criteria",
+          to: "/Senior1/Coordinator/criteria",
         },
         {
           icon: "mdi-alpha-p-circle",
@@ -55,18 +50,28 @@ export default {
           to: "/Senior1/Coordinator/score"
         },
         {
-          icon: "mdi-calendar-month",
-          title: "Due Date",
-          to: "/Senior1/Coordinator/dueDate"
+          icon: "mdi-account-multiple-plus",
+          title: "Group Request",
+          to: "/Senior1/Coordinator/groupRequest",
         },
         {
-          icon: "mdi-file-document",
-          title: "Criteria",
-          to: "/Senior1/Coordinator/criteria"
-        }
-      ]
+          icon: "mdi-account-group",
+          title: "My Advisee",
+          to: "/Senior1/coordinator/myAdvisee",
+        },
+        {
+          icon: "mdi-account-multiple",
+          title: "Committee",
+          to: "/Senior1/coordinator/committee",
+        },
+        {
+          icon: "mdi-clipboard-text",
+          title: "Doucment",
+          to: "/Senior1/coordinator/viewAssignment",
+        },
+      ],
     };
-  }
+  },
 };
 </script>
 <style scoped>

@@ -34,7 +34,7 @@
                 v-on="on"
                 v-bind="attrs"
               >
-                <v-icon>mdi-calendar-month</v-icon> EDIT
+                <v-icon>mdi-calendar-month</v-icon> ASSIGN DATE
               </v-btn>
             </template>
             <v-date-picker
@@ -93,7 +93,7 @@
           </v-menu>
 
           <!-- View file -->
-          <v-btn
+          <!-- <v-btn
             color="light-green darken-1"
             class="white--text"
             :disabled="data.file === 0"
@@ -105,7 +105,7 @@
             "
           >
             <v-icon>mdi-clipboard-text</v-icon> VIEW
-          </v-btn>
+          </v-btn> -->
         </div>
       </template>
     </div>
