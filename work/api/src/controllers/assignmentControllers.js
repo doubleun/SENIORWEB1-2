@@ -19,11 +19,14 @@ uploadAssignments = async (req, res) => {
   if (!assignments) res.status(404).json({ msg: "No files attached!" });
 
   // Get other fields
-  const { Progress_ID, Group_ID, Assignment_Type: Type } = req.body;
+  let { Progress_ID, Group_ID, Assignment_Types: Types } = req.body;
+  Types = await JSON.parse(Types);
 
-  // Mutate assignments name
-  assignments = assignments.map(assignment => ({
+  // Add type to each assignment
+  assignments = assignments.map((assignment, index) => ({
     ...assignment,
+    type: Types[index],
+    // Mutate name of each assignment
     name: Date.now() + "_" + assignment.name
   }));
 
@@ -45,7 +48,7 @@ uploadAssignments = async (req, res) => {
           // Insert each file into database
           con.query(
             files,
-            [assignment.name, Type, assignmentResult.insertId],
+            [assignment.name, assignment.type, assignmentResult.insertId],
             (err, result, fields) => {
               if (err) throw err;
             }

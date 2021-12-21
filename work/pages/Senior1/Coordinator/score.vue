@@ -37,6 +37,7 @@
               <v-btn
                 :loading="loading3"
                 :disabled="loading3"
+                @click="handleExports"
                 class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
               >
                 Export to Excel
@@ -45,17 +46,122 @@
           </div>
         </v-col>
       </v-row>
-      <scoreDataTable />
+      <scoreDataTable :items="items" />
     </v-container>
   </div>
 </template>
 <script>
 import scoreDataTable from "@/components/Coordinator/scoreDataTable";
+import exportXLSX from "@/mixins/exportXLSX";
 export default {
   data: () => ({
+    loading3: false,
     sem: ["1/2564", "2/2564"],
-    grade: ["S", "U", "I"]
+    grade: ["S", "U", "I"],
+    items: [
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      },
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      },
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      },
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      },
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      },
+
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      },
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      },
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      },
+      {
+        id: "6131302010",
+        name: "Anuthep Tayngam",
+        advisor: "Surapong uttama",
+        progress1: "10",
+        progress2: "10",
+        finalpresent: "25",
+        finaldocument: "45",
+        total: "90",
+        grade: "S"
+      }
+    ]
   }),
+  mixins: [exportXLSX],
   components: {
     scoreDataTable
   },

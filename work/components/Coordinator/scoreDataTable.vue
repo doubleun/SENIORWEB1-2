@@ -1,8 +1,8 @@
 <template>
   <v-card>
     <v-card-title>
-    <h3>Score Student</h3>
-    <v-spacer></v-spacer>
+      <h3>Score Student</h3>
+      <v-spacer></v-spacer>
       <v-text-field
         clearable
         hide-details
@@ -25,6 +25,7 @@
 
 <script>
 export default {
+  props: { items: Array },
   data() {
     return {
       search: "",
@@ -42,119 +43,7 @@ export default {
         { text: "FINAL PRESENT", value: "finalpresent" },
         { text: "FINAL DOCUMENT", value: "finaldocument" },
         { text: "TOTAL", value: "total" },
-        { text: "GRADE", value: "grade" }, 
-      ],
-
-      items: [
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        },
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        },
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        },
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        },
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        },
-
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        },
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        },
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        },
-        {
-          id:"6131302010",
-          name:"Anuthep Tayngam",
-          advisor:"Surapong uttama",
-          progress1:"10",
-          progress2:"10",
-          finalpresent:"25",
-          finaldocument:"45",
-          total:"90",
-          grade:"S",
-
-        }
+        { text: "GRADE", value: "grade" }
       ]
     };
   }
@@ -162,7 +51,6 @@ export default {
 </script>
 
 <style scoped>
-.v-data-table{
-  
+.v-data-table {
 }
 </style>
