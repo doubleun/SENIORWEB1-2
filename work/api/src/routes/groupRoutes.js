@@ -7,6 +7,7 @@ groupRouter.get('/all', groupController.getAll)
 groupRouter.post('/createGroup', groupController.createGroup)
 groupRouter.put('/statusgroup', groupController.statusgroup)
 groupRouter.post('/getByRole', groupController.getByRole)
+groupRouter.post('/listOwnGroup', groupController.listOwnGroup)
 
 
 module.exports = groupRouter

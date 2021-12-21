@@ -51,7 +51,7 @@ createGroup = async (req, res) => {
                                     res.status(500).send("Internal Server Error");
                                 }
                             } else {
-                            
+
                             }
                         }
                     )
@@ -84,7 +84,7 @@ getByRole = async (req, res) => {
     const Email = req.body.Email
 
     const sql = 'SELECT COUNT(Group_Member_ID) AS commitee,(SELECT COUNT(Group_Member_ID) FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 0) AS advicee FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 1;'
-    await con.query(sql, [Email,Email], async(err, result, fields)  => {
+    await con.query(sql, [Email, Email], async (err, result, fields) => {
         if (err) {
             console.log(err)
             res.status(500).send("Internal Server Error");
@@ -110,9 +110,9 @@ deletes = async (req, res) => {
 }
 
 statusgroup = async (req, res) => {
-    const {User_Status,User_Email,Group_Id} = req.body
+    const { User_Status, User_Email, Group_Id } = req.body
     const sql = 'UPDATE groupmembers SET User_Status =? WHERE User_Email = ? AND Group_ID = ?;'
-    await con.query(sql,[User_Status,User_Email,Group_Id], (err, result, fields) => {
+    await con.query(sql, [User_Status, User_Email, Group_Id], (err, result, fields) => {
         if (err) {
             console.log(err)
             res.status(500).send("Internal Server Error");
@@ -123,4 +123,27 @@ statusgroup = async (req, res) => {
     })
 }
 
-module.exports = { getAll, createGroup,statusgroup, getByMajor, deletes, getByRole}
+// list group that teacher are advisor or committee
+listOwnGroup = async (req, res) => {
+    const { User_Email, Project_on_term_ID, Group_Role } = req.body
+    const sql = 'SELECT * FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =?AND Group_Role=?) AND groups.Project_on_term_ID=?'
+    await con.query(sql, [User_Email, Group_Role, Project_on_term_ID], (err, result, fields) => {
+        if (err) {
+            console.log(err)
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.status(200).json(result)
+        }
+    })
+}
+
+
+module.exports = {
+    getAll,
+    createGroup,
+    statusgroup,
+    getByMajor,
+    deletes,
+    getByRole,
+    listOwnGroup
+}
