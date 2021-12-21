@@ -18,6 +18,8 @@ const userRoutes = require("./src/routes/userRoutes");
 const announcRoutes = require("./src/routes/announcementRoutes");
 const groupRoutes = require("./src/routes/groupRoutes");
 const criteriaRoutes = require("./src/routes/criteriaRoutes");
+const assignmentRoutes = require("./src/routes/assignmentRoutes");
+const dateRoutes = require("./src/routes/dateRoutes");
 
 const app = express();
 
@@ -58,15 +60,17 @@ app.use("/auth", authRoutes);
 app.use("/announc", announcRoutes);
 app.use("/group", groupRoutes);
 app.use("/criteria", criteriaRoutes);
+app.use("/assignment", assignmentRoutes);
+app.use("/date", dateRoutes);
 app.get("/test", (req, res) => {
   res.send("test");
 });
 
 // ============ Starting server ============
-const PORT = process.env.PORT || 3500;
-app.listen(PORT, () => {
-  console.log("Server is starting at port " + PORT);
-});
+// const PORT = process.env.PORT || 3500;
+// app.listen(PORT, () => {
+//   console.log("Server is starting at port " + PORT);
+// });
 
 // ============ export server ============
 module.exports = app;
