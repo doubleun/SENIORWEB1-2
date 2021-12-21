@@ -8,6 +8,8 @@ groupRouter.post('/createGroup', groupController.createGroup)
 groupRouter.put('/statusgroup', groupController.statusgroup)
 groupRouter.post('/getByRole', groupController.getByRole)
 groupRouter.post('/listOwnGroup', groupController.listOwnGroup)
+groupRouter.post('/getScoreCoor', groupController.getScoreCoor)
+
 
 
 module.exports = groupRouter
