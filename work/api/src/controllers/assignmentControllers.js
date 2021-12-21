@@ -156,6 +156,7 @@ updateProgression = async (req, res) => {
 
 // get progression of dua date by major (view assigment or teacher and co)
 getAssignment = async (req, res) => {
+  console.log(req.body)
   const {
     Group_ID,
     Progress_ID,
@@ -175,18 +176,25 @@ getAssignment = async (req, res) => {
         console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
-        con.query(
-          score,
-          [assigment[0].Assignment_ID, Group_Member_ID],
-          (err, score, fields) => {
-            if (err) {
-              console.log(err);
-              res.status(500).send("Internal Server Error");
-            } else {
-              res.status(200).json({ assigment: assigment, score: score });
+
+        // console.log(assigment)
+        if (assigment.length == 0) {
+          res.status(200).send("No Assignment")
+        } else {
+
+          con.query(
+            score,
+            [assigment[0].Assignment_ID, Group_Member_ID],
+            (err, score, fields) => {
+              if (err) {
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+              } else {
+                res.status(200).json({ assigment: assigment, score: score });
+              }
             }
-          }
-        );
+          );
+        }
       }
     }
   );
@@ -241,4 +249,4 @@ countAssigment = async (req, res) => {
   );
 };
 
-module.exports = { uploadAssignments };
+module.exports = { uploadAssignments, getAssignment };

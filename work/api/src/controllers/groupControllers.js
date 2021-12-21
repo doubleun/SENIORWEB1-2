@@ -126,7 +126,7 @@ statusgroup = async (req, res) => {
 // list group that teacher are advisor or committee
 listOwnGroup = async (req, res) => {
     const { User_Email, Project_on_term_ID, Group_Role } = req.body
-    const sql = 'SELECT * FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =?AND Group_Role=?) AND groups.Project_on_term_ID=?'
+    const sql = 'SELECT * FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND Group_Role=?) AND groups.Project_on_term_ID=?'
     await con.query(sql, [User_Email, Group_Role, Project_on_term_ID], (err, result, fields) => {
         if (err) {
             console.log(err)

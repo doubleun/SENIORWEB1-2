@@ -7,5 +7,6 @@ assignmentRouter.post(
 ); // Get all score criterias
 // assignmentRouter.get("/major", criteriaController.getByMajor); // Add new score criterias
 // assignmentRouter.post("/edit", criteriaController.editCriteria); // admin
+assignmentRouter.post('/',assignmentController.getAssignment)
 
 module.exports = assignmentRouter;
