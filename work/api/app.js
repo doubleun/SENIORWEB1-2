@@ -19,6 +19,7 @@ const announcRoutes = require("./src/routes/announcementRoutes");
 const groupRoutes = require("./src/routes/groupRoutes");
 const criteriaRoutes = require("./src/routes/criteriaRoutes");
 const assignmentRoutes = require("./src/routes/assignmentRoutes");
+const dateRoutes = require("./src/routes/dateRoutes");
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.use("/announc", announcRoutes);
 app.use("/group", groupRoutes);
 app.use("/criteria", criteriaRoutes);
 app.use("/assignment", assignmentRoutes);
+app.use("/date", dateRoutes);
 app.get("/test", (req, res) => {
   res.send("test");
 });
