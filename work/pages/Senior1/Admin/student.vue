@@ -29,7 +29,7 @@
           </template>
 
           <!-- Table data -->
-          <template v-for="student in studentsArr">
+          <template v-for="student in student">
             <p :key="student.id + 1">{{ student.studentId }}</p>
             <p :key="student.id + 2">{{ student.name }}</p>
             <p :key="student.id + 3">{{ student.email }}</p>
@@ -54,89 +54,31 @@ export default {
     programsArr: ["Information and Communication Engineering"],
     semestersArr: ["1/2021", "2/2021"],
     attrs: ["ID", "NAME", "EMAIL", "SEMESTER", "STUDY PROGRAM"],
-    studentsArr: [
-      {
-        id: 1,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 2,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 3,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 4,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 5,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 6,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 7,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 8,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 9,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 10,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      }
-    ]
-  })
+    studentsArr: []
+  }),
+
+  async asyncData({ $axios }) {
+    let resp;
+    try {
+      resp = await $axios.$post(
+        "http://localhost:3000/api/user/getalluserwithmajor",
+        {
+          Major_ID: 1,
+          Academic_Year: 2019,
+          Academic_Term: 2
+        }
+      );
+      // studentsArr;
+      // console.log(resp)
+    } catch (error) {
+      console.log("error", error);
+    }
+    return { student: resp };
+  },
+  mounted() {
+    // this.studentsArr=this.resp
+    console.log(this.student);
+  }
 };
 </script>
 
