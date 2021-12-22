@@ -149,9 +149,23 @@ updateSemesterDate = async (req, res) => {
   }
 };
 
+// Get all available years and semester for Admin
+getYearsSemester = async (req, res) => {
+  const sql = "SELECT `Academic_Year`, `Academic_Term` FROM `projectonterm`";
+  con.query(sql, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
 module.exports = {
   getProgressionDuedate,
   updateProgressionDuedate,
   getSemesterDate,
-  updateSemesterDate
+  updateSemesterDate,
+  getYearsSemester
 };

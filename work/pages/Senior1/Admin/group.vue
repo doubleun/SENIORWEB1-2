@@ -2,59 +2,75 @@
   <section>
     <main class="admin-group-manage-main">
       <h1>Group</h1>
+      <!-- <button @click="test">test</button> -->
 
       <!-- Action buttons -->
       <div class="admin-group-manage-actions">
         <div>
           <p class="white--text">Study Program</p>
-          <v-select :items="programsArr" dense solo hide-details off />
+          <v-select
+            v-model="selectedMajor"
+            :items="majors"
+            @change="handleChangeRenderGroups"
+            item-text="Major_Name"
+            item-value="Major_ID"
+            return-object
+            dense
+            solo
+            hide-details
+            off
+          />
         </div>
         <div>
           <p class="white--text">Year</p>
-          <v-select :items="yearsArr" dense solo hide-details />
+          <v-select
+            v-model="selectedYear"
+            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            @change="handleChangeRenderGroups"
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <p class="white--text">Semester</p>
-          <v-select :items="semestersArr" dense solo hide-details />
+          <v-select
+            v-model="selectedSemester"
+            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            @change="handleChangeRenderGroups"
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <v-btn color="success"
             ><v-icon>mdi-microsoft-excel</v-icon> Export to Excel</v-btn
           >
-          <v-btn color="error" @click="dialog1 = true"><v-icon>mdi-trash-can</v-icon> Delete</v-btn>
+          <v-btn color="error" @click="dialog1 = true"
+            ><v-icon>mdi-trash-can</v-icon> Delete</v-btn
+          >
         </div>
       </div>
-      <v-dialog
-          v-model="dialog1"
-          max-width="500px"
-        >
-          <v-card>
-            <v-card-title>
-              <span>Delete this?</span>
-            </v-card-title>
-            <v-card-text>
-              Have you confirmed to delete this?
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="light"
-                text
-                right
-                @click="dialog1 = false"
-              >
-                Close
-              </v-btn>
-              <v-btn
-                color="primary"
-                right
-                @click="dialog1 = false"
-              >
-                Yes
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+      <v-dialog v-model="dialog1" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span>Delete this?</span>
+          </v-card-title>
+          <v-card-text>
+            Have you confirmed to delete this?
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="light" text right @click="dialog1 = false">
+              Close
+            </v-btn>
+            <v-btn color="primary" right @click="dialog1 = false">
+              Yes
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-card>
         <v-card-title>
           Group List
@@ -74,14 +90,14 @@
           v-model="selected"
           :headers="headers"
           :single-select="singleSelect"
-          item-key="groupName"
-          :items="items"
+          item-key="Group_ID"
+          :items="allGroups"
           show-select
         >
-          <template v-slot:item.groupName="{ item }">
-            <v-row class="mb-6 pa-5 justify-space-around" no-gutters>
+          <template v-slot:item.Group_Name_Eng="props">
+            <v-row class="pa-2 justify-space-around" no-gutters>
               <div style="cursor: pointer">
-                {{ item.groupName }}
+                {{ props.item.Group_Name_Eng }}
               </div>
             </v-row>
           </template>
@@ -135,6 +151,65 @@ export default {
       ],
     };
   },
+  data() {
+    return {
+      selectedMajor: {},
+      selectedYear: null,
+      selectedSemester: null,
+      loading: false,
+      dialog1: false,
+      singleSelect: false,
+      selected: [],
+      headers: [
+        {
+          text: "GROUP NAME",
+          align: "center",
+          sortable: false,
+          value: "Group_Name_Eng"
+        },
+        { text: "MEMBER", align: "center", value: "Students" },
+        { text: "PROGRAM", align: "center", value: "Major" },
+        { text: "ADVISOR", align: "center", value: "Advisor" },
+        { text: "COMMITTEE", align: "center", value: "Committee" }
+      ]
+    };
+  },
+  mounted() {
+    // Set the default value
+    this.selectedMajor = this.majors[0];
+    this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+  },
+  async asyncData(context) {
+    // Fetch all majors
+    const majors = await context.$axios.$get("/user/getAllMajors");
+    // Fetch all years and semesters
+    const yearNSemsters = await context.$axios.$get("/date/allYearsSemester");
+    /// Fetch initial group
+    const allGroups = await context.$axios.$post("/group/getAllAdmin", {
+      Major: majors[0].Major_ID,
+      Year: yearNSemsters[0].Academic_Year,
+      Semester: yearNSemsters[0].Academic_Term
+    });
+    return { majors, yearNSemsters, allGroups };
+  },
+  methods: {
+    // TODO: Delete This
+    test() {
+      console.log(this.majors);
+      console.log(this.yearNSemsters);
+      console.log(this.allGroups);
+    },
+    async handleChangeRenderGroups() {
+      this.loading = true;
+      this.allGroups = await this.$axios.$post("group/getAllAdmin", {
+        Major: this.selectedMajor.Major_ID,
+        Year: this.selectedYear,
+        Semester: this.selectedSemester
+      });
+      this.loading = false;
+    }
+  }
 };
 </script>
 

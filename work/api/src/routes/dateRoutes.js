@@ -8,5 +8,6 @@ dateRoutes.post(
 );
 dateRoutes.post("/semester/get", dateControllers.getSemesterDate); // Admin
 dateRoutes.post("/semester/update", dateControllers.updateSemesterDate); // Admin
+dateRoutes.get("/allYearsSemester", dateControllers.getYearsSemester); // Admin
 
 module.exports = dateRoutes;
