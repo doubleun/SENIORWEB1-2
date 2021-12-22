@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 const con = require("../config/db");
 
 // get progression of dua date by major
@@ -171,4 +169,3 @@ module.exports = {
   updateSemesterDate,
   getYearsSemester
 };
->>>>>>> Stashed changes

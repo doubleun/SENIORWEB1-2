@@ -62,29 +62,6 @@ createGroup = async (req, res) => {
                 res.status(500).send("Internal Server Error");
               }
             } else {
-<<<<<<< Updated upstream
-                for (let i = 0; i < user.length; i++) {
-                    await con.query(
-                        sql2,
-                        [
-                            user[i]
-                        ],
-                        (err, result, fields) => {
-                            if (err) {
-                                console.log("error code second is " + err.code);
-                                if (err.code == "ER_DUP_ENTRY") {
-                                    res.status(500).send("Duplicate data");
-                                } else {
-                                    res.status(500).send("Internal Server Error");
-                                }
-                            } else {
-                            
-                            }
-                        }
-                    )
-                }
-=======
->>>>>>> Stashed changes
             }
           });
         }
@@ -125,21 +102,6 @@ getByMajor = async (req, res) => {
 };
 
 getByRole = async (req, res) => {
-<<<<<<< Updated upstream
-    const Email = req.body.Email
-
-    const sql = 'SELECT COUNT(Group_Member_ID) AS commitee,(SELECT COUNT(Group_Member_ID) FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 0) AS advicee FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 1;'
-    await con.query(sql, [Email,Email], async(err, result, fields)  => {
-        if (err) {
-            console.log(err)
-            res.status(500).send("Internal Server Error");
-        } else {
-            res.status(200).json(result)
-        }
-
-    })
-}
-=======
   const Email = req.body.Email;
 
   const sql =
@@ -153,7 +115,6 @@ getByRole = async (req, res) => {
     }
   });
 };
->>>>>>> Stashed changes
 
 deletes = async (req, res) => {
   const groupId = req.body.Group_ID;
@@ -169,22 +130,6 @@ deletes = async (req, res) => {
 };
 
 statusgroup = async (req, res) => {
-<<<<<<< Updated upstream
-    const {User_Status,User_Email,Group_Id} = req.body
-    const sql = 'UPDATE groupmembers SET User_Status =? WHERE User_Email = ? AND Group_ID = ?;'
-    await con.query(sql,[User_Status,User_Email,Group_Id], (err, result, fields) => {
-        if (err) {
-            console.log(err)
-            res.status(500).send("Internal Server Error");
-        } else {
-            res.status(200).json(result)
-        }
-
-    })
-}
-
-module.exports = { getAll, createGroup,statusgroup, getByMajor, deletes, getByRole}
-=======
   const { User_Status, User_Email, Group_Id } = req.body;
   const sql =
     "UPDATE groupmembers SET User_Status =? WHERE User_Email = ? AND Group_ID = ?;";
@@ -278,4 +223,3 @@ module.exports = {
   getGroupScore,
   getAllGroupsAdmin
 };
->>>>>>> Stashed changes

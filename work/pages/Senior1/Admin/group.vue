@@ -47,33 +47,6 @@
           <v-btn color="success"
             ><v-icon>mdi-microsoft-excel</v-icon> Export to Excel</v-btn
           >
-<<<<<<< Updated upstream
-          <v-btn color="error"><v-icon>mdi-trash-can</v-icon> Delete</v-btn>
-        </div>
-      </div>
-
-      <!-- Group table card -->
-      <LongTableCard tableTitle="Group">
-        <template v-slot:data>
-          <!-- Table attributes -->
-          <template v-for="attr in attrs">
-            <h5 :key="attr">{{ attr }}</h5>
-          </template>
-
-          <!-- Table data -->
-          <template v-for="group in groupsArr">
-            <div :key="group.id + 1" class="group-manage-checkbox-container">
-              <v-checkbox v-model="checkbox" value="John" hide-details dense>
-                <template v-slot:label>
-                  <h5>{{ group.name }}</h5>
-                </template>
-              </v-checkbox>
-            </div>
-            <p :key="group.id + 2">{{ group.member }}</p>
-            <p :key="group.id + 3">{{ group.program }}</p>
-            <p :key="group.id + 4">{{ group.advisor }}</p>
-            <p :key="group.id + 5">{{ group.committee.join(", ") }}</p>
-=======
           <v-btn color="error" @click="dialog1 = true"
             ><v-icon>mdi-trash-can</v-icon> Delete</v-btn
           >
@@ -127,10 +100,9 @@
                 {{ props.item.Group_Name_Eng }}
               </div>
             </v-row>
->>>>>>> Stashed changes
           </template>
-        </template>
-      </LongTableCard>
+        </v-data-table>
+      </v-card>
     </main>
   </section>
 </template>
@@ -142,97 +114,6 @@ export default {
   layout: "admin",
   components: {
     LongTableCard
-<<<<<<< Updated upstream
-  },
-  data: () => ({
-    programsArr: ["Information and Communication Engineering"],
-    yearsArr: ["2021"],
-    semestersArr: ["1/2021", "2/2021"],
-    attrs: ["GROUP NAME", "MEMBER", "PROGRAM", "ADVISOR", "COMMITTEE"],
-    groupsArr: [
-      {
-        id: 1,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 2,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 3,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 4,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 5,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 6,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 7,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 8,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 9,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      },
-      {
-        id: 10,
-        name: "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
-        member: "Anuthep Tayngam",
-        program: "Computer Science",
-        advisor: "Surapong Uttama",
-        committee: ["Khwnuta Kirimasthong", "Sarawut Jaijma"]
-      }
-    ]
-  })
-=======
   },
   data() {
     return {
@@ -265,22 +146,15 @@ export default {
   },
   async asyncData(context) {
     // Fetch all majors
-    const majors = await context.$axios.$get(
-      "http://localhost:3000/api/user/getAllMajors"
-    );
+    const majors = await context.$axios.$get("/user/getAllMajors");
     // Fetch all years and semesters
-    const yearNSemsters = await context.$axios.$get(
-      "http://localhost:3000/api/date/allYearsSemester"
-    );
+    const yearNSemsters = await context.$axios.$get("/date/allYearsSemester");
     /// Fetch initial group
-    const allGroups = await context.$axios.$post(
-      "http://localhost:3000/api/group/getAllAdmin",
-      {
-        Major: majors[0].Major_ID,
-        Year: yearNSemsters[0].Academic_Year,
-        Semester: yearNSemsters[0].Academic_Term
-      }
-    );
+    const allGroups = await context.$axios.$post("/group/getAllAdmin", {
+      Major: majors[0].Major_ID,
+      Year: yearNSemsters[0].Academic_Year,
+      Semester: yearNSemsters[0].Academic_Term
+    });
     return { majors, yearNSemsters, allGroups };
   },
   methods: {
@@ -292,18 +166,14 @@ export default {
     },
     async handleChangeRenderGroups() {
       this.loading = true;
-      this.allGroups = await this.$axios.$post(
-        "http://localhost:3000/api/group/getAllAdmin",
-        {
-          Major: this.selectedMajor.Major_ID,
-          Year: this.selectedYear,
-          Semester: this.selectedSemester
-        }
-      );
+      this.allGroups = await this.$axios.$post("group/getAllAdmin", {
+        Major: this.selectedMajor.Major_ID,
+        Year: this.selectedYear,
+        Semester: this.selectedSemester
+      });
       this.loading = false;
     }
   }
->>>>>>> Stashed changes
 };
 </script>
 

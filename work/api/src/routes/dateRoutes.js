@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 const dateRoutes = require("express").Router();
 const dateControllers = require("../controllers/dateControllers");
 
@@ -13,4 +11,3 @@ dateRoutes.post("/semester/update", dateControllers.updateSemesterDate); // Admi
 dateRoutes.get("/allYearsSemester", dateControllers.getYearsSemester); // Admin
 
 module.exports = dateRoutes;
->>>>>>> Stashed changes
