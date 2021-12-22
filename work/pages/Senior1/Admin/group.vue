@@ -92,6 +92,7 @@
           :single-select="singleSelect"
           item-key="Group_ID"
           :items="allGroups"
+          :search="search"
           show-select
         >
           <template v-slot:item.Group_Name_Eng="props">
@@ -144,17 +145,23 @@ export default {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
-  async asyncData(context) {
-    // Fetch all majors
-    const majors = await context.$axios.$get("/user/getAllMajors");
-    // Fetch all years and semesters
-    const yearNSemsters = await context.$axios.$get("/date/allYearsSemester");
-    /// Fetch initial group
-    const allGroups = await context.$axios.$post("/group/getAllAdmin", {
-      Major: majors[0].Major_ID,
-      Year: yearNSemsters[0].Academic_Year,
-      Semester: yearNSemsters[0].Academic_Term
-    });
+  async asyncData({ $axios }) {
+    let majors, yearNSemsters, allGroups;
+    try {
+      // Fetch all majors
+      majors = await $axios.$get("/user/getAllMajors");
+      // Fetch all years and semesters
+      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+      /// Fetch initial group
+      allGroups = await $axios.$post("/group/getAllAdmin", {
+        Major: majors[0].Major_ID,
+        Year: yearNSemsters[0].Academic_Year,
+        Semester: yearNSemsters[0].Academic_Term
+      });
+    } catch (err) {
+      console.log(err);
+    }
+
     return { majors, yearNSemsters, allGroups };
   },
   methods: {
