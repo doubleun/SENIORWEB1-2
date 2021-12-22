@@ -124,7 +124,7 @@ deletes = async (req, res) => {
             console.log(err);
             res.status(500).send("Internal Server Error");
         } else {
-            res.status(200).json(result);
+            res.status(200)
         }
     });
 };
