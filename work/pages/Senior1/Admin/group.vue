@@ -145,8 +145,10 @@ export default {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
+  
   async asyncData({ $axios }) {
     let majors, yearNSemsters, allGroups;
+
     try {
       // Fetch all majors
       majors = await $axios.$get("/user/getAllMajors");

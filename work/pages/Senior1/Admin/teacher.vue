@@ -7,11 +7,54 @@
       <div class="admin-teacher-manage-actions">
         <div>
           <p class="white--text">Study Program</p>
-          <v-select :items="programsArr" dense solo hide-details off />
+          <v-select
+            v-model="selectedMajor"
+            :items="majors"
+            @change="handelchangeRenderTeachers"
+            item-text="Major_Name"
+            item-value="Major_ID"
+            return-object
+            dense
+            solo
+            hide-details
+            off
+          />
+        </div>
+        <div>
+          <p class="white--text">Year</p>
+          <v-select
+            v-model="selectedYear"
+            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            @change="handelchangeRenderTeachers"
+            dense
+            solo
+            hide-details
+          />
+        </div>
+        <div>
+          <p class="white--text">Semester</p>
+          <v-select
+            v-model="selectedSemester"
+            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            @change="handelchangeRenderTeachers"
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <p class="white--text">Role</p>
-          <v-select :items="roleArr" dense solo hide-details />
+          <v-select
+            v-model="selectedRole"
+            :items="roles"
+            @change="handelchangeRenderTeachers"
+            item-text="Role_Name"
+            item-value="Role_ID"
+            return-object
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <v-btn color="light"
@@ -20,184 +63,98 @@
         </div>
       </div>
 
-      <!-- Teacher table card -->
-      <LongTableCard tableTitle="Teacher" smallBtn>
-        <template v-slot:data>
-          <!-- Table attributes -->
-          <template v-for="attr in attrs">
-            <h5 :key="attr">{{ attr }}</h5>
-          </template>
-
-          <!-- Table data -->
-          <template v-for="teacher in teachersArr">
-            <p :key="teacher.id + 1">{{ teacher.email }}</p>
-            <p :key="teacher.id + 2">{{ teacher.name }}</p>
-            <p :key="teacher.id + 3">{{ teacher.program }}</p>
-            <p :key="teacher.id + 4">{{ teacher.role }}</p>
-
-            <!-- Edit score criteria button -->
-            <v-dialog
-              v-model="teacher.editDialog"
-              width="500"
-              :key="teacher.id + 5"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  color="blue darken-4"
-                  class="white--text"
-                  v-on="on"
-                  v-bind="attrs"
-                  ><v-icon>mdi-pen</v-icon> Edit</v-btn
-                >
-              </template>
-
-              <!-- Edit teacher dialog -->
-              <v-card class="edit-teacher-dialog-card">
-                <v-card-title class="text-h5">
-                  Edit teacher role
-                </v-card-title>
-
-                <div class="edit-teacher-input-flex">
-                  <div v-for="(attr, index) in attrs.slice(0, 3)" :key="index">
-                    <v-subheader>{{ attr }}</v-subheader>
-                    <v-text-field
-                      outlined
-                      dense
-                      hide-details
-                      disabled
-                    ></v-text-field>
-                  </div>
-                  <div>
-                    <v-subheader>ROLE</v-subheader>
-                    <v-select :items="roleArr" dense filled hide-details off />
-                  </div>
-                </div>
-
-                <v-divider></v-divider>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <!-- <v-btn
-              color="primary"
-              class="admin-teacher-manage-edit-btn"
-              ><v-icon>mdi-pen</v-icon> Edit</v-btn
-            > -->
-                  <v-btn
-                    color="secondary"
-                    text
-                    @click="teacher.editDialog = false"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn color="primary" @click="teacher.editDialog = false">
-                    Save
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </template>
-        </template>
-      </LongTableCard>
+      <AdminSemesterDate
+        :tableTitle="'Manage Teachers'"
+        :headers="headers"
+        itemKey="User_Email"
+        :items="teachers"
+        :itemPerPage="10"
+      />
     </main>
   </section>
 </template>
 
 <script>
-import LongTableCard from "@/components/Admin/longTableCard";
+// import LongTableCard from "@/components/Admin/longTableCard";
+import AdminSemesterDate from "@/components/Admin/adminDataTable";
 
 export default {
   layout: "admin",
   components: {
-    LongTableCard
+    AdminSemesterDate
   },
   data: () => ({
-    programsArr: ["Information and Communication Engineering"],
-    roleArr: ["Coordinator", "Teacher"],
-    attrs: ["EMAIL", "NAME", "STUDY PROGRAM", "ROLE", "ACTION"],
-    teachersArr: [
-      {
-        id: 1,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false,
-        editDialog: false
-      },
-      {
-        id: 2,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 3,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 4,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 5,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 6,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 7,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 8,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 9,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 10,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      }
+    selectedMajor: {},
+    selectedYear: null,
+    selectedSemester: null,
+    selectedRole: null,
+    loading: false,
+    dialog1: false,
+    singleSelect: false,
+    selected: [],
+    headers: [
+      ,
+      { text: "NAME", align: "center", value: "User_Name" },
+      { text: "EMAIL", align: "center", value: "User_Email" },
+      // { text: "STUDY PROGRAM", align: "center", value: "Major_ID" },
+      { text: "ROLE", align: "center", value: "User_Role" }
+      // { text: "SEM", align: "center", value: "Committee" },
     ]
-  })
+  }),
+
+  async asyncData({ $axios }) {
+    let teachers, majors, yearNSemsters, roles;
+    try {
+      // Fetch all majors
+      majors = await $axios.$get("/user/getAllMajors");
+
+      // Fetch all years and semesters
+      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+
+      // Fetch teacher's roles
+      roles = await $axios.$get("/user/getTeacherRole");
+
+      /// Fetch initial teachers
+      teachers = await $axios.$post("/user/getAllUserWithMajor", {
+        Major_ID: majors[0].Major_ID,
+        Academic_Year: yearNSemsters[0].Academic_Year,
+        Academic_Term: yearNSemsters[0].Academic_Term,
+        User_Role: roles[0].Role_ID
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    return { teachers, majors, yearNSemsters, roles };
+  },
+
+  mounted() {
+    // Set the default value
+    this.selectedMajor = this.majors[0];
+    this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    this.selectedRole = this.roles[0];
+  },
+
+  methods: {
+    async handelchangeRenderTeachers() {
+      console.log("role", this.selectedRole.Role_ID);
+      console.log("major", this.selectedRole.Major_ID);
+      this.loading = true;
+      try {
+        this.teachers = await this.$axios.$post("/user/getAllUserWithMajor", {
+          Major_ID: this.selectedMajor.Major_ID,
+          Academic_Year: this.selectedYear,
+          Academic_Term: this.selectedSemester,
+          User_Role: this.selectedRole.Role_ID
+        });
+      } catch (error) {
+        console.log(error);
+      }
+
+      this.loading = false;
+    }
+  }
 };
 </script>
 
