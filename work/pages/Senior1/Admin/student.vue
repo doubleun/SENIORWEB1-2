@@ -65,19 +65,18 @@ export default {
         {
           Major_ID: 1,
           Academic_Year: 2019,
-          Academic_Term: 2
+          Academic_Term: 2,
+          // User_Role:"0,2"
+          User_Role:"1"
         }
       );
-      // studentsArr;
-      // console.log(resp)
     } catch (error) {
       console.log("error", error);
     }
     return { student: resp };
   },
   mounted() {
-    // this.studentsArr=this.resp
-    console.log(this.student);
+    console.log("font end ",this.student);
   }
 };
 </script>

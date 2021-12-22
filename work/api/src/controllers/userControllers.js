@@ -24,10 +24,10 @@ countUser = async (req, res) => {
 };
 
 getalluserwithmajor = async (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term } = req.body
-  const sql = "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99";
+  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body
+  const sql = "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
-  await con.query(sql, [Major_ID, Academic_Year, Academic_Term], (err, result, fields) => {
+  await con.query(sql, [Major_ID, Academic_Year, Academic_Term, User_Role], (err, result, fields) => {
     if (err) {
       res.status(500).send("Internal Server Error");
     } else {
