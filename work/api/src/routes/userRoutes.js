@@ -8,5 +8,6 @@ userRouter.get("/getalluser", UserControllers.getAllUser);
 userRouter.post("/amount", UserControllers.countUser);
 userRouter.post("/importstudent", UserControllers.uploadfile);
 userRouter.post("/importteacher", UserControllers.uploadfileteacher);
+userRouter.get("/getAllMajors", UserControllers.getAllMajors); // admin
 
 module.exports = userRouter;
