@@ -20,16 +20,18 @@
         </div>
       </div>
 
+      <!-- Data table here -->
+      <AdminSemesterDate :tableTitle="'Manage Students'" />
       <!-- Student table card -->
-      <LongTableCard tableTitle="Student">
-        <template v-slot:data>
-          <!-- Table attributes -->
-          <template v-for="attr in attrs">
+      <!-- <LongTableCard tableTitle="Student">
+        <template v-slot:data> -->
+      <!-- Table attributes -->
+      <!-- <template v-for="attr in attrs">
             <h5 :key="attr">{{ attr }}</h5>
-          </template>
+          </template> -->
 
-          <!-- Table data -->
-          <template v-for="student in student">
+      <!-- Table data -->
+      <!-- <template v-for="student in student">
             <p :key="student.id + 1">{{ student.studentId }}</p>
             <p :key="student.id + 2">{{ student.name }}</p>
             <p :key="student.id + 3">{{ student.email }}</p>
@@ -37,18 +39,19 @@
             <p :key="student.id + 5">{{ student.program }}</p>
           </template>
         </template>
-      </LongTableCard>
+      </LongTableCard> -->
     </main>
   </section>
 </template>
 
 <script>
-import LongTableCard from "@/components/Admin/longTableCard";
+// import LongTableCard from "@/components/Admin/longTableCard";
+import AdminSemesterDate from "@/components/Admin/adminDataTable";
 
 export default {
   layout: "admin",
   components: {
-    LongTableCard
+    AdminSemesterDate
   },
   data: () => ({
     programsArr: ["Information and Communication Engineering"],
@@ -67,7 +70,7 @@ export default {
           Academic_Year: 2019,
           Academic_Term: 2,
           // User_Role:"0,2"
-          User_Role:"1"
+          User_Role: "1"
         }
       );
     } catch (error) {
@@ -76,7 +79,7 @@ export default {
     return { student: resp };
   },
   mounted() {
-    console.log("font end ",this.student);
+    console.log("font end ", this.student);
   }
 };
 </script>
