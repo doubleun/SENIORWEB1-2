@@ -151,7 +151,7 @@ updateSemesterDate = async (req, res) => {
 
 // Get all available years and semester for Admin
 getYearsSemester = async (req, res) => {
-  const sql = "SELECT `Academic_Year`, `Academic_Term` FROM `projectonterm`";
+  const sql = "SELECT `Academic_Year`, `Academic_Term` FROM `projectonterm` ORDER BY Academic_Year DESC ";
   con.query(sql, (err, result, fields) => {
     if (err) {
       console.log(err);

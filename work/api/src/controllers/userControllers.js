@@ -6,7 +6,7 @@ const { result } = require("lodash");
 
 // TODO: Move this to its own route ?
 getAllMajors = async (req, res) => {
-  const sql = "SELECT * FROM `majors` WHERE `Major_Status` = 1";
+  const sql = "SELECT * FROM `majors` WHERE `Major_Status` = 1 AND Major_ID !=99";
   con.query(sql, (err, result, fields) => {
     if (err) {
       console.log(err);
