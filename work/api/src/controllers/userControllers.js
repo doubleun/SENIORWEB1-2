@@ -44,10 +44,11 @@ countUser = async (req, res) => {
   );
 };
 
-getAllUser = async (req, res) => {
-  const sql = "SELECT * FROM `users`";
+getalluserwithmajor = async (req, res) => {
+  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body
+  const sql = "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
-  await con.query(sql, (err, result, fields) => {
+  await con.query(sql, [Major_ID, Academic_Year, Academic_Term, User_Role], (err, result, fields) => {
     if (err) {
       res.status(500).send("Internal Server Error");
     } else {
@@ -73,24 +74,24 @@ uploadfile = async (req, res) => {
       let name = Date.now() + "_" + avatar.name;
       avatar.mv("uploads/excel/" + name);
 
-      var sql =
-        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) ";
+      var sql = "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) "
 
       var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
-        let semiter;
-        let term;
-        let coursec;
+        let semiter
+        let term
+        let coursec
         let errorcou = 0;
         for (let i = 8; i < rows.length; i++) {
-          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
-          term = rows[1][0].split(" ")[4];
-          semiter = rows[1][0].split(" ")[6];
+
+          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th"
+          term = rows[1][0].split(" ")[4]
+          semiter = rows[1][0].split(" ")[6]
           if (term == "FIRST") {
-            term = 1;
+            term = 1
           } else if (term == "SECOND") {
-            term = 2;
+            term = 2
           }
-          coursec = rows[4][0].split(" ")[4];
+          coursec = rows[4][0].split(" ")[4]
 
           con.query(
             sql,
@@ -142,30 +143,29 @@ uploadfileteacher = async (req, res) => {
     } else {
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
       let avatar = req.files[""];
-      const { Major, Senior } = req.body;
+      const { Major, Senior } = req.body
 
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
       let name = Date.now() + "_" + avatar.name;
       avatar.mv("uploads/excel/" + name);
-
-      var sql =
-        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) ";
+      var sql = "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) "
 
       var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
-        let semiter;
-        let term;
-        let coursec;
+        let semiter
+        let term
+        let coursec
         let errorcou = 0;
         for (let i = 8; i < rows.length; i++) {
-          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
-          term = rows[1][0].split(" ")[4];
-          semiter = rows[1][0].split(" ")[6];
+
+          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th"
+          term = rows[1][0].split(" ")[4]
+          semiter = rows[1][0].split(" ")[6]
           if (term == "FIRST") {
-            term = 1;
+            term = 1
           } else if (term == "SECOND") {
-            term = 2;
+            term = 2
           }
-          coursec = rows[4][0].split(" ")[4];
+          coursec = rows[4][0].split(" ")[4]
 
           // con.query(
           //   sql,
@@ -208,7 +208,7 @@ uploadfileteacher = async (req, res) => {
 };
 
 module.exports = {
-  getAllUser,
+  getalluserwithmajor,
   uploadfileteacher,
   uploadfile,
   countUser,

@@ -19,11 +19,14 @@ uploadAssignments = async (req, res) => {
   if (!assignments) res.status(404).json({ msg: "No files attached!" });
 
   // Get other fields
-  const { Progress_ID, Group_ID, Assignment_Type: Type } = req.body;
+  let { Progress_ID, Group_ID, Assignment_Types: Types } = req.body;
+  Types = await JSON.parse(Types);
 
-  // Mutate assignments name
-  assignments = assignments.map(assignment => ({
+  // Add type to each assignment
+  assignments = assignments.map((assignment, index) => ({
     ...assignment,
+    type: Types[index],
+    // Mutate name of each assignment
     name: Date.now() + "_" + assignment.name
   }));
 
@@ -45,7 +48,7 @@ uploadAssignments = async (req, res) => {
           // Insert each file into database
           con.query(
             files,
-            [assignment.name, Type, assignmentResult.insertId],
+            [assignment.name, assignment.type, assignmentResult.insertId],
             (err, result, fields) => {
               if (err) throw err;
             }
@@ -156,6 +159,7 @@ updateProgression = async (req, res) => {
 
 // get progression of dua date by major (view assigment or teacher and co)
 getAssignment = async (req, res) => {
+  console.log(req.body)
   const {
     Group_ID,
     Progress_ID,
@@ -175,18 +179,25 @@ getAssignment = async (req, res) => {
         console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
-        con.query(
-          score,
-          [assigment[0].Assignment_ID, Group_Member_ID],
-          (err, score, fields) => {
-            if (err) {
-              console.log(err);
-              res.status(500).send("Internal Server Error");
-            } else {
-              res.status(200).json({ assigment: assigment, score: score });
+
+        // console.log(assigment)
+        if (assigment.length == 0) {
+          res.status(200).send("No Assignment")
+        } else {
+
+          con.query(
+            score,
+            [assigment[0].Assignment_ID, Group_Member_ID],
+            (err, score, fields) => {
+              if (err) {
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+              } else {
+                res.status(200).json({ assigment: assigment, score: score });
+              }
             }
-          }
-        );
+          );
+        }
       }
     }
   );
@@ -241,4 +252,4 @@ countAssigment = async (req, res) => {
   );
 };
 
-module.exports = { uploadAssignments };
+module.exports = { uploadAssignments, getAssignment };

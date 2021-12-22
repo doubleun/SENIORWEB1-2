@@ -113,7 +113,43 @@ import LongTableCard from "@/components/Admin/longTableCard";
 export default {
   layout: "admin",
   components: {
-    LongTableCard
+    LongTableCard,
+  },
+  data() {
+    return {
+      dialog1: false,
+      singleSelect: false,
+      selected: [],
+      headers: [
+        {
+          text: "GROUP NAME",
+          align: "center",
+          sortable: false,
+          value: "groupName",
+        },
+        { text: "MEMBER", align: "center", value: "member" },
+        { text: "PROGRAM", align: "center", value: "program" },
+        { text: "ADVISOR", align: "center", value: "adviosr" },
+        { text: "COMMITTEE", align: "center", value: "committee" },
+      ],
+      items: [
+        {
+          groupName:
+            "MOBILE APPLICATION FOR KAREN TRANSLATIOR FOR PHYSIOTHERAPY",
+          member: "Anuthep Tayngam, Pipat Marsri",
+          program: "Computer Science and Innovation",
+          adviosr: "Surapong Uttama",
+          committee: "Khwnuta Kirimasthong, Sarawut Jaijma",
+        },
+        {
+          groupName: "Ablefetch: Online Platform for Freelancing Service",
+          member: "Sasreen Abdunsomad, Pipat Marsri",
+          program: "Computer Science and Innovation",
+          adviosr: "Nilubon Kurubanjerdjit ",
+          committee: "Soontarin Nupap, Khwunta Kirimasthong",
+        },
+      ],
+    };
   },
   data() {
     return {

@@ -104,17 +104,17 @@ getByMajor = async (req, res) => {
 getByRole = async (req, res) => {
   const Email = req.body.Email;
 
-  const sql =
-    "SELECT COUNT(Group_Member_ID) AS commitee,(SELECT COUNT(Group_Member_ID) FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 0) AS advicee FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 1;";
-  await con.query(sql, [Email, Email], async (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.status(200).json(result);
-    }
-  });
-};
+    const sql = 'SELECT COUNT(Group_Member_ID) AS commitee,(SELECT COUNT(Group_Member_ID) FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 0) AS advicee FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 1;'
+    await con.query(sql, [Email, Email], async (err, result, fields) => {
+        if (err) {
+            console.log(err)
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.status(200).json(result)
+        }
+
+    })
+}
 
 deletes = async (req, res) => {
   const groupId = req.body.Group_ID;
@@ -130,22 +130,15 @@ deletes = async (req, res) => {
 };
 
 statusgroup = async (req, res) => {
-  const { User_Status, User_Email, Group_Id } = req.body;
-  const sql =
-    "UPDATE groupmembers SET User_Status =? WHERE User_Email = ? AND Group_ID = ?;";
-  await con.query(
-    sql,
-    [User_Status, User_Email, Group_Id],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        res.status(500).send("Internal Server Error");
-      } else {
-        res.status(200).json(result);
-      }
-    }
-  );
-};
+    const { User_Status, User_Email, Group_Id } = req.body
+    const sql = 'UPDATE groupmembers SET User_Status =? WHERE User_Email = ? AND Group_ID = ?;'
+    await con.query(sql, [User_Status, User_Email, Group_Id], (err, result, fields) => {
+        if (err) {
+            console.log(err)
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.status(200).json(result)
+        }
 
 // list group that teacher are advisor or committee
 listOwnGroup = async (req, res) => {
@@ -211,15 +204,59 @@ getGroupScore = async (req, res) => {
   );
 };
 
+// list group that teacher are advisor or committee
+listOwnGroup = async (req, res) => {
+    const { User_Email, Project_on_term_ID, Group_Role } = req.body
+    const sql = 'SELECT * FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND Group_Role=?) AND groups.Project_on_term_ID=?'
+    await con.query(sql, [User_Email, Group_Role, Project_on_term_ID], (err, result, fields) => {
+        if (err) {
+            console.log(err)
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.status(200).json(result)
+        }
+    })
+}
+
+getScoreCoor = async (req, res) => {
+    const major = req.body.Major
+
+    const sql = 'SELECT st.User_Identity_ID,st.User_Name AS student,tea.User_Name AS Advisor,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=gm.Group_ID) AS progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gm.Group_ID) AS progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS Topic FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = 1 AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?;'
+    await con.query(sql, [major], (err, result, fields) => {
+        if (err) {
+            console.log(err)
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.status(200).json(result)
+        }
+
+    })
+}
+
+getGroupScore = async (req, res) => {
+    const Group_ID = req.body.Group_ID
+
+    const sql = 'SELECT gmb.Group_Member_ID, usr.User_Email,usr.User_Identity_ID, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=?) AS progress1, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=?) AS progress2, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=?) AS progress3, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=?) AS progress4, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=?) AS FinalPresentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=?) AS FinalDocumentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=?) AS Topic, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=?) AS Groups  FROM users usr INNER JOIN groupmembers gmb ON usr.User_Email = gmb.User_Email INNER JOIN groups gp ON gmb.Group_ID=gp.Group_ID WHERE gmb.Group_ID=? AND usr.Project_on_term_ID=gmb.Project_on_term_ID'
+    await con.query(sql, [Group_ID, Group_ID, Group_ID, Group_ID, Group_ID, Group_ID, Group_ID, Group_ID, Group_ID,], (err, result, fields) => {
+        if (err) {
+            console.log(err)
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.status(200).json(result)
+        }
+
+    })
+}
+
 module.exports = {
-  getAll,
-  createGroup,
-  statusgroup,
-  getByMajor,
-  deletes,
-  getByRole,
-  listOwnGroup,
-  getScoreCoor,
-  getGroupScore,
-  getAllGroupsAdmin
-};
+    getAll,
+    createGroup,
+    statusgroup,
+    getByMajor,
+    deletes,
+    getByRole,
+    listOwnGroup,
+    getScoreCoor,
+    getGroupScore,
+    getAllGroupsAdmin
+}
