@@ -18,7 +18,14 @@
       :items-per-page="itemPerPage"
       :item-key="itemKey"
       class="elevation-1"
-    ></v-data-table>
+    >
+      <template v-slot:item.User_Role="{ item }">
+        <!-- <v-chip
+      > -->
+        {{ (item.User_Role = handelTextRole(item.User_Role)) }}
+        <!-- </v-chip> -->
+      </template>
+    </v-data-table>
   </v-card>
 </template>
 
@@ -30,6 +37,21 @@ export default {
     itemKey: String,
     itemPerPage: Number,
     items: Array
+  },
+  methods: {
+    handelTextRole(role) {
+      console.log("handel text role");
+      console.log(role);
+      if (role == 0) {
+        return "Teacher";
+      } else if (role == 1) {
+        return "Student";
+      } else if (role == 2) {
+        return "Coordinator";
+      } else {
+        return role;
+      }
+    }
   }
 };
 </script>
