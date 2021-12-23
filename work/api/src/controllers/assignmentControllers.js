@@ -158,6 +158,7 @@ updateProgression = async (req, res) => {
 };
 
 // get progression of dua date by major (view assigment or teacher and co)
+// * if student don't send Group_Member_ID to api
 getAssignment = async (req, res) => {
   console.log(req.body)
   const {
@@ -167,10 +168,14 @@ getAssignment = async (req, res) => {
     Project_on_term_ID
   } = req.body;
   // const Project_on_term_ID = req.params.Project_on_term_ID
+  // const assigment =
+  //   "SELECT * FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Group_ID=? AND ass.Progress_ID=?";
   const assigment =
-    "SELECT * FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Group_ID=? AND ass.Progress_ID=?";
-  const score =
-    "SELECT * FROM `scores` WHERE Assignment_ID=? AND Group_Member_ID=?";
+    "SELECT * FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Group_ID=? AND ass.Progress_ID=? AND fl.Score_ID IS NULL";
+  const comments = Group_Member_ID != null ?
+    "SELECT sc.Score_ID, sc.Comment,fl.File_Name,gmb.Group_Role,gmb.Group_Member_ID FROM scores sc INNER JOIN files fl ON sc.Score_ID=fl.Score_ID INNER JOIN groupmembers gmb ON sc.Group_Member_ID = gmb.Group_Member_ID WHERE fl.Assignment_ID=? AND sc.Group_Member_ID=?" :
+    "SELECT sc.Score_ID, sc.Comment,fl.File_Name,gmb.Group_Role,gmb.Group_Member_ID FROM scores sc INNER JOIN files fl ON sc.Score_ID=fl.Score_ID INNER JOIN groupmembers gmb ON sc.Group_Member_ID = gmb.Group_Member_ID WHERE fl.Assignment_ID=?";
+
   await con.query(
     assigment,
     [Project_on_term_ID, Group_ID, Progress_ID],
@@ -179,21 +184,23 @@ getAssignment = async (req, res) => {
         console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
-
         // console.log(assigment)
         if (assigment.length == 0) {
           res.status(200).send("No Assignment")
         } else {
-
           con.query(
-            score,
+            comments,
             [assigment[0].Assignment_ID, Group_Member_ID],
-            (err, score, fields) => {
+            (err, comments, fields) => {
               if (err) {
                 console.log(err);
                 res.status(500).send("Internal Server Error");
               } else {
-                res.status(200).json({ assigment: assigment, score: score });
+                if (comments.length == 0) {
+                  res.status(200).send("No Comments From Teacher")
+                } else {
+                  res.status(200).json({ "assigment": assigment, "comments": comments });
+                }
               }
             }
           );
@@ -202,6 +209,7 @@ getAssignment = async (req, res) => {
     }
   );
 };
+
 
 // view all assigment by progress id (admin)
 getAllAssignment = async (req, res) => {
