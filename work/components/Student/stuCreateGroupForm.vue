@@ -12,7 +12,7 @@
             <div class="projectName">
               <h4 class="font-weight-bold">Project Name</h4>
               <v-text-field
-                ref="thaiName"
+                ref=""
                 v-model="thaiName"
                 :rules="[() => !!thaiName || 'This field is required']"
                 required
@@ -43,8 +43,10 @@
                   <v-col cols="12" sm="6">
                     <v-text-field
                       ref="stuName"
-                      v-model="stuName"
-                      :rules="[() => !!stuName || 'This field is required']"
+                      v-model="name[member - 1]"
+                      :rules="[
+                        () => !!name[member - 1] || 'This field is required',
+                      ]"
                       required
                       label="Student Name"
                       outlined
@@ -54,9 +56,9 @@
                     </v-text-field>
                     <v-text-field
                       ref="stuPhoneNumber"
-                      v-model="stuPhoneNumber"
+                      v-model="phone[member - 1]"
                       :rules="[
-                        () => !!stuPhoneNumber || 'This field is required'
+                        () => !!phone[member - 1] || 'This field is required',
                       ]"
                       required
                       label="Student Phone Number"
@@ -68,8 +70,10 @@
                   <v-col cols="12" sm="6">
                     <v-text-field
                       ref="stuID"
-                      v-model="stuID"
-                      :rules="[() => !!stuID || 'This field is required']"
+                      v-model="idstu[member - 1]"
+                      :rules="[
+                        () => !!idstu[member - 1] || 'This field is required',
+                      ]"
                       required
                       label="Student ID"
                       outlined
@@ -79,7 +83,7 @@
                     </v-text-field>
                     <v-text-field
                       ref="stuEmail"
-                      v-model="stuEmail"
+                      v-model="email[member - 1]"
                       :rules="emailRules"
                       required
                       label="Student Lamduan Mail"
@@ -112,6 +116,7 @@
                     dense
                   ></v-text-field>
                   <v-text-field
+                    v-model="coadvisorName"
                     label="Co-advisor Name"
                     outlined
                     dense
@@ -128,7 +133,7 @@
                     ref="committee1Name"
                     v-model="committee1Name"
                     :rules="[
-                      () => !!committee1Name || 'This field is required'
+                      () => !!committee1Name || 'This field is required',
                     ]"
                     required
                     label="Committee One Name"
@@ -139,7 +144,7 @@
                     ref="committee2Name"
                     v-model="committee2Name"
                     :rules="[
-                      () => !!committee2Name || 'This field is required'
+                      () => !!committee2Name || 'This field is required',
                     ]"
                     required
                     label="Committee Two Name"
@@ -152,7 +157,9 @@
             <!-- Create button -->
             <v-row class="text-center"
               ><v-col
-                ><v-btn rounded dark color="indigo"> Create </v-btn></v-col
+                ><v-btn rounded dark color="indigo" @click="submitInfo">
+                  Create
+                </v-btn></v-col
               ></v-row
             >
           </v-col>
@@ -171,25 +178,66 @@ export default {
     stuPhoneNumber: "",
     stuEmail: "",
     advisorName: "",
+    advisorEmail: "6131302001@lamduan.mfu.ac.th",
     committee1Name: "",
+    committee1Email: "6131302001@lamduan.mfu.ac.th",
     committee2Name: "",
+    committee2Email: "6131302002@lamduan.mfu.ac.th",
+    coadvisorName: "",
     emailRules: [
-      v => !!v || "E-mail is required",
-      v =>
+      (v) => !!v || "E-mail is required",
+      (v) =>
         /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
           v
-        ) || "E-mail must be valid"
+        ) || "E-mail must be valid",
     ],
-    projectMembers: [1]
+    projectMembers: [1],
+    name: ["", "", "", ""],
+    phone: ["", "", "", ""],
+    idstu: ["", "", "", ""],
+    email: ["", "", "", ""],
+    major: 1,
   }),
   methods: {
     addMemberFields() {
       this.projectMembers = [
         ...this.projectMembers,
-        this.projectMembers.slice(-1)[0] + 1
+        this.projectMembers.slice(-1)[0] + 1,
       ];
-    }
-  }
+    },
+    async submitInfo() {
+      let number = 1;
+      if (this.name[1] != "") {
+        number++;
+      }
+      if (this.name[2] != "") {
+        number++;
+      }
+      if (this.name[3] != "") {
+        number++;
+      }
+
+      const res = await this.$axios.$post("group/createGroup", {
+       Project_NameTh: this.thaiName,
+          Project_NameEn: this.engName,
+          Studen_Number: number,
+          Advisor_Email: this.advisorEmail,
+          CoAdvisor_Name: this.coadvisorName,
+          Committee1_Email: this.committee1Email,
+          Committee2_Email: this.committee2Email,
+          Student1_Tel: this.phone[0],
+          Student2_Tel: this.phone[1],
+          Student3_Tel: this.phone[2],
+          Student4_Tel: this.phone[3],
+          Email_Student1: this.email[0],
+          Email_Student2: this.email[1],
+          Email_Student3: this.email[2],
+          Email_Student4: this.email[3],
+          Major: this.major,
+          Project_on_term_ID:this.$store.state.auth.currentUser.projectOnTerm
+      });
+    },
+  },
 };
 </script>
 <style scoped>
