@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CardStatus />
+    <CardStatus :info="info" />
     <Announcement :announcements="announcements" editable />
   </div>
 </template>
@@ -8,12 +8,13 @@
 import CardStatus from "@/components/Coordinator/homeCardStatus";
 import Announcement from "@/components/Coordinator/homeAnnouncementAdmin";
 export default {
-  layout: "admin",
   components: {
     CardStatus,
     Announcement
   },
+  data: () => ({}),
   async asyncData(context) {
+    // Get announcements
     const announcements = await context.$axios.$get(
       "http://localhost:3000/api/announc/all"
     );
@@ -24,7 +25,31 @@ export default {
       modal: false,
       allMajor: false
     }));
-    return { announcements: data };
-  }
+
+    // Get home info for the statistic cards
+    const adminUserAmount = await context.$axios.$post(
+      "http://localhost:3000/api/user/amount",
+      { Project_on_term_ID: 1 }
+    );
+    const adminInfo = [
+      {
+        title: "Students",
+        amount: adminUserAmount.students,
+        icon: "mdi-account-supervisor"
+      },
+      {
+        title: "Teachers",
+        amount: adminUserAmount.teachers,
+        icon: "mdi-account-multiple"
+      },
+      {
+        title: "Groups",
+        amount: adminUserAmount.groups,
+        icon: "mdi-account-multiple-plus"
+      }
+    ];
+    return { announcements: data, info: adminInfo };
+  },
+  layout: "admin"
 };
 </script>

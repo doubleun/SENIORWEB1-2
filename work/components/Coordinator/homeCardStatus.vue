@@ -32,27 +32,6 @@
 </template>
 <script>
 export default {
-  data: () => ({
-    info: [
-      {
-        title: "My Advisee",
-
-        amount: "10",
-        icon: "mdi-account-supervisor",
-      },
-      {
-        title: "Committee",
-
-        amount: "5",
-        icon: "mdi-account-multiple",
-      },
-      {
-        title: "Group Request",
-
-        amount: "8",
-        icon: "mdi-account-multiple-plus",
-      },
-    ],
-  }),
+  props: ["info"]
 };
 </script>

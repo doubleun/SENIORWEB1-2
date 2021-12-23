@@ -7,11 +7,40 @@
       <div class="admin-student-manage-actions">
         <div>
           <p class="white--text">Study Program</p>
-          <v-select :items="programsArr" dense solo hide-details off />
+          <v-select
+            v-model="selectedMajor"
+            :items="majors"
+            @change="handelchangeRenderStudents"
+            item-text="Major_Name"
+            item-value="Major_ID"
+            return-object
+            dense
+            solo
+            hide-details
+            off
+          />
+        </div>
+        <div>
+          <p class="white--text">Year</p>
+          <v-select
+            v-model="selectedYear"
+            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            @change="handelchangeRenderStudents"
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <p class="white--text">Semester</p>
-          <v-select :items="semestersArr" dense solo hide-details />
+          <v-select
+            v-model="selectedSemester"
+            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            @change="handelchangeRenderStudents"
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <v-btn color="light"
@@ -20,16 +49,24 @@
         </div>
       </div>
 
+      <!-- Data table here -->
+      <AdminSemesterDate
+        :tableTitle="'Manage Students'"
+        :headers="headers"
+        itemKey="User_Email"
+        :items="students"
+        :itemPerPage="10"
+      />
       <!-- Student table card -->
-      <LongTableCard tableTitle="Student">
-        <template v-slot:data>
-          <!-- Table attributes -->
-          <template v-for="attr in attrs">
+      <!-- <LongTableCard tableTitle="Student">
+        <template v-slot:data> -->
+      <!-- Table attributes -->
+      <!-- <template v-for="attr in attrs">
             <h5 :key="attr">{{ attr }}</h5>
-          </template>
+          </template> -->
 
-          <!-- Table data -->
-          <template v-for="student in studentsArr">
+      <!-- Table data -->
+      <!-- <template v-for="student in student">
             <p :key="student.id + 1">{{ student.studentId }}</p>
             <p :key="student.id + 2">{{ student.name }}</p>
             <p :key="student.id + 3">{{ student.email }}</p>
@@ -37,106 +74,85 @@
             <p :key="student.id + 5">{{ student.program }}</p>
           </template>
         </template>
-      </LongTableCard>
+      </LongTableCard> -->
     </main>
   </section>
 </template>
 
 <script>
-import LongTableCard from "@/components/Admin/longTableCard";
+// import LongTableCard from "@/components/Admin/longTableCard";
+import AdminSemesterDate from "@/components/Admin/adminDataTable";
 
 export default {
   layout: "admin",
   components: {
-    LongTableCard
+    AdminSemesterDate
   },
   data: () => ({
-    programsArr: ["Information and Communication Engineering"],
-    semestersArr: ["1/2021", "2/2021"],
-    attrs: ["ID", "NAME", "EMAIL", "SEMESTER", "STUDY PROGRAM"],
-    studentsArr: [
-      {
-        id: 1,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 2,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 3,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 4,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 5,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 6,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 7,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 8,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 9,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      },
-      {
-        id: 10,
-        studentId: 6131501052,
-        name: "Wachirachai Nitsomboon",
-        email: "6131501052@lamduan.mfu.ac.th",
-        semester: "2/2564",
-        program: "Digital Technology for Buisiness Innovation"
-      }
+    selectedMajor: {},
+    selectedYear: null,
+    selectedSemester: null,
+    loading: false,
+    dialog1: false,
+    singleSelect: false,
+    selected: [],
+    headers: [
+      ,
+      { text: "ID", align: "center", value: "User_Identity_ID" },
+      { text: "NAME", align: "center", value: "User_Name" },
+      { text: "EMAIL", align: "center", value: "User_Email" }
+      // { text: "SEM", align: "center", value: "Committee" },
+      // { text: "STUDY PROGRAM", align: "center", value: "Committee" },
     ]
-  })
+  }),
+
+  async asyncData({ $axios }) {
+    let students, majors, yearNSemsters;
+    try {
+      // Fetch all majors
+      majors = await $axios.$get("/user/getAllMajors");
+
+      // Fetch all years and semesters
+      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+
+      // Fetch initial students
+      students = await $axios.$post("/user/getAllUserWithMajor", {
+        Major_ID: majors[0].Major_ID,
+        Academic_Year: yearNSemsters[0].Academic_Year,
+        Academic_Term: yearNSemsters[0].Academic_Term,
+        User_Role: "1"
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
+    return { students, majors, yearNSemsters };
+  },
+
+  mounted() {
+    // Set the default value
+    this.selectedMajor = this.majors[0];
+    this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+  },
+
+  methods: {
+    async handelchangeRenderStudents() {
+      this.loading = true;
+      try {
+        this.students = await this.$axios.$post("/user/getAllUserWithMajor", {
+          Major_ID: this.selectedMajor.Major_ID,
+          Academic_Year: this.selectedYear,
+          Academic_Term: this.selectedSemester,
+          User_Role: "1"
+        });
+      } catch (error) {
+        console.log(error);
+      }
+
+      console.log(this.students);
+      this.loading = false;
+    }
+  }
 };
 </script>
 

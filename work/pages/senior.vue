@@ -130,6 +130,7 @@ export default {
     // Sets current user after DOM is rendered
     // this.$store.dispatch("auth/login");
   },
+  middleware: ["adminRedirect"],
   layout: "empty"
 };
 </script>
