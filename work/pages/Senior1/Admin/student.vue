@@ -7,11 +7,40 @@
       <div class="admin-student-manage-actions">
         <div>
           <p class="white--text">Study Program</p>
-          <v-select :items="programsArr" dense solo hide-details off />
+          <v-select
+            v-model="selectedMajor"
+            :items="majors"
+            @change="handelchangeRenderStudents"
+            item-text="Major_Name"
+            item-value="Major_ID"
+            return-object
+            dense
+            solo
+            hide-details
+            off
+          />
+        </div>
+        <div>
+          <p class="white--text">Year</p>
+          <v-select
+            v-model="selectedYear"
+            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            @change="handelchangeRenderStudents"
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <p class="white--text">Semester</p>
-          <v-select :items="semestersArr" dense solo hide-details />
+          <v-select
+            v-model="selectedSemester"
+            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            @change="handelchangeRenderStudents"
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <v-btn color="light"
@@ -21,7 +50,13 @@
       </div>
 
       <!-- Data table here -->
-      <AdminSemesterDate :tableTitle="'Manage Students'" />
+      <AdminSemesterDate
+        :tableTitle="'Manage Students'"
+        :headers="headers"
+        itemKey="User_Email"
+        :items="students"
+        :itemPerPage="10"
+      />
       <!-- Student table card -->
       <!-- <LongTableCard tableTitle="Student">
         <template v-slot:data> -->
@@ -54,32 +89,69 @@ export default {
     AdminSemesterDate
   },
   data: () => ({
-    programsArr: ["Information and Communication Engineering"],
-    semestersArr: ["1/2021", "2/2021"],
-    attrs: ["ID", "NAME", "EMAIL", "SEMESTER", "STUDY PROGRAM"],
-    studentsArr: []
+    selectedMajor: {},
+    selectedYear: null,
+    selectedSemester: null,
+    loading: false,
+    dialog1: false,
+    singleSelect: false,
+    selected: [],
+    headers: [
+      ,
+      { text: "ID", align: "center", value: "User_Identity_ID" },
+      { text: "NAME", align: "center", value: "User_Name" },
+      { text: "EMAIL", align: "center", value: "User_Email" }
+      // { text: "SEM", align: "center", value: "Committee" },
+      // { text: "STUDY PROGRAM", align: "center", value: "Committee" },
+    ]
   }),
 
   async asyncData({ $axios }) {
-    let resp;
+    let students, majors, yearNSemsters;
     try {
-      resp = await $axios.$post(
-        "http://localhost:3000/api/user/getalluserwithmajor",
-        {
-          Major_ID: 1,
-          Academic_Year: 2019,
-          Academic_Term: 2,
-          // User_Role:"0,2"
-          User_Role: "1"
-        }
-      );
+      // Fetch all majors
+      majors = await $axios.$get("/user/getAllMajors");
+
+      // Fetch all years and semesters
+      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+
+      // Fetch initial students
+      students = await $axios.$post("/user/getAllUserWithMajor", {
+        Major_ID: majors[0].Major_ID,
+        Academic_Year: yearNSemsters[0].Academic_Year,
+        Academic_Term: yearNSemsters[0].Academic_Term,
+        User_Role: "1"
+      });
     } catch (error) {
       console.log("error", error);
     }
-    return { student: resp };
+    return { students, majors, yearNSemsters };
   },
+
   mounted() {
-    console.log("font end ", this.student);
+    // Set the default value
+    this.selectedMajor = this.majors[0];
+    this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+  },
+
+  methods: {
+    async handelchangeRenderStudents() {
+      this.loading = true;
+      try {
+        this.students = await this.$axios.$post("/user/getAllUserWithMajor", {
+          Major_ID: this.selectedMajor.Major_ID,
+          Academic_Year: this.selectedYear,
+          Academic_Term: this.selectedSemester,
+          User_Role: "1"
+        });
+      } catch (error) {
+        console.log(error);
+      }
+
+      console.log(this.students);
+      this.loading = false;
+    }
   }
 };
 </script>

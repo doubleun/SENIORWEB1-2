@@ -35,7 +35,7 @@
         </div>
 
         <!-- Link text field -->
-        <div class="final-link-container">
+        <!-- <div class="final-link-container">
           <h4>
             Link
           </h4>
@@ -45,6 +45,23 @@
             dense
             outlined
           ></v-text-field>
+        </div> -->
+        <div v-for="member in projectMembers" :key="member" class="final-link-container">
+          <h5 class="font-weight-bold">Link {{ member }}</h5>
+              <v-text-field
+                v-model="stuEmail"
+                :rules="emailRules"
+                required
+                label="Submit link"
+                outlined
+                dense
+              >
+              </v-text-field>
+        </div>
+        <!-- Add member -->
+        <div class="mb-5" v-show="projectMembers.length < 4">
+          <a class="text-decoration-underline" @click="addMemberFields"
+            >+ Add Link</a>
         </div>
 
         <!-- Turn in button -->
@@ -108,18 +125,19 @@
 export default {
   data() {
     return {
+      projectMembers: [1],
       files: [],
       uploadSrc: null,
       dropActive: false,
       submitBtn: "Mark as done",
-      submitTypes: ["Abstract", "Document"]
+      submitTypes: ["Abstract", "Document"],
     };
   },
   props: {
     finalDocument: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   computed: {
     // Change submit button text when files array changes
@@ -129,7 +147,7 @@ export default {
       } else {
         return "Mark as done";
       }
-    }
+    },
   },
   methods: {
     toggleDropActive() {
@@ -157,16 +175,22 @@ export default {
         // Update the files array
         this.files = [
           ...this.files,
-          { file: e.dataTransfer.files[0], date: d }
+          { file: e.dataTransfer.files[0], date: d },
         ];
       }
     },
     handleRemoveFile(e) {
       this.files = this.files.filter(
-        file => file.date !== e.target.dataset.date
+        (file) => file.date !== e.target.dataset.date
       );
-    }
-  }
+    },
+    addMemberFields() {
+      this.projectMembers = [
+        ...this.projectMembers,
+        this.projectMembers.slice(-1)[0] + 1,
+      ];
+    },
+  },
 };
 </script>
 

@@ -28,10 +28,7 @@
             </v-card-title>
 
             <div class="edit-teacher-input-flex">
-              <div
-                v-for="(attr, index) in teacherEditAttrs.slice(0, 3)"
-                :key="index"
-              >
+              <div v-for="(attr, index) in teacherEditAttrs" :key="index">
                 <v-subheader>{{ attr }}</v-subheader>
                 <v-text-field
                   outlined
@@ -66,7 +63,12 @@
         </v-icon>
         <!-- <v-icon small @click="deleteItem(item)">
           mdi-delete
-        </v-icon> -->
+        </v-icon>
+
+      <!-- Conflict here -->
+        <!-- <template v-slot:item.User_Role="{ item }">
+        {{ (item.User_Role = handelTextRole(item.User_Role)) }} -->
+        <!-- Conflict ends -->
       </template>
     </v-data-table>
   </v-card>
@@ -88,6 +90,7 @@ export default {
   }),
   methods: {
     editItem() {
+      console.log(this.dialog);
       this.dialog = true;
     },
     close() {
@@ -96,6 +99,19 @@ export default {
     save() {
       this.close();
     }
+    // handelTextRole(role) {
+    //   console.log("handel text role");
+    //   console.log(role);
+    //   if (role == 0) {
+    //     return "Teacher";
+    //   } else if (role == 1) {
+    //     return "Student";
+    //   } else if (role == 2) {
+    //     return "Coordinator";
+    //   } else {
+    //     return role;
+    //   }
+    // }
   }
 };
 </script>

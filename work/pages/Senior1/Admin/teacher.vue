@@ -7,11 +7,54 @@
       <div class="admin-teacher-manage-actions">
         <div>
           <p class="white--text">Study Program</p>
-          <v-select :items="programsArr" dense solo hide-details off />
+          <v-select
+            v-model="selectedMajor"
+            :items="majors"
+            @change="handelchangeRenderTeachers"
+            item-text="Major_Name"
+            item-value="Major_ID"
+            return-object
+            dense
+            solo
+            hide-details
+            off
+          />
+        </div>
+        <div>
+          <p class="white--text">Year</p>
+          <v-select
+            v-model="selectedYear"
+            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            @change="handelchangeRenderTeachers"
+            dense
+            solo
+            hide-details
+          />
+        </div>
+        <div>
+          <p class="white--text">Semester</p>
+          <v-select
+            v-model="selectedSemester"
+            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            @change="handelchangeRenderTeachers"
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <p class="white--text">Role</p>
-          <v-select :items="roleArr" dense solo hide-details />
+          <v-select
+            v-model="selectedRole"
+            :items="roles"
+            @change="handelchangeRenderTeachers"
+            item-text="Role_Name"
+            item-value="Role_ID"
+            return-object
+            dense
+            solo
+            hide-details
+          />
         </div>
         <div>
           <v-btn color="light"
@@ -20,13 +63,14 @@
         </div>
       </div>
 
-      <!-- Data table -->
       <AdminDataTable
-        tableTitle="Manage Teachers"
+        :tableTitle="'Manage Teachers'"
         :headers="headers"
-        :items="dummyItems"
-        manageTeacher
+        itemKey="User_Email"
+        :items="teachers"
+        :itemPerPage="10"
         :teacherEditAttrs="attrs"
+        manageTeacher
       />
     </main>
   </section>
@@ -42,35 +86,91 @@ export default {
     AdminDataTable
   },
   data: () => ({
-    programsArr: ["Information and Communication Engineering"],
-    roleArr: ["Coordinator", "Teacher"],
+    selectedMajor: {},
+    selectedYear: null,
+    selectedSemester: null,
+    selectedRole: null,
+    loading: false,
+    dialog1: false,
+    singleSelect: false,
+    selected: [],
+    // Attributes that will show in the 'Edit dialog'
+    attrs: ["NAME", "EMAIL"],
     headers: [
-      {
-        text: "EMAIL",
-        align: "center",
-        value: "Email"
-      },
-      { text: "NAME", align: "center", value: "Name" },
-      { text: "STUDY PROGRAM", align: "center", value: "Program" },
-      { text: "ROLE", align: "center", value: "Role" },
+      ,
+      { text: "NAME", align: "center", value: "User_Name" },
+      { text: "EMAIL", align: "center", value: "User_Email" },
+      // { text: "STUDY PROGRAM", align: "center", value: "Major_ID" },
+      { text: "ROLE", align: "center", value: "User_Role_Name" },
       { text: "Actions", align: "center", value: "actions", sortable: false }
-    ],
-    dummyItems: [
-      {
-        Name: "Teacher A",
-        Email: "Teacher@gmail.com",
-        Program: "CE",
-        Role: "Advisor"
-      },
-      {
-        Name: "Teacher B",
-        Email: "TeacherB@gmail.com",
-        Program: "CE",
-        Role: "Advisor"
+      // { text: "SEM", align: "center", value: "Committee" },
+    ]
+  }),
+
+  async asyncData({ $axios }) {
+    let teachers, majors, yearNSemsters, roles;
+    try {
+      // Fetch all majors
+      majors = await $axios.$get("/user/getAllMajors");
+
+      // Fetch all years and semesters
+      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+
+      // Fetch teacher's roles
+      roles = await $axios.$get("/user/getTeacherRole");
+
+      // Fetch initial teachers
+      teachers = await $axios.$post("/user/getAllUserWithMajor", {
+        Major_ID: majors[0].Major_ID,
+        Academic_Year: yearNSemsters[0].Academic_Year,
+        Academic_Term: yearNSemsters[0].Academic_Term,
+        User_Role: roles[0].Role_ID
+      });
+
+      // Add user_role_name based on user_role (Should fetch role name from the database ?)
+      teachers = teachers.map(teacher => ({
+        ...teacher,
+        User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator"
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+
+    return { teachers, majors, yearNSemsters, roles };
+  },
+
+  mounted() {
+    // Set the default value
+    this.selectedMajor = this.majors[0];
+    this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    this.selectedRole = this.roles[0];
+  },
+
+  methods: {
+    async handelchangeRenderTeachers() {
+      console.log("role", this.selectedRole.Role_ID);
+      console.log("major", this.selectedRole.Major_ID);
+      this.loading = true;
+      try {
+        this.teachers = await this.$axios.$post("/user/getAllUserWithMajor", {
+          Major_ID: this.selectedMajor.Major_ID,
+          Academic_Year: this.selectedYear,
+          Academic_Term: this.selectedSemester,
+          User_Role: this.selectedRole.Role_ID
+        });
+        // Add user_role_name based on user_role (Should fetch role name from the database ?)
+        this.teachers = this.teachers.map(teacher => ({
+          ...teacher,
+          User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator"
+        }));
+      } catch (error) {
+        console.log(error);
       }
-    ],
-    attrs: ["EMAIL", "NAME", "STUDY PROGRAM", "ROLE", "ACTION"]
-  })
+
+      this.loading = false;
+    }
+  }
 };
 </script>
 
@@ -151,7 +251,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   margin-inline: auto;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   text-align: center;
   gap: 1.4rem;
