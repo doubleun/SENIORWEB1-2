@@ -17,57 +17,66 @@ createGroup = async (req, res) => {
         Major,
         Email_Student2,
         Email_Student3,
-        Email_Student4
+        Email_Student4,
+        Project_on_term_ID
     } = req.body;
-    console.log(
-        Project_NameEn + " " + Project_NameTh + " " + CoAdvisor_Name + " " + Major
-    );
+    console.log(req.body)
     const sql =
-        "INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major) VALUES (?,?,?,?);";
+        "INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) VALUES (?,?,?,?,?);";
     const sql2 =
-        "INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `Group_ID`) VALUES (?,(SELECT MAX(Group_ID) FROM groups))";
+        "INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID, `Group_ID`) VALUES (?,(SELECT MAX(Group_ID) FROM groups))";
     let user = [];
-    user.push([Email_Student1, Student1_Tel, 3]);
-    user.push([Email_Student2, Student2_Tel, 2]);
-    if (Studen_Number == 3) {
-        user.push([Email_Student3, Student3_Tel, 2]);
+    let group = [];
+    let error = 0;
+    let success = 0;
+    user.push([Email_Student1, Student1_Tel, 2, Project_on_term_ID]);
+    
+    if (Studen_Number == 2) {
+        user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID]);
+    }else if (Studen_Number == 3) {
+        user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID]);
+        user.push([Email_Student3, Student3_Tel, 2 ,Project_on_term_ID]);
     } else if (Studen_Number == 4) {
-        user.push([Email_Student3, Student3_Tel, 2]);
-        user.push([Email_Student4, Student4_Tel, 2]);
+        user.push([Email_Student3, Student3_Tel, 2,Project_on_term_ID]);
+        user.push([Email_Student4, Student4_Tel, 2,Project_on_term_ID]);
     }
-    user.push([Advisor_Email, "", 0]);
-    user.push([Committee1_Email, "", 1]);
-    user.push([Committee2_Email, "", 1]);
-    console.log(user.length);
+    user.push([Advisor_Email, "", 0,Project_on_term_ID]);
+    user.push([Committee1_Email, "", 1 ,Project_on_term_ID]);
+    user.push([Committee2_Email, "", 1 ,Project_on_term_ID]);
+    if(CoAdvisor_Name ==""||CoAdvisor_Name== null){
+        group.push([Project_NameTh, Project_NameEn, "", Major,Project_on_term_ID])
+    }else{
+        group.push([Project_NameTh, Project_NameEn, CoAdvisor_Name, Major,Project_on_term_ID])
+    }
+    
 
     await con.query(
         sql,
-        [Project_NameTh, Project_NameEn, CoAdvisor_Name, Major],
+        group[0],
         async (err, result, fields) => {
             if (err) {
                 console.log("error code first is " + err.code);
-                if (err.code == "ER_DUP_ENTRY") {
-                    res.status(500).send("Duplicate data");
-                } else {
-                    res.status(500).send("Internal Server Error");
-                }
+                error++
             } else {
                 for (let i = 0; i < user.length; i++) {
+                    console.log(user[i]);
                     await con.query(sql2, [user[i]], (err, result, fields) => {
                         if (err) {
-                            console.log("error code second is " + err.code);
-                            if (err.code == "ER_DUP_ENTRY") {
-                                res.status(500).send("Duplicate data");
-                            } else {
-                                res.status(500).send("Internal Server Error");
-                            }
+                            console.log("error code second is " + err.code); 
                         } else {
+                            success++
                         }
                     });
                 }
             }
         }
     );
+    if(success==user.length){
+        res.status(200).send("Success");
+    }
+    if(error>0){
+        res.status(500).send("Internal Server Error");
+    }
 };
 
 // Get group based on project on term (ie. academic year and semester)
@@ -124,7 +133,7 @@ deletes = async (req, res) => {
             console.log(err);
             res.status(500).send("Internal Server Error");
         } else {
-            res.status(200).json(result);
+            res.status(200)
         }
     });
 };

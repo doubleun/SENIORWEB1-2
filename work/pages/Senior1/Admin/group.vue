@@ -65,7 +65,7 @@
             <v-btn color="light" text right @click="dialog1 = false">
               Close
             </v-btn>
-            <v-btn color="primary" right @click="dialog1 = false">
+            <v-btn color="primary" right @click="deletegroup">
               Yes
             </v-btn>
           </v-card-actions>
@@ -125,6 +125,7 @@ export default {
       dialog1: false,
       singleSelect: false,
       selected: [],
+      selectedgroupid: {},
       headers: [
         {
           text: "GROUP NAME",
@@ -172,6 +173,21 @@ export default {
       console.log(this.majors);
       console.log(this.yearNSemsters);
       console.log(this.allGroups);
+    },
+    async deletegroup(){
+      this.loading = true;
+      this.dialog1 = false
+      // this.selectedgroupid.push(this.selected[0]['Group_ID'])  
+      for(let i = 0;i<this.selected.length;i++){
+        console.log(this.selected[i]['Group_ID'])
+        this.selectedgroupid = await this.$axios.$put("group/delete", {
+        Group_ID: this.selected[i]['Group_ID'],
+      });
+      }
+      console.log(this.selectedgroupid)
+      
+      this.loading = false;
+      
     },
     async handleChangeRenderGroups() {
       this.loading = true;
