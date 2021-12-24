@@ -7,20 +7,41 @@
       <div class="admin-criteria-score-actions">
         <div>
           <p class="white--text">Study Program</p>
-          <v-select :items="programsArr" dense solo hide-details off />
+          <v-select
+            v-model="selectedMajor"
+            :items="majors"
+            item-text="Major_Name"
+            item-value="Major_ID"
+            @change="handleFetchCriterias"
+            return-object
+            dense
+            solo
+            hide-details
+            off
+          />
         </div>
       </div>
 
       <!-- Score criteria card -->
-      <ScoreCriteriaCard />
+      <ScoreCriteriaCard :scoreCriterias="scoreCriterias" admin />
 
       <!-- Select grade study program -->
-      <div class="admin-criteria-score-actions">
+      <!-- <div class="admin-criteria-score-actions">
         <div>
           <h4>Study Program</h4>
-          <v-select :items="programsArr" dense solo hide-details off />
+          <v-select
+            v-model="selectedMajor"
+            :items="majors"
+            item-text="Major_Name"
+            item-value="Major_ID"
+            return-object
+            dense
+            solo
+            hide-details
+            off
+          />
         </div>
-      </div>
+      </div> -->
 
       <!-- Grade criteria card -->
       <!-- Edit criteria button -->
@@ -32,6 +53,7 @@
               class="white--text"
               v-on="on"
               v-bind="attrs"
+              disabled
             >
               Edit Grade Criteria</v-btn
             >
@@ -45,23 +67,23 @@
 
             <div
               class="grade-criteria-input-flex"
-              v-for="grade in gradeCriteriaArr"
-              :key="grade"
+              v-for="(grade, index) in gradeCriterias.slice(0, 2)"
+              :key="index"
             >
               <div>
                 <v-subheader>Grade</v-subheader>
-                <p>{{ grade }}</p>
+                <p>{{ grade.Grade_Criteria_Name }}</p>
               </div>
               <div>
-                <v-subheader>Low Score</v-subheader>
+                <v-subheader>Pass Score</v-subheader>
                 <v-text-field
-                  v-model="low"
+                  v-model="grade.Grade_Criteria_Pass"
                   outlined
                   dense
                   hide-details
                 ></v-text-field>
               </div>
-              <div>
+              <!-- <div>
                 <v-subheader>High Score</v-subheader>
                 <v-text-field
                   v-model="high"
@@ -69,7 +91,7 @@
                   dense
                   hide-details
                 ></v-text-field>
-              </div>
+              </div> -->
             </div>
 
             <v-divider></v-divider>
@@ -79,7 +101,7 @@
               <v-btn color="secondary" text @click="editGradeDialog = false">
                 Cancel
               </v-btn>
-              <v-btn color="primary" @click="editGradeDialog = false">
+              <v-btn color="primary" @click="handleUpdateGradeCriterias">
                 Save
               </v-btn>
             </v-card-actions>
@@ -87,7 +109,10 @@
         </v-dialog>
       </div>
 
-      <GradeCriteriaCard class="admin-criteria-grade-card" />
+      <GradeCriteriaCard
+        class="admin-criteria-grade-card"
+        :gradeCriterias="gradeCriterias"
+      />
     </main>
   </section>
 </template>
@@ -104,17 +129,68 @@ export default {
   },
   data() {
     return {
-      programsArr: [
-        "Information and Communication Engineering",
-        "Computer Engineering",
-        "Computer Science",
-        "Software Engineering"
-      ],
+      selectedMajor: null,
       editGradeDialog: false,
-      gradeCriteriaArr: ["S", "U"],
-      high: 0,
       low: 0
     };
+  },
+  async asyncData({ $axios }) {
+    /// Initial fetch
+    let majors, scoreCriterias, gradeCriterias;
+    try {
+      // Fetch all majors
+      majors = await $axios.$get("/user/getAllMajors");
+      // Fetch score criterias
+      scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
+        Major_ID: majors[0].Major_ID
+      });
+      // Fetch grade criterias
+      gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
+        Major_ID: majors[0].Major_ID
+      });
+      // Pass in latest project on term which will be in the scoreCriterias
+      gradeCriterias = gradeCriterias.map(itm => ({
+        ...itm,
+        Project_on_term_ID: scoreCriterias[0].Project_on_term_ID
+      }));
+    } catch (err) {
+      console.log(err);
+    }
+
+    return { majors, scoreCriterias, gradeCriterias };
+  },
+  methods: {
+    // Update grade criterias function (score criteria has a function in the compunent for update)
+    async handleUpdateGradeCriterias() {
+      // console.log(
+      //   this.gradeCriterias.slice(0, 2).map(obj => Object.values(obj))
+      // );
+      const res = await this.$axios.$post("/criteria/gradeEdit", {
+        data: this.gradeCriterias.slice(0, 2)
+      });
+      if (res.status === 200) this.editGradeDialog = false;
+    },
+    // Re-Fetch score and grade criterias function
+    async handleFetchCriterias() {
+      // Fetch score criterias
+      this.scoreCriterias = await this.$axios.$post("/criteria/scoreMajor", {
+        Major_ID: this.selectedMajor.Major_ID
+      });
+      // Fetch grade criterias
+      this.gradeCriterias = await this.$axios.$post("/criteria/gradeMajor", {
+        Major_ID: this.selectedMajor.Major_ID
+      });
+      // Pass in latest project_on_term from scorecriterias for when grade criterias get update
+      this.gradeCriterias = this.gradeCriterias.map(itm => ({
+        ...itm,
+        Project_on_term_ID: this.scoreCriterias[0].Project_on_term_ID
+      }));
+    }
+  },
+  mounted() {
+    console.log("Scores: ", this.scoreCriterias);
+    console.log("Grades: ", this.gradeCriterias);
+    this.selectedMajor = this.majors[0];
   }
 };
 </script>
@@ -137,7 +213,7 @@ export default {
   display: flex;
   justify-content: flex-end;
   width: 100%;
-  margin-block: 1rem;
+  margin: 3rem 0 1rem 0;
 }
 .admin-edit-grade-criteria > button {
   /* width: 9rem; */

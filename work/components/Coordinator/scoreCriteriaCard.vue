@@ -2,34 +2,42 @@
   <v-card class="score-criteria-card">
     <v-card-title>
       <h4>Score Criteria</h4>
-      <h4>TOTAL: 100/100</h4>
+      <h4>Total: 100/100</h4>
     </v-card-title>
 
     <!-- Score criteria table -->
     <div class="score-criteria-content">
       <!-- Table attr -->
       <h4>CRITERIA</h4>
-      <h4>ADVISOR</h4>
-      <h4>CO-ADVISOR</h4>
+      <h4>Advisor_Score</h4>
+      <h4>CO-Advisor_Score</h4>
       <h4>COMMITTEE 1</h4>
       <h4>COMMITTEE 2</h4>
-      <h4>TOTAL</h4>
+      <h4>Total</h4>
       <h4>ACTIONS</h4>
 
       <!-- Table records -->
-      <template v-for="criteria in scoreCriteriaArr">
-        <p :key="criteria.criteria + 1">{{ criteria.criteria }}</p>
-        <p :key="criteria.criteria + 2">{{ criteria.advisor }}</p>
-        <p :key="criteria.criteria + 3">{{ criteria.coAdvisor }}</p>
-        <p :key="criteria.criteria + 4">{{ criteria.committee1 }}</p>
-        <p :key="criteria.criteria + 5">{{ criteria.committee2 }}</p>
-        <p :key="criteria.criteria + 6">{{ criteria.total }}</p>
+      <template v-for="criteria in scoreCriterias">
+        <p :key="criteria.Progress_Name + 1">{{ criteria.Progress_Name }}</p>
+        <p :key="criteria.Progress_Name + 2">
+          {{ criteria.Advisor_Score || 0 }}
+        </p>
+        <p :key="criteria.Progress_Name + 3">
+          {{ criteria.coAdvisor_Score || 0 }}
+        </p>
+        <p :key="criteria.Progress_Name + 4">
+          {{ criteria.Committee1_Score || 0 }}
+        </p>
+        <p :key="criteria.Progress_Name + 5">
+          {{ criteria.Committee2_Score || 0 }}
+        </p>
+        <p :key="criteria.Progress_Name + 6">{{ criteria.Total || 0 }}</p>
 
         <!-- Edit score criteria button -->
         <v-dialog
           v-model="criteria.editDialog"
           width="500"
-          :key="criteria.criteria + 7"
+          :key="criteria.Progress_Name + 7"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -37,6 +45,7 @@
               class="white--text"
               v-on="on"
               v-bind="attrs"
+              :disabled="admin"
               ><v-icon>mdi-pen</v-icon> Edit</v-btn
             >
           </template>
@@ -48,9 +57,15 @@
             </v-card-title>
 
             <div class="score-criteria-input-flex">
-              <div v-for="role in editScoreRoles" :key="role.id">
+              <div v-for="(role, index) in editScoreRoles" :key="role.id">
                 <v-subheader>{{ role.name }}</v-subheader>
-                <v-text-field outlined dense hide-details></v-text-field>
+                <v-text-field
+                  v-model="criteria[role.value]"
+                  :disabled="index === 1"
+                  outlined
+                  dense
+                  hide-details
+                ></v-text-field>
               </div>
             </div>
 
@@ -65,7 +80,7 @@
               >
                 Cancel
               </v-btn>
-              <v-btn color="primary" @click="criteria.editDialog = false">
+              <v-btn color="primary" @click="updateScoreCriteria(criteria)">
                 Save
               </v-btn>
             </v-card-actions>
@@ -78,72 +93,39 @@
 
 <script>
 export default {
+  props: {
+    scoreCriterias: Array,
+    admin: Boolean
+  },
   data() {
     return {
-      scoreCriteriaArr: [
-        {
-          criteria: "Progress 1",
-          advisor: 20,
-          coAdvisor: 0,
-          committee1: 0,
-          committee2: 0,
-          total: 20,
-          editDialog: false
-        },
-        {
-          criteria: "Progress 2",
-          advisor: 20,
-          coAdvisor: 0,
-          committee1: 0,
-          committee2: 0,
-          total: 20,
-          editDialog: false
-        },
-        {
-          criteria: "Progress 3",
-          advisor: 20,
-          coAdvisor: 0,
-          committee1: 0,
-          committee2: 0,
-          total: 20,
-          editDialog: false
-        },
-        {
-          criteria: "Progress 4",
-          advisor: 0,
-          coAdvisor: 0,
-          committee1: 0,
-          committee2: 0,
-          total: 0,
-          editDialog: false
-        },
-        {
-          criteria: "Final Presentation",
-          advisor: 10,
-          coAdvisor: 0,
-          committee1: 5,
-          committee2: 5,
-          total: 20,
-          editDialog: false
-        },
-        {
-          criteria: "Final Documentation",
-          advisor: 10,
-          coAdvisor: 0,
-          committee1: 5,
-          committee2: 5,
-          total: 20,
-          editDialog: false
-        }
-      ],
       editScoreDialog: false,
       editScoreRoles: [
-        { id: 1, name: "Advisor" },
-        { id: 2, name: "Co-Advisor" },
-        { id: 3, name: "Committee 1" },
-        { id: 4, name: "Committee 2" }
+        { id: 1, name: "Advisor_Score", score: 0, value: "Advisor_Score" },
+        { id: 2, name: "Co-Advisor_Score", score: 0, value: "" },
+        { id: 3, name: "Committee 1", score: 0, value: "Committee1_Score" },
+        { id: 4, name: "Committee 2", score: 0, value: "Committee2_Score" }
       ]
     };
+  },
+  methods: {
+    async updateScoreCriteria(criteriaItem) {
+      try {
+        const res = await this.$axios.$post("/criteria/scoreEdit", {
+          ...criteriaItem
+        });
+        if (res.status === 200) {
+          criteriaItem.editDialog = false;
+          // Update total
+          criteriaItem.Total =
+            parseInt(criteriaItem.Advisor_Score) +
+            parseInt(criteriaItem.Committee1_Score) +
+            parseInt(criteriaItem.Committee2_Score);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
   }
 };
 </script>

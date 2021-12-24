@@ -18,7 +18,57 @@
       :items-per-page="itemPerPage"
       :item-key="itemKey"
       class="elevation-1"
-    ></v-data-table>
+    >
+      <template v-slot:top>
+        <!-- Edit teacher dialog -->
+        <v-dialog v-model="dialog" max-width="500px" v-if="manageTeacher">
+          <v-card class="edit-teacher-dialog-card">
+            <v-card-title class="text-h5">
+              Edit teacher role
+            </v-card-title>
+
+            <div class="edit-teacher-input-flex">
+              <div
+                v-for="(attr, index) in teacherEditAttrs.slice(0, 3)"
+                :key="index"
+              >
+                <v-subheader>{{ attr }}</v-subheader>
+                <v-text-field
+                  outlined
+                  dense
+                  hide-details
+                  disabled
+                ></v-text-field>
+              </div>
+              <div>
+                <v-subheader>ROLE</v-subheader>
+                <v-select dense filled hide-details off />
+              </div>
+            </div>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="secondary" text>
+                Cancel
+              </v-btn>
+              <v-btn color="primary">
+                Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </template>
+      <template v-slot:item.actions="{ item }">
+        <v-icon small class="mr-2" @click="editItem">
+          mdi-pencil
+        </v-icon>
+        <!-- <v-icon small @click="deleteItem(item)">
+          mdi-delete
+        </v-icon> -->
+      </template>
+    </v-data-table>
   </v-card>
 </template>
 
@@ -29,64 +79,29 @@ export default {
     headers: Array,
     itemKey: String,
     itemPerPage: Number,
-    items: Array
+    items: Array,
+    manageTeacher: Boolean,
+    teacherEditAttrs: Array
+  },
+  data: () => ({
+    dialog: false
+  }),
+  methods: {
+    editItem() {
+      this.dialog = true;
+    },
+    close() {
+      this.dialog = false;
+    },
+    save() {
+      this.close();
+    }
   }
 };
 </script>
 
-<style>
+<style scoped>
 .long-table-card {
-  padding: 0.4rem 1.4rem 1rem;
-}
-.long-table-card .v-card__title {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-}
-.long-table-card .v-card__title h4 {
-  flex: 1;
-}
-.long-table-card .v-card__title .v-input {
-  max-width: 40%;
-}
-
-/* Grid table */
-.long-table-content {
-  display: grid;
-  grid-template-columns: repeat(5, auto);
-  gap: 1.4rem;
-  padding: 1.4rem 1rem;
-  text-align: center;
-  align-items: center;
-  overflow-x: auto;
-}
-
-@media only screen and (max-width: 768px) {
-  .long-table-card .v-card__title {
-    display: flex;
-    padding: 0;
-  }
-  .long-table-card .v-card__title h4 {
-    font-size: 18px;
-  }
-  .long-table-content {
-    display: grid;
-    grid-template-columns: 200px 140px 150px 140px 260px;
-    gap: 1.2rem 0.6rem;
-    padding: 1rem 0.6rem;
-    text-align: center;
-    align-items: center;
-    overflow-x: auto;
-  }
-  .long-table-content.small-btn {
-    display: grid;
-    /* The final column will be auto */
-    grid-template-columns: 200px 140px 150px 140px auto;
-    gap: 1.2rem 0.6rem;
-    padding: 1rem 0.6rem;
-    text-align: center;
-    align-items: center;
-    overflow-x: auto;
-  }
+  padding: 0;
 }
 </style>

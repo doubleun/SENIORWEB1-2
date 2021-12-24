@@ -20,183 +20,56 @@
         </div>
       </div>
 
-      <!-- Teacher table card -->
-      <LongTableCard tableTitle="Teacher" smallBtn>
-        <template v-slot:data>
-          <!-- Table attributes -->
-          <template v-for="attr in attrs">
-            <h5 :key="attr">{{ attr }}</h5>
-          </template>
-
-          <!-- Table data -->
-          <template v-for="teacher in teachersArr">
-            <p :key="teacher.id + 1">{{ teacher.email }}</p>
-            <p :key="teacher.id + 2">{{ teacher.name }}</p>
-            <p :key="teacher.id + 3">{{ teacher.program }}</p>
-            <p :key="teacher.id + 4">{{ teacher.role }}</p>
-
-            <!-- Edit score criteria button -->
-            <v-dialog
-              v-model="teacher.editDialog"
-              width="500"
-              :key="teacher.id + 5"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  color="blue darken-4"
-                  class="white--text"
-                  v-on="on"
-                  v-bind="attrs"
-                  ><v-icon>mdi-pen</v-icon> Edit</v-btn
-                >
-              </template>
-
-              <!-- Edit teacher dialog -->
-              <v-card class="edit-teacher-dialog-card">
-                <v-card-title class="text-h5">
-                  Edit teacher role
-                </v-card-title>
-
-                <div class="edit-teacher-input-flex">
-                  <div v-for="(attr, index) in attrs.slice(0, 3)" :key="index">
-                    <v-subheader>{{ attr }}</v-subheader>
-                    <v-text-field
-                      outlined
-                      dense
-                      hide-details
-                      disabled
-                    ></v-text-field>
-                  </div>
-                  <div>
-                    <v-subheader>ROLE</v-subheader>
-                    <v-select :items="roleArr" dense filled hide-details off />
-                  </div>
-                </div>
-
-                <v-divider></v-divider>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <!-- <v-btn
-              color="primary"
-              class="admin-teacher-manage-edit-btn"
-              ><v-icon>mdi-pen</v-icon> Edit</v-btn
-            > -->
-                  <v-btn
-                    color="secondary"
-                    text
-                    @click="teacher.editDialog = false"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn color="primary" @click="teacher.editDialog = false">
-                    Save
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </template>
-        </template>
-      </LongTableCard>
+      <!-- Data table -->
+      <AdminDataTable
+        tableTitle="Manage Teachers"
+        :headers="headers"
+        :items="dummyItems"
+        manageTeacher
+        :teacherEditAttrs="attrs"
+      />
     </main>
   </section>
 </template>
 
 <script>
-import LongTableCard from "@/components/Admin/longTableCard";
+// import LongTableCard from "@/components/Admin/longTableCard";
+import AdminDataTable from "@/components/Admin/adminDataTable";
 
 export default {
   layout: "admin",
   components: {
-    LongTableCard
+    AdminDataTable
   },
   data: () => ({
     programsArr: ["Information and Communication Engineering"],
     roleArr: ["Coordinator", "Teacher"],
-    attrs: ["EMAIL", "NAME", "STUDY PROGRAM", "ROLE", "ACTION"],
-    teachersArr: [
+    headers: [
       {
-        id: 1,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false,
-        editDialog: false
+        text: "EMAIL",
+        align: "center",
+        value: "Email"
+      },
+      { text: "NAME", align: "center", value: "Name" },
+      { text: "STUDY PROGRAM", align: "center", value: "Program" },
+      { text: "ROLE", align: "center", value: "Role" },
+      { text: "Actions", align: "center", value: "actions", sortable: false }
+    ],
+    dummyItems: [
+      {
+        Name: "Teacher A",
+        Email: "Teacher@gmail.com",
+        Program: "CE",
+        Role: "Advisor"
       },
       {
-        id: 2,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 3,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 4,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 5,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 6,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 7,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 8,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 9,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
-      },
-      {
-        id: 10,
-        email: "surapong@lamduan.mfu.ac.th",
-        name: "Worasak Rueangsirarak",
-        role: "Coordinator",
-        program: "Digital Technology for Buisiness Innovation",
-        editDialog: false
+        Name: "Teacher B",
+        Email: "TeacherB@gmail.com",
+        Program: "CE",
+        Role: "Advisor"
       }
-    ]
+    ],
+    attrs: ["EMAIL", "NAME", "STUDY PROGRAM", "ROLE", "ACTION"]
   })
 };
 </script>

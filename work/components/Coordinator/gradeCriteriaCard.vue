@@ -15,16 +15,20 @@
     <div class="grade-criteria-content">
       <!-- Table attr -->
       <h4>GRADE</h4>
-      <h4>LOW</h4>
-      <h4>HIGH</h4>
-      <h4>TOTAL</h4>
+      <h4>PASS</h4>
+      <!-- <h4>HIGH</h4> -->
+      <!-- <h4>TOTAL</h4> -->
 
       <!-- Table records -->
-      <template v-for="grade in gradeCriteriaArr">
-        <p :key="grade.grade + 1">{{ grade.grade }}</p>
-        <p :key="grade.grade + 2">{{ grade.low }}</p>
-        <p :key="grade.grade + 3">{{ grade.high }}</p>
-        <p :key="grade.grade + 4">{{ grade.total }}</p>
+      <template v-for="grade in gradeCriterias">
+        <p :key="grade.Grade_Criteria_ID || grade.Grade_Criteria_Name + 1">
+          {{ grade.Grade_Criteria_Name }}
+        </p>
+        <p :key="grade.Grade_Criteria_ID || grade.Grade_Criteria_Name + 2">
+          {{ grade.Grade_Criteria_Pass }}
+        </p>
+        <!-- <p :key="grade.grade + 3">{{ grade.high }}</p> -->
+        <!-- <p :key="grade.grade + 3">{{ grade.total }}</p> -->
       </template>
     </div>
   </v-card>
@@ -32,36 +36,39 @@
 
 <script>
 export default {
-  data() {
-    return {
-      gradeCriteriaArr: [
-        {
-          grade: "S",
-          low: 70,
-          high: 100,
-          total: 100
-        },
-        {
-          grade: "U",
-          low: 0,
-          high: 69,
-          total: 69
-        },
-        {
-          grade: "I",
-          low: "none",
-          high: "none",
-          total: "none"
-        },
-        {
-          grade: "P",
-          low: "none",
-          high: "none",
-          total: "none"
-        }
-      ]
-    };
+  props: {
+    gradeCriterias: Array
   }
+  // data() {
+  //   return {
+  //     gradeCriteriaArr: [
+  //       {
+  //         grade: "S",
+  //         pass: 70
+  //         // high: 100,
+  //         // total: 100
+  //       },
+  //       {
+  //         grade: "U",
+  //         pass: 0
+  //         // high: 69,
+  //         // total: 69
+  //       },
+  //       {
+  //         grade: "I",
+  //         pass: "none"
+  //         // high: "none",
+  //         // total: "none"
+  //       },
+  //       {
+  //         grade: "P",
+  //         pass: "none"
+  //         // high: "none",
+  //         // total: "none"
+  //       }
+  //     ]
+  //   };
+  // }
 };
 </script>
 
@@ -83,7 +90,7 @@ export default {
 }
 .grade-criteria-content {
   display: grid;
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: repeat(2, auto);
   overflow-x: auto;
   text-align: center;
   align-items: center;
@@ -104,7 +111,7 @@ export default {
   }
   .grade-criteria-content {
     display: grid;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: repeat(2, auto);
     overflow-x: auto;
     margin-block-start: 1rem;
     text-align: center;
