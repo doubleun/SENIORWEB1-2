@@ -58,14 +58,21 @@
           <v-row class="pl-5 mt-4 pr-4">
             <v-col cols="6" sm="6"> <h4>COMMENTS</h4> </v-col>
             <v-col cols="12" sm="6">
-              This piece is very good but still missing a few things. Please
-              pollen your face better.
+              <span v-for="comment in advisorComment">
+                {{ comment.Comment }}
+              </span>
             </v-col>
           </v-row>
           <v-row class="pl-5 mt-4 pr-4">
             <v-col cols="6" sm="6"><h4>FILES</h4> </v-col>
             <v-col cols="12" sm="6">
-              <a href="#" class="text-decoration-none">Workprogress.pdf</a>
+              <li v-for="comment in advisorComment">
+                <a
+                  :href="'/uploads/' + comment.File_Name"
+                  class="text-decoration-none"
+                  >{{ comment.File_Name }}</a
+                >
+              </li>
             </v-col>
           </v-row>
           <v-spacer></v-spacer>
@@ -80,14 +87,21 @@
           <v-row class="pl-5 mt-4 pr-4">
             <v-col cols="6" sm="6"> <h4>COMMENTS</h4> </v-col>
             <v-col cols="12" sm="6">
-              This piece is very good but still missing a few things. Please
-              pollen your face better.
+              <span v-for="comment in com2Comment">
+                {{ comment.Comment }}
+              </span>
             </v-col>
           </v-row>
           <v-row class="pl-5 mt-4 pr-4">
             <v-col cols="6" sm="6"><h4>FILES</h4> </v-col>
             <v-col cols="12" sm="6">
-              <a href="#" class="text-decoration-none">Workprogress.pdf</a>
+              <li v-for="comment in com2Comment">
+                <a
+                  :href="'/uploads/' + comment.File_Name"
+                  class="text-decoration-none"
+                  >{{ comment.File_Name }}</a
+                >
+              </li>
             </v-col>
           </v-row>
           <v-spacer></v-spacer>
@@ -104,14 +118,21 @@
           <v-row class="pl-5 mt-4 pr-4">
             <v-col cols="6" sm="6"> <h4>COMMENTS</h4> </v-col>
             <v-col cols="12" sm="6">
-              This piece is very good but still missing a few things. Please
-              pollen your face better.
+              <span v-for="comment in com1Comment">
+                {{ comment.Comment }}
+              </span>
             </v-col>
           </v-row>
           <v-row class="pl-5 mt-4 pr-4">
             <v-col cols="6" sm="6"><h4>FILES</h4> </v-col>
             <v-col cols="12" sm="6">
-              <a href="#" class="text-decoration-none">Workprogress.pdf</a>
+              <li v-for="comment in com1Comment">
+                <a
+                  :href="'/uploads/' + comment.File_Name"
+                  class="text-decoration-none"
+                  >{{ comment.File_Name }}</a
+                >
+              </li>
             </v-col>
           </v-row>
           <v-spacer></v-spacer>
@@ -200,8 +221,8 @@ export default {
             this.com1Comment.push(element);
             return;
           } else {
-            const indexArr = this.com1Comment.findIndex(el =>
-              console.log(el.Group_Member_ID === element.Group_Member_ID)
+            const indexArr = this.com1Comment.findIndex(
+              el => el.Group_Member_ID === element.Group_Member_ID
             );
 
             if (indexArr != -1) {
@@ -210,42 +231,6 @@ export default {
             }
             this.com2Comment.push(element);
           }
-
-          // console.log(
-          //   "com comment length",
-          //   Object.keys(this.committeeComment).length === 0
-          // );
-          // if (Object.keys(this.committeeComment).length === 0) {
-          //   const indexofarr = this.committeeComment.com1.findIndex(
-          //     memberId => console.log("aaaaaaa", memberId)
-          //     // memberId.Group_Member_ID === element.Group_Member_ID
-          //   );
-
-          //   // console.log(
-          //   //   "index of array",
-          //   //   this.committeeComment.com1.findIndex(
-          //   //     el => el.Group_Member_ID === element.Group_Member_ID
-          //   //   )
-          //   //   // this.committeeComment.com1.includes(element.Group_Member_ID)
-          //   // );
-
-          //   // if (indexofarr != -1) {
-          //   //   this.committeeComment[indexofarr].push(element);
-          //   //   return;
-          //   //   // console.log(
-          //   //   //   "committee comment 111111111",
-          //   //   //   this.committeeComment[indexofarr]
-          //   //   // );
-          //   // } else {
-          //   //   this.committeeComment.com2 = [element];
-          //   //   // this.committeeComment.push([element]);
-          //   //   return;
-          //   // }
-          // } else {
-          //   this.committeeComment.com1 = [element];
-          // }
-
-          // this.committeeComment.push([element]);
         }
       });
       console.log("advisor comment", this.advisorComment);
