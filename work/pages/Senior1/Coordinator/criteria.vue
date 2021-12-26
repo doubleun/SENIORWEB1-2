@@ -27,7 +27,7 @@
               Grade Criteria
             </v-card-title>
 
-            <div
+            <!-- <div
               class="grade-criteria-input-flex"
               v-for="grade in gradeCriteriaArr"
               :key="grade"
@@ -54,7 +54,7 @@
                   hide-details
                 ></v-text-field>
               </div>
-            </div>
+            </div> -->
 
             <v-divider></v-divider>
 
@@ -96,18 +96,20 @@ export default {
       gradeCriteriaArr: ["S", "U"]
     };
   },
-  async asyncData({ $axios }) {
+  async asyncData({ $axios, store }) {
+    console.log("Major: ", store.state.auth.currentUser.major);
+
     try {
       /// Initial fetch
       let scoreCriterias, gradeCriterias;
       try {
         // Fetch score criterias
         scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
-          Major_ID: 1 //FIXME: use real major
+          Major_ID: store.state.auth.currentUser.major
         });
         // Fetch grade criterias
         gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
-          Major_ID: 1 //FIXME: use real major
+          Major_ID: store.state.auth.currentUser.major
         });
         // Pass in latest project on term which will be in the scoreCriterias
         gradeCriterias = gradeCriterias.map(itm => ({
