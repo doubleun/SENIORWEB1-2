@@ -58,12 +58,12 @@ countUser = async (req, res) => {
 };
 
 getAllUserWithMajor = async (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body
-  const sql = "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+  const { Major_ID, Project_on_term_ID, User_Role } = req.body
+  const sql = "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Project_on_term_ID = ? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
   console.log(req.body)
 
-  await con.query(sql, [Major_ID, Academic_Year, Academic_Term, User_Role], (err, result, fields) => {
+  await con.query(sql, [Major_ID, Project_on_term_ID, User_Role], (err, result, fields) => {
     if (err) {
       console.log(err)
       res.status(500).send("Internal Server Error");
