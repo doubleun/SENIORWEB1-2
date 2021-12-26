@@ -1,11 +1,37 @@
 <template>
   <div>
+    <!-- Action buttons -->
+    <div class="admin-group-manage-actions">
+      <div>
+        <p class="white--text">Year</p>
+        <v-select
+          v-model="selectedYear"
+          :items="yearNSemsters.map(itm => itm.Academic_Year)"
+          @change="handleChangeRenderGroups"
+          dense
+          solo
+          hide-details
+        />
+      </div>
+      <div>
+        <p class="white--text">Semester</p>
+        <v-select
+          v-model="selectedSemester"
+          :items="yearNSemsters.map(itm => itm.Academic_Term)"
+          @change="handleChangeRenderGroups"
+          dense
+          solo
+          hide-details
+        />
+      </div>
+    </div>
     <div class="dataTable">
       <!-- Data Table -->
       <v-card>
         <v-card-title>
           <v-spacer></v-spacer>
-          <v-col md ="3"><v-text-field
+          <v-col md="3"
+            ><v-text-field
               v-model="search"
               append-icon="mdi-magnify"
               label="Search"
@@ -15,11 +41,16 @@
             ></v-text-field
           ></v-col>
         </v-card-title>
-        <v-data-table :headers="headers" :items="items" :search="search">
-          <template v-slot:item.groupName="{ item }">
+        <v-data-table
+          :headers="headers"
+          :items="groups"
+          :search="search"
+          item-key="Group_ID"
+        >
+          <template v-slot:item.Group_Name_Eng="{ item }">
             <v-row class="mb-6 pa-5 justify-space-around" no-gutters>
               <div style="cursor: pointer">
-                {{ item.groupName }}
+                {{ item.Group_Name_Eng }}
               </div>
             </v-row>
           </template>
@@ -42,91 +73,106 @@
 </template>
 <script>
 export default {
+  props: {
+    Group_Role: Number
+  },
   data() {
     return {
       search: "",
+      selectedYear: null,
+      selectedSemester: null,
+      loading: false,
+      dialog1: false,
+      singleSelect: false,
+      selected: [],
+      selectedgroupid: {},
+      students: [],
+      advisor: [],
+      committee: [],
       headers: [
         {
           text: "GROUP NAME",
           align: "center",
-          value: "groupName",
+          sortable: false,
+          value: "Group_Name_Eng"
         },
-        { text: "MEMBER", value: "member", align: "center" },
-        { text: "ADVISOR", value: "advisor", align: "center" },
-        { text: "COMMITTEE", value: "committee", align: "center" },
+        { text: "MEMBER", align: "center", value: "Students" },
+        { text: "ADVISOR", align: "center", value: "Advisor" },
+        { text: "PROGRAM", align: "center", value: "Major" },
+        { text: "COMMITTEE", align: "center", value: "Committees" },
         {
           text: "Actions",
           value: "actions",
           sortable: false,
           align: "center",
-          width: 170,
-        },
+          width: 170
+        }
       ],
-      items: [
-        {
-          groupName:
-            "Mobile Application for Karen Translator for Translator for Physiotherapy",
-          member:
-            "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-          advisor: "Surapong Uttama",
-          committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-        },
-        {
-          groupName:
-            "Mobile Application for Karen Translator for Translator for Physiotherapy",
-          member:
-            "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-          advisor: "Surapong Uttama",
-          committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-        },
-        {
-          groupName:
-            "Mobile Application for Karen Translator for Translator for Physiotherapy",
-          member:
-            "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-          advisor: "Surapong Uttama",
-          committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-        },
-        {
-          groupName:
-            "Mobile Application for Karen Translator for Translator for Physiotherapy",
-          member:
-            "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-          advisor: "Surapong Uttama",
-          committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-        },
-        {
-          groupName:
-            "Mobile Application for Karen Translator for Translator for Physiotherapy",
-          member:
-            "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-          advisor: "Surapong Uttama",
-          committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-        },
-        {
-          groupName:
-            "Mobile Application for Karen Translator for Translator for Physiotherapy",
-          member:
-            "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-          advisor: "Surapong Uttama",
-          committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-        },
-        {
-          groupName:
-            "Mobile Application for Karen Translator for Translator for Physiotherapy",
-          member:
-            "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-          advisor: "Surapong Uttama",
-          committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-        },
-      ],
+      yearNSemsters: 0,
+      groups: []
     };
   },
+  async fetch() {
+    try {
+      let that = this;
+      // Fetch all years and semesters
+      that.yearNSemsters = await this.$axios.$get("/date/allYearsSemester");
+      console.log("yearNsemester", that.yearNSemsters);
+
+      that.selectedYear = that.yearNSemsters[0].Academic_Year;
+      that.selectedSemester = that.yearNSemsters[0].Academic_Term;
+
+      // Fetch initial group FIXME: use user major
+      that.groups = await this.$axios.$post("/group/listOwnGroup", {
+        User_Email: this.$store.state.auth.currentUser.email,
+        Year: that.selectedYear,
+        Semester: that.selectedSemester,
+        Group_Role: that.Group_Role
+      });
+      console.log("groups", that.groups);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+  mounted() {
+    // Set the default value
+    console.log("test test", this.yearNSemsters);
+    console.log("Group role",this.Group_Role);
+
+    // try {
+    //   this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    //   this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    // } catch (error) {
+    //   console.log(error);
+    // }
+  },
   methods: {
+    // TODO: keep group id to state for scoring of group
     pushOtherPage() {
       console.log("success");
       this.$router.push("/Senior1/Coordinator/groupInfo");
     },
-  },
+    async handleChangeRenderGroups() {
+      let that = this;
+      that.loading = true;
+      try {
+        that.groups = await this.$axios.$post("/group/listOwnGroup", {
+          User_Email: this.$store.state.auth.currentUser.email,
+          Year: that.selectedYear,
+          Semester: that.selectedSemester,
+          Group_Role: that.Group_Role
+        });
+        that.groups.map(el => {
+          if ((el.Group_Role = 0)) {
+            this.advisor.push(el);
+          }
+        });
+        that.loading = false;
+        console.log(that.groups);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 };
 </script>

@@ -146,7 +146,7 @@ export default {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
-  
+
   async asyncData({ $axios }) {
     let majors, yearNSemsters, allGroups;
 
@@ -174,20 +174,19 @@ export default {
       console.log(this.yearNSemsters);
       console.log(this.allGroups);
     },
-    async deletegroup(){
+    async deletegroup() {
       this.loading = true;
-      this.dialog1 = false
-      // this.selectedgroupid.push(this.selected[0]['Group_ID'])  
-      for(let i = 0;i<this.selected.length;i++){
-        console.log(this.selected[i]['Group_ID'])
+      this.dialog1 = false;
+      // this.selectedgroupid.push(this.selected[0]['Group_ID'])
+      for (let i = 0; i < this.selected.length; i++) {
+        console.log(this.selected[i]["Group_ID"]);
         this.selectedgroupid = await this.$axios.$put("group/delete", {
-        Group_ID: this.selected[i]['Group_ID'],
-      });
+          Group_ID: this.selected[i]["Group_ID"]
+        });
       }
-      console.log(this.selectedgroupid)
-      
+      console.log(this.selectedgroupid);
+
       this.loading = false;
-      
     },
     async handleChangeRenderGroups() {
       this.loading = true;
