@@ -39,36 +39,6 @@ export default {
   props: {
     gradeCriterias: Array
   }
-  // data() {
-  //   return {
-  //     gradeCriteriaArr: [
-  //       {
-  //         grade: "S",
-  //         pass: 70
-  //         // high: 100,
-  //         // total: 100
-  //       },
-  //       {
-  //         grade: "U",
-  //         pass: 0
-  //         // high: 69,
-  //         // total: 69
-  //       },
-  //       {
-  //         grade: "I",
-  //         pass: "none"
-  //         // high: "none",
-  //         // total: "none"
-  //       },
-  //       {
-  //         grade: "P",
-  //         pass: "none"
-  //         // high: "none",
-  //         // total: "none"
-  //       }
-  //     ]
-  //   };
-  // }
 };
 </script>
 
