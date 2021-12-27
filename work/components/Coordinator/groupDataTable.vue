@@ -108,28 +108,28 @@ export default {
           width: 170
         }
       ],
-      yearNSemsters: 0,
+      yearNSemsters: [],
       groups: []
     };
   },
   async fetch() {
     try {
-      let that = this;
+      // let that = this;
       // Fetch all years and semesters
-      that.yearNSemsters = await this.$axios.$get("/date/allYearsSemester");
-      console.log("yearNsemester", that.yearNSemsters);
+      this.yearNSemsters = await this.$axios.$get("/date/allYearsSemester");
+      console.log("yearNsemester", this.yearNSemsters);
 
-      that.selectedYear = that.yearNSemsters[0].Academic_Year;
-      that.selectedSemester = that.yearNSemsters[0].Academic_Term;
+      this.selectedYear = this.yearNSemsters[0].Academic_Year;
+      this.selectedSemester = this.yearNSemsters[0].Academic_Term;
 
       // Fetch initial group FIXME: use user major
-      that.groups = await this.$axios.$post("/group/listOwnGroup", {
+      this.groups = await this.$axios.$post("/group/listOwnGroup", {
         User_Email: this.$store.state.auth.currentUser.email,
-        Year: that.selectedYear,
-        Semester: that.selectedSemester,
-        Group_Role: that.Group_Role
+        Year: this.selectedYear,
+        Semester: this.selectedSemester,
+        Group_Role: this.Group_Role
       });
-      console.log("groups", that.groups);
+      console.log("groups", this.groups);
     } catch (err) {
       console.log(err);
     }
@@ -153,22 +153,22 @@ export default {
       this.$router.push("/Senior1/Coordinator/groupInfo");
     },
     async handleChangeRenderGroups() {
-      let that = this;
-      that.loading = true;
+      // let this = this;
+      this.loading = true;
       try {
-        that.groups = await this.$axios.$post("/group/listOwnGroup", {
+        this.groups = await this.$axios.$post("/group/listOwnGroup", {
           User_Email: this.$store.state.auth.currentUser.email,
-          Year: that.selectedYear,
-          Semester: that.selectedSemester,
-          Group_Role: that.Group_Role
+          Year: this.selectedYear,
+          Semester: this.selectedSemester,
+          Group_Role: this.Group_Role
         });
-        that.groups.map(el => {
+        this.groups.map(el => {
           if ((el.Group_Role = 0)) {
             this.advisor.push(el);
           }
         });
-        that.loading = false;
-        console.log(that.groups);
+        this.loading = false;
+        console.log(this.groups);
       } catch (error) {
         console.log(error);
       }

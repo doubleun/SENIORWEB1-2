@@ -99,29 +99,27 @@ export default {
   async asyncData({ $axios, store }) {
     console.log("Major: ", store.state.auth.currentUser.major);
 
+    /// Initial fetch
+    let scoreCriterias, gradeCriterias;
     try {
-      /// Initial fetch
-      let scoreCriterias, gradeCriterias;
-      try {
-        // Fetch score criterias
-        scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
-          Major_ID: store.state.auth.currentUser.major
-        });
-        // Fetch grade criterias
-        gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
-          Major_ID: store.state.auth.currentUser.major
-        });
-        // Pass in latest project on term which will be in the scoreCriterias
-        gradeCriterias = gradeCriterias.map(itm => ({
-          ...itm,
-          Project_on_term_ID: scoreCriterias[0].Project_on_term_ID
-        }));
-      } catch (err) {
-        console.log(err);
-      }
+      // Fetch score criterias
+      scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
+        Major_ID: store.state.auth.currentUser.major
+      });
+      // Fetch grade criterias
+      gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
+        Major_ID: store.state.auth.currentUser.major
+      });
+      // Pass in latest project on term which will be in the scoreCriterias
+      gradeCriterias = gradeCriterias.map(itm => ({
+        ...itm,
+        Project_on_term_ID: scoreCriterias[0].Project_on_term_ID
+      }));
+    } catch (err) {
+      console.log(err);
+    }
 
-      return { scoreCriterias, gradeCriterias };
-    } catch (error) {}
+    return { scoreCriterias, gradeCriterias };
   },
   methods: {},
   mounted() {
