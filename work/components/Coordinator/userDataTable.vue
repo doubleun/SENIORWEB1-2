@@ -40,7 +40,7 @@ export default {
         },
         { text: "NAME", value: "User_Name" },
         { text: "EMAIL", value: "User_Email" },
-        { text: "SEM", value: "semester" }
+        { text: "SEM", value: "SEM" }
       ],
       id: [
         
@@ -51,14 +51,18 @@ export default {
   
   async fetch() {
     let infostudent
+    let sem = ""
   
     infostudent = await this.$axios.$post("user/getAllUserWithMajor",{
         Major_ID : this.$store.state.auth.currentUser.projectOnTerm,
         Project_on_term_ID:this.$store.state.auth.currentUser.projectOnTerm,
         User_Role:1
     });
-    this.id=infostudent
-    console.log("this "+infostudent[0]['User_Email'])
+    for(let i=0;i<infostudent.length;i++){
+      sem = infostudent[i]['Academic_Term'] +'/'+ infostudent[i]['Academic_Year']
+      this.id.push({User_Identity_ID:infostudent[i]['User_Identity_ID'],User_Name:infostudent[i]['User_Name'],User_Email:infostudent[i]['User_Email'],SEM:sem})
+    }
+    
 
     return { infostudent };
   },
