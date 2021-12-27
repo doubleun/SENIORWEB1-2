@@ -36,33 +36,29 @@ export default {
           text: "ID",
           align: "start",
           filterable: false,
-          value: "id"
+          value: "User_Identity_ID"
         },
-        { text: "NAME", value: "name" },
-        { text: "EMAIL", value: "email" },
+        { text: "NAME", value: "User_Name" },
+        { text: "EMAIL", value: "User_Email" },
         { text: "SEM", value: "semester" }
       ],
       id: [
-        {
-          id: "6131302010",
-          name: "Authep Tayngam",
-          email: "3131302010@lamduanh.mfu.ac.th",
-          semester: "2/2564"
-        },
+        
       ],
       
     };
   },
   
-  async asyncData({ $axios }) {
+  async fetch() {
     let infostudent
-    // Fetch all majors
-    infostudent = await $axios.$post("user/getAllUserWithMajor",{
+  
+    infostudent = await this.$axios.$post("user/getAllUserWithMajor",{
         Major_ID : this.$store.state.auth.currentUser.projectOnTerm,
         Project_on_term_ID:this.$store.state.auth.currentUser.projectOnTerm,
         User_Role:1
     });
-    console.log("kkk")
+    this.id=infostudent
+    console.log("this "+infostudent[0]['User_Email'])
 
     return { infostudent };
   },
