@@ -4,7 +4,7 @@
       <h1>Criteria</h1>
 
       <!-- Score criteria card -->
-      <ScoreCriteriaCard />
+      <ScoreCriteriaCard :scoreCriterias="scoreCriterias" :admin="false" />
 
       <!-- Grade criteria card -->
       <!-- Edit criteria button -->
@@ -27,7 +27,7 @@
               Grade Criteria
             </v-card-title>
 
-            <div
+            <!-- <div
               class="grade-criteria-input-flex"
               v-for="grade in gradeCriteriaArr"
               :key="grade"
@@ -54,7 +54,7 @@
                   hide-details
                 ></v-text-field>
               </div>
-            </div>
+            </div> -->
 
             <v-divider></v-divider>
 
@@ -71,7 +71,10 @@
         </v-dialog>
       </div>
 
-      <GradeCriteriaCard class="coordinator-criteria-grade-card" />
+      <GradeCriteriaCard
+        :gradeCriterias="gradeCriterias"
+        class="coordinator-criteria-grade-card"
+      />
     </main>
   </section>
 </template>
@@ -89,8 +92,39 @@ export default {
   data() {
     return {
       editGradeDialog: false,
+      low: 0,
       gradeCriteriaArr: ["S", "U"]
     };
+  },
+  async asyncData({ $axios, store }) {
+    console.log("Major: ", store.state.auth.currentUser.major);
+
+    /// Initial fetch
+    let scoreCriterias, gradeCriterias;
+    try {
+      // Fetch score criterias
+      scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
+        Major_ID: store.state.auth.currentUser.major
+      });
+      // Fetch grade criterias
+      gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
+        Major_ID: store.state.auth.currentUser.major
+      });
+      // Pass in latest project on term which will be in the scoreCriterias
+      gradeCriterias = gradeCriterias.map(itm => ({
+        ...itm,
+        Project_on_term_ID: scoreCriterias[0].Project_on_term_ID
+      }));
+    } catch (err) {
+      console.log(err);
+    }
+
+    return { scoreCriterias, gradeCriterias };
+  },
+  methods: {},
+  mounted() {
+    console.log("Scores: ", this.scoreCriterias);
+    console.log("Grades: ", this.gradeCriterias);
   }
 };
 </script>
