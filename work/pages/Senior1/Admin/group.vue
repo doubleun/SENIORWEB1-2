@@ -44,7 +44,7 @@
           />
         </div>
         <div>
-          <v-btn color="success"
+          <v-btn color="success" @click="handleExports(selected)"
             ><v-icon>mdi-microsoft-excel</v-icon> Export to Excel</v-btn
           >
           <v-btn color="error" @click="dialog1 = true"
@@ -110,6 +110,7 @@
 
 <script>
 import LongTableCard from "@/components/Admin/longTableCard";
+import exportXLSX from "@/mixins/exportXLSX";
 
 export default {
   layout: "admin",
@@ -146,7 +147,6 @@ export default {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
-
   async asyncData({ $axios }) {
     let majors, yearNSemsters, allGroups;
 
@@ -174,6 +174,10 @@ export default {
       console.log(this.yearNSemsters);
       console.log(this.allGroups);
     },
+    // TODO: Delete This
+    testSelect() {
+      console.log(this.selected);
+    },
     async deletegroup() {
       this.loading = true;
       this.dialog1 = false;
@@ -190,6 +194,8 @@ export default {
     },
     async handleChangeRenderGroups() {
       this.loading = true;
+      // Clear selected group from the past filter
+      this.selected = [];
       this.allGroups = await this.$axios.$post("group/getAllAdmin", {
         Major: this.selectedMajor.Major_ID,
         Year: this.selectedYear,
@@ -197,7 +203,8 @@ export default {
       });
       this.loading = false;
     }
-  }
+  },
+  mixins: [exportXLSX]
 };
 </script>
 

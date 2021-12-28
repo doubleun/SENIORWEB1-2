@@ -37,7 +37,7 @@
               <v-btn
                 :loading="loading3"
                 :disabled="loading3"
-                @click="handleExports"
+                @click="handleExports(items)"
                 class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
               >
                 Export to Excel

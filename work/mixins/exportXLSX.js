@@ -2,9 +2,9 @@ import XLSX from "xlsx"; // import xlsx
 export default {
   methods: {
     // Export scores XLSX
-    handleExports() {
+    handleExports(items) {
       // Create worksheet
-      const dataWS = XLSX.utils.json_to_sheet(this.items);
+      const dataWS = XLSX.utils.json_to_sheet(items);
       // Create workbook for export
       const wb = XLSX.utils.book_new();
       // Add worksheet to workbook
