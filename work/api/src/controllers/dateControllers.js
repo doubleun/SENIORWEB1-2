@@ -35,9 +35,9 @@ updateProgressionDuedate = async (req, res) => {
     Progression_Info_ID
   } = req.body;
   const insert =
-    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?);";
+    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,(SELECT Progress_ID FROM progressions WHERE Progress_Name = ?),?,?);";
   const update =
-    "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = ?, `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
+    "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = (SELECT Progress_ID FROM progressions WHERE Progress_Name = ?) , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
 
   if (Progression_Info_ID == 0) {
     await con.query(

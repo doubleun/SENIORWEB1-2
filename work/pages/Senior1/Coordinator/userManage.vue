@@ -21,8 +21,7 @@
           <div class="login" align="center" justify="center">
             <v-row>
               <v-btn
-                :loading="loading3"
-                :disabled="loading3"
+                
                 class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
               >
                 <v-icon dark-blue>
@@ -40,7 +39,7 @@
   </div>
 </template>
 <script>
-import userDataTable from "@/components/Coordinator/๊userDataTable";
+import userDataTable from "@/components/Coordinator/userDataTable";
 export default {
   data: () => ({
     sem: ["1/2564", "2/2564"]
