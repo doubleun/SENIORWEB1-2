@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Create group form -->
-    <v-form ref="form">
+    <v-form ref="form" v-model="valid">
       <v-card class="content mt-5">
         <v-row>
           <v-col cols="12" sm="3"
@@ -51,6 +51,7 @@
                       label="Student Name"
                       outlined
                       dense
+                      disabled
                       class="mt-5"
                     >
                     </v-text-field>
@@ -105,6 +106,7 @@
                       required
                       label="Student Lamduan Mail"
                       outlined
+                      disabled
                       dense
                     >
                     </v-text-field>
@@ -112,11 +114,20 @@
                 </v-row>
               </div>
             </div>
-            <!-- Add member -->
-            <div class="mb-5" v-show="projectMembers.length < 4">
-              <a class="text-decoration-underline" @click="addMemberFields"
-                >+ Add Member</a
-              >
+            <!-- Add and remove member flex -->
+            <div class="d-flex flex-row">
+              <!-- Add member -->
+              <div class="mb-5 mr-5" v-show="projectMembers.length < 4">
+                <a class="text-decoration-underline" @click="addMemberFields"
+                  >+ Add Member</a
+                >
+              </div>
+              <!-- Remove member -->
+              <div class="mb-5" v-show="projectMembers.length > 1">
+                <a class="text-decoration-underline" @click="removeMemberFields"
+                  >- Remove Member</a
+                >
+              </div>
             </div>
             <!-- Part : project advisor -->
             <div class="projectAdvisor">
@@ -150,6 +161,10 @@
                     item-text="User_Name"
                     item-value="User_Name"
                     placeholder="Search advisor name"
+                    :rules="[
+                      () => !!selectedAdvisor || 'This field is required'
+                    ]"
+                    clearable
                     return-object
                   ></v-autocomplete>
                   <v-autocomplete
@@ -164,6 +179,7 @@
                     item-text="User_Name"
                     item-value="User_Name"
                     placeholder="Search co-advisor name"
+                    clearable
                     return-object
                   ></v-autocomplete>
                 </v-col>
@@ -208,6 +224,10 @@
                     item-text="User_Name"
                     item-value="User_Name"
                     placeholder="Search committee 1"
+                    :rules="[
+                      () => !!selectedCommittee1 || 'This field is required'
+                    ]"
+                    clearable
                     return-object
                   ></v-autocomplete>
                   <v-autocomplete
@@ -222,6 +242,7 @@
                     item-text="User_Name"
                     item-value="User_Name"
                     placeholder="Search committee 2"
+                    clearable
                     return-object
                   ></v-autocomplete>
                 </v-col>
@@ -257,24 +278,17 @@ export default {
     // Filterd list of students from all users in the major
     filteredStudents: [],
     // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
-    selectedAdvisor: {},
-    selectedCoAdvisor: {},
-    selectedCommittee1: {},
-    selectedCommittee2: {},
+    selectedAdvisor: null,
+    selectedCoAdvisor: null,
+    selectedCommittee1: null,
+    selectedCommittee2: null,
+    valid: true,
     thaiName: "",
     engName: "",
     stuName: "",
     stuID: "",
     stuPhoneNumber: "",
     stuEmail: "",
-    // !NOT USE
-    // advisorName: "",
-    // advisorEmail: "6131302001@lamduan.mfu.ac.th",
-    // committee1Name: "",
-    // committee1Email: "6131302001@lamduan.mfu.ac.th",
-    // committee2Name: "",
-    // committee2Email: "6131302002@lamduan.mfu.ac.th",
-    // coadvisorName: "",
     emailRules: [
       v => !!v || "E-mail is required",
       v =>
@@ -289,6 +303,7 @@ export default {
     email: ["", "", "", ""],
     major: 1
   }),
+  props: { groupMembers: Array },
   async fetch() {
     // TODO: This is big fetch, put this in a state and check if exists before fetch it
     // Fetch students and teachers
@@ -315,7 +330,10 @@ export default {
         ...this.projectMembers,
         this.projectMembers.slice(-1)[0] + 1
       ];
-      console.log(this.selectedStudent);
+    },
+    // Remove member fields
+    removeMemberFields() {
+      this.projectMembers.pop();
     },
     // Student autocomplete filter
     customStudentFilter(item, queryText, itemText) {
@@ -335,25 +353,25 @@ export default {
       );
     },
     async submitInfo() {
-      // let number = 1;
-      // if (this.name[1] != "") {
-      //   number++;
-      // }
-      // if (this.name[2] != "") {
-      //   number++;
-      // }
-      // if (this.name[3] != "") {
-      //   number++;
-      // }
+      // Validate form to make sure that everything is filled
+      this.$refs.form.validate();
+
+      // Make sure that atleast one advisor and one committee is selected
+      if (
+        this.selectedAdvisor === null ||
+        this.selectedCommittee1 === null ||
+        this.valid === false
+      )
+        return;
 
       const res = await this.$axios.$post("group/createGroup", {
         Project_NameTh: this.thaiName,
         Project_NameEn: this.engName,
         Studen_Number: this.projectMembers.length,
         Advisor_Email: this.selectedAdvisor.User_Email,
-        CoAdvisor_Name: this.selectedCoAdvisor.User_Name,
+        CoAdvisor_Name: this.selectedCoAdvisor?.User_Name || "",
         Committee1_Email: this.selectedCommittee1?.User_Email,
-        Committee2_Email: this.selectedCommittee2?.User_Email,
+        Committee2_Email: this.selectedCommittee2?.User_Email || "",
         Student1_Tel: this.phone[0],
         Student2_Tel: this.phone[1],
         Student3_Tel: this.phone[2],
@@ -365,6 +383,57 @@ export default {
         Major: this.major,
         Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
       });
+    }
+  },
+  mounted() {
+    // console.log('Current user group: ', this.$store.state.group.currentUserGroup);
+    // console.log("Group members: ", this.groupMembers);
+    // Check if there are group members array before pass in value to text fields
+    if (this.groupMembers.length !== 0) {
+      // Sets project name
+      this.thaiName = this.$store.state.group.currentUserGroup.Group_Name_Thai;
+      this.engName = this.$store.state.group.currentUserGroup.Group_Name_Eng;
+
+      // Sets project members
+      this.groupMembers
+        // Filter groupMembers array to get only group role 2, which is student role
+        .filter(itm => itm.Group_Role === 3 || itm.Group_Role === 2)
+        .map((itm, index) => {
+          index >= 1 &&
+            // Add more project member fields
+            this.addMemberFields();
+
+          // Pass value into all project member fields
+          this.selectedStudent[index] = {
+            User_Email: itm.User_Email,
+            User_Identity_ID: itm.User_Identity_ID,
+            User_Name: itm.User_Name,
+            User_Role: itm.User_Role
+          };
+          this.name[index] = itm.User_Name;
+          this.email[index] = itm.User_Email;
+          this.phone[index] = itm.User_Phone;
+        });
+      // Sets advisor
+      const advisor = this.groupMembers.filter(itm => itm.Group_Role === 0);
+      if (advisor.length !== 0)
+        this.selectedAdvisor = {
+          User_Email: advisor[0].User_Email,
+          User_Name: advisor[0].User_Name
+        };
+      //Set co-advisor name
+      this.selectedCoAdvisor = {
+        User_Name: this.$store.state.group.currentUserGroup.Co_Advisor
+      };
+      // Set committes
+      this.groupMembers
+        .filter(itm => itm.Group_Role === 1)
+        .map((itm, index) => {
+          this["selectedCommittee" + (index + 1)] = {
+            User_Name: itm.User_Name,
+            User_Email: itm.User_Email
+          };
+        });
     }
   }
 };

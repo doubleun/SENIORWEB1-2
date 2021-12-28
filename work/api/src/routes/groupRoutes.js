@@ -2,6 +2,8 @@ const groupRouter = require("express").Router();
 const groupController = require("../controllers/groupControllers");
 
 groupRouter.get("/getByMajor", groupController.getByMajor); // addmin, co, advisor, committee
+groupRouter.post("/getGroupInfo", groupController.getGroupInfo); // student
+groupRouter.post("/getGroupMembers", groupController.getGroupMembers); // student
 groupRouter.put("/delete", groupController.deletes); // admin, co
 groupRouter.get("/all", groupController.getAll);
 groupRouter.post("/createGroup", groupController.createGroup);
