@@ -77,7 +77,7 @@
           <v-spacer></v-spacer>
           <v-col md="3"
             ><v-text-field
-              v-model="search"
+              v-model="searchGroup"
               append-icon="mdi-magnify"
               label="Search"
               single-line
@@ -92,7 +92,7 @@
           :single-select="singleSelect"
           item-key="Group_ID"
           :items="allGroups"
-          :search="search"
+          :search="searchGroup"
           show-select
         >
           <template v-slot:item.Group_Name_Eng="props">
@@ -119,6 +119,7 @@ export default {
   },
   data() {
     return {
+      searchGroup: "",
       selectedMajor: {},
       selectedYear: null,
       selectedSemester: null,
