@@ -44,7 +44,7 @@
           />
         </div>
         <div>
-          <v-btn color="success" @click="handleExports(selected)"
+          <v-btn color="success" @click="handleExports(selected, allGroups)"
             ><v-icon>mdi-microsoft-excel</v-icon> Export to Excel</v-btn
           >
           <v-btn color="error" @click="dialog1 = true"

@@ -1,10 +1,11 @@
 export default {
   // asynchronous
   async login(state) {
-    const user = await this.$axios.$get("http://localhost:3000/api/user");
-    if (user.email !== null && user.email !== "") {
-      await state.commit("SET_USER", user);
+    const res = await this.$axios.$get("http://localhost:3000/api/user");
+    if (res.status === 200 && res.email !== null && res.email !== "") {
+      await state.commit("SET_USER", res);
     } else {
+      await this.$axios.$get("http://localhost:3000/api/auth/logout");
       await state.commit("SET_USER", false);
     }
   },
