@@ -25,7 +25,7 @@
           <p class="white--text">Year</p>
           <v-select
             v-model="selectedYear"
-            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
             @change="handleChangeRenderGroups"
             dense
             solo
@@ -36,7 +36,7 @@
           <p class="white--text">Semester</p>
           <v-select
             v-model="selectedSemester"
-            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
             @change="handleChangeRenderGroups"
             dense
             solo
@@ -47,7 +47,7 @@
           <v-btn color="success" @click="handleExports(selected, allGroups)"
             ><v-icon>mdi-microsoft-excel</v-icon> Export to Excel</v-btn
           >
-          <v-btn color="error" @click="dialog1 = true"
+          <v-btn color="error" @click="checkdia"
             ><v-icon>mdi-trash-can</v-icon> Delete</v-btn
           >
         </div>
@@ -57,17 +57,13 @@
           <v-card-title>
             <span>Delete this?</span>
           </v-card-title>
-          <v-card-text>
-            Have you confirmed to delete this?
-          </v-card-text>
+          <v-card-text> Have you confirmed to delete this? </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="light" text right @click="dialog1 = false">
               Close
             </v-btn>
-            <v-btn color="primary" right @click="deletegroup">
-              Yes
-            </v-btn>
+            <v-btn color="primary" right @click="deletegroup"> Yes </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -111,11 +107,13 @@
 <script>
 import LongTableCard from "@/components/Admin/longTableCard";
 import exportXLSX from "@/mixins/exportXLSX";
+import Swal from "sweetalert2";
+// const Swal = require('sweetalert2')
 
 export default {
   layout: "admin",
   components: {
-    LongTableCard
+    LongTableCard,
   },
   data() {
     return {
@@ -133,13 +131,13 @@ export default {
           text: "GROUP NAME",
           align: "center",
           sortable: false,
-          value: "Group_Name_Eng"
+          value: "Group_Name_Eng",
         },
         { text: "MEMBER", align: "center", value: "Students" },
         { text: "PROGRAM", align: "center", value: "Major" },
         { text: "ADVISOR", align: "center", value: "Advisor" },
-        { text: "COMMITTEE", align: "center", value: "Committee" }
-      ]
+        { text: "COMMITTEE", align: "center", value: "Committee" },
+      ],
     };
   },
   mounted() {
@@ -160,7 +158,7 @@ export default {
       allGroups = await $axios.$post("/group/getAllAdmin", {
         Major: majors[0].Major_ID,
         Year: yearNSemsters[0].Academic_Year,
-        Semester: yearNSemsters[0].Academic_Term
+        Semester: yearNSemsters[0].Academic_Term,
       });
     } catch (err) {
       console.log(err);
@@ -179,26 +177,40 @@ export default {
     testSelect() {
       console.log(this.selected);
     },
+    checkdia() {
+      if (this.selected.length == 0) {
+        Swal.fire({
+          // title: "Error!",
+          text: "Please select at least one group",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      } else {
+        this.dialog1 = true;
+      }
+    },
     async deletegroup() {
       this.loading = true;
       this.dialog1 = false;
       // this.selectedgroupid.push(this.selected[0]['Group_ID'])
       // Create new array with only 2 values that the api needs
-      const data = this.selected.map(itm => ({
+
+      const data = this.selected.map((itm) => ({
         Group_ID: itm.Group_ID,
-        Group_Status: 0
+        Group_Status: 0,
       }));
       // Fetch update API
       const res = await this.$axios.$put("/group/delete", {
-        data
+        data,
       });
 
       console.log(res);
       console.log("Before Update: ", this.allGroups);
       // Update UI
       this.allGroups = this.allGroups.filter(
-        itm => !res.result.includes(itm.Group_ID)
+        (itm) => !res.result.includes(itm.Group_ID)
       );
+
       console.log("UI update: ", this.allGroups);
 
       console.log(this.selectedgroupid);
@@ -212,12 +224,12 @@ export default {
       this.allGroups = await this.$axios.$post("group/getAllAdmin", {
         Major: this.selectedMajor.Major_ID,
         Year: this.selectedYear,
-        Semester: this.selectedSemester
+        Semester: this.selectedSemester,
       });
       this.loading = false;
-    }
+    },
   },
-  mixins: [exportXLSX]
+  mixins: [exportXLSX],
 };
 </script>
 

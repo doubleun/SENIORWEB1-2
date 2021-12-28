@@ -29,6 +29,7 @@
     "passport-google-oauth2": "^0.2.0",
     "path": "^0.12.7",
     "read-excel-file": "^5.2.24",
+    "sweetalert2": "^11.3.1",
     "vuetify": "^2.5.5",
     "xlsx": "^0.17.4"
   },
