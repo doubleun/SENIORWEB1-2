@@ -19,14 +19,15 @@
                 <v-card-title class="text-h5 mb-3">
                   Enter new year
                 </v-card-title>
-
-                <v-text-field
-                  placeholder="Ex: 2021"
-                  outlined
-                  class="mx-5"
-                  v-model.number="academicYear"
-                ></v-text-field>
-
+                <v-form ref="form" v-model="valid">
+                  <v-text-field
+                    placeholder="Ex: 2021"
+                    outlined
+                    class="mx-5"
+                    :rules="[() => !!academicYear || 'This field is required']"
+                    v-model.number="academicYear"
+                  ></v-text-field>
+                </v-form>
                 <v-divider></v-divider>
 
                 <v-card-actions>
@@ -58,13 +59,17 @@ import SemesterDateCard from "@/components/Admin/semesterDateCard";
 export default {
   layout: "admin",
   components: {
-    SemesterDateCard
+    SemesterDateCard,
   },
   data: () => ({
-    newAcademicDialog: false
+    newAcademicDialog: false,
   }),
   methods: {
     async handleNewAcademicYear() {
+      this.$refs.form.validate();
+
+      if(this.academicYear != ""){
+
       const res = this.$axios.$post(
         "http://localhost:3000/api/date/semester/new",
         {
@@ -74,21 +79,23 @@ export default {
               term: 1,
               dateStart: new Date().toISOString().substr(0, 10),
               dateEnd: new Date().toISOString().substr(0, 10),
-              senior: 1
+              senior: 1,
             },
             {
               year: this.academicYear,
               term: 2,
               dateStart: new Date().toISOString().substr(0, 10),
               dateEnd: new Date().toISOString().substr(0, 10),
-              senior: 2
-            }
-          ]
+              senior: 2,
+            },
+          ],
         }
       );
       this.newAcademicDialog = false;
-      console.log(res);
-    }
+      }
+      
+      // console.log(res);
+    },
   },
   async asyncData({ $axios }) {
     let data;
@@ -99,9 +106,9 @@ export default {
       console.log(err);
     }
     return {
-      academicYear: data[0].Academic_Year
+      academicYear: data[0].Academic_Year,
     };
-  }
+  },
 };
 </script>
 
