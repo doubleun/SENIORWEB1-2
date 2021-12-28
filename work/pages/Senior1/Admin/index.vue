@@ -27,7 +27,7 @@ export default {
     const data = announcements.map(itm => ({
       ...itm,
       modal: false,
-      allMajor: false
+      allMajor: itm.Major_ID == 99 ? true : false
     }));
 
     // Get home info for the statistic cards
