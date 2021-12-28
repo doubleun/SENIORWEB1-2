@@ -50,7 +50,7 @@
               <v-btn
                 text
                 color="primary"
-                @click="() => dateMenuSave('assign', data.id, data.assignDate)"
+                @click="() => dateMenuSave('assign', data.id, data.assignDate, data.dueDate, data.topic)"
               >
                 OK
               </v-btn>
@@ -85,7 +85,7 @@
               <v-btn
                 text
                 color="primary"
-                @click="() => dateMenuSave('due', data.id, data.dueDate)"
+                @click="() => dateMenuSave('due', data.id, data.dueDate,data.assignDate, data.topic)"
               >
                 OK
               </v-btn>
@@ -125,7 +125,7 @@ export default {
           dueDate: new Date().toISOString().substr(0, 10),
           file: 0,
           assignMenu: false,
-          dueMenu: false
+          dueMenu: false,
         },
         {
           id: 2,
@@ -134,7 +134,7 @@ export default {
           dueDate: new Date().toISOString().substr(0, 10),
           file: 90,
           assignMenu: false,
-          dueMenu: false
+          dueMenu: false,
         },
         {
           id: 3,
@@ -143,7 +143,7 @@ export default {
           dueDate: new Date().toISOString().substr(0, 10),
           file: 90,
           assignMenu: false,
-          dueMenu: false
+          dueMenu: false,
         },
         {
           id: 4,
@@ -152,7 +152,7 @@ export default {
           dueDate: new Date().toISOString().substr(0, 10),
           file: 90,
           assignMenu: false,
-          dueMenu: false
+          dueMenu: false,
         },
         {
           id: 5,
@@ -161,7 +161,7 @@ export default {
           dueDate: new Date().toISOString().substr(0, 10),
           file: 90,
           assignMenu: false,
-          dueMenu: false
+          dueMenu: false,
         },
         {
           id: 6,
@@ -170,7 +170,7 @@ export default {
           dueDate: new Date().toISOString().substr(0, 10),
           file: 100,
           assignMenu: false,
-          dueMenu: false
+          dueMenu: false,
         },
         {
           id: 7,
@@ -179,7 +179,7 @@ export default {
           dueDate: new Date().toISOString().substr(0, 10),
           file: 90,
           assignMenu: false,
-          dueMenu: false
+          dueMenu: false,
         },
         {
           id: 8,
@@ -188,22 +188,41 @@ export default {
           dueDate: new Date().toISOString().substr(0, 10),
           file: 90,
           assignMenu: false,
-          dueMenu: false
-        }
-      ]
+          dueMenu: false,
+        },
+      ],
     };
   },
   methods: {
-    dateMenuSave(action, id, date) {
+    async dateMenuSave(action, id, date, other, topic) {
+      
       if (action === "assign") {
-        console.log(this.$refs["assignMenu" + id][0]);
+        // console.log(this.$refs["assignMenu" + id][0]);
+        let setdat = await this.$axios.$post("date/progression/update", {
+          DueDate_Start:date,
+          DueDate_End:other,
+          Progress_ID:topic,
+          Major_ID:this.$store.state.auth.currentUser.major,
+          Project_on_term_ID:this.$store.state.auth.currentUser.projectOnTerm,
+          Progression_Info_ID:id
+        });
+        console.log("success")
         this.$refs["assignMenu" + id][0].save(date);
       } else {
-        console.log(this.$refs["dueMenu" + id][0]);
+        // let setdat = await $axios.$post("date/progression/update", {});
+        // console.log(this.$refs["dueMenu" + id][0]);
+        let setdat = await this.$axios.$post("date/progression/update", {
+          DueDate_Start:other,
+          DueDate_End:date,
+          Progress_ID:topic,
+          Major_ID:this.$store.state.auth.currentUser.major,
+          Project_on_term_ID:this.$store.state.auth.currentUser.projectOnTerm,
+          Progression_Info_ID:id
+        });
         this.$refs["dueMenu" + id][0].save(date);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
