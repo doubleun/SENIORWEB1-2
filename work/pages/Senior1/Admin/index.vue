@@ -1,7 +1,7 @@
 <template>
   <div>
     <CardStatus :info="info" />
-    <Announcement :announcements="announcements" editable />
+    <Announcement :announcements="announcements" :majors="majors" editable />
   </div>
 </template>
 <script>
@@ -18,6 +18,10 @@ export default {
     const announcements = await context.$axios.$get(
       "http://localhost:3000/api/announc/all"
     );
+
+    // Get all major
+    const majors = await context.$axios.$get("/user/getAllMajors");
+
     // TODO: Add modal(true, false) and allMajor(true, false) in the database. OR just checked and set major id to 99 (think about it)
     // Add modal (true, false to the object announcements)
     const data = announcements.map(itm => ({
@@ -48,7 +52,7 @@ export default {
         icon: "mdi-account-multiple-plus"
       }
     ];
-    return { announcements: data, info: adminInfo };
+    return { announcements: data, info: adminInfo, majors: majors };
   },
   layout: "admin"
 };

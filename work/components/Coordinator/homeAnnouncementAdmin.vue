@@ -36,27 +36,45 @@
             <v-card-text>
               <v-container>
                 <v-col>
-                  <h3>Detail Announcement</h3>
-                  <v-textarea
-                    outlined
-                    name="detailAnnouncement"
-                    label="Text"
-                    v-model="Text"
-                  ></v-textarea>
-                  <!-- <v-text-field
+                  <v-form>
+                    <h3>Detail Announcement</h3>
+                    <v-textarea
+                      v-model="Text"
+                      label="Text"
+                      ref="textAdd"
+                      :rules="textAddRules"
+                      required
+                      outlined
+                    ></v-textarea>
+                    <!-- <v-text-field
                   v-model="MajorID"
                   hint="Major ID for this announcement to be display on"
                   label="Major"
                   type="number"
                   :disabled="allMajor"
                 ></v-text-field> -->
-                  <h3>Major</h3>
-                  <v-select
-                    :items="items"
-                    label="Select Major"
-                    outlined
-                  ></v-select>
-                  <v-checkbox v-model="allMajor" label="All major"></v-checkbox>
+                    <h3>Major</h3>
+                    <v-select
+                      v-model="selectedMajorAdd"
+                      label="Select Major"
+                      name="selectAdd"
+                      :items="majors"
+                      :rules="[
+                        v => !!v || 'Item is required',
+                        v => null || 'Item is required'
+                      ]"
+                      item-text="Major_Name"
+                      item-value="Major_ID"
+                      return-object
+                      outlined
+                    ></v-select>
+                    <v-checkbox
+                      v-model="allMajor"
+                      label="All major"
+                      name="checkAdd"
+                      :rules="[v => !!v || 'Item is required']"
+                    ></v-checkbox>
+                  </v-form>
                 </v-col>
               </v-container>
             </v-card-text>
@@ -117,11 +135,16 @@
                               name="detailAnnouncement"
                               label="Text"
                               v-model="announcement.Text"
+                              :rules="textEditRules"
                             ></v-textarea>
                             <h3>Major</h3>
                             <v-select
-                              :items="items"
+                              v-model="selectedMajorEdit"
+                              :items="majors"
                               label="Select Major"
+                              item-text="Major_Name"
+                              item-value="Major_ID"
+                              return-object
                               outlined
                             ></v-select>
                             <v-checkbox
@@ -163,7 +186,7 @@
                     large
                     color="red darken-2"
                     :id="announcement.Announcement_ID"
-                    @click="(e) => handleDeleteAnnouncement(e.target.id)"
+                    @click="e => handleDeleteAnnouncement(e.target.id)"
                   >
                     mdi-delete-forever-outline
                   </v-icon>
@@ -199,29 +222,12 @@ export default {
     submitSnackbar: false,
     snackbarText: "Add new announcement successfully",
     allMajor: false,
-    MajorID: 0,
+    selectedMajorAdd: {},
+    selectedMajorEdit: {},
     Text: "",
     availableMajors: [1, 2, 3, 4, 5, 6, 7, 99],
-    // announce: [
-    //   {
-    //     title:
-    //       "Announcement Progress 2 of Computer Science and Innovation has been postponed until October 31, 2021.",
-
-    //     date: "13-9-2021",
-    //   },
-    //   {
-    //     title:
-    //       "Announcement from the School of Information Technology Regarding the delivery schedule for every project By all disciplines affiliated with the office, all legs postpone the promotion until October 11, 2021.",
-
-    //     date: "16-9-102021",
-    //   },
-    //   {
-    //     title:
-    //       "Announcement from the School of Information Technology Regarding server shutdown for system maintenance on October 1, 2021",
-
-    //     date: "18-9-2021",
-    //   },
-    // ],
+    textAddRules: [v => !!v || "Text is required"],
+    textEditRules: [v => !!v || "Text is required"]
   }),
   computed: {
     displayAnnounce() {
@@ -232,9 +238,9 @@ export default {
     },
     pageLength() {
       return Math.ceil(this.announcements.length / 4);
-    },
+    }
   },
-  props: ["announcements"],
+  props: ["announcements", "majors"],
   methods: {
     test() {
       // console.log(this.$store.state.auth);
@@ -243,43 +249,61 @@ export default {
     // === Handle add new announcement === //
     async handleAddNewAnnounce() {
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
-      const selectedMajor = this.allMajor ? 99 : parseInt(this.MajorID);
+      const selectedMajor = this.allMajor ? 99 : this.selectedMajorAdd.Major_ID;
       // If there is no text or the selected major ID is not in the available ones stop the function
-      if (this.Text === "" || !this.availableMajors.includes(selectedMajor))
+      console.log("select major", selectedMajor);
+      if (
+        !this.availableMajors.includes(selectedMajor) ||
+        !this.$refs.textAdd.validate("textAdd")
+      ) {
+        // selectedMajor == 99
+        //   ? this.$refs.form.validate(["textAdd", "selectAdd"])
+        //   : this.$refs.form.validate(["textAdd", "checkAdd"]);
+        if (selectedMajor == 99) {
+          console.log("select all");
+        } else {
+          // this.$refs.textAdd.validate("textAdd");
+          // this.$v.$touch();
+          // this.$refs.form.validate(['textAdd', 'checkAdd']);
+          console.log("select major");
+        }
         return;
+      }
+
+      console.log("add success");
 
       // Send axios request to add new announcement
-      const res = await this.$axios.$post(
-        "http://localhost:3000/api/announc/add",
-        {
-          Text: this.Text,
-          MajorID: selectedMajor,
-        }
-      );
-      if (res.status === 200) {
-        this.snackbarText = "Add new announcement successfully";
-        this.submitSnackbar = true;
-        this.dialog = false;
+      // const res = await this.$axios.$post(
+      //   "http://localhost:3000/api/announc/add",
+      //   {
+      //     Text: this.Text,
+      //     MajorID: selectedMajor
+      //   }
+      // );
+      // if (res.status === 200) {
+      //   this.snackbarText = "Add new announcement successfully";
+      //   this.submitSnackbar = true;
+      //   this.dialog = false;
 
-        // Update UI
-        this.announcements = [
-          ...this.announcements,
-          {
-            Text: this.Text,
-            Major_ID: selectedMajor,
-            Publish_Date: "please refresh",
-          },
-        ];
+      //   // Update UI
+      //   this.announcements = [
+      //     ...this.announcements,
+      //     {
+      //       Text: this.Text,
+      //       Major_ID: selectedMajor,
+      //       Publish_Date: "please refresh"
+      //     }
+      //   ];
 
-        // Clear text
-        this.Text = "";
-        this.MajorID = 0;
-      } else {
-        this.snackbarText =
-          "Failed to add new announcement, please try again later";
-        this.submitSnackbar = true;
-        this.dialog = false;
-      }
+      //   // Clear text
+      //   this.Text = "";
+      //   this.MajorID = 0;
+      // } else {
+      //   this.snackbarText =
+      //     "Failed to add new announcement, please try again later";
+      //   this.submitSnackbar = true;
+      //   this.dialog = false;
+      // }
     },
     // === Handle delete announcement from database === //
     async handleDeleteAnnouncement(id) {
@@ -288,8 +312,8 @@ export default {
           "http://localhost:3000/api/announc/delete",
           {
             data: {
-              Announcement_ID: id,
-            },
+              Announcement_ID: id
+            }
           }
         );
         if (res.status === 200) {
@@ -298,7 +322,7 @@ export default {
 
           // Update UI items
           this.announcements = this.announcements.filter(
-            (itm) => itm.Announcement_ID !== parseInt(id)
+            itm => itm.Announcement_ID !== parseInt(id)
           );
         } else {
           this.snackbarText =
@@ -321,7 +345,7 @@ export default {
         {
           AnnouncementID: announcementId,
           Text: text,
-          MajorID: selectedMajor,
+          MajorID: selectedMajor
         }
       );
 
@@ -335,8 +359,8 @@ export default {
         this.submitSnackbar = true;
         this.dialog = false;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 <style>
