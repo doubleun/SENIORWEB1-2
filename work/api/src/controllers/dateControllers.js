@@ -88,70 +88,47 @@ getSemesterDate = async (req, res) => {
   });
 };
 
-updateSemesterDate = async (req, res) => {
-  let {
-    Project_on_term_ID,
-    Academic_Year,
-    Academic_Term,
-    Access_Date_Start,
-    Access_Date_End,
-    Senior_Project
-  } = req.body;
+newSemesterDate = async (req, res) => {
+  // const {Academic_Year, Academic_Term, Date_Start, Date_End} = req.body
+  console.log(req.body.data);
+  const { data } = req.body;
+  const sql =
+    "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`, `Senior_Project`) VALUES ?";
+  con.query(
+    sql,
+    [data.map(obj => Object.values(obj))],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res.status(422).json({ msg: "Query Error", err });
+      } else {
+        res.status(200).json({ msg: "Query Error", status: 200, result });
+      }
+    }
+  );
+};
 
-  Access_Date_Start = new Date(Access_Date_Start);
-  Access_Date_End = new Date(Access_Date_End);
+updateSemesterDate = async (req, res) => {
+  // data is an array that has 'Access_Date_Start, Access_Date_End, Project_on_term_ID' respectively
+  let { data } = req.body;
 
   // Update semester date
-  if (Project_on_term_ID) {
-    const update =
-      "UPDATE projectonterm SET `Academic_Year`=?, `Academic_Term`=?, `Access_Date_Start`=?, `Access_Date_End`=?, `Senior_Project`=? WHERE `Project_on_term_ID` = ?";
-    con.query(
-      update,
-      [
-        Academic_Year,
-        Academic_Term,
-        Access_Date_Start,
-        Access_Date_End,
-        Senior_Project,
-        Project_on_term_ID
-      ],
-      (err, result, fields) => {
-        try {
-          if (err) throw err;
-        } catch (err) {
-          res.status(422).json({ msg: "Query Error" });
-        }
-      }
-    );
-    res.status(200).json({ msg: "success" });
-  } else {
-    // Insert new semester date
-    const insert =
-      "INSERT INTO projectonterm(Academic_Year, Academic_Term, Access_Date_Start, Access_Date_End, Senior_Project) VALUES(?, ?, ?, ?, ?)";
-    con.query(
-      insert,
-      [
-        Academic_Year,
-        Academic_Term,
-        Access_Date_Start,
-        Access_Date_End,
-        Senior_Project
-      ],
-      (err, result, fields) => {
-        try {
-          if (err) throw err;
-        } catch (err) {
-          res.status(422).json({ msg: "Query Error" });
-        }
-      }
-    );
-    res.status(200).json({ msg: "success" });
-  }
+  const update =
+    "UPDATE `projectonterm` SET `Access_Date_Start`=?, `Access_Date_End`=? WHERE `Project_on_term_ID` = ?";
+  con.query(update, data, (err, result, fields) => {
+    try {
+      if (err) throw err;
+    } catch (err) {
+      res.status(422).json({ msg: "Query Error", status: 422 });
+    }
+  });
+  res.status(200).json({ msg: "success", status: 200 });
 };
 
 // Get all available years and semester for Admin
 getYearsSemester = async (req, res) => {
-  const sql = "SELECT `Academic_Year`, `Academic_Term` FROM `projectonterm` ORDER BY Academic_Year DESC ";
+  const sql =
+    "SELECT `Academic_Year`, `Academic_Term` FROM `projectonterm` ORDER BY Academic_Year DESC ";
   con.query(sql, (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -166,6 +143,7 @@ module.exports = {
   getProgressionDuedate,
   updateProgressionDuedate,
   getSemesterDate,
+  newSemesterDate,
   updateSemesterDate,
   getYearsSemester
 };

@@ -10,25 +10,25 @@
       <h4>ACTIONS</h4>
 
       <!-- Table records -->
-      <template v-for="data in dummyData">
-        <p :key="data.semester + 9">{{ data.semester }}</p>
-        <p :key="data.semester + 99">{{ data.startDate }}</p>
-        <p :key="data.semester + 999">{{ data.endDate }}</p>
-        <div :key="data.semester + 9999">
+      <template v-for="data in dateData">
+        <p :key="data.Academic_Term + 9">
+          {{ data.Academic_Term + "/" + academicYear }}
+        </p>
+        <p :key="data.Academic_Term + 99">{{ data.selectedDate[0] }}</p>
+        <p :key="data.Academic_Term + 999">{{ data.selectedDate[1] }}</p>
+        <div :key="data.Academic_Term + 9999">
           <!-- Edit assign date -->
           <v-menu
-            :ref="'startDateMenu' + data.id"
-            v-model="data.startDateMenu"
+            :ref="'dateMenu' + data.Project_on_term_ID"
+            v-model="data.dateMenu"
             :close-on-content-click="false"
             transition="scale-transition"
             offset-y
-            max-width="290px"
-            min-width="auto"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 color="blue lighten-1"
-                class="white--text"
+                class="white--text px-5"
                 v-on="on"
                 v-bind="attrs"
               >
@@ -36,54 +36,23 @@
               </v-btn>
             </template>
             <v-date-picker
-              v-model="data.startDate"
+              v-model="data.selectedDate"
+              :allowed-dates="allowedDates"
               color=""
               no-title
               scrollable
+              range
             >
               <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="data.startDateMenu = false">
+              <v-btn text color="primary" @click="data.dateMenu = false">
                 Cancel
               </v-btn>
               <v-btn
                 text
                 color="primary"
-                @click="() => dateMenuSave('assign', data.id, data.startDate)"
-              >
-                OK
-              </v-btn>
-            </v-date-picker>
-          </v-menu>
-
-          <!-- Due date -->
-          <v-menu
-            :ref="'endDateMenu' + data.id"
-            v-model="data.endDateMenu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="red darken-2"
-                class="white--text"
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-clock-time-two</v-icon> DUE DATE
-              </v-btn>
-            </template>
-            <v-date-picker v-model="data.endDate" color="" no-title scrollable>
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="data.endDateMenu = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                text
-                color="primary"
-                @click="() => dateMenuSave('due', data.id, data.endDate)"
+                @click="
+                  dateMenuSave(data.Project_on_term_ID, data.selectedDate)
+                "
               >
                 OK
               </v-btn>
@@ -97,47 +66,76 @@
 
 <script>
 export default {
+  props: { academicYear: Number },
   data() {
     return {
       date: null,
-      dummyData: [
+      dateData: [
         {
-          id: 1,
-          semester: "1/2021",
-          startDate: new Date().toISOString().substr(0, 10),
-          endDate: new Date().toISOString().substr(0, 10),
-          startDateMenu: false,
-          endDateMenu: false
+          Project_on_term_ID: 1,
+          Academic_Term: "1",
+          selectedDate: [
+            new Date().toISOString().substr(0, 10),
+            new Date().toISOString().substr(0, 10)
+          ],
+          dateMenu: false
         },
         {
-          id: 2,
-          semester: "2/2021",
-          startDate: new Date().toISOString().substr(0, 10),
-          endDate: new Date().toISOString().substr(0, 10),
-          startDateMenu: false,
-          endDateMenu: false
-        },
-        {
-          id: 3,
-          semester: "3/2021",
-          startDate: new Date().toISOString().substr(0, 10),
-          endDate: new Date().toISOString().substr(0, 10),
-          startDateMenu: false,
-          endDateMenu: false
+          Project_on_term_ID: 2,
+          Academic_Term: "2",
+          selectedDate: [
+            new Date().toISOString().substr(0, 10),
+            new Date().toISOString().substr(0, 10)
+          ],
+          dateMenu: false
         }
       ]
     };
   },
-  methods: {
-    dateMenuSave(action, id, date) {
-      if (action === "assign") {
-        console.log(this.$refs["startDateMenu" + id][0]);
-        this.$refs["startDateMenu" + id][0].save(date);
-      } else {
-        console.log(this.$refs["endDateMenu" + id][0]);
-        this.$refs["endDateMenu" + id][0].save(date);
-      }
+  async fetch() {
+    try {
+      // Fetch latest project on term
+      this.dateData = await this.$axios.$get("/date/semester/get");
+      // Sort by academic term
+      this.dateData.sort((a, b) => a.Academic_Term - b.Academic_Term);
+      // Offset date to the locale timezone, else it'll be one day different
+      this.dateData = this.dateData.map(itm => {
+        const baseStart = new Date(itm.Access_Date_Start);
+        const baseEnd = new Date(itm.Access_Date_End);
+        return {
+          ...itm,
+          Access_Date_Start: new Date(
+            baseStart.getTime() - baseStart.getTimezoneOffset() * 60000
+          ).toISOString(),
+          Access_Date_End: new Date(
+            baseEnd.getTime() - baseEnd.getTimezoneOffset() * 60000
+          ).toISOString()
+        };
+      });
+      // Extract start and end date into an array
+      this.dateData = this.dateData.map(itm => ({
+        ...itm,
+        selectedDate: [
+          itm.Access_Date_Start.slice(0, 10),
+          itm.Access_Date_End.slice(0, 10)
+        ]
+      }));
+    } catch (err) {
+      console.log(err);
     }
+  },
+  methods: {
+    async dateMenuSave(id, date) {
+      const res = await this.$axios.$post("/date/semester/update", {
+        data: [...date, id]
+      });
+      if (res.status === 200) {
+        // Update date picker UI
+        this.$refs["dateMenu" + id][0].save(date);
+        // console.log(this.$refs["dateMenu" + id][0]);
+      }
+    },
+    allowedDates: val => val >= new Date().toISOString().slice(0, 10)
   }
 };
 </script>
