@@ -57,9 +57,10 @@
           />
         </div>
         <div>
-          <v-btn color="light"
+          <v-btn color="light" @click="handleFileImport"
             ><v-icon>mdi-database-import</v-icon> Import</v-btn
           >
+          <input ref="uploader" class="d-none" type="file" accept="image/*" />
         </div>
       </div>
 
@@ -169,6 +170,18 @@ export default {
       }
 
       this.loading = false;
+    },
+    handleFileImport() {
+      window.addEventListener(
+        "focus",
+        () => {
+          this.isSelecting = false;
+        },
+        { once: true }
+      );
+
+      // Trigger click on the FileInput
+      this.$refs.uploader.click();
     }
   }
 };

@@ -2,7 +2,7 @@
   <v-card class="score-criteria-card">
     <v-card-title>
       <h4>Score Criteria</h4>
-      <h4>Total: 100/100</h4>
+      <h4>Total: {{ allScoresTotal }}/100</h4>
     </v-card-title>
 
     <!-- Score criteria table -->
@@ -125,6 +125,16 @@ export default {
       } catch (err) {
         console.log(err);
       }
+    }
+  },
+  computed: {
+    // TODO: It's working, probably...
+    allScoresTotal() {
+      const total = this.scoreCriterias.reduce(
+        (prev, current) => prev + current.Total,
+        0
+      );
+      return total;
     }
   }
 };
