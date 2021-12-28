@@ -6,7 +6,8 @@ const { result } = require("lodash");
 
 // TODO: Move this to its own route ?
 getAllMajors = async (req, res) => {
-  const sql = "SELECT * FROM `majors` WHERE `Major_Status` = 1 AND Major_ID !=99";
+  const sql =
+    "SELECT * FROM `majors` WHERE `Major_Status` = 1 AND Major_ID !=99";
   con.query(sql, (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -31,6 +32,8 @@ getTeacherRole = async (req, res) => {
 };
 
 getUser = async (req, res) => {
+  // Each request has 'user' embeded in there, and the passport.js middleware on the backend node.js server 'deserialize' it
+  // That's why this just respond back the req.user
   res.status(200).json(req.user);
 };
 
@@ -58,20 +61,62 @@ countUser = async (req, res) => {
 };
 
 getAllUserWithMajor = async (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body
-  const sql = "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body;
+  const sql =
+    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
-  console.log(req.body)
+  console.log(req.body);
 
-  await con.query(sql, [Major_ID, Academic_Year, Academic_Term, User_Role], (err, result, fields) => {
-    if (err) {
-      console.log(err)
-      res.status(500).send("Internal Server Error");
-    } else {
-      console.log(result);
-      res.status(200).json(result);
+  await con.query(
+    sql,
+    [Major_ID, Academic_Year, Academic_Term, User_Role],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        console.log(result);
+        res.status(200).json(result);
+      }
     }
+  );
+};
+
+getAllUsersInMajor = async (req, res) => {
+  const { Major_ID, Project_on_term_ID } = req.body;
+  const studentsSQL =
+    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `Major_ID` = ? AND `User_Role` = 1 AND `Project_on_term_ID` = ?";
+  const students = await new Promise((resolve, reject) => {
+    con.query(
+      studentsSQL,
+      [Major_ID, Project_on_term_ID],
+      (err, studentsResult, fields) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send("Internal Server Error");
+        } else {
+          resolve(studentsResult);
+        }
+      }
+    );
   });
+  const teachersSQL =
+    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `Major_ID` = ? AND `User_Role` = 0 AND `Project_on_term_ID` = ?";
+  const teachers = await new Promise((resolve, reject) => {
+    con.query(
+      teachersSQL,
+      [Major_ID, Project_on_term_ID],
+      (err, teachersResult, fields) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send("Internal Server Error");
+        } else {
+          resolve(teachersResult);
+        }
+      }
+    );
+  });
+  res.status(200).json({ students, teachers, status: 200 });
 };
 
 uploadfile = async (req, res) => {
@@ -90,24 +135,24 @@ uploadfile = async (req, res) => {
       let name = Date.now() + "_" + avatar.name;
       avatar.mv("uploads/excel/" + name);
 
-      var sql = "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) "
+      var sql =
+        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) ";
 
       var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
-        let semiter
-        let term
-        let coursec
+        let semiter;
+        let term;
+        let coursec;
         let errorcou = 0;
         for (let i = 8; i < rows.length; i++) {
-
-          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th"
-          term = rows[1][0].split(" ")[4]
-          semiter = rows[1][0].split(" ")[6]
+          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
+          term = rows[1][0].split(" ")[4];
+          semiter = rows[1][0].split(" ")[6];
           if (term == "FIRST") {
-            term = 1
+            term = 1;
           } else if (term == "SECOND") {
-            term = 2
+            term = 2;
           }
-          coursec = rows[4][0].split(" ")[4]
+          coursec = rows[4][0].split(" ")[4];
 
           con.query(
             sql,
@@ -159,29 +204,29 @@ uploadfileteacher = async (req, res) => {
     } else {
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
       let avatar = req.files[""];
-      const { Major, Senior } = req.body
+      const { Major, Senior } = req.body;
 
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
       let name = Date.now() + "_" + avatar.name;
       avatar.mv("uploads/excel/" + name);
-      var sql = "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) "
+      var sql =
+        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) ";
 
       var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
-        let semiter
-        let term
-        let coursec
+        let semiter;
+        let term;
+        let coursec;
         let errorcou = 0;
         for (let i = 8; i < rows.length; i++) {
-
-          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th"
-          term = rows[1][0].split(" ")[4]
-          semiter = rows[1][0].split(" ")[6]
+          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
+          term = rows[1][0].split(" ")[4];
+          semiter = rows[1][0].split(" ")[6];
           if (term == "FIRST") {
-            term = 1
+            term = 1;
           } else if (term == "SECOND") {
-            term = 2
+            term = 2;
           }
-          coursec = rows[4][0].split(" ")[4]
+          coursec = rows[4][0].split(" ")[4];
 
           // con.query(
           //   sql,
@@ -225,6 +270,7 @@ uploadfileteacher = async (req, res) => {
 
 module.exports = {
   getAllUserWithMajor,
+  getAllUsersInMajor,
   uploadfileteacher,
   uploadfile,
   countUser,

@@ -95,40 +95,39 @@ export default {
     test() {
       console.log(this.$store.state.auth);
     },
+    // TODO: Delete this!
     async testAsync() {
       console.log(this.$store.state);
       // const res = await this.$axios.$get("http://localhost:3000/api/user");
       // console.log(res);
     },
     route(semester) {
-      console.log(this.$store.state.auth.currentUser.role);
-      switch (this.$store.state.auth.currentUser.role) {
-        case 0: {
-          this.$router.push(`/Senior${semester}/coordinator/`);
-          break;
-        }
-        case 1: {
-          this.$router.push(`/Senior${semester}/advisor/`);
-          break;
-        }
-        case 2: {
-          this.$router.push(`/Senior${semester}/committee/`);
-          break;
-        }
-        case 3: {
-          this.$router.push(`/Senior${semester}/student/`);
-          break;
-        }
-        case 99: {
-          this.$router.push(`/Senior${semester}/admin/`);
-          break;
-        }
-      }
+      this.$store.state.auth.currentUser.role === 1
+        ? this.$router.push(`/Senior${semester}/student/`)
+        : this.$router.push(`/Senior${semester}/coordinator/`);
+      // switch (this.$store.state.auth.currentUser.role) {
+      //   case 0: {
+      //     this.$router.push(`/Senior${semester}/coordinator/`);
+      //     break;
+      //   }
+      //   case 1: {
+      //     this.$router.push(`/Senior${semester}/advisor/`);
+      //     break;
+      //   }
+      //   case 2: {
+      //     this.$router.push(`/Senior${semester}/committee/`);
+      //     break;
+      //   }
+      //   case 3: {
+      //     this.$router.push(`/Senior${semester}/student/`);
+      //     break;
+      //   }
+      //   case 99: {
+      //     this.$router.push(`/Senior${semester}/admin/`);
+      //     break;
+      //   }
+      // }
     }
-  },
-  mounted() {
-    // Sets current user after DOM is rendered
-    // this.$store.dispatch("auth/login");
   },
   middleware: ["adminRedirect"],
   layout: "empty"
