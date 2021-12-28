@@ -126,7 +126,7 @@ export default {
       dialog1: false,
       singleSelect: false,
       selected: [],
-      selectedgroupid: {},
+      selectedgroupid: [],
       headers: [
         {
           text: "GROUP NAME",
@@ -182,12 +182,24 @@ export default {
       this.loading = true;
       this.dialog1 = false;
       // this.selectedgroupid.push(this.selected[0]['Group_ID'])
-      for (let i = 0; i < this.selected.length; i++) {
-        console.log(this.selected[i]["Group_ID"]);
-        this.selectedgroupid = await this.$axios.$put("group/delete", {
-          Group_ID: this.selected[i]["Group_ID"]
-        });
-      }
+      // Create new array with only 2 values that the api needs
+      const data = this.selected.map(itm => ({
+        Group_ID: itm.Group_ID,
+        Group_Status: 0
+      }));
+      // Fetch update API
+      const res = await this.$axios.$put("/group/delete", {
+        data
+      });
+
+      console.log(res);
+      console.log("Before Update: ", this.allGroups);
+      // Update UI
+      this.allGroups = this.allGroups.filter(
+        itm => !res.result.includes(itm.Group_ID)
+      );
+      console.log("UI update: ", this.allGroups);
+
       console.log(this.selectedgroupid);
 
       this.loading = false;
