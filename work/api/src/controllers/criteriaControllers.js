@@ -28,7 +28,6 @@ getScoreByMajor = (req, res) => {
 
     // If there's no result we still need the latest project on term id
     if (scoreCriteriasResult.length === 0) {
-      console.log("zero");
       const termID =
         "SELECT `Project_on_term_ID` FROM `projectonterm` ORDER BY Project_on_term_ID DESC LIMIT 1";
       // Create new promise, without this it'll not wait for the result and thus break the API

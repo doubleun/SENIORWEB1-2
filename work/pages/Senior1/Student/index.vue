@@ -114,14 +114,23 @@ export default {
       ]
     };
   },
-  async asyncData(context) {
-    const announcements = await context.$axios.$post(
-      "http://localhost:3000/api/announc/major",
-      {
-        MajorID: context.store.state.auth.currentUser.major
-      }
-    );
+  async asyncData({ $axios, store }) {
+    let announcements;
+    try {
+      // Fetch announcements in current user's major
+      announcements = await $axios.$post("/announc/major", {
+        MajorID: store.state.auth.currentUser.major
+      });
+    } catch (err) {
+      console.log(err);
+    }
+    // Dispatch event to store current user group info
+    await store.dispatch("group/storeGroupInfo");
     return { announcements };
+  },
+  mounted() {
+    //* === How to access current user group info state (object) === *//
+    // console.log(this.$store.state.group.currentUserGroup);
   }
 };
 </script>

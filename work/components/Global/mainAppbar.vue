@@ -16,12 +16,10 @@
           :style="theme === 'transparent' ? 'color: white' : 'color: inherit'"
         >
           <h3 style="margin-inline-end: 1rem">
-            ANUTHEP TAYNGAM
+            {{ userName }}
           </h3>
-          <v-avatar
-            ><img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John"
-          /></v-avatar>
-          <v-icon right @click="test">mdi-chevron-down</v-icon>
+          <v-avatar><img :src="userImage" alt="John"/></v-avatar>
+          <v-icon right>mdi-chevron-down</v-icon>
         </v-btn>
       </template>
       <v-list>
@@ -38,16 +36,23 @@
 <script>
 export default {
   data: () => ({
-    items: [{ icon: "mdi-logout", title: "Logout" }]
+    items: [{ icon: "mdi-logout", title: "Logout" }],
+    userName: "",
+    userImage: null
   }),
+  async fetch() {
+    // console.log("Appbar: ", this.$store.state.auth.currentUser);
+    this.userName = this.$store.state.auth.currentUser.name;
+    this.userImage = this.$store.state.auth.currentUser.photo;
+  },
   props: ["theme"],
   methods: {
     // toggleDrawer() {
     //   this.$store.commit("set_drawer", !this.$store.state.drawer);
     // }
-    test() {
-      console.log(this.$store.state.auth.currentUser);
-    },
+    // test() {
+    //   console.log(this.$store.state.auth.currentUser);
+    // },
     async logout() {
       await this.$store.dispatch("auth/logout");
       this.$router.push("/");

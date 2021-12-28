@@ -33,20 +33,21 @@ passport.serializeUser((user, done) => {
   const sqlAdmin = "SELECT * FROM `users` WHERE User_Email=?";
   con.query(sqlAdmin, user.email, (err, result, fields) => {
     if (err) {
-      data = { message: "Internal Server Error" };
+      data = { message: "Internal Server Error", status: 422 };
       done(null, data);
       console.log(err);
       console.log("Internal Server Error");
     } else {
       // console.log(result);
       if (result.length == 0) {
-        data = { message: "Cant find user in database" };
+        data = { message: "Cant find user in database", status: 422 };
         done(null, data);
         console.log("Cant find user in database");
       } else {
         user.role = result[0].User_Role;
         user.major = result[0].Major_ID;
         user.projectOnTerm = result[0].Project_on_term_ID;
+        user.status = 200;
         // console.log("Serialize: ", user);
         done(null, user);
         // if (result[0].User_Role == 99) {

@@ -80,6 +80,36 @@ createGroup = async (req, res) => {
   }
 };
 
+// Get current user group info if the student has one
+getGroupInfo = async (req, res) => {
+  const { User_Email, Project_on_term_ID } = req.body;
+  const sql =
+    "SELECT gm.Group_Member_ID, gm.User_Phone, gm.Group_Role, gm.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Group_Status,g.Group_Progression, g.Grade, g.Final_Grade FROM `groupmembers` gm INNER JOIN `groups` g ON gm.Group_ID = g.Group_ID WHERE gm.User_Email = ? AND gm.Project_on_term_ID = ? AND NOT gm.User_Status = 2 AND NOT g.Group_Status = 0";
+  con.query(sql, [User_Email, Project_on_term_ID], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
+// Get group members for filling in the create group page form
+getGroupMembers = async (req, res) => {
+  const { Group_ID } = req.body;
+  const sql =
+    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Phone FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email WHERE gm.Group_ID = ? AND NOT gm.User_Status = 2 ORDER BY gm.Group_Role DESC";
+  con.query(sql, [Group_ID], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
 // Get group based on project on term (ie. academic year and semester)
 getAllGroupsAdmin = async (req, res) => {
   const { Year, Semester, Major } = req.body;
@@ -240,6 +270,8 @@ listOwnGroup = async (req, res) => {
 
 module.exports = {
   getAll,
+  getGroupInfo,
+  getGroupMembers,
   createGroup,
   statusgroup,
   getByMajor,
