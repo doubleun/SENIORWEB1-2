@@ -357,7 +357,6 @@ export default {
       // console.log("major id", majorId);
       // console.log("all", allMajor);
       // console.log("index", index);
-      console.log("index", this.$refs.textEdit[index].validate("textEdit"));
 
       // this.$refs.textEdit[0].validate()
 
