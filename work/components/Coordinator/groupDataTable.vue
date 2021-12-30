@@ -58,7 +58,7 @@
             <v-row class="justify-center" no-gutters>
               <v-col md="3">
                 <v-row align="center" justify="space-around">
-                  <v-btn color="primary" @click="pushOtherPage">
+                  <v-btn color="primary" @click="handelViewGroup(item)">
                     <v-icon left> mdi-eye-arrow-right </v-icon>
                     View
                   </v-btn>
@@ -137,7 +137,7 @@ export default {
   mounted() {
     // Set the default value
     console.log("test test", this.yearNSemsters);
-    console.log("Group role",this.Group_Role);
+    console.log("Group role", this.Group_Role);
 
     // try {
     //   this.selectedYear = this.yearNSemsters[0].Academic_Year;
@@ -148,8 +148,10 @@ export default {
   },
   methods: {
     // TODO: keep group id to state for scoring of group
-    pushOtherPage() {
-      console.log("success");
+    async handelViewGroup(group) {
+      console.log(group);
+      // Dispatch event to store current user group info
+      await this.$store.dispatch("group/storeTeacherGroupInfo", group.Group_ID);
       this.$router.push("/Senior1/Coordinator/groupInfo");
     },
     async handleChangeRenderGroups() {

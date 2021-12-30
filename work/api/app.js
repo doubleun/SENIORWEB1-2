@@ -69,7 +69,7 @@ app.get("/test", (req, res) => {
 // ============ Starting server ============
 // const PORT = process.env.PORT || 3500;
 // app.listen(PORT, () => {
-//   console.log("Server is starting at port " + PORT);
+//   console.log("Server s starting at port " + PORT);
 // });
 
 // ============ export server ============

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card class="content justify-center mt-5">
+    <v-card v-if="showTable" class="content justify-center mt-5">
       <div class="rounded-t mb-0 px-4 py-3 border-0">
         <div class="flex flex-wrap items-center">
           <div class="relative w-full px-4 max-w-full flex-grow flex-1">
@@ -13,7 +13,12 @@
           </div>
         </div>
       </div>
-      <v-data-table :headers="headers" :items="score" class="elevation-1">
+      <v-data-table
+        :headers="headers"
+        :items="score"
+        :hide-default-footer="true"
+        class="elevation-1"
+      >
         <template v-slot:item.progress1="{ item }">
           {{ item.progress1 == null ? 0 : item.progress1 }}
         </template>
@@ -157,6 +162,9 @@
 
 <script>
 export default {
+  props: {
+    showTable: Boolean
+  },
   data() {
     return {
       loading: false,

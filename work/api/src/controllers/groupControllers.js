@@ -268,6 +268,19 @@ listOwnGroup = async (req, res) => {
   );
 };
 
+getMyGroup = async (req, res) => {
+  const groupId = req.body.Group_ID;
+  const sql = "SELECT gmb.Group_Member_ID, gp.Group_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gp.Co_Advisor,usr.User_Name,gmb.Group_Role,usr.User_Email,usr.User_Identity_ID,gmb.User_Phone,gmb.User_Status FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email AND gmb.Project_on_term_ID=usr.Project_on_term_ID WHERE gmb.Group_ID=? AND gmb.User_Status=1 ORDER BY gmb.Group_Member_ID";
+  await con.query(sql, [groupId], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result)
+    }
+  });
+}
+
 module.exports = {
   getAll,
   getGroupInfo,
@@ -280,5 +293,6 @@ module.exports = {
   listOwnGroup,
   getScoreCoor,
   getGroupScore,
-  getAllGroupsAdmin
+  getAllGroupsAdmin,
+  getMyGroup
 };
