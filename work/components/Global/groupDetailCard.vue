@@ -8,9 +8,9 @@
         <h3>Project Name</h3>
         <div>
           <p>Thai Name</p>
-          <p>ภาษากระเหรื่ยงสำหรับกายภาพบำบัด</p>
+          <p>{{ GroupDetail.GroupInfo.Group_Name_Thai }}</p>
           <p>English Name</p>
-          <p>MOBILE APPLICATION FOR KAREN TRANSLATOR FOR PHYSIOTHERAPY</p>
+          <p>{{ GroupDetail.GroupInfo.Group_Name_Eng }}</p>
         </div>
       </div>
 
@@ -18,21 +18,25 @@
       <div class="group-project-member">
         <h3>Project Member</h3>
         <!-- Student detail -->
-        <div class="project-member-detail-container">
-          <h4>Student 1</h4>
+        <div
+          class="project-member-detail-container"
+          v-for="(student, index) in studentMembers"
+          :key="student.User_Email"
+        >
+          <h4>Student {{ index + 1 }}</h4>
           <!-- Details -->
           <div class="project-member-detail">
             <div>
               <p>Name</p>
-              <p>Wachirachai Nitsomboon</p>
+              <p>{{ student.User_Name }}</p>
               <p>Phone</p>
-              <p>065xxxxxxxxxxxx</p>
+              <p>{{ student.User_Phone }}</p>
             </div>
             <div>
               <p>Student ID</p>
-              <p>6131501052</p>
+              <p>{{ student.User_Identity_ID }}</p>
               <p>Email</p>
-              <p>6131501052@lamduan.mfu.ac.th</p>
+              <p>{{ student.User_Email }}</p>
             </div>
           </div>
         </div>
@@ -44,9 +48,9 @@
         <!-- Advisor detail -->
         <div class="project-member-detail-container">
           <p>Advisor Name</p>
-          <p>Suraopong Suraopong</p>
+          <p>{{ advisor.User_Name }}</p>
           <p>Co-Advisor</p>
-          <p>Suraopong Suraopong</p>
+          <p>{{ GroupDetail.GroupInfo.Co_Advisor || "-" }}</p>
           <p></p>
         </div>
       </div>
@@ -55,11 +59,15 @@
       <div class="group-project-member">
         <h3>Project Committee</h3>
         <!-- Committe detail -->
-        <div class="project-member-detail-container">
-          <h4>Committee 1</h4>
+        <div
+          class="project-member-detail-container"
+          v-for="(committee, index) in committeeMembers"
+          :key="committee.User_Email"
+        >
+          <h4>Committee {{ index + 1 }}</h4>
           <div>
             <p>Committee Name</p>
-            <p>Suraopong Suraopong</p>
+            <p>{{ committee.User_Name || "-" }}</p>
           </div>
           <p></p>
         </div>
@@ -69,7 +77,29 @@
 </template>
 
 <script>
-export default {};
+export default {
+  props: { GroupDetail: Object },
+  mounted() {
+    // console.log("Group detail: ", this.GroupDetail);
+  },
+  computed: {
+    studentMembers() {
+      return this.GroupDetail.GroupMembers.filter(
+        member => member.Group_Role === 3 || member.Group_Role === 2
+      );
+    },
+    advisor() {
+      return this.GroupDetail.GroupMembers.filter(
+        member => member.Group_Role === 0
+      )[0];
+    },
+    committeeMembers() {
+      return this.GroupDetail.GroupMembers.filter(
+        member => member.Group_Role === 1
+      );
+    }
+  }
+};
 </script>
 
 <style>

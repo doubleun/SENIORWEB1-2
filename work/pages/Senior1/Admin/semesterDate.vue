@@ -35,7 +35,7 @@ export default {
 
           // console.log(res);
           // Update the UI
-          this.$nuxt.refresh();
+          this.academicYear = this.academicYear + 1;
         } catch (err) {
           console.log(err);
         }

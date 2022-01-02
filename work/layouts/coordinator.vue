@@ -27,52 +27,52 @@ export default {
         {
           icon: "mdi-arrow-left",
           title: "Back",
-          to: "/Senior1/Coordinator/"
+          to: "/Senior1/coordinator/"
         },
         {
           icon: "people_alt",
           title: "Group Info",
-          to: "/Senior1/Coordinator/groupInfo"
+          to: `/Senior1/coordinator/groupInfo/${this.$route.params.groupId}`
         },
         {
           icon: "mdi-numeric-1-circle",
           title: "Progress 1",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/progress"
         },
         {
           icon: "mdi-numeric-2-circle",
           title: "Progress 2",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/progress"
         },
         {
           icon: "mdi-numeric-3-circle",
           title: "Progress 3",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/progress"
         },
         {
           icon: "mdi-numeric-4-circle",
           title: "Progress 4",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/progress"
         },
         {
           icon: "co_present",
           title: "Final Presentation",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/progress"
         },
         {
           icon: "text_snippet",
           title: "Final Documentation",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/progress"
         },
         {
           icon: "stacked_bar_chart",
           title: "Evaluation Result",
-          to: "/Senior1/Coordinator/evaluationResult"
+          to: "/Senior1/coordinator/evaluationResult"
         },
         {
           icon: "mdi-restore",
           title: "Re - evaluation",
-          to: "/Senior1/Coordinator/progress"
+          to: "/Senior1/coordinator/progress"
         }
       ]
     };

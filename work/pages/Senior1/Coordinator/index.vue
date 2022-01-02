@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CardStatus />
+    <CardStatus :info="info" />
     <Announcement :announcements="announcements" editable />
   </div>
 </template>
@@ -20,7 +20,25 @@ export default {
         MajorID: context.store.state.auth.currentUser.major
       }
     );
-    return { announcements };
+    //! Fetch home info (mock)
+    const teacherInfo = [
+      {
+        title: "My advisee",
+        amount: 0,
+        icon: "mdi-account-supervisor"
+      },
+      {
+        title: "Committee",
+        amount: 0,
+        icon: "mdi-account-multiple"
+      },
+      {
+        title: "Group Request",
+        amount: 0,
+        icon: "mdi-account-multiple-plus"
+      }
+    ];
+    return { announcements, info: teacherInfo };
   }
 };
 </script>

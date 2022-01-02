@@ -168,34 +168,37 @@ export default {
       this.dateData = await this.$axios.$post("/date/semester/get", {
         year: this.academicYear
       });
-      // Sort by academic term
-      this.dateData.sort((a, b) => a.Academic_Term - b.Academic_Term);
-      // Offset date to the locale timezone, else it'll be one day different
-      this.dateData = this.dateData.map(itm => {
-        const baseStart = new Date(itm.Access_Date_Start);
-        const baseEnd = new Date(itm.Access_Date_End);
-        return {
+      this.availableSemesters = [1, 2, 3];
+      if (this.dateData.length !== 0) {
+        // Sort by academic term
+        this.dateData.sort((a, b) => a.Academic_Term - b.Academic_Term);
+        // Offset date to the locale timezone, else it'll be one day different
+        this.dateData = this.dateData.map(itm => {
+          const baseStart = new Date(itm.Access_Date_Start);
+          const baseEnd = new Date(itm.Access_Date_End);
+          return {
+            ...itm,
+            Access_Date_Start: new Date(
+              baseStart.getTime() - baseStart.getTimezoneOffset() * 60000
+            ).toISOString(),
+            Access_Date_End: new Date(
+              baseEnd.getTime() - baseEnd.getTimezoneOffset() * 60000
+            ).toISOString()
+          };
+        });
+        // Extract start and end date into an array
+        this.dateData = this.dateData.map(itm => ({
           ...itm,
-          Access_Date_Start: new Date(
-            baseStart.getTime() - baseStart.getTimezoneOffset() * 60000
-          ).toISOString(),
-          Access_Date_End: new Date(
-            baseEnd.getTime() - baseEnd.getTimezoneOffset() * 60000
-          ).toISOString()
-        };
-      });
-      // Extract start and end date into an array
-      this.dateData = this.dateData.map(itm => ({
-        ...itm,
-        selectedDate: [
-          itm.Access_Date_Start.slice(0, 10),
-          itm.Access_Date_End.slice(0, 10)
-        ]
-      }));
-      // Slice available semesters, for add new semester
-      this.availableSemesters = this.availableSemesters.slice(
-        this.dateData.length
-      );
+          selectedDate: [
+            itm.Access_Date_Start.slice(0, 10),
+            itm.Access_Date_End.slice(0, 10)
+          ]
+        }));
+        // Slice available semesters, for add new semester
+        this.availableSemesters = this.availableSemesters.slice(
+          this.dateData.length
+        );
+      }
       console.log("Fetched, Date data: ", this.dateData);
     } catch (err) {
       console.log(err);
@@ -204,6 +207,7 @@ export default {
   watch: {
     // When new academic year is created from the parent's function, this child component will re-fetch the semester date
     academicYear(val) {
+      console.log("academicYear changed");
       this.$fetch();
     }
   },

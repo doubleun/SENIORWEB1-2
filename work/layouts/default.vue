@@ -25,62 +25,62 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/Senior1/Student/"
+          to: "/Senior1/student/"
         },
         {
           icon: "people_alt",
           title: "Group",
-          to: "/Senior1/Student/stuCreateGroup"
+          to: "/Senior1/student/stuCreateGroup"
         },
         // {
         //   icon: "topic",
         //   title: "Topic",
-        //   to: "/Senior1/Student/topic"
+        //   to: "/Senior1/student/topic"
         // },
         {
           icon: "forum",
           title: "Proposal",
-          to: "/Senior1/Student/proposal"
+          to: "/Senior1/student/proposal"
         },
         {
           icon: "mdi-numeric-1-circle",
           title: "Progress 1",
-          to: "/Senior1/Student/progress1"
+          to: "/Senior1/student/progress1"
         },
         {
           icon: "mdi-numeric-2-circle",
           title: "Progress 2",
-          to: "/Senior1/Student/progress2"
+          to: "/Senior1/student/progress2"
         },
         {
           icon: "mdi-numeric-3-circle",
           title: "Progress 3",
-          to: "/Senior1/Student/progress3"
+          to: "/Senior1/student/progress3"
         },
         {
           icon: "mdi-numeric-4-circle",
           title: "Progress 4",
-          to: "/Senior1/Student/progress4"
+          to: "/Senior1/student/progress4"
         },
         {
           icon: "co_present",
           title: "Final Presentation",
-          to: "/Senior1/Student/final-presentation"
+          to: "/Senior1/student/final-presentation"
         },
         {
           icon: "text_snippet",
           title: "Final Documentation",
-          to: "/Senior1/Student/final-document"
+          to: "/Senior1/student/final-document"
         },
         {
           icon: "stacked_bar_chart",
           title: "Evaluation Result",
-          to: "/Senior1/Student/evaluation-results"
+          to: "/Senior1/student/evaluation-results"
         },
         {
           icon: "mdi-restore",
           title: "Re - evaluation",
-          to: "/Senior1/Student/stuReEvaluation"
+          to: "/Senior1/student/stuReEvaluation"
         }
       ]
     };

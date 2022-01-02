@@ -1,9 +1,9 @@
 <template>
   <div>
-    <!-- Action buttons -->
-    <div class="admin-group-manage-actions">
-      <div>
-        <p class="white--text">Year</p>
+    <!-- Sorting buttons -->
+    <v-row class="mb-4 justify-end">
+      <v-col cols="12" sm="2">
+        <p class="white--text my-0">Year</p>
         <v-select
           v-model="selectedYear"
           :items="yearNSemsters.map(itm => itm.Academic_Year)"
@@ -12,9 +12,9 @@
           solo
           hide-details
         />
-      </div>
-      <div>
-        <p class="white--text">Semester</p>
+      </v-col>
+      <v-col cols="12" sm="1">
+        <p class="white--text my-0">Semester</p>
         <v-select
           v-model="selectedSemester"
           :items="yearNSemsters.map(itm => itm.Academic_Term)"
@@ -23,8 +23,8 @@
           solo
           hide-details
         />
-      </div>
-    </div>
+      </v-col>
+    </v-row>
     <div class="dataTable">
       <!-- Data Table -->
       <v-card>
@@ -47,18 +47,18 @@
           :search="search"
           item-key="Group_ID"
         >
-          <template v-slot:item.Group_Name_Eng="{ item }">
+          <!-- <template v-slot:item.Group_Name_Eng="{ item }">
             <v-row class="mb-6 pa-5 justify-space-around" no-gutters>
               <div style="cursor: pointer">
                 {{ item.Group_Name_Eng }}
               </div>
             </v-row>
-          </template>
+          </template> -->
           <template v-slot:item.actions="{ item }">
-            <v-row class="justify-center" no-gutters>
+            <v-row class="justify-center py-5" no-gutters>
               <v-col md="3">
                 <v-row align="center" justify="space-around">
-                  <v-btn color="primary" @click="pushOtherPage">
+                  <v-btn color="primary" @click="pushOtherPage(item.Group_ID)">
                     <v-icon left> mdi-eye-arrow-right </v-icon>
                     View
                   </v-btn>
@@ -82,10 +82,7 @@ export default {
       selectedYear: null,
       selectedSemester: null,
       loading: false,
-      dialog1: false,
-      singleSelect: false,
       selected: [],
-      selectedgroupid: {},
       students: [],
       advisor: [],
       committee: [],
@@ -137,7 +134,7 @@ export default {
   mounted() {
     // Set the default value
     console.log("test test", this.yearNSemsters);
-    console.log("Group role",this.Group_Role);
+    console.log("Group role", this.Group_Role);
 
     // try {
     //   this.selectedYear = this.yearNSemsters[0].Academic_Year;
@@ -148,9 +145,8 @@ export default {
   },
   methods: {
     // TODO: keep group id to state for scoring of group
-    pushOtherPage() {
-      console.log("success");
-      this.$router.push("/Senior1/Coordinator/groupInfo");
+    pushOtherPage(id) {
+      this.$router.push(`/Senior1/coordinator/groupInfo/${id}`);
     },
     async handleChangeRenderGroups() {
       // let this = this;

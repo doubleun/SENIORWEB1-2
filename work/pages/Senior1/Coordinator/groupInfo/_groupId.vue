@@ -11,7 +11,10 @@
       </v-card>
 
       <!-- Second card (Group detail) -->
-      <GroupDetailCard style="margin-block-start: 4.2rem" />
+      <GroupDetailCard
+        style="margin-block-start: 4.2rem"
+        :GroupDetail="GroupDetail"
+      />
     </main>
   </section>
 </template>
@@ -25,6 +28,26 @@ export default {
   components: {
     EvaluationResultGrid,
     GroupDetailCard
+  },
+  async asyncData({ params, store, redirect, $axios }) {
+    const res = await $axios.$post("/group/getGroupWithID", {
+      Group_ID: params.groupId,
+      Email: store.state.auth.currentUser.email
+    });
+    if (res.status !== 200) {
+      redirect("/Senior1/coordinator/");
+    }
+    console.log({
+      GroupInfo: res.groupInfo[0],
+      GroupMembers: res.groupMembers
+    });
+    return {
+      Group_ID: params.groupId,
+      GroupDetail: {
+        GroupInfo: res.groupInfo[0],
+        GroupMembers: res.groupMembers
+      }
+    };
   }
 };
 </script>
