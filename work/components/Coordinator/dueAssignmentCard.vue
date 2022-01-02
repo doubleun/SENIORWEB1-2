@@ -3,22 +3,46 @@
     <v-card-title style="padding: 1rem 1rem 0">ASSIGNMENT</v-card-title>
     <!-- Assignment table -->
     <div class="due-assignment-content">
+      <v-data-table
+        :headers="headers"
+        :items="progressionDuedate"
+        :hide-default-footer="true"
+        class="elevation-1"
+      >
+        <template v-slot:item.action="{ item }">
+          <v-row class="justify-center" no-gutters>
+            <v-col md="3">
+              <v-row align="center" justify="space-around">
+                <v-btn
+                  color="blue darken-4"
+                  class="white--text"
+                  v-on="on"
+                  v-bind="attrs"
+                  :disabled="admin"
+                  ><v-icon>mdi-pen</v-icon> Edit</v-btn
+                >
+              </v-row>
+            </v-col>
+          </v-row>
+        </template>
+      </v-data-table>
+
       <!-- Table attr -->
-      <h4>TOPIC</h4>
+      <!-- <h4>TOPIC</h4>
       <h4>ASSIGN DATE</h4>
       <h4>DUE DATE</h4>
       <h4>FILE</h4>
-      <h4>ACTIONS</h4>
+      <h4>ACTIONS</h4> -->
 
       <!-- Table records -->
-      <template v-for="data in dummyData">
+      <!-- <template v-for="data in progressionDuedate">
         <p :key="data.topic + 1">{{ data.topic }}</p>
         <p :key="data.topic + 2">{{ data.assignDate }}</p>
         <p :key="data.topic + 3">{{ data.dueDate }}</p>
         <p :key="data.topic + 4">{{ data.file }}</p>
-        <div :key="data.topic + 5">
-          <!-- Edit assign date -->
-          <v-menu
+        <div :key="data.topic + 5"> -->
+      <!-- Edit assign date -->
+      <!-- <v-menu
             :ref="'assignMenu' + data.id"
             v-model="data.assignMenu"
             :close-on-content-click="false"
@@ -50,15 +74,24 @@
               <v-btn
                 text
                 color="primary"
-                @click="() => dateMenuSave('assign', data.id, data.assignDate, data.dueDate, data.topic)"
+                @click="
+                  () =>
+                    dateMenuSave(
+                      'assign',
+                      data.id,
+                      data.assignDate,
+                      data.dueDate,
+                      data.topic
+                    )
+                "
               >
                 OK
               </v-btn>
             </v-date-picker>
-          </v-menu>
+          </v-menu> -->
 
-          <!-- Due date -->
-          <v-menu
+      <!-- Due date -->
+      <!-- <v-menu
             :ref="'dueMenu' + data.id"
             v-model="data.dueMenu"
             :close-on-content-click="false"
@@ -85,15 +118,24 @@
               <v-btn
                 text
                 color="primary"
-                @click="() => dateMenuSave('due', data.id, data.dueDate,data.assignDate, data.topic)"
+                @click="
+                  () =>
+                    dateMenuSave(
+                      'due',
+                      data.id,
+                      data.dueDate,
+                      data.assignDate,
+                      data.topic
+                    )
+                "
               >
                 OK
               </v-btn>
             </v-date-picker>
-          </v-menu>
+          </v-menu> -->
 
-          <!-- View file -->
-          <!-- <v-btn
+      <!-- View file -->
+      <!-- <v-btn
             color="light-green darken-1"
             class="white--text"
             :disabled="data.file === 0"
@@ -106,8 +148,8 @@
           >
             <v-icon>mdi-clipboard-text</v-icon> VIEW
           </v-btn> -->
-        </div>
-      </template>
+      <!-- </div> -->
+      <!-- </template> -->
     </div>
   </v-card>
 </template>
@@ -117,112 +159,186 @@ export default {
   data() {
     return {
       date: null,
-      dummyData: [
+      progressionDuedate: [],
+      headers: [
         {
-          id: 1,
-          topic: "Group",
-          assignDate: new Date().toISOString().substr(0, 10),
-          dueDate: new Date().toISOString().substr(0, 10),
-          file: 0,
-          assignMenu: false,
-          dueMenu: false,
+          text: "TOPIC",
+          value: "Progress_Name",
+          align: "center"
         },
-        {
-          id: 2,
-          topic: "Progress 1",
-          assignDate: new Date().toISOString().substr(0, 10),
-          dueDate: new Date().toISOString().substr(0, 10),
-          file: 90,
-          assignMenu: false,
-          dueMenu: false,
-        },
-        {
-          id: 3,
-          topic: "Progress 2",
-          assignDate: new Date().toISOString().substr(0, 10),
-          dueDate: new Date().toISOString().substr(0, 10),
-          file: 90,
-          assignMenu: false,
-          dueMenu: false,
-        },
-        {
-          id: 4,
-          topic: "Progress 3",
-          assignDate: new Date().toISOString().substr(0, 10),
-          dueDate: new Date().toISOString().substr(0, 10),
-          file: 90,
-          assignMenu: false,
-          dueMenu: false,
-        },
-        {
-          id: 5,
-          topic: "Progress 4",
-          assignDate: new Date().toISOString().substr(0, 10),
-          dueDate: new Date().toISOString().substr(0, 10),
-          file: 90,
-          assignMenu: false,
-          dueMenu: false,
-        },
-        {
-          id: 6,
-          topic: "Final Presentation",
-          assignDate: new Date().toISOString().substr(0, 10),
-          dueDate: new Date().toISOString().substr(0, 10),
-          file: 100,
-          assignMenu: false,
-          dueMenu: false,
-        },
-        {
-          id: 7,
-          topic: "Final Documentation",
-          assignDate: new Date().toISOString().substr(0, 10),
-          dueDate: new Date().toISOString().substr(0, 10),
-          file: 90,
-          assignMenu: false,
-          dueMenu: false,
-        },
-        {
-          id: 8,
-          topic: "Re-Evaluation",
-          assignDate: new Date().toISOString().substr(0, 10),
-          dueDate: new Date().toISOString().substr(0, 10),
-          file: 90,
-          assignMenu: false,
-          dueMenu: false,
-        },
-      ],
+        { text: "ASSIGNDATE", value: "Access_Date_Start", align: "center" },
+        { text: "DUEDATE", value: "Access_Date_End", align: "center" },
+        { text: "FILE", value: "0", align: "center" },
+        { text: "ACTION", value: "action", align: "center" }
+      ]
+      // dummyData: [
+      //   {
+      //     id: 1,
+      //     topic: "Group",
+      //     assignDate: new Date().toISOString().substr(0, 10),
+      //     dueDate: new Date().toISOString().substr(0, 10),
+      //     file: 0,
+      //     assignMenu: false,
+      //     dueMenu: false
+      //   },
+      //   {
+      //     id: 2,
+      //     topic: "Progress 1",
+      //     assignDate: new Date().toISOString().substr(0, 10),
+      //     dueDate: new Date().toISOString().substr(0, 10),
+      //     file: 90,
+      //     assignMenu: false,
+      //     dueMenu: false
+      //   },
+      //   {
+      //     id: 3,
+      //     topic: "Progress 2",
+      //     assignDate: new Date().toISOString().substr(0, 10),
+      //     dueDate: new Date().toISOString().substr(0, 10),
+      //     file: 90,
+      //     assignMenu: false,
+      //     dueMenu: false
+      //   },
+      //   {
+      //     id: 4,
+      //     topic: "Progress 3",
+      //     assignDate: new Date().toISOString().substr(0, 10),
+      //     dueDate: new Date().toISOString().substr(0, 10),
+      //     file: 90,
+      //     assignMenu: false,
+      //     dueMenu: false
+      //   },
+      //   {
+      //     id: 5,
+      //     topic: "Progress 4",
+      //     assignDate: new Date().toISOString().substr(0, 10),
+      //     dueDate: new Date().toISOString().substr(0, 10),
+      //     file: 90,
+      //     assignMenu: false,
+      //     dueMenu: false
+      //   },
+      //   {
+      //     id: 6,
+      //     topic: "Final Presentation",
+      //     assignDate: new Date().toISOString().substr(0, 10),
+      //     dueDate: new Date().toISOString().substr(0, 10),
+      //     file: 100,
+      //     assignMenu: false,
+      //     dueMenu: false
+      //   },
+      //   {
+      //     id: 7,
+      //     topic: "Final Documentation",
+      //     assignDate: new Date().toISOString().substr(0, 10),
+      //     dueDate: new Date().toISOString().substr(0, 10),
+      //     file: 90,
+      //     assignMenu: false,
+      //     dueMenu: false
+      //   },
+      //   {
+      //     id: 8,
+      //     topic: "Re-Evaluation",
+      //     assignDate: new Date().toISOString().substr(0, 10),
+      //     dueDate: new Date().toISOString().substr(0, 10),
+      //     file: 90,
+      //     assignMenu: false,
+      //     dueMenu: false
+      //   }
+      // ]
     };
+  },
+  async fetch() {
+    try {
+      var duedate = await this.$axios.$post("/date/progression", {
+        Major_ID: this.$store.state.auth.currentUser.major,
+        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+      });
+      var criteria = await this.$axios.$post("/criteria/scoreMajor", {
+        Major_ID: this.$store.state.auth.currentUser.major
+      });
+      console.log("progression Duedate", duedate);
+
+      // move topic to first
+      const indexArr = criteria.findIndex(el => el.Progress_ID === 7);
+      const topic = criteria.splice(indexArr, 1);
+
+      criteria = [...topic, ...criteria];
+      console.log("criteria old", criteria);
+
+      // delete progress that don't have score (Total = 0)
+      criteria.forEach((el, index) => {
+        if (
+          el.Total === 0 &&
+          (el.Progress_ID === 1 ||
+            el.Progress_ID === 2 ||
+            el.Progress_ID === 3 ||
+            el.Progress_ID === 4)
+        ) {
+          criteria.splice(index, 1);
+          console.log("delete pg id", el.Progress_ID);
+        }
+      });
+
+      // map date
+      if (duedate.progressionDuedate.length == 0) {
+        criteria = criteria.map(el => ({
+          ...el,
+          Access_Date_Start: "yyyy/mm/dd",
+          Access_Date_End: "yyyy/mm/dd"
+        }));
+      } else {
+        for (let i = 0; i < duedate.progressionDuedate.length; i++) {
+          for (let j = 0; j < criteria.length; j++) {
+            // console.log()
+            if (
+              duedate.progressionDuedate[i].Progress_ID ==
+              criteria[j].Progress_ID
+            ) {
+              criteria[j].Access_Date_Start = new Date(
+                duedate.progressionDuedate[i].DueDate_Start
+              )
+                .toISOString()
+                .substr(0, 10);
+            } else {
+              criteria[j].Access_Date_Start = "yyyy/mm/dd";
+            }
+          }
+        }
+      }
+      this.progressionDuedate = criteria;
+
+      console.log("progression Duedate22", this.progressionDuedate);
+    } catch (error) {}
   },
   methods: {
     async dateMenuSave(action, id, date, other, topic) {
-      
       if (action === "assign") {
         // console.log(this.$refs["assignMenu" + id][0]);
         let setdat = await this.$axios.$post("date/progression/update", {
-          DueDate_Start:date,
-          DueDate_End:other,
-          Progress_ID:topic,
-          Major_ID:this.$store.state.auth.currentUser.major,
-          Project_on_term_ID:this.$store.state.auth.currentUser.projectOnTerm,
-          Progression_Info_ID:id
+          DueDate_Start: date,
+          DueDate_End: other,
+          Progress_ID: topic,
+          Major_ID: this.$store.state.auth.currentUser.major,
+          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+          Progression_Info_ID: id
         });
-        console.log("success")
+        console.log("success");
         this.$refs["assignMenu" + id][0].save(date);
       } else {
         // let setdat = await $axios.$post("date/progression/update", {});
         // console.log(this.$refs["dueMenu" + id][0]);
         let setdat = await this.$axios.$post("date/progression/update", {
-          DueDate_Start:other,
-          DueDate_End:date,
-          Progress_ID:topic,
-          Major_ID:this.$store.state.auth.currentUser.major,
-          Project_on_term_ID:this.$store.state.auth.currentUser.projectOnTerm,
-          Progression_Info_ID:id
+          DueDate_Start: other,
+          DueDate_End: date,
+          Progress_ID: topic,
+          Major_ID: this.$store.state.auth.currentUser.major,
+          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+          Progression_Info_ID: id
         });
         this.$refs["dueMenu" + id][0].save(date);
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

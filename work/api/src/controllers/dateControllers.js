@@ -6,18 +6,52 @@ getProgressionDuedate = async (req, res) => {
   // const Project_on_term_ID = req.params.Project_on_term_ID
   const sql =
     "SELECT * FROM `progressionsinfo` WHERE Major_ID=? AND Project_on_term_ID=?";
+  const semDate =
+    "SELECT * FROM `projectonterm` WHERE Project_on_term_ID=?";
+
   await con.query(
-    sql,
-    [Major_ID, Project_on_term_ID],
-    (err, result, fields) => {
+    semDate,
+    [Project_on_term_ID],
+    (err, semDate, fields) => {
       if (err) {
         console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
-        res.status(200).json(result);
+        if (semDate.length == 0) {
+          res.status(200).json({ 'projectOnTerm': semDate })
+        } else {
+          con.query(
+            sql,
+            [Major_ID, Project_on_term_ID],
+            (err, result, fields) => {
+              if (err) {
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+              } else {
+                res.status(200).json({ 'progressionDuedate': result, 'projectOnTerm': semDate });
+
+              }
+            }
+          );
+        }
       }
     }
   );
+
+  // await con.query(
+  //   sql,
+  //   [Major_ID, Project_on_term_ID],
+  //   (err, result, fields) => {
+  //     if (err) {
+  //       console.log(err);
+  //       res.status(500).send("Internal Server Error");
+  //     } else {
+
+
+
+  //     }
+  //   }
+  // );
 };
 
 // update progression duedate
