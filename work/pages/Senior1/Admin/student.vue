@@ -43,8 +43,8 @@
           />
         </div>
         <div>
-          <v-btn color="light"
-            ><v-icon>mdi-database-import</v-icon> Import</v-btn
+          <v-btn color="success"
+            ><v-icon>mdi-microsoft-excel</v-icon> Export</v-btn
           >
         </div>
       </div>

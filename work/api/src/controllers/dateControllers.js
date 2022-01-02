@@ -75,10 +75,40 @@ updateProgressionDuedate = async (req, res) => {
   }
 };
 
-getSemesterDate = async (req, res) => {
+// Academic year
+getAcademicYear = async (req, res) => {
   const sql =
-    "SELECT * FROM `projectonterm` ORDER BY `Project_on_term_ID` DESC LIMIT 2";
+    "SELECT * FROM `academicyear` ORDER BY `Academic_Year` DESC LIMIT 1";
   con.query(sql, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
+newAcademicYear = async (req, res) => {
+  const { year } = req.body;
+
+  const sql = "INSERT INTO `academicyear`(`Academic_Year`) VALUES (?)";
+  con.query(sql, [year], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(422).json({ msg: "Query Error", err });
+    } else {
+      res.status(200).json({ msg: "Query Error", status: 200, result });
+    }
+  });
+};
+
+// Semester date
+getSemesterDate = async (req, res) => {
+  const { year } = req.body;
+  const sql =
+    "SELECT * FROM `projectonterm` WHERE `Academic_Year` = ? ORDER BY `Project_on_term_ID`";
+  con.query(sql, [year], (err, result, fields) => {
     if (err) {
       console.log(err);
       res.status(500).send("Internal Server Error");
@@ -93,7 +123,7 @@ newSemesterDate = async (req, res) => {
   console.log(req.body.data);
   const { data } = req.body;
   const sql =
-    "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`, `Senior_Project`) VALUES ?";
+    "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`) VALUES ?";
   con.query(
     sql,
     [data.map(obj => Object.values(obj))],
@@ -142,6 +172,8 @@ getYearsSemester = async (req, res) => {
 module.exports = {
   getProgressionDuedate,
   updateProgressionDuedate,
+  getAcademicYear,
+  newAcademicYear,
   getSemesterDate,
   newSemesterDate,
   updateSemesterDate,

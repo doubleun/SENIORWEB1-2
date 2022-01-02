@@ -1,6 +1,6 @@
 <template>
   <v-card class="semester-date-card">
-    <v-card-title style="padding: 1rem 1rem 0">ASSIGNMENT</v-card-title>
+    <v-card-title style="padding: 1rem 1rem 0"></v-card-title>
     <!-- Semester date table -->
     <div class="semester-date-content">
       <!-- Table attr -->
@@ -61,6 +61,72 @@
         </div>
       </template>
     </div>
+
+    <!-- Add new semester -->
+    <template>
+      <div class="text-center" v-show="dateData.length < 3">
+        <v-dialog v-model="newSemesterDateDialog" width="500">
+          <template v-slot:activator="{ on, attrs }">
+            <div class="mt-5 mb-2 d-flex justify-center">
+              <v-btn color="primary dark-1" dark v-bind="attrs" v-on="on"
+                >+ Add new semester</v-btn
+              >
+            </div>
+          </template>
+
+          <!-- Dialog card -->
+          <v-card>
+            <v-card-title class="text-h5 mb-3">
+              Add new semester
+            </v-card-title>
+            <v-row class="mx-5">
+              <v-col class="d-flex" cols="12" sm="12" md="4">
+                <div class="d-flex flex-column">
+                  <p class="text-subtitle-2 my-0">Semester</p>
+                  <v-select
+                    :items="availableSemesters"
+                    v-model="selectedSemester"
+                    placeholder="Ex: 1"
+                    dense
+                    hide-details
+                    outlined
+                  ></v-select>
+                </div>
+              </v-col>
+              <v-col class="d-flex" cols="12" sm="12" md="8">
+                <div class="d-flex flex-column" style="width: 100%">
+                  <p class="text-subtitle-2 my-0">Year</p>
+                  <v-form ref="form" v-model="valid">
+                    <v-text-field
+                      placeholder="Ex: 2021"
+                      v-model="academicYear"
+                      disabled
+                      full-width
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </v-form>
+                </div>
+              </v-col>
+            </v-row>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                depressed
+                class="px-5 my-1"
+                @click="handleNewSemester"
+              >
+                Add
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+    </template>
   </v-card>
 </template>
 
@@ -69,6 +135,10 @@ export default {
   props: { academicYear: Number },
   data() {
     return {
+      newSemesterDateDialog: false,
+      availableSemesters: [1, 2, 3],
+      selectedSemester: null,
+      valid: true,
       date: null,
       dateData: [
         {
@@ -95,7 +165,9 @@ export default {
   async fetch() {
     try {
       // Fetch latest project on term
-      this.dateData = await this.$axios.$get("/date/semester/get");
+      this.dateData = await this.$axios.$post("/date/semester/get", {
+        year: this.academicYear
+      });
       // Sort by academic term
       this.dateData.sort((a, b) => a.Academic_Term - b.Academic_Term);
       // Offset date to the locale timezone, else it'll be one day different
@@ -120,8 +192,19 @@ export default {
           itm.Access_Date_End.slice(0, 10)
         ]
       }));
+      // Slice available semesters, for add new semester
+      this.availableSemesters = this.availableSemesters.slice(
+        this.dateData.length
+      );
+      console.log("Fetched, Date data: ", this.dateData);
     } catch (err) {
       console.log(err);
+    }
+  },
+  watch: {
+    // When new academic year is created from the parent's function, this child component will re-fetch the semester date
+    academicYear(val) {
+      this.$fetch();
     }
   },
   methods: {
@@ -133,6 +216,29 @@ export default {
         // Update date picker UI
         this.$refs["dateMenu" + id][0].save(date);
         // console.log(this.$refs["dateMenu" + id][0]);
+      }
+    },
+    async handleNewSemester() {
+      try {
+        const res = await this.$axios.$post(
+          "http://localhost:3000/api/date/semester/new",
+          {
+            data: [
+              {
+                year: this.academicYear,
+                term: this.selectedSemester,
+                dateStart: new Date().toISOString().substr(0, 10),
+                dateEnd: new Date().toISOString().substr(0, 10)
+              }
+            ]
+          }
+        );
+        // Close add new semester dialog
+        this.newSemesterDateDialog = false;
+        // Re-fetch new data
+        this.$fetch();
+      } catch (err) {
+        console.log(err);
       }
     },
     allowedDates: val => val >= new Date().toISOString().slice(0, 10)

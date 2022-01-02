@@ -27,25 +27,25 @@
               Grade Criteria
             </v-card-title>
 
-            <!-- <div
+            <div
               class="grade-criteria-input-flex"
-              v-for="grade in gradeCriteriaArr"
-              :key="grade"
+              v-for="(grade, index) in gradeCriterias.slice(0, 2)"
+              :key="index"
             >
               <div>
                 <v-subheader>Grade</v-subheader>
-                <p>{{ grade }}</p>
+                <p>{{ grade.Grade_Criteria_Name }}</p>
               </div>
               <div>
-                <v-subheader>Low Score</v-subheader>
+                <v-subheader>Pass Score</v-subheader>
                 <v-text-field
-                  v-model="low"
+                  v-model="grade.Grade_Criteria_Pass"
                   outlined
                   dense
                   hide-details
                 ></v-text-field>
               </div>
-              <div>
+              <!-- <div>
                 <v-subheader>High Score</v-subheader>
                 <v-text-field
                   v-model="high"
@@ -53,8 +53,8 @@
                   dense
                   hide-details
                 ></v-text-field>
-              </div>
-            </div> -->
+              </div> -->
+            </div>
 
             <v-divider></v-divider>
 
@@ -63,7 +63,7 @@
               <v-btn color="secondary" text @click="editGradeDialog = false">
                 Cancel
               </v-btn>
-              <v-btn color="primary" @click="editGradeDialog = false">
+              <v-btn color="primary" @click="handleUpdateGradeCriterias">
                 Save
               </v-btn>
             </v-card-actions>

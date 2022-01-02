@@ -32,11 +32,11 @@ export default {
           title: "Group",
           to: "/Senior1/Student/stuCreateGroup"
         },
-        {
-          icon: "topic",
-          title: "Topic",
-          to: "/Senior1/Student/topic"
-        },
+        // {
+        //   icon: "topic",
+        //   title: "Topic",
+        //   to: "/Senior1/Student/topic"
+        // },
         {
           icon: "forum",
           title: "Proposal",
