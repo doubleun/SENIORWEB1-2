@@ -54,7 +54,7 @@ export default {
     let sem = ""
   
     infostudent = await this.$axios.$post("user/getAllUserWithMajor",{
-        Major_ID : this.$store.state.auth.currentUser.projectOnTerm,
+        Major_ID : this.$store.state.auth.currentUser.major,
         Project_on_term_ID:this.$store.state.auth.currentUser.projectOnTerm,
         User_Role:1
     });

@@ -14,5 +14,7 @@ groupRouter.post("/listOwnGroup", groupController.listOwnGroup);
 groupRouter.post("/getScoreCoor", groupController.getScoreCoor);
 groupRouter.post("/socre", groupController.getGroupScore);
 groupRouter.post("/getAllAdmin", groupController.getAllGroupsAdmin);
+groupRouter.post("/listrequestGroup", groupController.listrequestGroup);
+groupRouter.post("/request", groupController.request);
 
 module.exports = groupRouter;
