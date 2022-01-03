@@ -60,6 +60,8 @@ updateProgressionDuedate = async (req, res) => {
   //      fontend must send Progression_Info_ID=0 to backend,
   //      if have progression data send Progression_Info_ID to backend
 
+  // console.log(req.body)
+
   const {
     DueDate_Start,
     DueDate_End,
@@ -68,10 +70,16 @@ updateProgressionDuedate = async (req, res) => {
     Project_on_term_ID,
     Progression_Info_ID
   } = req.body;
+  // const insert =
+  //   "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,(SELECT Progress_ID FROM progressions WHERE Progress_Name = ?),?,?);";
+  // const update =
+  //   "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = (SELECT Progress_ID FROM progressions WHERE Progress_Name = ?) , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
+
   const insert =
-    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,(SELECT Progress_ID FROM progressions WHERE Progress_Name = ?),?,?);";
+    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?);";
+
   const update =
-    "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = (SELECT Progress_ID FROM progressions WHERE Progress_Name = ?) , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
+    "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = ? , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
 
   if (Progression_Info_ID == 0) {
     await con.query(
@@ -82,7 +90,8 @@ updateProgressionDuedate = async (req, res) => {
           console.log(err);
           res.status(500).send("Internal Server Error");
         } else {
-          res.status(200).send("insert");
+          res.status(200).json({ msg: "inserted", status: 200 });
+
         }
       }
     );
@@ -102,7 +111,7 @@ updateProgressionDuedate = async (req, res) => {
           console.log(err);
           res.status(500).send("Internal Server Error");
         } else {
-          res.status(200).send("updated");
+          res.status(200).json({ msg: "updated", status: 200 });
         }
       }
     );

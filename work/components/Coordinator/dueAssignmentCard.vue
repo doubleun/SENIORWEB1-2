@@ -9,147 +9,129 @@
         :hide-default-footer="true"
         class="elevation-1"
       >
+        <!-- set start/end date -->
+        <template v-slot:item.DueDate_Start="{ item }">
+          <span v-if="item.selectedDate[0] < item.selectedDate[1]">
+            <span
+              v-if="
+                item.selectedDate[0] ==
+                  new Date(access_Date_Start).toISOString().slice(0, 10)
+              "
+            >
+              yyyy/mm/dd
+            </span>
+            <span v-else>
+              {{ item.selectedDate[0] }}
+            </span>
+          </span>
+
+          <span v-else>
+            <span
+              v-if="
+                item.selectedDate[1] ==
+                  new Date(access_Date_End).toISOString().slice(0, 10)
+              "
+            >
+              yyyy/mm/dd
+            </span>
+            <span v-else>
+              {{ item.selectedDate[1] }}
+            </span>
+          </span>
+        </template>
+
+        <template v-slot:item.DueDate_End="{ item }">
+          <span v-if="item.selectedDate[0] > item.selectedDate[1]">
+            <span
+              v-if="
+                item.selectedDate[0] ==
+                  new Date(access_Date_Start).toISOString().slice(0, 10)
+              "
+            >
+              yyyy/mm/dd
+            </span>
+            <span v-else>
+              {{ item.selectedDate[0] }}
+            </span>
+          </span>
+
+          <span v-else>
+            <span
+              v-if="
+                item.selectedDate[1] ==
+                  new Date(access_Date_End).toISOString().slice(0, 10)
+              "
+            >
+              yyyy/mm/dd
+            </span>
+
+            <span v-else>
+              {{ item.selectedDate[1] }}
+            </span>
+          </span>
+        </template>
+
+        <!--edit button -->
         <template v-slot:item.action="{ item }">
           <v-row class="justify-center" no-gutters>
             <v-col md="3">
               <v-row align="center" justify="space-around">
-                <v-btn
+                <!-- <v-btn
                   color="blue darken-4"
                   class="white--text"
                   v-on="on"
                   v-bind="attrs"
-                  :disabled="admin"
                   ><v-icon>mdi-pen</v-icon> Edit</v-btn
+                > -->
+                <v-menu
+                  :ref="'dateMenu' + item.Progress_ID"
+                  v-model="item.dateMenu"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
                 >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="blue lighten-1"
+                      class="white--text px-5"
+                      v-on="on"
+                      v-bind="attrs"
+                    >
+                      <v-icon>mdi-calendar-month</v-icon> EDIT
+                    </v-btn>
+                  </template>
+                  <v-date-picker
+                    v-model="item.selectedDate"
+                    :allowed-dates="allowedDates"
+                    color=""
+                    no-title
+                    scrollable
+                    range
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="item.dateMenu = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        dateMenuSave(
+                          item.selectedDate,
+                          item.Progress_ID,
+                          item.Progression_Info_ID
+                        )
+                      "
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
               </v-row>
             </v-col>
           </v-row>
         </template>
       </v-data-table>
-
-      <!-- Table attr -->
-      <!-- <h4>TOPIC</h4>
-      <h4>ASSIGN DATE</h4>
-      <h4>DUE DATE</h4>
-      <h4>FILE</h4>
-      <h4>ACTIONS</h4> -->
-
-      <!-- Table records -->
-      <!-- <template v-for="data in progressionDuedate">
-        <p :key="data.topic + 1">{{ data.topic }}</p>
-        <p :key="data.topic + 2">{{ data.assignDate }}</p>
-        <p :key="data.topic + 3">{{ data.dueDate }}</p>
-        <p :key="data.topic + 4">{{ data.file }}</p>
-        <div :key="data.topic + 5"> -->
-      <!-- Edit assign date -->
-      <!-- <v-menu
-            :ref="'assignMenu' + data.id"
-            v-model="data.assignMenu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="blue lighten-1"
-                class="white--text"
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-calendar-month</v-icon> ASSIGN DATE
-              </v-btn>
-            </template>
-            <v-date-picker
-              v-model="data.assignDate"
-              color=""
-              no-title
-              scrollable
-            >
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="data.assignMenu = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                text
-                color="primary"
-                @click="
-                  () =>
-                    dateMenuSave(
-                      'assign',
-                      data.id,
-                      data.assignDate,
-                      data.dueDate,
-                      data.topic
-                    )
-                "
-              >
-                OK
-              </v-btn>
-            </v-date-picker>
-          </v-menu> -->
-
-      <!-- Due date -->
-      <!-- <v-menu
-            :ref="'dueMenu' + data.id"
-            v-model="data.dueMenu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="red darken-2"
-                class="white--text"
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-clock-time-two</v-icon> DUE DATE
-              </v-btn>
-            </template>
-            <v-date-picker v-model="data.dueDate" color="" no-title scrollable>
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="data.dueMenu = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                text
-                color="primary"
-                @click="
-                  () =>
-                    dateMenuSave(
-                      'due',
-                      data.id,
-                      data.dueDate,
-                      data.assignDate,
-                      data.topic
-                    )
-                "
-              >
-                OK
-              </v-btn>
-            </v-date-picker>
-          </v-menu> -->
-
-      <!-- View file -->
-      <!-- <v-btn
-            color="light-green darken-1"
-            class="white--text"
-            :disabled="data.file === 0"
-            @click="
-              $nuxt.$router.push({
-                path: '/Senior1/Coordinator/viewAssignment',
-                query: { assignmentId: data.id }
-              })
-            "
-          >
-            <v-icon>mdi-clipboard-text</v-icon> VIEW
-          </v-btn> -->
-      <!-- </div> -->
-      <!-- </template> -->
     </div>
   </v-card>
 </template>
@@ -160,91 +142,19 @@ export default {
     return {
       date: null,
       progressionDuedate: [],
+      access_Date_Start: null,
+      access_Date_End: null,
       headers: [
         {
           text: "TOPIC",
           value: "Progress_Name",
           align: "center"
         },
-        { text: "ASSIGNDATE", value: "Access_Date_Start", align: "center" },
-        { text: "DUEDATE", value: "Access_Date_End", align: "center" },
+        { text: "ASSIGNDATE", value: "DueDate_Start", align: "center" },
+        { text: "DUEDATE", value: "DueDate_End", align: "center" },
         { text: "FILE", value: "0", align: "center" },
         { text: "ACTION", value: "action", align: "center" }
       ]
-      // dummyData: [
-      //   {
-      //     id: 1,
-      //     topic: "Group",
-      //     assignDate: new Date().toISOString().substr(0, 10),
-      //     dueDate: new Date().toISOString().substr(0, 10),
-      //     file: 0,
-      //     assignMenu: false,
-      //     dueMenu: false
-      //   },
-      //   {
-      //     id: 2,
-      //     topic: "Progress 1",
-      //     assignDate: new Date().toISOString().substr(0, 10),
-      //     dueDate: new Date().toISOString().substr(0, 10),
-      //     file: 90,
-      //     assignMenu: false,
-      //     dueMenu: false
-      //   },
-      //   {
-      //     id: 3,
-      //     topic: "Progress 2",
-      //     assignDate: new Date().toISOString().substr(0, 10),
-      //     dueDate: new Date().toISOString().substr(0, 10),
-      //     file: 90,
-      //     assignMenu: false,
-      //     dueMenu: false
-      //   },
-      //   {
-      //     id: 4,
-      //     topic: "Progress 3",
-      //     assignDate: new Date().toISOString().substr(0, 10),
-      //     dueDate: new Date().toISOString().substr(0, 10),
-      //     file: 90,
-      //     assignMenu: false,
-      //     dueMenu: false
-      //   },
-      //   {
-      //     id: 5,
-      //     topic: "Progress 4",
-      //     assignDate: new Date().toISOString().substr(0, 10),
-      //     dueDate: new Date().toISOString().substr(0, 10),
-      //     file: 90,
-      //     assignMenu: false,
-      //     dueMenu: false
-      //   },
-      //   {
-      //     id: 6,
-      //     topic: "Final Presentation",
-      //     assignDate: new Date().toISOString().substr(0, 10),
-      //     dueDate: new Date().toISOString().substr(0, 10),
-      //     file: 100,
-      //     assignMenu: false,
-      //     dueMenu: false
-      //   },
-      //   {
-      //     id: 7,
-      //     topic: "Final Documentation",
-      //     assignDate: new Date().toISOString().substr(0, 10),
-      //     dueDate: new Date().toISOString().substr(0, 10),
-      //     file: 90,
-      //     assignMenu: false,
-      //     dueMenu: false
-      //   },
-      //   {
-      //     id: 8,
-      //     topic: "Re-Evaluation",
-      //     assignDate: new Date().toISOString().substr(0, 10),
-      //     dueDate: new Date().toISOString().substr(0, 10),
-      //     file: 90,
-      //     assignMenu: false,
-      //     dueMenu: false
-      //   }
-      // ]
     };
   },
   async fetch() {
@@ -258,13 +168,17 @@ export default {
       });
       console.log("progression Duedate", duedate);
 
+      // set ascess date
+      this.access_Date_Start = duedate.projectOnTerm[0].Access_Date_Start;
+      this.access_Date_End = duedate.projectOnTerm[0].Access_Date_End;
+
       // move topic to first
       const indexArr = criteria.findIndex(el => el.Progress_ID === 7);
       const topic = criteria.splice(indexArr, 1);
 
       criteria = [...topic, ...criteria];
-      console.log("criteria old", criteria);
-
+      // console.log("criteria old", criteria);
+      //
       // delete progress that don't have score (Total = 0)
       criteria.forEach((el, index) => {
         if (
@@ -275,33 +189,64 @@ export default {
             el.Progress_ID === 4)
         ) {
           criteria.splice(index, 1);
-          console.log("delete pg id", el.Progress_ID);
+          // console.log("delete pg id", el.Progress_ID);
         }
       });
 
       // map date
+      // no due date in this semester
       if (duedate.progressionDuedate.length == 0) {
         criteria = criteria.map(el => ({
           ...el,
-          Access_Date_Start: "yyyy/mm/dd",
-          Access_Date_End: "yyyy/mm/dd"
+          dateMenu: false,
+          selectedDate: [
+            new Date(duedate.projectOnTerm[0].Access_Date_Start)
+              .toISOString()
+              .substr(0, 10),
+            new Date(duedate.projectOnTerm[0].Access_Date_End)
+              .toISOString()
+              .substr(0, 10)
+          ],
+          Progression_Info_ID: 0
+          // Access_Date_Start: "yyyy/mm/dd",
+          // Access_Date_End: "yyyy/mm/dd"
         }));
       } else {
-        for (let i = 0; i < duedate.progressionDuedate.length; i++) {
-          for (let j = 0; j < criteria.length; j++) {
-            // console.log()
+        // console.log("have some due date");
+        // if have due date in this semester
+        for (let i = 0; i < criteria.length; i++) {
+          for (let j = 0; j < duedate.progressionDuedate.length; j++) {
+            // have some due date in this semster
             if (
-              duedate.progressionDuedate[i].Progress_ID ==
-              criteria[j].Progress_ID
+              duedate.progressionDuedate[j].Progress_ID ==
+              criteria[i].Progress_ID
             ) {
-              criteria[j].Access_Date_Start = new Date(
-                duedate.progressionDuedate[i].DueDate_Start
-              )
-                .toISOString()
-                .substr(0, 10);
-            } else {
-              criteria[j].Access_Date_Start = "yyyy/mm/dd";
+              criteria[i].selectedDate = [
+                new Date(duedate.progressionDuedate[j].DueDate_Start)
+                  .toISOString()
+                  .substr(0, 10),
+                new Date(duedate.progressionDuedate[j].DueDate_End)
+                  .toISOString()
+                  .substr(0, 10)
+              ];
+              criteria[i].Progression_Info_ID =
+                duedate.progressionDuedate[j].Progression_Info_ID;
+
+              criteria[i].dateMenu = false;
+              break;
             }
+
+            criteria[i].selectedDate = [
+              new Date(duedate.projectOnTerm[0].Access_Date_Start)
+                .toISOString()
+                .substr(0, 10),
+              new Date(duedate.projectOnTerm[0].Access_Date_End)
+                .toISOString()
+                .substr(0, 10)
+            ];
+            criteria[i].Progression_Info_ID = 0;
+
+            criteria[i].dateMenu = false;
           }
         }
       }
@@ -310,33 +255,48 @@ export default {
       console.log("progression Duedate22", this.progressionDuedate);
     } catch (error) {}
   },
+
+  computed: {},
+
   methods: {
-    async dateMenuSave(action, id, date, other, topic) {
-      if (action === "assign") {
-        // console.log(this.$refs["assignMenu" + id][0]);
-        let setdat = await this.$axios.$post("date/progression/update", {
-          DueDate_Start: date,
-          DueDate_End: other,
-          Progress_ID: topic,
-          Major_ID: this.$store.state.auth.currentUser.major,
-          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-          Progression_Info_ID: id
-        });
-        console.log("success");
-        this.$refs["assignMenu" + id][0].save(date);
-      } else {
-        // let setdat = await $axios.$post("date/progression/update", {});
-        // console.log(this.$refs["dueMenu" + id][0]);
-        let setdat = await this.$axios.$post("date/progression/update", {
-          DueDate_Start: other,
-          DueDate_End: date,
-          Progress_ID: topic,
-          Major_ID: this.$store.state.auth.currentUser.major,
-          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-          Progression_Info_ID: id
-        });
-        this.$refs["dueMenu" + id][0].save(date);
+    allowedDates: val => val >= new Date().toISOString().slice(0, 10),
+
+    async dateMenuSave(date, progressId, progressInfoId) {
+      var newDate = date.sort();
+      console.log("sort date", newDate);
+
+      // assign
+      // if (progressInfoId === 0) {
+      // console.log(this.$refs["assignMenu" + id][0]);
+      let res = await this.$axios.$post("date/progression/update", {
+        DueDate_Start: newDate[0],
+        DueDate_End: newDate[1],
+        Progress_ID: progressId,
+        Progression_Info_ID: progressInfoId,
+        Major_ID: this.$store.state.auth.currentUser.major,
+        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+      });
+
+      if (res.status == 200) {
+        console.log("success", res);
+        // console.log("ref", this.$refs["dateMenu" + progressId]);
+        this.$refs["dateMenu" + progressId] = false;
       }
+      // this.$refs["assignMenu" + id][0].save(date);
+      // } else {
+      //   // update
+      //   // let setdat = await $axios.$post("date/progression/update", {});
+      //   // console.log(this.$refs["dueMenu" + id][0]);
+      //   let setdat = await this.$axios.$post("date/progression/update", {
+      //     DueDate_Start: other,
+      //     DueDate_End: date,
+      //     Progress_ID: topic,
+      //     Major_ID: this.$store.state.auth.currentUser.major,
+      //     Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+      //     Progression_Info_ID: id
+      //   });
+      //   this.$refs["dueMenu" + id][0].save(date);
+      // }
     }
   }
 };
