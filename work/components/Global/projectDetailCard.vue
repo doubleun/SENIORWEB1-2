@@ -17,7 +17,10 @@
 
       <!-- Students -->
       <div class="progress-project-student">
-        <div v-for="(student, index) in students" :key="student.Group_Member_ID">
+        <div
+          v-for="(student, index) in students"
+          :key="student.Group_Member_ID"
+        >
           <div>
             <p>Student {{ index + 1 }}</p>
             <p>{{ student.User_Name }}&ensp;{{ student.User_Identity_ID }}</p>
@@ -63,21 +66,25 @@ export default {
       coAdvisor: ""
     };
   },
+  // async fetch() {
+  //   this.groupInfo = await this.$axios.$post("/group/listOwnGroup", {
+  //     Group_ID: params.groupId
+  //   });
+  // },
   mounted() {
-    this.groupInfo = this.$store.state.group.currentUserGroup;
-    this.thaiName = this.groupInfo[0].Group_Name_Thai;
-    this.EngName = this.groupInfo[0].Group_Name_Eng;
-    this.coAdvisor = this.groupInfo[0].Co_Advisor;
-
-    this.groupInfo.forEach(element => {
-      element.Group_Role == 3 || element.Group_Role == 2
-        ? this.students.push(element)
-        : element.Group_Role == 1
-        ? this.committees.push(element)
-        : element.Group_Role == 0
-        ? (this.advisor = element)
-        : null;
-    });
+    // this.groupInfo = this.$store.state.group.currentUserGroup;
+    // this.thaiName = this.groupInfo[0].Group_Name_Thai;
+    // this.EngName = this.groupInfo[0].Group_Name_Eng;
+    // this.coAdvisor = this.groupInfo[0].Co_Advisor;
+    // this.groupInfo.forEach(element => {
+    //   element.Group_Role == 3 || element.Group_Role == 2
+    //     ? this.students.push(element)
+    //     : element.Group_Role == 1
+    //     ? this.committees.push(element)
+    //     : element.Group_Role == 0
+    //     ? (this.advisor = element)
+    //     : null;
+    // });
     // this.groupInfo.map(el => ({
     // this.students
     // }));

@@ -2,10 +2,10 @@ const con = require("../config/db");
 
 // get progression of dua date by major
 getProgressionDuedate = async (req, res) => {
-  const { Major_ID, Project_on_term_ID } = req.body;
+  const { Major_ID, Project_on_term_ID, Senior } = req.body;
   // const Project_on_term_ID = req.params.Project_on_term_ID
   const sql =
-    "SELECT * FROM `progressionsinfo` WHERE Major_ID=? AND Project_on_term_ID=?";
+    "SELECT * FROM `progressionsinfo` WHERE Major_ID=? AND Project_on_term_ID=? AND Senior=?";
   const semDate =
     "SELECT * FROM `projectonterm` WHERE Project_on_term_ID=?";
 
@@ -22,7 +22,7 @@ getProgressionDuedate = async (req, res) => {
         } else {
           con.query(
             sql,
-            [Major_ID, Project_on_term_ID],
+            [Major_ID, Project_on_term_ID, Senior],
             (err, result, fields) => {
               if (err) {
                 console.log(err);
@@ -60,7 +60,7 @@ updateProgressionDuedate = async (req, res) => {
   //      fontend must send Progression_Info_ID=0 to backend,
   //      if have progression data send Progression_Info_ID to backend
 
-  // console.log(req.body)
+  console.log('body duedate', req.body)
 
   const {
     DueDate_Start,
@@ -68,7 +68,8 @@ updateProgressionDuedate = async (req, res) => {
     Progress_ID,
     Major_ID,
     Project_on_term_ID,
-    Progression_Info_ID
+    Progression_Info_ID,
+    Senior
   } = req.body;
   // const insert =
   //   "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,(SELECT Progress_ID FROM progressions WHERE Progress_Name = ?),?,?);";
@@ -76,7 +77,7 @@ updateProgressionDuedate = async (req, res) => {
   //   "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = (SELECT Progress_ID FROM progressions WHERE Progress_Name = ?) , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
 
   const insert =
-    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?);";
+    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`, `Senior`) VALUES (?,?,?,?,?,?);";
 
   const update =
     "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = ? , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
@@ -84,7 +85,7 @@ updateProgressionDuedate = async (req, res) => {
   if (Progression_Info_ID == 0) {
     await con.query(
       insert,
-      [DueDate_Start, DueDate_End, Progress_ID, Major_ID, Project_on_term_ID],
+      [DueDate_Start, DueDate_End, Progress_ID, Major_ID, Project_on_term_ID, Senior],
       (err, insert, fields) => {
         if (err) {
           console.log(err);

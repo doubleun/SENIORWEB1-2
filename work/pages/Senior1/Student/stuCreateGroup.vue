@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h2 class="header-title mb-2 mt-5">Create Group</h2>
-    <v-divider></v-divider>
+    <!-- <h2 class="header-title mb-2 mt-5">Create Group</h2> 
+    <v-divider></v-divider> -->
     <CreateGroupForm :groupMembers="groupMembers" />
     <!-- <GroupInvitationCard /> -->
   </div>

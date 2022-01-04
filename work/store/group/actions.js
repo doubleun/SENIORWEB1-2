@@ -15,18 +15,4 @@ export default {
       await state.commit("SET_GROUP", {});
     }
   },
-  async storeTeacherGroupInfo(state, groupId) {
-    // Fetch group info on the current user for teacher
-    const currentUserGroupInfo = await this.$axios.$post(
-      "/group/getMyGroup",
-      {
-        Group_ID: groupId
-      }
-    );
-    if (currentUserGroupInfo.length !== 0) {
-      await state.commit("SET_GROUP", currentUserGroupInfo);
-    } else {
-      await state.commit("SET_GROUP", {});
-    }
-  }
 };
