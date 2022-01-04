@@ -40,37 +40,37 @@ export default {
         {
           icon: "forum",
           title: "Proposal",
-          to: "/Senior1/student/proposal"
+          to: "/Senior1/student/work/proposal"
         },
         {
           icon: "mdi-numeric-1-circle",
           title: "Progress 1",
-          to: "/Senior1/student/progress1"
+          to: "/Senior1/student/work/progress-1"
         },
         {
           icon: "mdi-numeric-2-circle",
           title: "Progress 2",
-          to: "/Senior1/student/progress2"
+          to: "/Senior1/student/work/progress-2"
         },
         {
           icon: "mdi-numeric-3-circle",
           title: "Progress 3",
-          to: "/Senior1/student/progress3"
+          to: "/Senior1/student/work/progress-3"
         },
         {
           icon: "mdi-numeric-4-circle",
           title: "Progress 4",
-          to: "/Senior1/student/progress4"
+          to: "/Senior1/student/work/progress-4"
         },
         {
           icon: "co_present",
           title: "Final Presentation",
-          to: "/Senior1/student/final-presentation"
+          to: "/Senior1/student/work/final-presentation"
         },
         {
           icon: "text_snippet",
           title: "Final Documentation",
-          to: "/Senior1/student/final-document"
+          to: "/Senior1/student/work/final-documentation"
         },
         {
           icon: "stacked_bar_chart",
@@ -80,7 +80,7 @@ export default {
         {
           icon: "mdi-restore",
           title: "Re - evaluation",
-          to: "/Senior1/student/stuReEvaluation"
+          to: "/Senior1/student/stuReevaluationForm"
         }
       ]
     };

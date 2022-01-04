@@ -14,11 +14,12 @@
           v-on="on"
           id="no-background-hover"
           :style="theme === 'transparent' ? 'color: white' : 'color: inherit'"
+          @click="test"
         >
           <h3 style="margin-inline-end: 1rem">
             {{ userName }}
           </h3>
-          <v-avatar><img :src="userImage" alt="John"/></v-avatar>
+          <v-avatar><img :src="userImage" :alt="userImage"/></v-avatar>
           <v-icon right>mdi-chevron-down</v-icon>
         </v-btn>
       </template>
@@ -40,19 +41,18 @@ export default {
     userName: "",
     userImage: null
   }),
-  async fetch() {
-    // console.log("Appbar: ", this.$store.state.auth.currentUser);
-    this.userName = this.$store.state.auth.currentUser.name;
-    this.userImage = this.$store.state.auth.currentUser.photo;
+  created() {
+    this.userName = this.$store.getters["auth/currentUser"].name;
+    this.userImage = this.$store.getters["auth/currentUser"].photo;
   },
   props: ["theme"],
   methods: {
     // toggleDrawer() {
     //   this.$store.commit("set_drawer", !this.$store.state.drawer);
     // }
-    // test() {
-    //   console.log(this.$store.state.auth.currentUser);
-    // },
+    test() {
+      console.log(this.$store.state.auth.currentUser);
+    },
     async logout() {
       await this.$store.dispatch("auth/logout");
       this.$router.push("/");

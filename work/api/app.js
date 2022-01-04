@@ -39,11 +39,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 // enable files upload
 
-app.use(
-  fileUpload({
-    createParentPath: true
-  })
-);
+// app.use(
+//   fileUpload({
+//     createParentPath: true
+//   })
+// );
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //initialize passportt for se/deserialization

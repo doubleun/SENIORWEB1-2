@@ -1,6 +1,6 @@
 <template>
   <main class="progress-main">
-    <h1>Progress 1</h1>
+    <h1>{{ title }}</h1>
 
     <!-- Progress card -->
     <v-card class="progress-container">
@@ -16,6 +16,7 @@
           @dragover.prevent
           :class="{ 'active-progress-dropzone': dropActive }"
           class="progress-drop-zone"
+          v-if="showSubmission"
         >
           <v-icon class="material-icons" style="color: #253b6e"
             >cloud_upload</v-icon
@@ -28,50 +29,58 @@
               id="fileBrowse"
               accept="*"
               style="display: none"
-              @change="handleUpload"
+              @change="handleBrowseFile"
             />
           </p>
           <p>ONLY PDF,DOC,PPT, FILEMAX UPLOAD FILE SIZE 2 MB</p>
         </div>
 
         <!-- Link text field -->
-        <!-- <div class="final-link-container">
-          <h4>
-            Link
-          </h4>
-          <v-text-field
-            label="Submit link"
-            placeholder=""
-            dense
-            outlined
-          ></v-text-field>
-        </div> -->
-        <div v-for="member in projectMembers" :key="member" class="final-link-container">
-          <h5 class="font-weight-bold">Link {{ member }}</h5>
-              <v-text-field
-                v-model="stuEmail"
-                :rules="emailRules"
-                required
-                label="Submit link"
-                outlined
-                dense
-              >
-              </v-text-field>
-        </div>
-        <!-- Add member -->
-        <div class="mb-5" v-show="projectMembers.length < 4">
-          <a class="text-decoration-underline" @click="addMemberFields"
-            >+ Add Link</a>
+        <v-form ref="linksForm" class="final-link-container">
+          <div v-for="link in availableLinks" :key="link.number">
+            <h5 class="font-weight-bold">Link {{ link.number }}</h5>
+            <v-text-field
+              v-model="link.text"
+              :rules="[() => !!link.text || 'This field is required']"
+              required
+              placeholder="Submit link"
+              outlined
+              dense
+            >
+            </v-text-field>
+          </div>
+        </v-form>
+        <!-- Add submission link -->
+        <div class="mb-5 d-flex" style="gap: 1.8rem" v-if="showSubmission">
+          <a
+            class="text-decoration-underline"
+            @click="addLinkField"
+            v-show="this.availableLinks.length < 4"
+            >+ Add Link</a
+          >
+          <a
+            class="text-decoration-underline"
+            @click="removeLinkField"
+            v-show="this.availableLinks.length > 0"
+            >- Remove Link</a
+          >
         </div>
 
         <!-- Turn in button -->
-        <v-btn class="btn-theme-blue" width="max(18rem, 65%)">{{
-          handleChangeSubmitText
-        }}</v-btn>
+        <v-btn
+          class="btn-theme-blue"
+          width="max(18rem, 65%)"
+          @click="handleUploadAssignment"
+          v-if="showSubmission"
+          >{{ handleChangeSubmitText }}</v-btn
+        >
 
         <!-- Submitted file dispaly -->
         <div
-          class="progress-file-display-container"
+          :class="[
+            'progress-file-display-container',
+            { submitted: 'showSubmission' }
+          ]"
           v-show="files.length !== 0"
         >
           <div class="progress-file-display attributes">
@@ -87,8 +96,8 @@
             v-for="(file, index) in files"
             :key="index"
           >
-            <div class="progress-file-input-container">
-              <v-icon @click="handleRemoveFile" :data-date="file.date"
+            <div class="progress-file-input-container" v-if="showSubmission">
+              <v-icon @click="handleRemoveFile" :data-date="file.Submit_Date"
                 >mdi-close</v-icon
               >
               <v-file-input
@@ -102,10 +111,20 @@
                 :value="file.file"
               ></v-file-input>
             </div>
-            <p>{{ file.date }}</p>
+            <div
+              :class="[
+                'progress-file-input-container',
+                { submitted: 'showSubmission' }
+              ]"
+              v-else
+            >
+              <p>{{ file.File_Name }}</p>
+            </div>
+            <p>
+              {{ showSubmission ? file.date : file.Submit_Date.slice(0, 10) }}
+            </p>
 
             <!-- If type is needed it'll be display here, otherwise it's a status -->
-            <p v-show="!finalDocument">Not Submitted</p>
             <div class="progress-file-type" v-if="finalDocument">
               <v-combobox
                 :items="submitTypes"
@@ -114,6 +133,7 @@
                 disable-lookup
               ></v-combobox>
             </div>
+            <p v-else>{{ showSubmission ? "Not Submitted" : "Submitted" }}</p>
           </div>
         </div>
       </div>
@@ -125,19 +145,32 @@
 export default {
   data() {
     return {
-      projectMembers: [1],
+      availableLinks: [],
       files: [],
+      showSubmission: true,
       uploadSrc: null,
       dropActive: false,
       submitBtn: "Mark as done",
-      submitTypes: ["Abstract", "Document"],
+      submitTypes: ["Abstract", "Document"]
     };
   },
   props: {
     finalDocument: {
       type: Boolean,
-      default: false,
+      default: false
     },
+    title: {
+      type: String,
+      default: "Work submission"
+    },
+    progressId: {
+      type: Number,
+      default: 8
+    },
+    submittedFiles: {
+      type: Array,
+      default: []
+    }
   },
   computed: {
     // Change submit button text when files array changes
@@ -147,13 +180,33 @@ export default {
       } else {
         return "Mark as done";
       }
-    },
+    }
+  },
+  async mounted() {
+    // If there are submitted files, add files into UI
+    if (this.submittedFiles.length !== 0) {
+      // Hide submission buttons
+      this.showSubmission = false;
+
+      // Show submitted links
+      this.submittedFiles
+        .filter(file => file.Type === "Link")
+        .forEach(file =>
+          this.availableLinks.push({
+            number: (this.availableLinks.slice(-1)[0]?.number || 0) + 1,
+            text: file.File_Name
+          })
+        );
+
+      // Show submitted files
+      this.files = this.submittedFiles.filter(file => file.Type === "File");
+    }
   },
   methods: {
     toggleDropActive() {
       this.dropActive = !this.dropActive;
     },
-    handleUpload(e) {
+    handleBrowseFile(e) {
       if (e?.target.files[0]) {
         // Upload using "browse"
         // Get date
@@ -175,22 +228,67 @@ export default {
         // Update the files array
         this.files = [
           ...this.files,
-          { file: e.dataTransfer.files[0], date: d },
+          { file: e.dataTransfer.files[0], date: d }
         ];
       }
     },
     handleRemoveFile(e) {
       this.files = this.files.filter(
-        (file) => file.date !== e.target.dataset.date
+        file => file.date !== e.target.dataset.date
       );
     },
-    addMemberFields() {
-      this.projectMembers = [
-        ...this.projectMembers,
-        this.projectMembers.slice(-1)[0] + 1,
+    addLinkField() {
+      this.availableLinks = [
+        ...this.availableLinks,
+        {
+          // Number can be null if the last element is poped, so a fallback of zero is needed
+          number: (this.availableLinks.slice(-1)[0]?.number || 0) + 1,
+          text: ""
+        }
       ];
     },
-  },
+    removeLinkField() {
+      this.availableLinks.pop();
+    },
+    async handleUploadAssignment() {
+      //TODO: Validate file input
+      //TODO: Cap file size
+      //TODO: Check allowed file types
+      // Check if user input a link into the form
+      const valid = this.$refs.linksForm.validate();
+      if (!valid) return;
+
+      // Append form data with files
+      const formData = new FormData();
+      // formData.append("file", this.files[0].file);
+      this.files.map(file => formData.append("files", file.file));
+
+      // Append form data with progress id, group id
+      // Progress id is from '_progress.vue' page
+      formData.append("Progress_ID", this.progressId);
+      formData.append(
+        "Group_ID",
+        this.$store.state.group.currentUserGroup.Group_ID
+      );
+
+      // Append form data with links, if there are any
+      this.availableLinks.length !== 0 &&
+        this.availableLinks.map(link => formData.append("links", link.text));
+
+      console.log(this.files);
+      console.log(this.availableLinks);
+      console.log("Progress_ID: ", this.progressId);
+      console.log(
+        "Group_ID: ",
+        this.$store.state.group.currentUserGroup.Group_ID
+      );
+
+      const res = await this.$axios.$post(
+        "/assignment/uploadAssignments",
+        formData
+      );
+    }
+  }
 };
 </script>
 
@@ -204,6 +302,9 @@ export default {
 /* Layout */
 .progress-main {
   margin-block-start: 1rem;
+}
+.progress-main > h1 {
+  text-transform: capitalize;
 }
 .progress-container {
   margin-block-start: 1rem;
@@ -267,6 +368,11 @@ export default {
   width: max(18rem, 65%);
   margin-block-start: 2rem;
 }
+.progress-file-display-container.submitted {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 .progress-file-display.attributes {
   font-size: clamp(14px, 2vw, 16px);
 }
@@ -292,6 +398,18 @@ export default {
   color: red !important;
   display: inline-block !important;
   height: fit-content !important;
+}
+.progress-file-input-container.submitted {
+  display: flex;
+  border: 1.25px solid rgba(0, 0, 0, 0.38);
+  padding: 0, 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.progress-file-input-container.submitted > p {
+  margin: 0;
+  padding: 10px;
+  font-size: clamp(12px, 2vw, 16px);
 }
 
 /* Files grid display small */
