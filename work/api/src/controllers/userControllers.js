@@ -85,7 +85,7 @@ getAllUserWithMajor = async (req, res) => {
 getAllUsersInMajor = async (req, res) => {
   const { Major_ID, Project_on_term_ID } = req.body;
   const studentsSQL =
-    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `Major_ID` = ? AND `User_Role` = 1 AND `Project_on_term_ID` = ?";
+    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 1 AND `Project_on_term_ID` = ?";
   const students = await new Promise((resolve, reject) => {
     con.query(
       studentsSQL,
@@ -101,7 +101,7 @@ getAllUsersInMajor = async (req, res) => {
     );
   });
   const teachersSQL =
-    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `Major_ID` = ? AND `User_Role` = 0 AND `Project_on_term_ID` = ?";
+    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 0 AND `Project_on_term_ID` = ?";
   const teachers = await new Promise((resolve, reject) => {
     con.query(
       teachersSQL,
