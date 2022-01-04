@@ -252,7 +252,7 @@
             <v-row class="text-center"
               ><v-col
                 ><v-btn rounded dark color="indigo" @click="submitInfo">
-                  Create
+                  {{ button }}
                 </v-btn></v-col
               ></v-row
             >
@@ -301,7 +301,8 @@ export default {
     phone: ["", "", "", ""],
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
-    major: 1
+    major: 1,
+    button:'Create'
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -313,6 +314,7 @@ export default {
     });
     // Assign students and teachers to variables
     this.allStudentsInMajor = res.students;
+    console.log(res.students)
     this.allTeachersInMajor = res.teachers;
   },
   watch: {
