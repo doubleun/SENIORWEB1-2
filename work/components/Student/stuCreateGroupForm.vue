@@ -1,5 +1,14 @@
 <template>
   <div>
+    <v-row>
+      <v-col>
+        <h2 class="header-title mb-2 mt-5">Create Group</h2>
+      </v-col>
+      <!-- Alerts -->
+      <div v-if="0"><v-col cols="8"><v-alert type="warning">An invitation to join the group has been sent. Please wait for your invitation to be accepted.</v-alert></v-col></div>
+      <div v-else><v-col><v-alert type="success">Everyone you've invited has accepted into your group.</v-alert></v-col></div>   
+    </v-row>
+    <v-divider></v-divider>
     <!-- Create group form -->
     <v-form ref="form" v-model="valid">
       <v-card class="content mt-5">
@@ -45,7 +54,7 @@
                       ref="stuName"
                       v-model="name[member - 1]"
                       :rules="[
-                        () => !!name[member - 1] || 'This field is required'
+                        () => !!name[member - 1] || 'This field is required',
                       ]"
                       required
                       label="Student Name"
@@ -59,7 +68,7 @@
                       ref="stuPhoneNumber"
                       v-model="phone[member - 1]"
                       :rules="[
-                        () => !!phone[member - 1] || 'This field is required'
+                        () => !!phone[member - 1] || 'This field is required',
                       ]"
                       required
                       label="Student Phone Number"
@@ -162,7 +171,7 @@
                     item-value="User_Name"
                     placeholder="Search advisor name"
                     :rules="[
-                      () => !!selectedAdvisor || 'This field is required'
+                      () => !!selectedAdvisor || 'This field is required',
                     ]"
                     clearable
                     return-object
@@ -225,7 +234,7 @@
                     item-value="User_Name"
                     placeholder="Search committee 1"
                     :rules="[
-                      () => !!selectedCommittee1 || 'This field is required'
+                      () => !!selectedCommittee1 || 'This field is required',
                     ]"
                     clearable
                     return-object
@@ -250,11 +259,17 @@
             </div>
             <!-- Create button -->
             <v-row class="text-center"
-              ><v-col
-                ><v-btn rounded dark color="indigo" @click="submitInfo">
-                  Create
-                </v-btn></v-col
-              ></v-row
+              ><v-col>
+                <v-btn rounded dark color="indigo" @click="submitInfo">
+                  {{ button }}
+                </v-btn>
+                <div v-if="created"><v-btn rounded dark color="indigo" @click="submitInfo">
+                  Accept
+                </v-btn>
+                <v-btn rounded dark color="error" @click="submitInfo">
+                  Decline
+                </v-btn></div>
+              </v-col></v-row
             >
           </v-col>
         </v-row>
@@ -290,18 +305,21 @@ export default {
     stuPhoneNumber: "",
     stuEmail: "",
     emailRules: [
-      v => !!v || "E-mail is required",
-      v =>
+      (v) => !!v || "E-mail is required",
+      (v) =>
         /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
           v
-        ) || "E-mail must be valid"
+        ) || "E-mail must be valid",
     ],
     projectMembers: [1],
     name: ["", "", "", ""],
     phone: ["", "", "", ""],
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
-    major: 1
+    major: 1,
+    button: "Create",
+    buttonaccept: "Accept",
+    buttondecline: "Decline",
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -309,26 +327,27 @@ export default {
     // Fetch students and teachers
     const res = await this.$axios.$post("/user/getAllUsersInMajor", {
       Major_ID: this.$store.state.auth.currentUser.major,
-      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
     });
     // Assign students and teachers to variables
     this.allStudentsInMajor = res.students;
+    console.log(res.students);
     this.allTeachersInMajor = res.teachers;
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
     // And assign value into name and email array
     selectedStudent(val) {
-      this.name = val.map(itm => itm?.User_Name);
-      this.email = val.map(itm => itm?.User_Email);
-    }
+      this.name = val.map((itm) => itm?.User_Name);
+      this.email = val.map((itm) => itm?.User_Email);
+    },
   },
   methods: {
     // Add member fields
     addMemberFields() {
       this.projectMembers = [
         ...this.projectMembers,
-        this.projectMembers.slice(-1)[0] + 1
+        this.projectMembers.slice(-1)[0] + 1,
       ];
     },
     // Remove member fields
@@ -381,9 +400,9 @@ export default {
         Email_Student3: this.email[2],
         Email_Student4: this.email[3],
         Major: this.major,
-        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       });
-    }
+    },
   },
   mounted() {
     // console.log('Current user group: ', this.$store.state.group.currentUserGroup);
@@ -397,7 +416,7 @@ export default {
       // Sets project members
       this.groupMembers
         // Filter groupMembers array to get only group role 2, which is student role
-        .filter(itm => itm.Group_Role === 3 || itm.Group_Role === 2)
+        .filter((itm) => itm.Group_Role === 3 || itm.Group_Role === 2)
         .map((itm, index) => {
           index >= 1 &&
             // Add more project member fields
@@ -408,34 +427,34 @@ export default {
             User_Email: itm.User_Email,
             User_Identity_ID: itm.User_Identity_ID,
             User_Name: itm.User_Name,
-            User_Role: itm.User_Role
+            User_Role: itm.User_Role,
           };
           this.name[index] = itm.User_Name;
           this.email[index] = itm.User_Email;
           this.phone[index] = itm.User_Phone;
         });
       // Sets advisor
-      const advisor = this.groupMembers.filter(itm => itm.Group_Role === 0);
+      const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
       if (advisor.length !== 0)
         this.selectedAdvisor = {
           User_Email: advisor[0].User_Email,
-          User_Name: advisor[0].User_Name
+          User_Name: advisor[0].User_Name,
         };
       //Set co-advisor name
       this.selectedCoAdvisor = {
-        User_Name: this.$store.state.group.currentUserGroup.Co_Advisor
+        User_Name: this.$store.state.group.currentUserGroup.Co_Advisor,
       };
       // Set committes
       this.groupMembers
-        .filter(itm => itm.Group_Role === 1)
+        .filter((itm) => itm.Group_Role === 1)
         .map((itm, index) => {
           this["selectedCommittee" + (index + 1)] = {
             User_Name: itm.User_Name,
-            User_Email: itm.User_Email
+            User_Email: itm.User_Email,
           };
         });
     }
-  }
+  },
 };
 </script>
 <style scoped>

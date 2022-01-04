@@ -1,6 +1,6 @@
 <template>
   <div>
-    <EvaluationResultForm />
+    <EvaluationResultForm showTable />
   </div>
 </template>
 

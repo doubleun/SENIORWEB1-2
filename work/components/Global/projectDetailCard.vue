@@ -7,31 +7,24 @@
       <div class="progress-project-name">
         <div>
           <p>Thai Name</p>
-          <p>ภาษากระเหรื่ยงสำหรับกายภาพบำบัด</p>
+          <p>{{ thaiName }}</p>
         </div>
         <div>
           <p>English Name</p>
-          <p>MOBILE APPLICATION FOR KAREN TRANSLATOR FOR PHYSIOTHERAPY</p>
+          <p>{{ EngName }}</p>
         </div>
       </div>
 
       <!-- Students -->
       <div class="progress-project-student">
-        <div>
-          <p>Student 1</p>
-          <p>Wachirachai Nitsomboon 6131501052</p>
-        </div>
-        <div>
-          <p>Student 2</p>
-          <p>Wachirachai Nitsomboon 6131501052</p>
-        </div>
-        <div>
-          <p>Student 3</p>
-          <p>Wachirachai Nitsomboon 6131501052</p>
-        </div>
-        <div>
-          <p>Student 4</p>
-          <p>Wachirachai Nitsomboon 6131501052</p>
+        <div
+          v-for="(student, index) in students"
+          :key="student.Group_Member_ID"
+        >
+          <div>
+            <p>Student {{ index + 1 }}</p>
+            <p>{{ student.User_Name }}&ensp;{{ student.User_Identity_ID }}</p>
+          </div>
         </div>
       </div>
 
@@ -39,23 +32,21 @@
       <div class="progress-project-name">
         <div>
           <p>Advisor Name</p>
-          <p>Surapong Uttama</p>
+          <p>{{ advisor.User_Name }}</p>
         </div>
         <div>
           <p>Co - Advisor</p>
-          <p>Surapong Uttama</p>
+          <p>{{ coAdvisor }}</p>
         </div>
       </div>
 
       <!-- Committes -->
       <div class="progress-project-name">
-        <div>
-          <p>Committe 1</p>
-          <p>Surapong Uttama</p>
-        </div>
-        <div>
-          <p>Committe 2</p>
-          <p>Surapong Uttama</p>
+        <div v-for="(com, index) in committees" :key="com.Group_Member_ID">
+          <div>
+            <p>Committe {{ index + 1 }}</p>
+            <p>{{ com.User_Name }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -63,7 +54,46 @@
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      groupInfo: [],
+      thaiName: "",
+      EngName: "",
+      students: [],
+      advisor: {},
+      committees: [],
+      coAdvisor: ""
+    };
+  },
+  // async fetch() {
+  //   this.groupInfo = await this.$axios.$post("/group/listOwnGroup", {
+  //     Group_ID: params.groupId
+  //   });
+  // },
+  mounted() {
+    // this.groupInfo = this.$store.state.group.currentUserGroup;
+    // this.thaiName = this.groupInfo[0].Group_Name_Thai;
+    // this.EngName = this.groupInfo[0].Group_Name_Eng;
+    // this.coAdvisor = this.groupInfo[0].Co_Advisor;
+    // this.groupInfo.forEach(element => {
+    //   element.Group_Role == 3 || element.Group_Role == 2
+    //     ? this.students.push(element)
+    //     : element.Group_Role == 1
+    //     ? this.committees.push(element)
+    //     : element.Group_Role == 0
+    //     ? (this.advisor = element)
+    //     : null;
+    // });
+    // this.groupInfo.map(el => ({
+    // this.students
+    // }));
+    // console.log("current group", this.groupInfo);
+    // console.log("student", this.students);
+    // console.log("advisor", this.advisor);
+    // console.log("committees", this.committees);
+  }
+};
 </script>
 
 <style>

@@ -14,5 +14,5 @@ export default {
     } else {
       await state.commit("SET_GROUP", {});
     }
-  }
+  },
 };

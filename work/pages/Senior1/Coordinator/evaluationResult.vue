@@ -6,44 +6,10 @@
       <!-- Card (Evaluation result) -->
       <ProjectDetailCard />
 
-      <!-- Edit button -->
-      <v-dialog v-model="dialog" width="500">
-        <template v-slot:activator="{ on, attrs }">
-          <div class="co-evaluation-edit-btn">
-            <v-btn color="primary" outlined v-bind="attrs" v-on="on"
-              >Edit</v-btn
-            >
-          </div>
-        </template>
-
-        <!-- Edit eval card modal  -->
-        <v-card class="edit-eval-card-modal">
-          <v-card-title>
-            EVALUATION RESULT
-          </v-card-title>
-          <div class="edit-eval-card-modal-content">
-            <p>Progress 1</p>
-            <v-text-field outlined dense></v-text-field>
-            <p>Progress 2</p>
-            <v-text-field outlined dense></v-text-field>
-            <p>Progress 3</p>
-            <v-text-field outlined dense></v-text-field>
-            <p>Progress 4</p>
-            <v-text-field outlined dense></v-text-field>
-            <p>Final Presentation</p>
-            <v-text-field outlined dense></v-text-field>
-            <p>Final Documentation</p>
-            <v-text-field outlined dense></v-text-field>
-            <div>
-              <v-btn>Cancel</v-btn>
-              <v-btn color="primary">Submit</v-btn>
-            </div>
-          </div>
-        </v-card>
-      </v-dialog>
+      <div></div>
 
       <!-- Evaluation result -->
-      <v-card class="co-evaluation-result-card">
+      <v-card class="co-evaluation-result-card mt-16">
         <v-card-title>EVALUATION RESULT</v-card-title>
         <EvaluationResultGrid />
       </v-card>
@@ -81,7 +47,7 @@ export default {
     return {
       selectGrades: ["A", "B", "C", "D", "F"]
     };
-  }
+  },
 };
 </script>
 
