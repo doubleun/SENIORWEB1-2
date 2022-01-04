@@ -12,12 +12,7 @@
         <!-- set start/end date -->
         <template v-slot:item.DueDate_Start="{ item }">
           <span v-if="item.selectedDate[0] < item.selectedDate[1]">
-            <span
-              v-if="
-                item.selectedDate[0] ==
-                  new Date(access_Date_Start).toISOString().slice(0, 10)
-              "
-            >
+            <span v-if="item.selectedDate[0] == offsetDate(access_Date_Start)">
               yyyy/mm/dd
             </span>
             <span v-else>
@@ -26,12 +21,7 @@
           </span>
 
           <span v-else>
-            <span
-              v-if="
-                item.selectedDate[1] ==
-                  new Date(access_Date_End).toISOString().slice(0, 10)
-              "
-            >
+            <span v-if="item.selectedDate[1] == offsetDate(access_Date_End)">
               yyyy/mm/dd
             </span>
             <span v-else>
@@ -42,12 +32,7 @@
 
         <template v-slot:item.DueDate_End="{ item }">
           <span v-if="item.selectedDate[0] > item.selectedDate[1]">
-            <span
-              v-if="
-                item.selectedDate[0] ==
-                  new Date(access_Date_Start).toISOString().slice(0, 10)
-              "
-            >
+            <span v-if="item.selectedDate[0] == offsetDate(access_Date_Start)">
               yyyy/mm/dd
             </span>
             <span v-else>
@@ -56,12 +41,7 @@
           </span>
 
           <span v-else>
-            <span
-              v-if="
-                item.selectedDate[1] ==
-                  new Date(access_Date_End).toISOString().slice(0, 10)
-              "
-            >
+            <span v-if="item.selectedDate[1] == offsetDate(access_Date_End)">
               yyyy/mm/dd
             </span>
 
@@ -160,6 +140,7 @@ export default {
   async fetch() {
     try {
       var duedate = await this.$axios.$post("/date/progression", {
+        Senior: this.$store.state.auth.currentUser.senior,
         Major_ID: this.$store.state.auth.currentUser.major,
         Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
       });
@@ -198,18 +179,12 @@ export default {
       if (duedate.progressionDuedate.length == 0) {
         criteria = criteria.map(el => ({
           ...el,
-          dateMenu: false,
           selectedDate: [
-            new Date(duedate.projectOnTerm[0].Access_Date_Start)
-              .toISOString()
-              .substr(0, 10),
-            new Date(duedate.projectOnTerm[0].Access_Date_End)
-              .toISOString()
-              .substr(0, 10)
+            this.offsetDate(duedate.projectOnTerm[0].Access_Date_Start),
+            this.offsetDate(duedate.projectOnTerm[0].Access_Date_End)
           ],
-          Progression_Info_ID: 0
-          // Access_Date_Start: "yyyy/mm/dd",
-          // Access_Date_End: "yyyy/mm/dd"
+          Progression_Info_ID: 0,
+          dateMenu: false
         }));
       } else {
         // console.log("have some due date");
@@ -222,12 +197,8 @@ export default {
               criteria[i].Progress_ID
             ) {
               criteria[i].selectedDate = [
-                new Date(duedate.progressionDuedate[j].DueDate_Start)
-                  .toISOString()
-                  .substr(0, 10),
-                new Date(duedate.progressionDuedate[j].DueDate_End)
-                  .toISOString()
-                  .substr(0, 10)
+                this.offsetDate(duedate.progressionDuedate[j].DueDate_Start),
+                this.offsetDate(duedate.progressionDuedate[j].DueDate_End)
               ];
               criteria[i].Progression_Info_ID =
                 duedate.progressionDuedate[j].Progression_Info_ID;
@@ -237,12 +208,8 @@ export default {
             }
 
             criteria[i].selectedDate = [
-              new Date(duedate.projectOnTerm[0].Access_Date_Start)
-                .toISOString()
-                .substr(0, 10),
-              new Date(duedate.projectOnTerm[0].Access_Date_End)
-                .toISOString()
-                .substr(0, 10)
+              this.offsetDate(duedate.projectOnTerm[0].Access_Date_Start),
+              this.offsetDate(duedate.projectOnTerm[0].Access_Date_End)
             ];
             criteria[i].Progression_Info_ID = 0;
 
@@ -256,25 +223,35 @@ export default {
     } catch (error) {}
   },
 
-  computed: {},
-
   methods: {
-    allowedDates: val => val >= new Date().toISOString().slice(0, 10),
+    allowedDates(val) {
+      return (
+        val >= this.offsetDate(this.access_Date_Start) &&
+        val <= this.offsetDate(this.access_Date_End)
+      );
+    },
+
+    // offset date
+    offsetDate(date) {
+      return new Date(
+        new Date(date).getTime() - new Date(date).getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .substring(0, 10);
+    },
 
     async dateMenuSave(date, progressId, progressInfoId) {
       var newDate = date.sort();
       console.log("sort date", newDate);
 
-      // assign
-      // if (progressInfoId === 0) {
-      // console.log(this.$refs["assignMenu" + id][0]);
       let res = await this.$axios.$post("date/progression/update", {
         DueDate_Start: newDate[0],
         DueDate_End: newDate[1],
         Progress_ID: progressId,
         Progression_Info_ID: progressInfoId,
         Major_ID: this.$store.state.auth.currentUser.major,
-        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+        Senior: this.$store.state.auth.currentUser.senior
       });
 
       if (res.status == 200) {
@@ -282,21 +259,6 @@ export default {
         // console.log("ref", this.$refs["dateMenu" + progressId]);
         this.$refs["dateMenu" + progressId] = false;
       }
-      // this.$refs["assignMenu" + id][0].save(date);
-      // } else {
-      //   // update
-      //   // let setdat = await $axios.$post("date/progression/update", {});
-      //   // console.log(this.$refs["dueMenu" + id][0]);
-      //   let setdat = await this.$axios.$post("date/progression/update", {
-      //     DueDate_Start: other,
-      //     DueDate_End: date,
-      //     Progress_ID: topic,
-      //     Major_ID: this.$store.state.auth.currentUser.major,
-      //     Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-      //     Progression_Info_ID: id
-      //   });
-      //   this.$refs["dueMenu" + id][0].save(date);
-      // }
     }
   }
 };
