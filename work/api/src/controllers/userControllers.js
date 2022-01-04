@@ -136,7 +136,7 @@ uploadfile = async (req, res) => {
       avatar.mv("uploads/excel/" + name);
 
       var sql =
-        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) ";
+        "REPLACE INTO users ( User_Email , User_Identity_ID , User_Name , User_Role , Course_code , Major_ID , Senior , Project_on_term_ID ) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
       var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
         let semiter;
@@ -163,9 +163,10 @@ uploadfile = async (req, res) => {
               "1",
               coursec,
               Major,
+              Senior,
               semiter,
               term,
-              Senior,
+              
               rows[i][2],
               coursec
             ],
@@ -210,15 +211,17 @@ uploadfileteacher = async (req, res) => {
       let name = Date.now() + "_" + avatar.name;
       avatar.mv("uploads/excel/" + name);
       var sql =
-        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior_Project = ?)) ";
+        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, Senior , `Project_on_term_ID`) VALUES (?,?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
       var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
         let semiter;
         let term;
-        let coursec;
+        let coursec = null;
         let errorcou = 0;
-        for (let i = 8; i < rows.length; i++) {
-          rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
+        // console.log(rows[1][0])
+        for (let i = 4; i < rows.length; i++) {
+          console.log(rows[i])
+          // rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
           term = rows[1][0].split(" ")[4];
           semiter = rows[1][0].split(" ")[6];
           if (term == "FIRST") {
@@ -226,39 +229,52 @@ uploadfileteacher = async (req, res) => {
           } else if (term == "SECOND") {
             term = 2;
           }
-          coursec = rows[4][0].split(" ")[4];
+          if (rows[i][4] == "IT") {
+            rows[i][4] = 1
+          } else if (rows[i][4] == "CSI") {
+            rows[i][4] = 2
+          } else if (rows[i][4] == "MTA") {
+            rows[i][4] = 3
+          } else if (rows[i][4] == "SE") {
+            rows[i][4] = 4
+          } else if (rows[i][4] == "ICE") {
+            rows[i][4] = 5
+          } else if (rows[i][4] == "CE") {
+            rows[i][4] = 6
+          } else if (rows[i][4] == "DTBI") {
+            rows[i][4] = 7
+          }
+          // coursec = rows[4][0].split(" ")[4];
 
-          // con.query(
-          //   sql,
-          //   [
-          //     rows[i][0],
-          //     rows[i][1],
-          //     rows[i][2],
-          //     "0",
-          //     coursec,
-          //     Major,
-          //     semiter,
-          //     term,
-          //     Senior,
-          //     rows[i][2],
-          //     coursec
-          //   ],
-          //   (err, result, fields) => {
-          //     if (err) {
+          con.query(
+            sql,
+            [
+              rows[i][3],
+              rows[i][1],
+              rows[i][2],
+              "0",
+              coursec,
+              rows[i][4],
+              0,
+              semiter,
+              term,
+            ],
+            (err, result, fields) => {
+              if (err) {
 
-          //       console.log(err.code);
-          //       if (err.code == "ER_DUP_ENTRY") {
-          //         res.status(500).send("Duplicate data");
-          //       } else {
-          //         res.status(500).send("Internal Server Error");
-          //       }
-          //     } else {
-          //       if(i==rows.length-1){
-          //         res.status(200).send("success");
-          //       }
-          //     }
-          //   }
-          // );
+                console.log(err.code);
+                if (err.code == "ER_DUP_ENTRY") {
+                  res.status(500).send("Duplicate data");
+                } else {
+                  res.status(500).send("Internal Server Error");
+                }
+              } else {
+                if (i == rows.length - 1) {
+                  res.status(200).send("success");
+                }
+              }
+            }
+          );
         }
       });
     }
