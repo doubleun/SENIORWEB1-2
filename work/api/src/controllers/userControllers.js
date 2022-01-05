@@ -82,14 +82,14 @@ getAllUserWithMajor = async (req, res) => {
   );
 };
 
-getAllUsersInMajor = async (req, res) => {
-  const { Major_ID, Project_on_term_ID } = req.body;
+getAllUsersInSchool = async (req, res) => {
+  const { Project_on_term_ID } = req.body;
   const studentsSQL =
     "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 1 AND `Project_on_term_ID` = ?";
   const students = await new Promise((resolve, reject) => {
     con.query(
       studentsSQL,
-      [Major_ID, Project_on_term_ID],
+      [Project_on_term_ID],
       (err, studentsResult, fields) => {
         if (err) {
           console.log(err);
@@ -105,7 +105,7 @@ getAllUsersInMajor = async (req, res) => {
   const teachers = await new Promise((resolve, reject) => {
     con.query(
       teachersSQL,
-      [Major_ID, Project_on_term_ID],
+      [Project_on_term_ID],
       (err, teachersResult, fields) => {
         if (err) {
           console.log(err);
@@ -166,7 +166,7 @@ uploadfile = async (req, res) => {
               Senior,
               semiter,
               term,
-              
+
               rows[i][2],
               coursec
             ],
@@ -220,7 +220,7 @@ uploadfileteacher = async (req, res) => {
         let errorcou = 0;
         // console.log(rows[1][0])
         for (let i = 4; i < rows.length; i++) {
-          console.log(rows[i])
+          console.log(rows[i]);
           // rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
           term = rows[1][0].split(" ")[4];
           semiter = rows[1][0].split(" ")[6];
@@ -230,19 +230,19 @@ uploadfileteacher = async (req, res) => {
             term = 2;
           }
           if (rows[i][4] == "IT") {
-            rows[i][4] = 1
+            rows[i][4] = 1;
           } else if (rows[i][4] == "CSI") {
-            rows[i][4] = 2
+            rows[i][4] = 2;
           } else if (rows[i][4] == "MTA") {
-            rows[i][4] = 3
+            rows[i][4] = 3;
           } else if (rows[i][4] == "SE") {
-            rows[i][4] = 4
+            rows[i][4] = 4;
           } else if (rows[i][4] == "ICE") {
-            rows[i][4] = 5
+            rows[i][4] = 5;
           } else if (rows[i][4] == "CE") {
-            rows[i][4] = 6
+            rows[i][4] = 6;
           } else if (rows[i][4] == "DTBI") {
-            rows[i][4] = 7
+            rows[i][4] = 7;
           }
           // coursec = rows[4][0].split(" ")[4];
 
@@ -257,11 +257,10 @@ uploadfileteacher = async (req, res) => {
               rows[i][4],
               0,
               semiter,
-              term,
+              term
             ],
             (err, result, fields) => {
               if (err) {
-
                 console.log(err.code);
                 if (err.code == "ER_DUP_ENTRY") {
                   res.status(500).send("Duplicate data");
@@ -286,7 +285,7 @@ uploadfileteacher = async (req, res) => {
 
 module.exports = {
   getAllUserWithMajor,
-  getAllUsersInMajor,
+  getAllUsersInSchool,
   uploadfileteacher,
   uploadfile,
   countUser,
