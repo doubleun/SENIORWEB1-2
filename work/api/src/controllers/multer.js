@@ -1,6 +1,6 @@
 const multer = require("multer");
 
-const storage = multer.diskStorage({
+var storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, "api/uploads/assignments");
   },
@@ -9,6 +9,19 @@ const storage = multer.diskStorage({
   }
 });
 
+
 const upload = multer({ storage });
 
-module.exports = { upload };
+storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, "api/uploads/excel");
+  },
+  filename: function(req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+
+const uploadUser = multer({ storage });
+
+module.exports = { upload,uploadUser };

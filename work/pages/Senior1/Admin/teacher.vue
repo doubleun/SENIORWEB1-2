@@ -190,27 +190,38 @@ export default {
       // Trigger click on the FileInput
       this.$refs.uploader.click();
     },
-    handleBrowseFile(e) {
+     handleBrowseFile(e) {
       if (e?.target.files[0]) {
         // Get date
         const d = new Date().toLocaleString();
-
+        const formData = new FormData();
+        
         // Update the files array
         this.files = [...this.files, { file: e.target.files[0], date: d }];
+        this.files.map((file) => formData.append("files", file.file));
+        console.log(formData);
         this.$swal
           .fire({
-            title: "Do you want to save the changes?",
+            title: "Are you sure to import this file ? ",
+            text: "Please make sure file is correct you can import once per semister!!!",
             showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: "Save",
-            denyButtonText: `Don't save`,
+            // showCancelButton: true,
+            confirmButtonText: "OK",
+            denyButtonText: `Cancel`,
           })
-          .then((result) => {
+          .then(async(result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-              Swal.fire("Saved!", "", "success");
-            } else if (result.isDenied) {
-              Swal.fire("Changes are not saved", "", "info");
+              const res = await this.$axios.$post(
+                "user/importteacher",
+                formData
+              )
+              console.log(res)
+              if (res === "success") {
+                this.$swal.fire("Saved!", "", "success");
+              } else {
+                this.$swal.fire("Error! some thing went wrong", "", "warning");
+              }
             }
           });
       }

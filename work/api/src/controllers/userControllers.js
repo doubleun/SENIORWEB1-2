@@ -197,28 +197,31 @@ uploadfile = async (req, res) => {
 
 uploadfileteacher = async (req, res) => {
   try {
+    console.log(req.files[0])
     if (!req.files) {
+      
       res.send({
         status: false,
         message: "No file uploaded"
       });
     } else {
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
-      let avatar = req.files[""];
-      const { Major, Senior } = req.body;
+      // let avatar = req.files;
+      // const { Senior } = req.body;
 
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
-      let name = Date.now() + "_" + avatar.name;
-      avatar.mv("uploads/excel/" + name);
+      let name =  req.files[0]['filename'];
+      // avatar.mv("uploads/excel/" + name);
+      // console.log(req.files[0]['filename'])
       var sql =
-        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, Senior , `Project_on_term_ID`) VALUES (?,?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
+        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
-      var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
+      var obj = readXlsxFile(req.files[0]['path']).then(rows => {
         let semiter;
         let term;
         let coursec = null;
         let errorcou = 0;
-        // console.log(rows[1][0])
+        console.log(rows)
         for (let i = 4; i < rows.length; i++) {
           console.log(rows[i]);
           // rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
@@ -253,7 +256,7 @@ uploadfileteacher = async (req, res) => {
               "0",
               coursec,
               rows[i][4],
-              0,
+        
               semiter,
               term
             ],

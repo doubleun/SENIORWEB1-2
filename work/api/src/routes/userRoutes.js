@@ -1,5 +1,6 @@
 const UserControllers = require("../controllers/userControllers");
 const { checkLogin } = require("./permission");
+const multer = require("../controllers/multer");
 
 var userRouter = require("express").Router();
 
@@ -10,7 +11,7 @@ userRouter.post("/getAllUsersInSchool", UserControllers.getAllUsersInSchool);
 // userRouter.post("/gettacherwithrole", UserControllers.getTachersWithRole);
 userRouter.post("/amount", UserControllers.countUser);
 userRouter.post("/importstudent", UserControllers.uploadfile);
-userRouter.post("/importteacher", UserControllers.uploadfileteacher);
+userRouter.post("/importteacher",multer.uploadUser.array("files", 10), UserControllers.uploadfileteacher);
 userRouter.get("/getAllMajors", UserControllers.getAllMajors); // admin
 userRouter.get("/getTeacherRole", UserControllers.getTeacherRole); // admin
 
