@@ -55,6 +55,9 @@
 
 <script>
 export default {
+  props: {
+    GroupDetail: Object
+  },
   data() {
     return {
       groupInfo: [],
@@ -67,29 +70,20 @@ export default {
       gradeCriteria: []
     };
   },
-  async fetch() {
-    try {
-      // get group info
-      this.groupInfo = await this.$axios.$post("/group/getMyGroup", {
-        Group_ID: 1 //FIXME:
-      });
-      this.thaiName = this.groupInfo[0].Group_Name_Thai;
-      this.EngName = this.groupInfo[0].Group_Name_Eng;
-      this.coAdvisor = this.groupInfo[0].Co_Advisor;
-      this.groupInfo.forEach(element => {
-        element.Group_Role == 3 || element.Group_Role == 2
-          ? this.students.push(element)
-          : element.Group_Role == 1
-          ? this.committees.push(element)
-          : element.Group_Role == 0
-          ? (this.advisor = element)
-          : null;
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  },
-  mounted() {}
+  mounted() {
+    this.thaiName = this.GroupDetail.GroupInfo.Group_Name_Thai;
+    this.EngName = this.GroupDetail.GroupInfo.Group_Name_Eng;
+    this.coAdvisor = this.GroupDetail.GroupInfo.Co_Advisor;
+    this.GroupDetail.GroupMembers.forEach(member => {
+      member.Group_Role === 3 || member.Group_Role === 2
+        ? this.students.push(member)
+        : member.Group_Role == 1
+        ? this.committees.push(member)
+        : member.Group_Role === 0
+        ? (this.advisor = member)
+        : null;
+    });
+  }
 };
 </script>
 

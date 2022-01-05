@@ -277,4 +277,30 @@ countAssigment = async (req, res) => {
   );
 };
 
-module.exports = { uploadAssignments, getAssignmentFiles, getAssignment };
+// count last progress file for coordinator
+countFileByMajor = async (req, res) => {
+  const { Project_on_term_ID, Major, Progress_ID } = req.body;
+  console.log(req.body);
+  const sql =
+    "SELECT COUNT(*) AS TotalFile FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND gp.Major=? AND ass.Progress_ID=?";
+  await con.query(
+    sql,
+    [Project_on_term_ID, Major, Progress_ID],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        console.log(result);
+        res.status(200).json(result);
+      }
+    }
+  );
+};
+
+module.exports = {
+  uploadAssignments,
+  getAssignmentFiles,
+  getAssignment,
+  countFileByMajor
+};

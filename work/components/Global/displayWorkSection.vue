@@ -1,34 +1,43 @@
 <template>
   <div class="display-work-container">
-    <!-- (Right-side)Preview file -->
+    <!-- (Left-side)Preview file -->
     <v-card class="preview-work-card">
-      <div :style="uploadSrc ? 'display: unset' : 'display: none'">
-        <!-- <img
-          :src="uploadSrc"
-          class="preview-work-card-content"
-          v-if="
-            uploadFile.type === 'image/jpeg' || uploadFile.type === 'image/png'
-          "
-        /> -->
-        <embed :src="uploadSrc" class="preview-work-card-content" />
+      <!-- Switch file preview tabs -->
+      <v-tabs show-arrows dark background-color="primary">
+        <v-tab
+          v-for="(file, index) in files"
+          :key="index"
+          @click="handleChangeFilePreview(index)"
+          >{{ file.file.name }}</v-tab
+        >
+      </v-tabs>
+      <div :style="selectedFile ? 'display: unset' : 'display: none'">
+        <embed :src="selectedFile.src" class="preview-work-card-content" />
       </div>
     </v-card>
 
-    <!-- (Left-side) Work score and comment -->
+    <!-- (Right-side) Work score and comment -->
     <v-card class="task-work-card-container">
       <v-card-title style="padding: 1rem 1rem 0">TASK WORK</v-card-title>
       <div class="task-work-card-content">
-        <h5>Document</h5>
-        <v-file-input
-          :clearable="false"
-          outlined
-          hide-details
-          dense
-          show-size
-          prepend-icon=""
-          v-model="uploadFile"
-          @change="handleUploadFilePreview"
-        ></v-file-input>
+        <h5>File option</h5>
+        <v-btn
+          color="primary"
+          style="margin: 0.2rem 0 1rem 0"
+          @click="handleDownloadFile"
+          >Download</v-btn
+        >
+
+        <div v-show="links.length !== 0">
+          <h5>Links</h5>
+          <a
+            :href="link.File_Name"
+            target="_blank"
+            v-for="(link, index) in links"
+            :key="index"
+            >{{ "Link " + (index + 1) }}</a
+          >
+        </div>
 
         <h5>Score</h5>
         <v-select :items="selectScores" dense outlined></v-select>
@@ -54,22 +63,85 @@
 
 <script>
 export default {
+  props: {
+    progressId: {
+      type: Number,
+      default: 1
+    },
+    submittedFiles: {
+      type: Array,
+      default: []
+    }
+  },
   data() {
     return {
       selectScores: [1, 2, 3, 4, 5],
       uploadFile: { type: "" },
-      uploadSrc: null
+      uploadSrcs: [],
+      files: [],
+      links: [],
+      selectedFile: { src: "" }
     };
   },
+  async mounted() {
+    // If there are submitted files get them from static folder
+    if (this.submittedFiles.length !== 0) {
+      console.log(this.submittedFiles);
+      // Get all submitted files as file object
+      let files = this.submittedFiles
+        // Filter all submitted files and only get type of "File"
+        .filter(file => file.Type === "File")
+        // Then, map each file and send axios get request to fetch the file from static folder in server
+        .map(async file => {
+          // Request response type to be 'blob'
+          const blob = await this.$axios.$get(
+            "/uploads/assignments/" + encodeURIComponent(file.File_Name),
+            {
+              "Content-Type": "application/json;charset=utf-8",
+              responseType: "blob"
+            }
+          );
+          return {
+            // Convert blob to File object
+            file: new File([blob], file.File_Name, { type: blob.type }),
+            date: new Date(file.Submit_Date).toLocaleString()
+          };
+        });
+      // Since, each loop is a promise, promise.all is needed
+      this.files = await Promise.all(files);
+    }
+
+    // Create object string on all files
+    this.files.forEach(file => {
+      this.uploadSrcs.push(URL.createObjectURL(file.file));
+    });
+    // Sets initial selected src
+    this.selectedFile = { src: this.uploadSrcs[0], index: 0 };
+
+    // Set links array
+    this.links = this.submittedFiles.filter(file => file.Type === "Link");
+  },
+  beforeDestroy() {
+    // Clean up
+    this.uploadSrcs.forEach(src => URL.revokeObjectURL(src));
+  },
   methods: {
-    handleUploadFilePreview() {
-      // If no file, return
-      if (!this.uploadFile) return;
+    handleChangeFilePreview(fileIndex) {
+      this.selectedFile = { src: this.uploadSrcs[fileIndex], index: fileIndex };
+    },
+    handleDownloadFile() {
+      // If no files, return
+      if (this.submittedFiles.length < 1) return;
 
-      // Clean up old preview
-      if (this.uploadSrc) URL.revokeObjectURL(this.uploadSrc);
-
-      this.uploadSrc = URL.createObjectURL(this.uploadFile);
+      // Attach new 'a' tag element to DOM
+      const link = document.createElement("a");
+      // Create link from selected object string
+      link.href = this.selectedFile.src;
+      // Download with the file name
+      link.download = this.files[this.selectedFile.index].file.name;
+      link.click();
+      // Revoke element from DOM
+      URL.revokeObjectURL(link.href);
     }
   }
 };
@@ -79,6 +151,7 @@ export default {
 /* Display work */
 .display-work-container {
   margin-block-start: 4rem;
+  padding-block-end: 2rem;
   display: flex;
   flex-wrap: wrap;
 }

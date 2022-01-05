@@ -56,14 +56,35 @@
           </template> -->
           <template v-slot:item.actions="{ item }">
             <v-row class="justify-center py-5" no-gutters>
-              <v-col md="3">
-                <v-row align="center" justify="space-around">
+              <!-- <v-col md="3"> -->
+              <v-row align="center" justify="space-around">
+                <v-col>
                   <v-btn color="primary" @click="pushOtherPage(item.Group_ID)">
                     <v-icon left> mdi-eye-arrow-right </v-icon>
                     View
                   </v-btn>
-                </v-row>
-              </v-col>
+                </v-col>
+                <v-col>
+                  <v-btn
+                    color="error"
+                    @click="deleteGroup(item.Group_ID, item.Group_Name_Eng)"
+                  >
+                    <v-icon left> mdi-trash-can </v-icon>
+                    View
+                  </v-btn>
+                </v-col>
+                <!-- <v-row align="center" justify="space-around">
+                  <v-btn
+                    class="mb-10"
+                    color="error"
+                    @click="pushOtherPage(item.Group_ID)"
+                  >
+                    <v-icon left> mdi-trash-can </v-icon>
+                    View
+                  </v-btn>
+                </v-row> -->
+              </v-row>
+              <!-- </v-col> -->
             </v-row>
           </template>
         </v-data-table>
@@ -135,18 +156,11 @@ export default {
     // Set the default value
     console.log("test test", this.yearNSemsters);
     console.log("Group role", this.Group_Role);
-
-    // try {
-    //   this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    //   this.selectedSemester = this.yearNSemsters[0].Academic_Term;
-    // } catch (error) {
-    //   console.log(error);
-    // }
   },
   methods: {
     // TODO: keep group id to state for scoring of group
     pushOtherPage(id) {
-      this.$router.push(`/Senior1/coordinator/groupInfo/${id}`);
+      this.$router.push(`/Senior1/coordinator/group${id}`);
     },
     async handleChangeRenderGroups() {
       // let this = this;
@@ -168,6 +182,31 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    },
+    async deleteGroup(id, name) {
+      this.$swal
+        .fire({
+          icon: "info",
+          title: "Delete Group",
+          html: `Are you want to Delete Group <b>${name}</b>?`,
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes"
+        })
+        .then(async result => {
+          if (result.isConfirmed) {
+            const res = await this.$axios.$put("/group/delete/one", {
+              Group_ID: id
+            });
+            if (res.status == 200) {
+              this.$nuxt.refresh();
+              this.$swal.fire("Successed", "Grade has been saved.", "success");
+            } else {
+              this.$swal.fire("Error", res.msg, "error");
+            }
+          }
+        });
     }
   }
 };
