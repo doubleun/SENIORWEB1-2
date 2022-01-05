@@ -29,7 +29,7 @@
         {{ item.FinalDocumentation == null ? 0 : item.FinalDocumentation }}
       </template>
 
-      <template v-slot:item.total="{ item }">
+      <!-- <template v-slot:item.total="{ item }">
         {{
           (item.total =
             item.progress1 +
@@ -39,7 +39,7 @@
             item.FinalPresentation +
             item.FinalDocumentation)
         }}
-      </template>
+      </template> -->
     </v-data-table>
     <!-- <div v-for="scoreAttribute in scoreAttributes" :key="scoreAttribute.id"> -->
     <!-- Table attributes -->
@@ -70,19 +70,40 @@ export default {
         { text: "Progress 4", value: "progress4" },
         { text: "Final Presentation", value: "FinalPresentation" },
         { text: "Final Documentation", value: "FinalDocumentation" },
-        { text: "Total", value: "total" },
-        { text: "Suggestion Grade", value: "0" }
+        { text: "Total", value: "Total" },
+        { text: "Suggestion Grade", value: "Grade" }
       ]
     };
   },
   async fetch() {
+    var grade;
     try {
       const score = await this.$axios.$post("/group/socre", {
-        Group_ID: this.$store.state.group.currentUserGroup[0].Group_ID
+        Group_ID: 1 //FIXME:
       });
-      // FIXME: cross check with gradcritiria
+      // console.log("score", score);
+
+      var data = await this.$axios.$post("/criteria/gradeMajor", {
+        Major_ID: this.$store.state.auth.currentUser.major
+      });
+
+      data.sort((a, b) => {
+        return a.Grade_Criteria_Pass - b.Grade_Criteria_Pass;
+      });
+      // console.log("criteria", data);
+
+      data.forEach(el => {
+        if (score[0].Total >= el.Grade_Criteria_Pass) {
+          grade = el.Grade_Criteria_Name;
+        }
+      });
+      score[0].Grade = grade;
       this.score.push(score[0]);
-    } catch (error) {}
+
+      console.log("grade", grade);
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
 </script>

@@ -19,12 +19,28 @@
         <v-card-title>Evaluation Form</v-card-title>
         <div class="co-evaluation-form-card-content">
           <h5>Comment</h5>
-          <v-textarea auto-grow outlined rows="4" row-height="30"></v-textarea>
+          <v-textarea
+            v-model="comment"
+            :disabled="haveGrade"
+            auto-grow
+            outlined
+            rows="4"
+            row-height="30"
+          ></v-textarea>
 
           <h5>Grade</h5>
-          <v-select :items="selectGrades" dense outlined></v-select>
 
-          <v-btn color="primary">SUBMIT</v-btn>
+          <v-select
+            v-model="selectedGrades"
+            :items="grade"
+            :disabled="haveGrade"
+            dense
+            outlined
+          ></v-select>
+
+          <v-btn :disabled="haveGrade" color="primary" @click="submitGrad"
+            >SUBMIT</v-btn
+          >
         </div>
       </v-card>
 
@@ -45,9 +61,83 @@ export default {
   },
   data() {
     return {
-      selectGrades: ["A", "B", "C", "D", "F"]
+      comment: "",
+      selectedGrades: null,
+      haveGrade: true,
+      grade: []
     };
   },
+  async fetch() {
+    // fetch grade criteria for teacher grading
+    const data = await this.$axios.$post("/criteria/gradeMajor", {
+      Major_ID: this.$store.state.auth.currentUser.major
+    });
+
+    // set grade to grading
+    data.forEach(el => {
+      this.grade.push(el.Grade_Criteria_Name);
+    });
+
+    // get group info
+    const group = await this.$axios.$post("/group/getMyGroup", {
+      Group_ID: 1 //FIXME:
+    });
+
+    if (group[0].Grade != null && group[0].Grade != "") {
+      this.selectedGrades = group[0].Grade;
+      this.haveGrade = true;
+    } else {
+      this.haveGrade = false;
+    }
+    if (group[0].Comment_Grade != null && group[0].Comment_Grade != "") {
+      this.comment = group[0].Comment_Grade;
+    }
+    console.log("have grade", this.haveGrade);
+    // if(group[0].)
+  },
+  methods: {
+    async submitGrad() {
+      if (this.haveGrade) {
+        return;
+      }
+      if (this.selectedGrades == null) {
+        this.$swal.fire(
+          "Missing data",
+          "Please select Grade before submit.",
+          "info"
+        );
+        return;
+      }
+      this.$swal
+        .fire({
+          icon: "info",
+          title: "Submit Grade",
+          text: "You can submit a grade once.",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes"
+        })
+        .then(async result => {
+          if (result.isConfirmed) {
+            const res = await this.$axios.$post("/group/grading", {
+              Group_ID: 1, //FIXME:
+              event: 0,
+              Grade: this.selectedGrades,
+              Comment: this.comment
+            });
+
+            if (res.status == 200) {
+              this.$nuxt.refresh();
+              this.$swal.fire("Successed", "Grade has been saved.", "success");
+            } else {
+              this.$swal.fire("Error", res.msg, "error");
+            }
+          }
+        });
+      // console.log("selected grade ", this.selectedGrades);
+    }
+  }
 };
 </script>
 

@@ -40,11 +40,11 @@ export default {
 
   axios: {
     baseURL: "http://localhost:3000/api",
-    credentials: true
+    credentials: true,
   },
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ["@nuxtjs/axios"],
+  modules: ["@nuxtjs/axios", 'nuxt-sweetalert2'],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {

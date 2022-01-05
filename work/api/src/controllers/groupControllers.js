@@ -274,7 +274,7 @@ getGroupScore = async (req, res) => {
   const Group_ID = req.body.Group_ID;
 
   const sql =
-    "SELECT gmb.Group_Member_ID, usr.User_Email,usr.User_Identity_ID, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=?) AS progress1, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=?) AS progress2, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=?) AS progress3, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=?) AS progress4, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=?) AS FinalPresentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=?) AS FinalDocumentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=?) AS Topic, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=?) AS Groups  FROM users usr INNER JOIN groupmembers gmb ON usr.User_Email = gmb.User_Email INNER JOIN groups gp ON gmb.Group_ID=gp.Group_ID WHERE gmb.Group_ID=? AND usr.Project_on_term_ID=gmb.Project_on_term_ID AND (gmb.Group_Role=2 OR gmb.Group_Role=3)";
+    "SELECT gmb.Group_Member_ID, usr.User_Email,usr.User_Identity_ID, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=?) AS progress1, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=?) AS progress2, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=?) AS progress3, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=?) AS progress4, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=?) AS FinalPresentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=?) AS FinalDocumentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=?) AS Topic, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=?) AS Groups , (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Group_ID=1) AS Total  FROM users usr INNER JOIN groupmembers gmb ON usr.User_Email = gmb.User_Email INNER JOIN groups gp ON gmb.Group_ID=gp.Group_ID WHERE gmb.Group_ID=? AND usr.Project_on_term_ID=gmb.Project_on_term_ID AND (gmb.Group_Role=2 OR gmb.Group_Role=3)";
   await con.query(
     sql,
     [
@@ -324,7 +324,7 @@ listOwnGroup = async (req, res) => {
 
 listrequestGroup = async (req, res) => {
   console.log(req.body);
-  const { User_Email, Project_on_term_ID, Group_Role,User_Status,Group_Role2 } = req.body;
+  const { User_Email, Project_on_term_ID, Group_Role, User_Status, Group_Role2 } = req.body;
   const sql =
     "SELECT Group_ID,Group_Name_Thai,Group_Name_Eng,Co_Advisor,(SELECT Major_Name FROM majors WHERE Major_ID = Major)AS Major,Group_Progression, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=1 ) AS Committees,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT groups.Group_ID AS Group_ID, groups.Group_Name_Thai,groups.Group_Name_Eng,groups.Co_Advisor,groups.Major,groups.Group_Progression,groupmembers.User_Email AS Members, groupmembers.User_Phone,groupmembers.Group_Role AS Roles FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND (Group_Role=? OR Group_Role=?) AND User_Status = ?) AND groups.Project_on_term_ID=? AND groups.Group_Status=1 ) AS subquery GROUP BY subquery.Group_ID";
   // const sql = 'SELECT groups.Group_ID, groups.Group_Name_Thai,groups.Group_Name_Eng,groups.Co_Advisor,groups.Major,groups.Group_Progression ,groupmembers.Group_Member_ID,GROUP_CONCAT(  DISTINCT groupmembers.User_Email ORDER BY groupmembers.User_Email)AS Member,groupmembers.User_Phone,groupmembers.Group_Role FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =?) AND groups.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND groups.Group_Status=1 GROUP BY groups.Group_ID'
@@ -332,7 +332,7 @@ listrequestGroup = async (req, res) => {
   // "SELECT * FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND Group_Role=?) AND groups.Project_on_term_ID=?";
   await con.query(
     sql,
-    [User_Email, Group_Role,Group_Role2,User_Status, Project_on_term_ID],
+    [User_Email, Group_Role, Group_Role2, User_Status, Project_on_term_ID],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -343,15 +343,48 @@ listrequestGroup = async (req, res) => {
     }
   );
 };
+
 getMyGroup = async (req, res) => {
   const groupId = req.body.Group_ID;
-  const sql = "SELECT gmb.Group_Member_ID, gp.Group_ID,gp.Major,gp.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gp.Co_Advisor,usr.User_Name,gmb.Group_Role,usr.User_Email,usr.User_Identity_ID,gmb.User_Phone,gmb.User_Status FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email AND gmb.Project_on_term_ID=usr.Project_on_term_ID WHERE gmb.Group_ID=? AND gmb.User_Status=1 ORDER BY gmb.Group_Member_ID";
+  const sql = "SELECT gmb.Group_Member_ID, gp.Group_ID,gp.Major,gp.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gp.Grade,gp.Final_Grade,gp.Comment_Grade,gp.Comment_FinalGrade,gp.Co_Advisor,usr.User_Name,gmb.Group_Role,usr.User_Email,usr.User_Identity_ID,gmb.User_Phone,gmb.User_Status FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email AND gmb.Project_on_term_ID=usr.Project_on_term_ID WHERE gmb.Group_ID=? AND gmb.User_Status=1 ORDER BY gmb.Group_Member_ID";
   await con.query(sql, [groupId], (err, result, fields) => {
     if (err) {
       console.log(err);
       res.status(500).send("Internal Server Error");
     } else {
       res.status(200).json(result)
+    }
+  });
+}
+
+grading = async (req, res) => {
+  // event 0 for update grad in group
+  // event 1 for update final grad in group
+  const { Group_ID, event, Grade, Comment } = req.body;
+
+  const grade = "UPDATE `groups` SET `Grade` = ? WHERE `groups`.`Group_ID` = ?";
+  const finalGrade = "UPDATE `groups` SET `Final_Grade` = ? WHERE `groups`.`Group_ID` = ?";
+
+  const commentGrade = "UPDATE `groups` SET `Comment_Grade` = ? WHERE `groups`.`Group_ID` = ?"
+
+  const commentFinalGrade = "UPDATE `groups` SET `Comment_FinalGrade` = ? WHERE `groups`.`Group_ID` = ?"
+
+  await con.query(event == 0 ? grade : finalGrade, [Grade, Group_ID], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ msg: 'Internal Server Error', status: 500 });
+    } else {
+      con.query(event == 0 ? commentGrade : commentFinalGrade, [Comment, Group_ID], (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ msg: 'Internal Server Error', status: 500 });
+        } else {
+          res.status(200).json({ msg: 'graded', status: 200 })
+        }
+      });
+
+
+      // res.status(200).json({ msg: 'graded', status: 200 })
     }
   });
 }
@@ -372,5 +405,6 @@ module.exports = {
   getAllGroupsAdmin,
   listrequestGroup,
   request,
-  getMyGroup
+  getMyGroup,
+  grading
 };
