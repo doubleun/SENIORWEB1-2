@@ -24,7 +24,7 @@
           <p class="white--text">Year</p>
           <v-select
             v-model="selectedYear"
-            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
             @change="handelchangeRenderTeachers"
             dense
             solo
@@ -35,7 +35,7 @@
           <p class="white--text">Semester</p>
           <v-select
             v-model="selectedSemester"
-            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
             @change="handelchangeRenderTeachers"
             dense
             solo
@@ -60,7 +60,14 @@
           <v-btn color="light" @click="handleFileImport"
             ><v-icon>mdi-database-import</v-icon> Import</v-btn
           >
-          <input ref="uploader" class="d-none" type="file" accept="image/*" />
+          <input
+            ref="uploader"
+            class="d-none"
+            id="fileBrowse"
+            type="file"
+            accept=".xlsx"
+            @change="handleBrowseFile"
+          />
         </div>
       </div>
 
@@ -84,12 +91,13 @@ import AdminDataTable from "@/components/Admin/adminDataTable";
 export default {
   layout: "admin",
   components: {
-    AdminDataTable
+    AdminDataTable,
   },
   data: () => ({
     selectedMajor: {},
     selectedYear: null,
     selectedSemester: null,
+    files: [],
     selectedRole: null,
     loading: false,
     dialog1: false,
@@ -103,9 +111,9 @@ export default {
       { text: "EMAIL", align: "center", value: "User_Email" },
       // { text: "STUDY PROGRAM", align: "center", value: "Major_ID" },
       { text: "ROLE", align: "center", value: "User_Role_Name" },
-      { text: "Actions", align: "center", value: "actions", sortable: false }
+      { text: "Actions", align: "center", value: "actions", sortable: false },
       // { text: "SEM", align: "center", value: "Committee" },
-    ]
+    ],
   }),
 
   async asyncData({ $axios }) {
@@ -125,13 +133,13 @@ export default {
         Major_ID: majors[0].Major_ID,
         Academic_Year: yearNSemsters[0].Academic_Year,
         Academic_Term: yearNSemsters[0].Academic_Term,
-        User_Role: roles[0].Role_ID
+        User_Role: roles[0].Role_ID,
       });
 
       // Add user_role_name based on user_role (Should fetch role name from the database ?)
-      teachers = teachers.map(teacher => ({
+      teachers = teachers.map((teacher) => ({
         ...teacher,
-        User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator"
+        User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator",
       }));
     } catch (error) {
       console.log(error);
@@ -158,12 +166,12 @@ export default {
           Major_ID: this.selectedMajor.Major_ID,
           Academic_Year: this.selectedYear,
           Academic_Term: this.selectedSemester,
-          User_Role: this.selectedRole.Role_ID
+          User_Role: this.selectedRole.Role_ID,
         });
         // Add user_role_name based on user_role (Should fetch role name from the database ?)
-        this.teachers = this.teachers.map(teacher => ({
+        this.teachers = this.teachers.map((teacher) => ({
           ...teacher,
-          User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator"
+          User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator",
         }));
       } catch (error) {
         console.log(error);
@@ -179,11 +187,35 @@ export default {
         },
         { once: true }
       );
-
       // Trigger click on the FileInput
       this.$refs.uploader.click();
-    }
-  }
+    },
+    handleBrowseFile(e) {
+      if (e?.target.files[0]) {
+        // Get date
+        const d = new Date().toLocaleString();
+
+        // Update the files array
+        this.files = [...this.files, { file: e.target.files[0], date: d }];
+        this.$swal
+          .fire({
+            title: "Do you want to save the changes?",
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            denyButtonText: `Don't save`,
+          })
+          .then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+              Swal.fire("Saved!", "", "success");
+            } else if (result.isDenied) {
+              Swal.fire("Changes are not saved", "", "info");
+            }
+          });
+      }
+    },
+  },
 };
 </script>
 
