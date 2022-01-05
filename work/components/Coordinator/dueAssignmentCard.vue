@@ -2,7 +2,7 @@
   <v-card class="due-assignment-card">
     <v-card-title style="padding: 1rem 1rem 0">ASSIGNMENT</v-card-title>
     <!-- Assignment table -->
-    <v-container >
+    <v-container>
       <v-data-table
         :headers="headers"
         :items="progressionDuedate"
@@ -124,6 +124,7 @@ export default {
       progressionDuedate: [],
       access_Date_Start: null,
       access_Date_End: null,
+      totalFile: [],
       headers: [
         {
           text: "TOPIC",
@@ -132,7 +133,7 @@ export default {
         },
         { text: "ASSIGNDATE", value: "DueDate_Start", align: "center" },
         { text: "DUEDATE", value: "DueDate_End", align: "center" },
-        { text: "FILE", value: "0", align: "center" },
+        { text: "FILE", value: "totalFile", align: "center" },
         { text: "ACTION", value: "action", align: "center" }
       ]
     };
@@ -144,10 +145,11 @@ export default {
         Major_ID: this.$store.state.auth.currentUser.major,
         Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
       });
+      // console.log("progression Duedate", duedate);
+
       var criteria = await this.$axios.$post("/criteria/scoreMajor", {
         Major_ID: this.$store.state.auth.currentUser.major
       });
-      console.log("progression Duedate", duedate);
 
       // set ascess date
       this.access_Date_Start = duedate.projectOnTerm[0].Access_Date_Start;
@@ -158,10 +160,10 @@ export default {
       const topic = criteria.splice(indexArr, 1);
 
       criteria = [...topic, ...criteria];
-      // console.log("criteria old", criteria);
-      //
+      console.log("criteria old", criteria);
+
       // delete progress that don't have score (Total = 0)
-      criteria.forEach((el, index) => {
+      criteria.forEach(async (el, index) => {
         if (
           el.Total === 0 &&
           (el.Progress_ID === 1 ||
@@ -170,9 +172,20 @@ export default {
             el.Progress_ID === 4)
         ) {
           criteria.splice(index, 1);
+          // return;
           // console.log("delete pg id", el.Progress_ID);
         }
       });
+
+      // get count file
+      for (let index = 0; index < criteria.length; index++) {
+        let total = await this.$axios.$post("/assignment/countFile", {
+          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+          Progress_ID: criteria[index].Progress_ID,
+          Major: this.$store.state.auth.currentUser.major
+        });
+        criteria[index].totalFile = await total[0].TotalFile;
+      }
 
       // map date
       // no due date in this semester
