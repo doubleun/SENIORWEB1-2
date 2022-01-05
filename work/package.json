@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "nodedev": "nodemon --watch api --exec \"nuxt\"",
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",

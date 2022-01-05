@@ -1,68 +1,83 @@
 const con = require("../config/db");
+const fs = require("fs");
+// // Upload one file
+// uploadFile = async (req, res) => {
+//   let assignment = req.files.assignment;
+//   if (!assignment) res.status(404).json({ msg: "No file attached!" });
 
-// Upload one file
-uploadFile = async (req, res) => {
-  let assignment = req.files.assignment;
-  if (!assignment) res.status(404).json({ msg: "No file attached!" });
+//   //Use the mv() method to place the file in upload directory (i.e. "uploads")
+//   let name = Date.now() + "_" + assignment.name;
+//   assignment.mv("uploads/assignments/" + name);
 
-  //Use the mv() method to place the file in upload directory (i.e. "uploads")
-  let name = Date.now() + "_" + assignment.name;
-  assignment.mv("uploads/assignments/" + name);
-
-  res.status(200).json({ msg: "success" });
-};
+//   res.status(200).json({ msg: "success" });
+// };
 
 // Upload assignments
 uploadAssignments = async (req, res) => {
-  // Get all assignments
-  let assignments = req.files[""];
-  if (!assignments) res.status(404).json({ msg: "No files attached!" });
-
-  // Get other fields
-  let { Progress_ID, Group_ID, Assignment_Types: Types } = req.body;
-  Types = await JSON.parse(Types);
-
-  // Add type to each assignment
-  assignments = assignments.map((assignment, index) => ({
-    ...assignment,
-    type: Types[index],
-    // Mutate name of each assignment
-    name: Date.now() + "_" + assignment.name
-  }));
+  let { Progress_ID, Group_ID, links } = req.body;
+  // If no link then assign empty array
+  if (!links) links = [];
+  // If there's only one link put it in an array
+  if (typeof links === "string") links = [links];
 
   // Database queries
-  const assignment =
+  const assignmentSql =
     "INSERT INTO assignments(Progress_ID, Group_ID) VALUES (?, ?)";
-  const files =
-    "INSERT INTO files(File_Name, Type, Assignment_ID) VALUES (?, ?, ?)";
+  const filesSql =
+    "INSERT INTO files(File_Name, Path, Type, Assignment_ID) VALUES ?";
   try {
     // 1.) Insert assignment
     con.query(
-      assignment,
+      assignmentSql,
       [Progress_ID, Group_ID],
       (err, assignmentResult, fields) => {
         if (err) throw err;
 
-        // 2.) Insert files to database and use mv on all files (ie. save files)
-        assignments.forEach(assignment => {
-          // Insert each file into database
-          con.query(
-            files,
-            [assignment.name, assignment.type, assignmentResult.insertId],
-            (err, result, fields) => {
-              if (err) throw err;
-            }
-          );
-          // Save each file using 'mv'
-          assignment.mv("uploads/assignments/" + assignment.name);
+        // 2.) Insert files into database
+        // Add path, type, and assignment id to both links and files
+        links = links.reduce(
+          (prev, current) => [
+            ...prev,
+            [current, current, "Link", assignmentResult.insertId]
+          ],
+          []
+        );
+        const allFiles = req.files.reduce(
+          (prev, current) => [
+            ...prev,
+            [current.filename, current.path, "File", assignmentResult.insertId]
+          ],
+          []
+        );
+        // Combine links and files array, before insert into the database
+        const combinedFiles = [...links, ...allFiles];
+
+        // Insert into database
+        con.query(filesSql, [combinedFiles], (err, filesResult, fields) => {
+          if (err) throw err;
         });
       }
     );
   } catch (err) {
-    res.status(422).json({ msg: "Query Error" });
+    console.log(err);
+    res.status(422).json({ msg: "Query Error", staus: 422 });
   }
 
-  res.status(200).json({ msg: "success" });
+  res.status(200).json({ msg: "success", status: 200 });
+};
+
+// Get assignment files
+getAssignmentFiles = (req, res) => {
+  const { Group_ID, Progress_ID } = req.body;
+  try {
+    const sql =
+      "SELECT `File_Name`, `Type`, (SELECT `Submit_Date` FROM `assignments` WHERE assignments.Assignment_ID = files.Assignment_ID) AS `Submit_Date` FROM `files` WHERE `Assignment_ID` = (SELECT `Assignment_ID` FROM `assignments` WHERE `Group_ID` = ? AND `Progress_ID` = ? ORDER BY `Submit_Date` DESC LIMIT 1)";
+    con.query(sql, [Group_ID, Progress_ID], (err, result, fields) => {
+      res.status(200).json(result);
+    });
+  } catch (err) {
+    res.status(422).json({ msg: "Query Error", staus: 422 });
+  }
 };
 
 givecomment = async (req, res) => {
@@ -160,7 +175,7 @@ updateProgression = async (req, res) => {
 // get progression of dua date by major (view assigment or teacher and co)
 // * if student don't send Group_Member_ID to api
 getAssignment = async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   const {
     Group_ID,
     Progress_ID,
@@ -172,9 +187,10 @@ getAssignment = async (req, res) => {
   //   "SELECT * FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Group_ID=? AND ass.Progress_ID=?";
   const assigment =
     "SELECT * FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Group_ID=? AND ass.Progress_ID=? AND fl.Score_ID IS NULL";
-  const comments = Group_Member_ID != null ?
-    "SELECT sc.Score_ID, sc.Comment,fl.File_Name,gmb.Group_Role,gmb.Group_Member_ID FROM scores sc INNER JOIN files fl ON sc.Score_ID=fl.Score_ID INNER JOIN groupmembers gmb ON sc.Group_Member_ID = gmb.Group_Member_ID WHERE fl.Assignment_ID=? AND sc.Group_Member_ID=?" :
-    "SELECT sc.Score_ID, sc.Comment,fl.File_Name,gmb.Group_Role,gmb.Group_Member_ID FROM scores sc INNER JOIN files fl ON sc.Score_ID=fl.Score_ID INNER JOIN groupmembers gmb ON sc.Group_Member_ID = gmb.Group_Member_ID WHERE fl.Assignment_ID=?";
+  const comments =
+    Group_Member_ID != null
+      ? "SELECT sc.Score_ID, sc.Comment,fl.File_Name,gmb.Group_Role,gmb.Group_Member_ID FROM scores sc INNER JOIN files fl ON sc.Score_ID=fl.Score_ID INNER JOIN groupmembers gmb ON sc.Group_Member_ID = gmb.Group_Member_ID WHERE fl.Assignment_ID=? AND sc.Group_Member_ID=?"
+      : "SELECT sc.Score_ID, sc.Comment,fl.File_Name,gmb.Group_Role,gmb.Group_Member_ID FROM scores sc INNER JOIN files fl ON sc.Score_ID=fl.Score_ID INNER JOIN groupmembers gmb ON sc.Group_Member_ID = gmb.Group_Member_ID WHERE fl.Assignment_ID=?";
 
   await con.query(
     assigment,
@@ -186,7 +202,7 @@ getAssignment = async (req, res) => {
       } else {
         // console.log(assigment)
         if (assigment.length == 0) {
-          res.status(200).send("No Assignment")
+          res.status(200).send("No Assignment");
         } else {
           con.query(
             comments,
@@ -197,9 +213,11 @@ getAssignment = async (req, res) => {
                 res.status(500).send("Internal Server Error");
               } else {
                 if (comments.length == 0) {
-                  res.status(200).send("No Comments From Teacher")
+                  res.status(200).send("No Comments From Teacher");
                 } else {
-                  res.status(200).json({ "assigment": assigment, "comments": comments });
+                  res
+                    .status(200)
+                    .json({ assigment: assigment, comments: comments });
                 }
               }
             }
@@ -209,7 +227,6 @@ getAssignment = async (req, res) => {
     }
   );
 };
-
 
 // view all assigment by progress id (admin)
 getAllAssignment = async (req, res) => {
@@ -260,4 +277,4 @@ countAssigment = async (req, res) => {
   );
 };
 
-module.exports = { uploadAssignments, getAssignment };
+module.exports = { uploadAssignments, getAssignmentFiles, getAssignment };

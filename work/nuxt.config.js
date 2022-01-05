@@ -22,6 +22,9 @@ export default {
       }
     ]
   },
+  env: {
+    baseUrl: process.env.BASE_URL || "http://localhost:3000"
+  },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [],
@@ -100,6 +103,6 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-    watch: ["api"]
+    watch: ["api/src/"]
   }
 };

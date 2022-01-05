@@ -1,5 +1,27 @@
 <template>
   <div>
+    <v-row>
+      <v-col>
+        <h2 class="header-title mb-2 mt-5">Create Group</h2>
+      </v-col>
+      <!-- Alerts -->
+      <div v-if="0">
+        <v-col cols="8"
+          ><v-alert type="warning"
+            >An invitation to join the group has been sent. Please wait for your
+            invitation to be accepted.</v-alert
+          ></v-col
+        >
+      </div>
+      <div v-else>
+        <v-col
+          ><v-alert type="success"
+            >Everyone you've invited has accepted into your group.</v-alert
+          ></v-col
+        >
+      </div>
+    </v-row>
+    <v-divider></v-divider>
     <!-- Create group form -->
     <v-form ref="form" v-model="valid">
       <v-card class="content mt-5">
@@ -85,7 +107,7 @@
                     <v-autocomplete
                       v-model="selectedStudent[member - 1]"
                       :loading="studentLoading"
-                      :items="allStudentsInMajor"
+                      :items="allStudentsInSchool"
                       :filter="customStudentFilter"
                       class="mt-5"
                       outlined
@@ -151,7 +173,7 @@
                   ></v-text-field> -->
                   <v-autocomplete
                     v-model="selectedAdvisor"
-                    :items="allTeachersInMajor"
+                    :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     outlined
                     dense
@@ -169,7 +191,7 @@
                   ></v-autocomplete>
                   <v-autocomplete
                     v-model="selectedCoAdvisor"
-                    :items="allTeachersInMajor"
+                    :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     outlined
                     dense
@@ -214,7 +236,7 @@
                   ></v-text-field> -->
                   <v-autocomplete
                     v-model="selectedCommittee1"
-                    :items="allTeachersInMajor"
+                    :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     outlined
                     dense
@@ -232,7 +254,7 @@
                   ></v-autocomplete>
                   <v-autocomplete
                     v-model="selectedCommittee2"
-                    :items="allTeachersInMajor"
+                    :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     outlined
                     dense
@@ -250,11 +272,19 @@
             </div>
             <!-- Create button -->
             <v-row class="text-center"
-              ><v-col
-                ><v-btn rounded dark color="indigo" @click="submitInfo">
+              ><v-col>
+                <v-btn rounded dark color="indigo" @click="submitInfo">
                   {{ button }}
-                </v-btn></v-col
-              ></v-row
+                </v-btn>
+                <div v-if="created">
+                  <v-btn rounded dark color="indigo" @click="submitInfo">
+                    Accept
+                  </v-btn>
+                  <v-btn rounded dark color="error" @click="submitInfo">
+                    Decline
+                  </v-btn>
+                </div>
+              </v-col></v-row
             >
           </v-col>
         </v-row>
@@ -273,8 +303,8 @@ export default {
     // For loading (currently not use)
     studentLoading: false,
     // All students and teachers in major fecthed from database (see 'async fetch' down below)
-    allStudentsInMajor: [],
-    allTeachersInMajor: [],
+    allStudentsInSchool: [],
+    allTeachersInSchool: [],
     // Filterd list of students from all users in the major
     filteredStudents: [],
     // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
@@ -302,20 +332,22 @@ export default {
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: 1,
-    button:'Create'
+    button: "Create",
+    buttonaccept: "Accept",
+    buttondecline: "Decline"
   }),
   props: { groupMembers: Array },
   async fetch() {
     // TODO: This is big fetch, put this in a state and check if exists before fetch it
     // Fetch students and teachers
-    const res = await this.$axios.$post("/user/getAllUsersInMajor", {
-      Major_ID: this.$store.state.auth.currentUser.major,
+    const res = await this.$axios.$post("/user/getAllUsersInSchool", {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
     });
     // Assign students and teachers to variables
-    this.allStudentsInMajor = res.students;
-    console.log(res.students)
-    this.allTeachersInMajor = res.teachers;
+    this.allStudentsInSchool = res.students;
+    console.log("Students: ", res.students);
+    this.allTeachersInSchool = res.teachers;
+    console.log("Teachers: ", res.students);
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
