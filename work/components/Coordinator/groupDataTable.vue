@@ -146,7 +146,7 @@ export default {
   methods: {
     // TODO: keep group id to state for scoring of group
     pushOtherPage(id) {
-      this.$router.push(`/Senior1/coordinator/groupInfo/${id}`);
+      this.$router.push(`/Senior1/coordinator/group${id}`);
     },
     async handleChangeRenderGroups() {
       // let this = this;

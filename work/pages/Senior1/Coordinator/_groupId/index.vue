@@ -30,17 +30,19 @@ export default {
     GroupDetailCard
   },
   async asyncData({ params, store, redirect, $axios }) {
+    // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group io)
+    const groupId = params.groupId.match(/(\d)/g).join("");
     const res = await $axios.$post("/group/getGroupWithID", {
-      Group_ID: params.groupId,
+      Group_ID: groupId,
       Email: store.state.auth.currentUser.email
     });
     if (res.status !== 200) {
       redirect("/Senior1/coordinator/");
     }
-    console.log({
-      GroupInfo: res.groupInfo[0],
-      GroupMembers: res.groupMembers
-    });
+    // console.log({
+    //   GroupInfo: res.groupInfo[0],
+    //   GroupMembers: res.groupMembers
+    // });
     return {
       Group_ID: params.groupId,
       GroupDetail: {

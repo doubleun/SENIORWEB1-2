@@ -268,6 +268,7 @@ export default {
       //TODO: Validate file input (file type, file size)
       //TODO: Cap file size
       //TODO: Check allowed file types
+      //TODO: Limit link's text length
       // TODO: Show total files size ??
       // Check if user input a link into the form
       const valid = this.$refs.linksForm.validate();
