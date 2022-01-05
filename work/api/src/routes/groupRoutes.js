@@ -18,5 +18,6 @@ groupRouter.post("/listrequestGroup", groupController.listrequestGroup);
 groupRouter.post("/request", groupController.request);
 groupRouter.post("/getMyGroup", groupController.getMyGroup);
 groupRouter.post("/grading", groupController.grading);
+groupRouter.put("/delete/one", groupController.deleteById);
 
 module.exports = groupRouter;

@@ -244,8 +244,6 @@ uploadfileteacher = async (req, res) => {
           } else if (rows[i][4] == "DTBI") {
             rows[i][4] = 7;
           }
-          // coursec = rows[4][0].split(" ")[4];
-
           con.query(
             sql,
             [
