@@ -107,8 +107,6 @@
 <script>
 import LongTableCard from "@/components/Admin/longTableCard";
 import exportXLSX from "@/mixins/exportXLSX";
-import Swal from "sweetalert2";
-// const Swal = require('sweetalert2')
 
 export default {
   layout: "admin",
@@ -179,7 +177,7 @@ export default {
     },
     checkdia() {
       if (this.selected.length == 0) {
-        Swal.fire({
+        this.$swal.fire({
           // title: "Error!",
           text: "Please select at least one group",
           icon: "error",

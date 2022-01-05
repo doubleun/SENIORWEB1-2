@@ -2,10 +2,10 @@ const con = require("../config/db");
 
 // get progression of dua date by major
 getProgressionDuedate = async (req, res) => {
-  const { Major_ID, Project_on_term_ID, Senior } = req.body;
+  const { Major_ID, Project_on_term_ID } = req.body;
   // const Project_on_term_ID = req.params.Project_on_term_ID
   const sql =
-    "SELECT * FROM `progressionsinfo` WHERE Major_ID=? AND Project_on_term_ID=? AND Senior=?";
+    "SELECT * FROM `progressionsinfo` WHERE Major_ID=? AND Project_on_term_ID=?";
   const semDate =
     "SELECT * FROM `projectonterm` WHERE Project_on_term_ID=?";
 
@@ -22,7 +22,7 @@ getProgressionDuedate = async (req, res) => {
         } else {
           con.query(
             sql,
-            [Major_ID, Project_on_term_ID, Senior],
+            [Major_ID, Project_on_term_ID],
             (err, result, fields) => {
               if (err) {
                 console.log(err);
@@ -77,7 +77,7 @@ updateProgressionDuedate = async (req, res) => {
   //   "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = (SELECT Progress_ID FROM progressions WHERE Progress_Name = ?) , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
 
   const insert =
-    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`, `Senior`) VALUES (?,?,?,?,?,?);";
+    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?);";
 
   const update =
     "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = ? , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
@@ -85,7 +85,7 @@ updateProgressionDuedate = async (req, res) => {
   if (Progression_Info_ID == 0) {
     await con.query(
       insert,
-      [DueDate_Start, DueDate_End, Progress_ID, Major_ID, Project_on_term_ID, Senior],
+      [DueDate_Start, DueDate_End, Progress_ID, Major_ID, Project_on_term_ID],
       (err, insert, fields) => {
         if (err) {
           console.log(err);

@@ -2,7 +2,7 @@
   <v-card class="due-assignment-card">
     <v-card-title style="padding: 1rem 1rem 0">ASSIGNMENT</v-card-title>
     <!-- Assignment table -->
-    <div class="due-assignment-content">
+    <v-container >
       <v-data-table
         :headers="headers"
         :items="progressionDuedate"
@@ -112,7 +112,7 @@
           </v-row>
         </template>
       </v-data-table>
-    </div>
+    </v-container>
   </v-card>
 </template>
 

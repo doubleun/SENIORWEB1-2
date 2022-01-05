@@ -45,6 +45,7 @@
               required
               placeholder="Submit link"
               outlined
+              :disabled="!showSubmission"
               dense
             >
             </v-text-field>
@@ -77,10 +78,7 @@
 
         <!-- Submitted file dispaly -->
         <div
-          :class="[
-            'progress-file-display-container',
-            { submitted: 'showSubmission' }
-          ]"
+          class="progress-file-display-container"
           v-show="files.length !== 0"
         >
           <div class="progress-file-display attributes">
@@ -96,32 +94,25 @@
             v-for="(file, index) in files"
             :key="index"
           >
-            <div class="progress-file-input-container" v-if="showSubmission">
-              <v-icon @click="handleRemoveFile" :data-date="file.Submit_Date"
+            <div class="progress-file-input-container">
+              <v-icon
+                @click="handleRemoveFile"
+                :data-date="file.Submit_Date"
+                v-if="showSubmission"
                 >mdi-close</v-icon
               >
               <v-file-input
                 :clearable="false"
                 outlined
                 dense
-                show-size
                 prepend-icon=""
                 class="progress-file-input"
-                @click.prevent
+                @click.prevent="handleDownloadSubmittedFile(index)"
                 :value="file.file"
               ></v-file-input>
             </div>
-            <div
-              :class="[
-                'progress-file-input-container',
-                { submitted: 'showSubmission' }
-              ]"
-              v-else
-            >
-              <p>{{ file.File_Name }}</p>
-            </div>
             <p>
-              {{ showSubmission ? file.date : file.Submit_Date.slice(0, 10) }}
+              {{ file.date }}
             </p>
 
             <!-- If type is needed it'll be display here, otherwise it's a status -->
@@ -188,18 +179,41 @@ export default {
       // Hide submission buttons
       this.showSubmission = false;
 
-      // Show submitted links
+      let files = this.submittedFiles
+        // Filter all submitted files and only get type of "File"
+        .filter(file => file.Type === "File")
+        // Then, map each file and send axios get request to fetch the file from static folder in server
+        .map(async file => {
+          // Request response type to be 'blob'
+          const blob = await this.$axios.$get(
+            "/uploads/assignments/" + file.File_Name,
+            {
+              responseType: "blob"
+            }
+          );
+          return {
+            // Convert blob to File object
+            file: new File([blob], file.File_Name, { type: blob.type }),
+            date: new Date(file.Submit_Date).toLocaleString()
+          };
+        });
+      // Since, each loop is a promise, promise.all is needed
+      files = await Promise.all(files);
+      // Finally, replace files with the submitted ones
+      this.files = files;
+
+      // Now, links also needs to be put in to the UI
       this.submittedFiles
+        // Filter to get only file with type 'Link'
         .filter(file => file.Type === "Link")
+        // For each link push it into the 'availableLinks' array
         .forEach(file =>
           this.availableLinks.push({
+            // Get the last elememt's number in the array, if null fallback to zero
             number: (this.availableLinks.slice(-1)[0]?.number || 0) + 1,
             text: file.File_Name
           })
         );
-
-      // Show submitted files
-      this.files = this.submittedFiles.filter(file => file.Type === "File");
     }
   },
   methods: {
@@ -251,9 +265,10 @@ export default {
       this.availableLinks.pop();
     },
     async handleUploadAssignment() {
-      //TODO: Validate file input
+      //TODO: Validate file input (file type, file size)
       //TODO: Cap file size
       //TODO: Check allowed file types
+      // TODO: Show total files size ??
       // Check if user input a link into the form
       const valid = this.$refs.linksForm.validate();
       if (!valid) return;
@@ -275,18 +290,47 @@ export default {
       this.availableLinks.length !== 0 &&
         this.availableLinks.map(link => formData.append("links", link.text));
 
-      console.log(this.files);
-      console.log(this.availableLinks);
-      console.log("Progress_ID: ", this.progressId);
-      console.log(
-        "Group_ID: ",
-        this.$store.state.group.currentUserGroup.Group_ID
-      );
+      // // console.log(this.availableLinks);
+      // // console.log("Progress_ID: ", this.progressId);
+      // // console.log(this.files);
+      // // console.log(
+      // //   "Group_ID: ",
+      // //   this.$store.state.group.currentUserGroup.Group_ID
+      // // );
 
       const res = await this.$axios.$post(
         "/assignment/uploadAssignments",
         formData
       );
+
+      if (res.status === 200) {
+        // Update the UI
+        this.showSubmission = false;
+      }
+    },
+    handleDownloadSubmittedFile(fileIndex) {
+      // Show submission is on this function will not run
+      if (this.showSubmission) return;
+
+      // Create new blob from file
+      const blob = new Blob([this.files[fileIndex].file], {
+        type: this.files[fileIndex].file.type
+      });
+      // Attach new 'a' tag element to DOM
+      const link = document.createElement("a");
+      // Create object string
+      link.href = URL.createObjectURL(blob);
+      // Download with the file name
+      link.download = this.files[fileIndex].file.name;
+      link.click();
+      // Revoke element from DOM
+      URL.revokeObjectURL(link.href);
+
+      // Down here is use for open up in new page
+      // // window.open(
+      // //   "/api/uploads/assignments/" + this.files[fileIndex].file.name,
+      // //   "_blank"
+      // // );
     }
   }
 };
@@ -368,11 +412,11 @@ export default {
   width: max(18rem, 65%);
   margin-block-start: 2rem;
 }
-.progress-file-display-container.submitted {
+/* .progress-file-display-container.submitted {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
+} */
 .progress-file-display.attributes {
   font-size: clamp(14px, 2vw, 16px);
 }
@@ -399,7 +443,7 @@ export default {
   display: inline-block !important;
   height: fit-content !important;
 }
-.progress-file-input-container.submitted {
+/* .progress-file-input-container.submitted {
   display: flex;
   border: 1.25px solid rgba(0, 0, 0, 0.38);
   padding: 0, 12px;
@@ -410,7 +454,7 @@ export default {
   margin: 0;
   padding: 10px;
   font-size: clamp(12px, 2vw, 16px);
-}
+} */
 
 /* Files grid display small */
 @media only screen and (max-width: 768px) {
