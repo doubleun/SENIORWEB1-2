@@ -92,7 +92,12 @@
           ></v-file-input>
         </v-form>
 
-        <v-btn color="primary" @click="handleSubmitScore">SUBMIT</v-btn>
+        <v-btn
+          color="primary"
+          :disabled="showSubmitted"
+          @click="handleSubmitScore"
+          >SUBMIT</v-btn
+        >
       </div>
     </v-card>
   </div>
@@ -257,8 +262,9 @@ export default {
         : true;
     },
     async handleSubmitScore() {
+      // console.log(this.showSubmitted)
       // If already submitted score, this function won't run
-      if (!this.showSubmitted) return;
+      if (this.showSubmitted) return;
 
       const formData = new FormData();
 

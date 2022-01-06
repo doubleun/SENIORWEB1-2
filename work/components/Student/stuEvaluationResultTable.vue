@@ -56,8 +56,8 @@
         <v-card :loading="loading" class="mx-auto my-6 pb-5" max-width="570">
           <v-card-title>
             ADVISOR
-            <v-spacer></v-spacer>
-            RESULT: I
+            <!-- <v-spacer></v-spacer>
+            RESULT: I -->
           </v-card-title>
           <v-divider class="mx-4"></v-divider>
           <v-row class="pl-5 mt-4 pr-4">
@@ -208,13 +208,13 @@ export default {
 
     try {
       const data = await this.$axios.$post("/group/socre", {
-        Group_ID: 1
+        Group_ID: this.$store.state.group.currentUserGroup.Group_ID
       });
 
       this.score.push(data[0]);
 
       this.assigment = await this.$axios.$post("/assignment", {
-        Group_ID: 1,
+        Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
         Progress_ID: 1,
         Project_on_term_ID: 1
       });

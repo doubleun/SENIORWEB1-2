@@ -15,11 +15,14 @@ export default {
     // GroupInvitationCard
   },
   async asyncData({ $axios, store }) {
+    let groupMembers;
     // If currentUserGroup is missing, fetch it first
     if (store.state.group.currentUserGroup === null)
       // Dispatch event to store current user group info
       await store.dispatch("group/storeGroupInfo");
-    let groupMembers;
+    if (!store.state.group.currentUserGroup) {
+      return { groupMembers: [] };
+    }
     try {
       groupMembers = await $axios.$post("/group/getGroupMembers", {
         Group_ID: store.state.group.currentUserGroup.Group_ID

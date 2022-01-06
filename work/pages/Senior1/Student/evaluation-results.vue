@@ -1,14 +1,20 @@
 <template>
   <div>
-    <EvaluationResultForm showTable />
+    <EvaluationResultTable showTable />
   </div>
 </template>
 
 <script>
-import EvaluationResultForm from "@/components/Student/stuEvaluationResultTable";
+import EvaluationResultTable from "@/components/Student/stuEvaluationResultTable";
 export default {
   components: {
-    EvaluationResultForm
+    EvaluationResultTable
+  },
+  async asyncData({ store }) {
+    // If currentUserGroup is missing, fetch it first
+    if (store.state.group.currentUserGroup === null)
+      // Dispatch event to store current user group info
+      await store.dispatch("group/storeGroupInfo");
   }
 };
 </script>

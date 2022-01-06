@@ -71,6 +71,7 @@ export default {
     };
   },
   mounted() {
+    console.log(this.GroupDetail);
     this.thaiName = this.GroupDetail.GroupInfo.Group_Name_Thai;
     this.EngName = this.GroupDetail.GroupInfo.Group_Name_Eng;
     this.coAdvisor = this.GroupDetail.GroupInfo.Co_Advisor;

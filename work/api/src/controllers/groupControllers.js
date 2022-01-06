@@ -63,22 +63,27 @@ createGroup = async (req, res) => {
     } else {
       for (let i = 0; i < user.length; i++) {
         console.log(user[i]);
-        await con.query(sql2, [user[i]], (err, result, fields) => {
-          if (err) {
-            console.log("error code second is " + err.code);
-          } else {
-            success++;
-          }
-        });
+        try {
+          await con.query(sql2, [user[i]], (err, result, fields) => {
+            // console.log("success", success);
+            if (err) throw error;
+          });
+        } catch (error) {
+          console.log(error);
+          res.status(500).json({ msg: "Internal Server Error", status: 500 });
+        }
       }
+      res.status(200).json({ msg: "Create group Successed", status: 200 });
     }
   });
-  if (success == user.length) {
-    res.status(200).send("Success");
-  }
-  if (error > 0) {
-    res.status(500).send("Internal Server Error");
-  }
+  console.log("suss", success);
+  console.log("user.length", user.length);
+  // if (success == user.length) {
+  //   console.log("successed");
+  // }
+  // if (error > 0) {
+  //   res.status(500).json({ msg: "Internal Server Error", status: 500 });
+  // }
 };
 
 // Get group based on ID (for my advisee, comittee pages)
@@ -176,12 +181,10 @@ getTeachersWithGroupID = (req, res) => {
   try {
     con.query(sql, [Group_ID, Project_on_term_ID], (err, result, fields) => {
       if (err) throw err;
-      res
-        .status(200)
-        .json({
-          advisor: result.filter(teacher => teacher.Group_Role === 0)[0],
-          committees: result.filter(teacher => teacher.Group_Role === 1)
-        });
+      res.status(200).json({
+        advisor: result.filter(teacher => teacher.Group_Role === 0)[0],
+        committees: result.filter(teacher => teacher.Group_Role === 1)
+      });
     });
   } catch (err) {
     console.log(err);
@@ -316,10 +319,11 @@ getGroupScore = async (req, res) => {
   const Group_ID = req.body.Group_ID;
 
   const sql =
-    "SELECT gmb.Group_Member_ID, usr.User_Email,usr.User_Identity_ID, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=?) AS progress1, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=?) AS progress2, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=?) AS progress3, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=?) AS progress4, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=?) AS FinalPresentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=?) AS FinalDocumentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=?) AS Topic, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=?) AS Groups , (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Group_ID=1) AS Total  FROM users usr INNER JOIN groupmembers gmb ON usr.User_Email = gmb.User_Email INNER JOIN groups gp ON gmb.Group_ID=gp.Group_ID WHERE gmb.Group_ID=? AND usr.Project_on_term_ID=gmb.Project_on_term_ID AND (gmb.Group_Role=2 OR gmb.Group_Role=3)";
+    "SELECT gmb.Group_Member_ID, usr.User_Email,usr.User_Identity_ID, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=?) AS progress1, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=?) AS progress2, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=?) AS progress3, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=?) AS progress4, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=?) AS FinalPresentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=?) AS FinalDocumentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=?) AS Topic, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=?) AS Groups , (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Group_ID=?) AS Total  FROM users usr INNER JOIN groupmembers gmb ON usr.User_Email = gmb.User_Email INNER JOIN groups gp ON gmb.Group_ID=gp.Group_ID WHERE gmb.Group_ID=? AND usr.Project_on_term_ID=gmb.Project_on_term_ID AND (gmb.Group_Role=2 OR gmb.Group_Role=3)";
   await con.query(
     sql,
     [
+      Group_ID,
       Group_ID,
       Group_ID,
       Group_ID,

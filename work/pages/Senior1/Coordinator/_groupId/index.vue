@@ -7,7 +7,7 @@
       <v-card class="co-group-eval-card">
         <v-card-title>EVALUATION RESULT</v-card-title>
         <!-- Score table -->
-        <EvaluationResultGrid />
+        <EvaluationResultGrid :Group_ID="Group_ID" />
       </v-card>
 
       <!-- Second card (Group detail) -->
@@ -47,7 +47,7 @@ export default {
     // Set group state, this is added in later for the layout to know current progress of each group
     store.commit("group/SET_GROUP", res.groupInfo[0]);
     return {
-      Group_ID: params.groupId,
+      Group_ID: groupId,
       GroupDetail: {
         GroupInfo: res.groupInfo[0],
         GroupMembers: res.groupMembers

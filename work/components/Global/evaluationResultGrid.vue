@@ -1,35 +1,33 @@
 <template>
   <!-- NOTE: Change number of repeat based on how many cols you want -->
-  <div
-    class="evaluation-score-table"
-    style="grid-template-columns: repeat(8, auto)"
-  >
-    <v-data-table
-      :headers="headers"
-      :items="score"
-      :hide-default-footer="true"
-      class="elevation-1"
-    >
-      <template v-slot:item.progress1="{ item }">
-        {{ item.progress1 == null ? 0 : item.progress1 }}
-      </template>
-      <template v-slot:item.progress2="{ item }">
-        {{ item.progress2 == null ? 0 : item.progress2 }}
-      </template>
-      <template v-slot:item.progress3="{ item }">
-        {{ item.progress3 == null ? 0 : item.progress3 }}
-      </template>
-      <template v-slot:item.progress4="{ item }">
-        {{ item.progress4 == null ? 0 : item.progress4 }}
-      </template>
-      <template v-slot:item.FinalPresentation="{ item }">
-        {{ item.FinalPresentation == null ? 0 : item.FinalPresentation }}
-      </template>
-      <template v-slot:item.FinalDocumentation="{ item }">
-        {{ item.FinalDocumentation == null ? 0 : item.FinalDocumentation }}
-      </template>
+  <div class="evaluation-score-table">
+    <v-container>
+      <v-data-table
+        :headers="headers"
+        :items="score"
+        :hide-default-footer="true"
+        class="elevation-1"
+      >
+        <template v-slot:item.progress1="{ item }">
+          {{ item.progress1 == null ? 0 : item.progress1 }}
+        </template>
+        <template v-slot:item.progress2="{ item }">
+          {{ item.progress2 == null ? 0 : item.progress2 }}
+        </template>
+        <template v-slot:item.progress3="{ item }">
+          {{ item.progress3 == null ? 0 : item.progress3 }}
+        </template>
+        <template v-slot:item.progress4="{ item }">
+          {{ item.progress4 == null ? 0 : item.progress4 }}
+        </template>
+        <template v-slot:item.FinalPresentation="{ item }">
+          {{ item.FinalPresentation == null ? 0 : item.FinalPresentation }}
+        </template>
+        <template v-slot:item.FinalDocumentation="{ item }">
+          {{ item.FinalDocumentation == null ? 0 : item.FinalDocumentation }}
+        </template>
 
-      <!-- <template v-slot:item.total="{ item }">
+        <!-- <template v-slot:item.total="{ item }">
         {{
           (item.total =
             item.progress1 +
@@ -40,7 +38,8 @@
             item.FinalDocumentation)
         }}
       </template> -->
-    </v-data-table>
+      </v-data-table>
+    </v-container>
     <!-- <div v-for="scoreAttribute in scoreAttributes" :key="scoreAttribute.id"> -->
     <!-- Table attributes -->
     <!-- <p class="table-attr">
@@ -57,6 +56,7 @@
 
 <script>
 export default {
+  props: { Group_ID: String },
   data() {
     return {
       score: [],
@@ -77,14 +77,15 @@ export default {
   },
   async fetch() {
     var grade;
+    // this.Group_ID = parseInt(this.Group_ID);
     try {
       const score = await this.$axios.$post("/group/socre", {
-        Group_ID: 1 //FIXME:
+        Group_ID: this.Group_ID //FIXME:
       });
-      // console.log("score", score);
+      console.log("score", score);
 
       var data = await this.$axios.$post("/criteria/gradeMajor", {
-        Major_ID: this.$store.state.auth.currentUser.major
+        Major_ID: this.$store.state.group.currentUserGroup.Major
       });
 
       data.sort((a, b) => {

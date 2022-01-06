@@ -70,7 +70,7 @@
                     @click="deleteGroup(item.Group_ID, item.Group_Name_Eng)"
                   >
                     <v-icon left> mdi-trash-can </v-icon>
-                    View
+                    Delete
                   </v-btn>
                 </v-col>
                 <!-- <v-row align="center" justify="space-around">

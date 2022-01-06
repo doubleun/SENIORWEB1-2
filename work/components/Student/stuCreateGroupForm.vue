@@ -5,7 +5,7 @@
         <h2 class="header-title mb-2 mt-5">Create Group</h2>
       </v-col>
       <!-- Alerts -->
-      <div v-if="0">
+      <!-- <div v-if="0">
         <v-col cols="8"
           ><v-alert type="warning"
             >An invitation to join the group has been sent. Please wait for your
@@ -19,7 +19,7 @@
             >Everyone you've invited has accepted into your group.</v-alert
           ></v-col
         >
-      </div>
+      </div> -->
     </v-row>
     <v-divider></v-divider>
     <!-- Create group form -->
@@ -59,7 +59,7 @@
               <h4 class="font-weight-bold">Project Member</h4>
               <!-- Student -->
               <!-- Loop the "projectMembers" array and render each student fields -->
-              <div v-for="member in projectMembers" :key="member">
+              <div v-for="(member, index) in projectMembers" :key="member">
                 <h5 class="font-weight-bold mt-5">Student {{ member }}</h5>
                 <v-row>
                   <v-col cols="12" sm="6">
@@ -109,6 +109,7 @@
                       :loading="studentLoading"
                       :items="allStudentsInSchool"
                       :filter="customStudentFilter"
+                      :disabled="index == 0"
                       class="mt-5"
                       outlined
                       dense
@@ -266,6 +267,9 @@
                     placeholder="Search committee 2"
                     clearable
                     return-object
+                    :rules="[
+                      () => !!selectedCommittee2 || 'This field is required'
+                    ]"
                   ></v-autocomplete>
                 </v-col>
               </v-row>
@@ -398,25 +402,50 @@ export default {
       )
         return;
 
-      const res = await this.$axios.$post("group/createGroup", {
-        Project_NameTh: this.thaiName,
-        Project_NameEn: this.engName,
-        Studen_Number: this.projectMembers.length,
-        Advisor_Email: this.selectedAdvisor.User_Email,
-        CoAdvisor_Name: this.selectedCoAdvisor?.User_Name || "",
-        Committee1_Email: this.selectedCommittee1?.User_Email,
-        Committee2_Email: this.selectedCommittee2?.User_Email || "",
-        Student1_Tel: this.phone[0],
-        Student2_Tel: this.phone[1],
-        Student3_Tel: this.phone[2],
-        Student4_Tel: this.phone[3],
-        Email_Student1: this.email[0],
-        Email_Student2: this.email[1],
-        Email_Student3: this.email[2],
-        Email_Student4: this.email[3],
-        Major: this.major,
-        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
-      });
+      this.$swal
+        .fire({
+          icon: "info",
+          title: "Create group",
+          text: "Confirm create group.",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes"
+        })
+        .then(async result => {
+          if (result.isConfirmed) {
+            const res = await this.$axios.$post("group/createGroup", {
+              Project_NameTh: this.thaiName,
+              Project_NameEn: this.engName,
+              Studen_Number: this.projectMembers.length,
+              Advisor_Email: this.selectedAdvisor.User_Email,
+              CoAdvisor_Name: this.selectedCoAdvisor?.User_Name || "",
+              Committee1_Email: this.selectedCommittee1?.User_Email,
+              Committee2_Email: this.selectedCommittee2?.User_Email || "",
+              Student1_Tel: this.phone[0],
+              Student2_Tel: this.phone[1],
+              Student3_Tel: this.phone[2],
+              Student4_Tel: this.phone[3],
+              Email_Student1: this.email[0],
+              Email_Student2: this.email[1],
+              Email_Student3: this.email[2],
+              Email_Student4: this.email[3],
+              Major: this.major,
+              Project_on_term_ID: this.$store.state.auth.currentUser
+                .projectOnTerm
+            });
+            console.log(res);
+            if (res.status == 200) {
+              this.$swal
+                .fire("Successed", "Group has been created.", "success")
+                .then(result => {
+                  if (result.isConfirmed) window.location.reload();
+                });
+            } else {
+              this.$swal.fire("Error", res.msg, "error");
+            }
+          }
+        });
     }
   },
   mounted() {
@@ -467,6 +496,15 @@ export default {
             User_Name: itm.User_Name,
             User_Email: itm.User_Email
           };
+        });
+    } else {
+      this.email[0] = this.$store.state.auth.currentUser.email;
+      (this.name[0] = this.$store.state.auth.currentUser.name),
+        (this.selectedStudent[0] = {
+          User_Email: this.$store.state.auth.currentUser.email,
+          User_Identity_ID: this.$store.state.auth.currentUser.userId,
+          User_Name: this.$store.state.auth.currentUser.name,
+          User_Role: this.$store.state.auth.currentUser.role
         });
     }
   }

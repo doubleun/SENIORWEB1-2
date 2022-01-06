@@ -4,14 +4,14 @@
       <h1>Evaluation Result (My Advisee)</h1>
 
       <!-- Card (Evaluation result) -->
-      <ProjectDetailCard />
+      <!-- <ProjectDetailCard /> -->
 
       <div></div>
 
       <!-- Evaluation result -->
       <v-card class="co-evaluation-result-card mt-16">
         <v-card-title>EVALUATION RESULT</v-card-title>
-        <EvaluationResultGrid />
+        <EvaluationResultGrid :Group_ID="Group_ID" />
       </v-card>
 
       <!-- Evaluation form -->
@@ -64,13 +64,18 @@ export default {
       comment: "",
       selectedGrades: null,
       haveGrade: true,
-      grade: []
+      grade: [],
+      Group_ID: 0
     };
   },
   async fetch() {
+    // dispath
+
+    this.Group_ID = this.$route.params.groupId.match(/(\d)/g).join("");
     // fetch grade criteria for teacher grading
     const data = await this.$axios.$post("/criteria/gradeMajor", {
-      Major_ID: this.$store.state.auth.currentUser.major
+      Major_ID: this.$store.state.group.currentUserGroup.Major
+      // FIXME: to do event to commit groupinfo
     });
 
     // set grade to grading
@@ -80,7 +85,8 @@ export default {
 
     // get group info
     const group = await this.$axios.$post("/group/getMyGroup", {
-      Group_ID: 1 //FIXME:
+      Group_ID: this.Group_ID
+      //FIXME:
     });
 
     if (group[0].Grade != null && group[0].Grade != "") {
@@ -121,7 +127,7 @@ export default {
         .then(async result => {
           if (result.isConfirmed) {
             const res = await this.$axios.$post("/group/grading", {
-              Group_ID: 1, //FIXME:
+              Group_ID: this.Group_ID, //FIXME:
               event: 0,
               Grade: this.selectedGrades,
               Comment: this.comment

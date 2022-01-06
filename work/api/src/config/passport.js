@@ -47,7 +47,9 @@ passport.serializeUser((user, done) => {
         user.role = result[0].User_Role;
         user.major = result[0].Major_ID;
         user.projectOnTerm = result[0].Project_on_term_ID;
+        user.userId = result[0].User_Identity_ID;
         user.status = 200;
+
         // console.log("Serialize: ", user);
         done(null, user);
         // if (result[0].User_Role == 99) {

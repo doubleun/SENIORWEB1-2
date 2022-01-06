@@ -67,7 +67,7 @@ export default {
         {
           icon: "stacked_bar_chart",
           title: "Evaluation Result",
-          to: "/Senior1/coordinator/evaluationResult"
+          to: `/Senior1/coordinator/${this.$route.params.groupId}/evaluationResult`
         },
         {
           icon: "mdi-restore",
