@@ -100,12 +100,17 @@ getGroupWithID = (req, res) => {
           res.json({ msg: "Failed to fetch", status: 404 });
 
         // Query for group info
-        const sqlGroupInfo = "SELECT * FROM `groups` WHERE `Group_ID` = ?";
+        const sqlGroupInfo =
+          "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Final_Grade, g.Comment_Grade, g.Comment_FinalGrade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
         const groupInfo = await new Promise((resolve, reject) => {
           if (err) throw err;
-          con.query(sqlGroupInfo, [Group_ID], (err, groupInfo, fields) => {
-            resolve(groupInfo);
-          });
+          con.query(
+            sqlGroupInfo,
+            [Email, Group_ID],
+            (err, groupInfo, fields) => {
+              resolve(groupInfo);
+            }
+          );
         });
         // Response here
         res.status(200).json({ groupInfo, groupMembers, status: 200 });
@@ -160,6 +165,28 @@ getAllGroupsAdmin = async (req, res) => {
       res.status(200).json(result);
     }
   });
+};
+
+// Get group student progress page
+getTeachersWithGroupID = (req, res) => {
+  const { Group_ID, Project_on_term_ID } = req.body;
+  console.log(Group_ID, Project_on_term_ID);
+  const sql =
+    "SELECT `Group_Member_ID`, `User_Email`, `Group_Role`, (SELECT `User_Name` FROM `users` WHERE `User_Email` = gm.User_Email) AS `User_Name` FROM `groupmembers` gm WHERE `Group_ID` = ? AND `Project_on_term_ID` = ? AND `Group_Role` IN (0,1)";
+  try {
+    con.query(sql, [Group_ID, Project_on_term_ID], (err, result, fields) => {
+      if (err) throw err;
+      res
+        .status(200)
+        .json({
+          advisor: result.filter(teacher => teacher.Group_Role === 0)[0],
+          committees: result.filter(teacher => teacher.Group_Role === 1)
+        });
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
 // get all group
@@ -428,6 +455,7 @@ module.exports = {
   getGroupWithID,
   getGroupInfo,
   getGroupMembers,
+  getTeachersWithGroupID,
   createGroup,
   statusgroup,
   getByMajor,

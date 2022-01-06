@@ -5,6 +5,10 @@ groupRouter.get("/getByMajor", groupController.getByMajor); // addmin, co, advis
 groupRouter.post("/getGroupWithID", groupController.getGroupWithID); // coordinator
 groupRouter.post("/getGroupInfo", groupController.getGroupInfo); // student
 groupRouter.post("/getGroupMembers", groupController.getGroupMembers); // student
+groupRouter.post(
+  "/getTeachersWithGroupID",
+  groupController.getTeachersWithGroupID
+); // student
 groupRouter.put("/delete", groupController.deletes); // admin, co
 groupRouter.get("/all", groupController.getAll);
 groupRouter.post("/createGroup", groupController.createGroup);

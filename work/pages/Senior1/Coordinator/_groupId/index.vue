@@ -43,6 +43,9 @@ export default {
     //   GroupInfo: res.groupInfo[0],
     //   GroupMembers: res.groupMembers
     // });
+
+    // Set group state, this is added in later for the layout to know current progress of each group
+    store.commit("group/SET_GROUP", res.groupInfo[0]);
     return {
       Group_ID: params.groupId,
       GroupDetail: {

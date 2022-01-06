@@ -14,7 +14,7 @@ const fs = require("fs");
 
 // Upload assignments
 uploadAssignments = async (req, res) => {
-  let { Progress_ID, Group_ID, links } = req.body;
+  let { Progress_ID, Group_ID, links, Group_Member_ID } = req.body;
   // If no link then assign empty array
   if (!links) links = [];
   // If there's only one link put it in an array
@@ -24,7 +24,7 @@ uploadAssignments = async (req, res) => {
   const assignmentSql =
     "INSERT INTO assignments(Progress_ID, Group_ID) VALUES (?, ?)";
   const filesSql =
-    "INSERT INTO files(File_Name, Path, Type, Assignment_ID) VALUES ?";
+    "INSERT INTO files(File_Name, Path, Type, Assignment_ID, Group_Member_ID) VALUES ?";
   try {
     // 1.) Insert assignment
     con.query(
@@ -35,17 +35,30 @@ uploadAssignments = async (req, res) => {
 
         // 2.) Insert files into database
         // Add path, type, and assignment id to both links and files
+        // Group_Role will be 2 for students
         links = links.reduce(
           (prev, current) => [
             ...prev,
-            [current, current, "Link", assignmentResult.insertId]
+            [
+              current,
+              current,
+              "Link",
+              assignmentResult.insertId,
+              Group_Member_ID
+            ]
           ],
           []
         );
         const allFiles = req.files.reduce(
           (prev, current) => [
             ...prev,
-            [current.filename, current.path, "File", assignmentResult.insertId]
+            [
+              current.filename,
+              current.path,
+              "File",
+              assignmentResult.insertId,
+              Group_Member_ID
+            ]
           ],
           []
         );
@@ -58,6 +71,13 @@ uploadAssignments = async (req, res) => {
         });
       }
     );
+
+    // 3.) Update: increment group progression
+    const groupProgressSql =
+      "UPDATE `groups` SET `Group_Progression` = IF(`Group_Progression` = 8, 1, `Group_Progression` + 1)  WHERE `Group_ID` = ?";
+    con.query(groupProgressSql, [Group_ID], (err, result, fields) => {
+      if (err) throw err;
+    });
   } catch (err) {
     console.log(err);
     res.status(422).json({ msg: "Query Error", staus: 422 });
@@ -69,9 +89,10 @@ uploadAssignments = async (req, res) => {
 // Get assignment files
 getAssignmentFiles = (req, res) => {
   const { Group_ID, Progress_ID } = req.body;
+  console.log(Group_ID, Progress_ID);
   try {
     const sql =
-      "SELECT `File_Name`, `Type`, (SELECT `Submit_Date` FROM `assignments` WHERE assignments.Assignment_ID = files.Assignment_ID) AS `Submit_Date` FROM `files` WHERE `Assignment_ID` = (SELECT `Assignment_ID` FROM `assignments` WHERE `Group_ID` = ? AND `Progress_ID` = ? ORDER BY `Submit_Date` DESC LIMIT 1)";
+      "SELECT `File_Name`, `Type`, `Group_Member_ID`, (SELECT `Submit_Date` FROM `assignments` WHERE `Assignment_ID` = files.Assignment_ID) AS `Submit_Date`, (SELECT `Group_Role` FROM `groupmembers` WHERE `Group_Member_ID` = files.Group_Member_ID) AS `Group_Role` FROM `files` WHERE `Assignment_ID` = (SELECT `Assignment_ID` FROM `assignments` WHERE `Group_ID` = ? AND `Progress_ID` = ? ORDER BY `Submit_Date` DESC LIMIT 1)";
     con.query(sql, [Group_ID, Progress_ID], (err, result, fields) => {
       res.status(200).json(result);
     });
@@ -80,23 +101,80 @@ getAssignmentFiles = (req, res) => {
   }
 };
 
-givecomment = async (req, res) => {
-  const { Score, Assignment_Id, Comment, GroupmemberId } = req.body;
-  const sql =
-    "INSERT INTO scores(Score, Assignment_ID, Comment, Group_Member_ID) VALUES (?,?,?,?)";
+// givecomment = async (req, res) => {
+//   const { Score, Assignment_Id, Comment, GroupmemberId } = req.body;
+//   const sql =
+//     "INSERT INTO scores(Score, Assignment_ID, Comment, Group_Member_ID) VALUES (?,?,?,?)";
 
-  await con.query(
-    sql,
-    [Score, Assignment_Id, Comment, GroupmemberId],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        res.status(500).send("Internal Server Error");
-      } else {
-        res.status(200).json("success");
+//   await con.query(
+//     sql,
+//     [Score, Assignment_Id, Comment, GroupmemberId],
+//     (err, result, fields) => {
+//       if (err) {
+//         console.log(err);
+//         res.status(500).send("Internal Server Error");
+//       } else {
+//         res.status(200).json("success");
+//       }
+//     }
+//   );
+// };
+
+giveProgressScore = (req, res) => {
+  const { Score, Comment, Group_Member_ID, Assignment_ID } = req.body;
+  console.log(Score, Comment, Group_Member_ID, Assignment_ID);
+  console.log("File: ", req.file);
+  const insertScore =
+    "INSERT INTO `scores`(`Score`, `Comment`, `Group_Member_ID`, `Assignment_ID`) VALUES (?,?,?,?)";
+  try {
+    // Insert score
+    con.query(
+      insertScore,
+      [Score, Comment, Group_Member_ID, Assignment_ID],
+      (err, result, fields) => {
+        if (err) throw err;
+        // Insert files
+        const filesSql =
+          "INSERT INTO files(File_Name, Path, Type, Assignment_ID, Group_Member_ID) VALUES (?, ?, ?, ?, ?)";
+
+        // Insert files into database
+        con.query(
+          filesSql,
+          [
+            req.file.filename,
+            req.file.path,
+            "File",
+            Assignment_ID,
+            Group_Member_ID
+          ],
+          (err, filesResult, fields) => {
+            if (err) throw err;
+          }
+        );
       }
-    }
-  );
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
+  res.status(200).json({ msg: "success", status: 200 });
+};
+
+// For teacher progress page, since it fetch only current teacher's score information
+getTeacherProgressScore = (req, res) => {
+  const { Group_Member_ID, Assignment_ID } = req.body;
+  console.log(Group_Member_ID, Assignment_ID);
+  const sql =
+    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc INNER JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ?";
+  try {
+    con.query(sql, [Group_Member_ID, Assignment_ID], (err, result, fields) => {
+      if (err) throw err;
+      res.status(200).json(result[0]);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
 // update progression of group
@@ -300,6 +378,8 @@ countFileByMajor = async (req, res) => {
 
 module.exports = {
   uploadAssignments,
+  giveProgressScore,
+  getTeacherProgressScore,
   getAssignmentFiles,
   getAssignment,
   countFileByMajor

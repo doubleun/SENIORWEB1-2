@@ -28,6 +28,7 @@
           v-for="(item, i) in items"
           :key="i"
           :to="item.to"
+          :disabled="item.disabled"
           router
           exact
           :active-class="

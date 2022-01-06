@@ -10,6 +10,9 @@
       <DisplayWorkSection
         :progressId="progressId"
         :submittedFiles="submittedFiles"
+        :maxScore="maxScore"
+        :Assignment_ID="Assignment_ID"
+        :scoreInfo="scoreInfo"
       />
     </main>
   </section>
@@ -65,16 +68,42 @@ export default {
       redirect("/Senior1/coordinator/");
     }
 
+    // Fetch score criteria for setting the max score this user can give
+    const maxScore = await $axios.$post("/criteria/getProgressMaxScore", {
+      Group_Role: groupRes.groupInfo[0].Current_Member_Role,
+      Progress_ID: progressId + 1,
+      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm
+    });
+
+    // Set group state, this is added in later for the layout to know current progress of each group
+    // Check if the group state is already set, if not commit again
+    if (!store.state.group.currentUserGroup)
+      store.commit("group/SET_GROUP", groupRes.groupInfo[0]);
+
+    // Fetch score to check if this user alrady given a score
+    const scoreInfo = await $axios.$post(
+      "/assignment/getTeacherProgressScore",
+      {
+        Group_Member_ID: groupRes.groupInfo[0].Current_Member_ID,
+        Assignment_ID: maxScore.Assignment_ID
+      }
+    );
+
+    // console.log("groupState: ", store.state.group.currentUserGroup);
+    // console.log("groupState: ", store.state.auth.currentUser);
     return {
       // Replace the dash with space and use it as title
       title: params.progress.replace(dashRegex, " "),
       // If the allProgresses index is 0 then it needs to be 8 becuase proposal is progress id 8 in database
       progressId: progressId + 1,
       submittedFiles,
+      maxScore: maxScore.score,
+      Assignment_ID: maxScore.Assignment_ID,
       GroupDetail: {
         GroupInfo: groupRes.groupInfo[0],
         GroupMembers: groupRes.groupMembers
-      }
+      },
+      scoreInfo
     };
   }
 };

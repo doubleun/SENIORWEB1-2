@@ -73,6 +73,7 @@
           width="max(18rem, 65%)"
           @click="handleUploadAssignment"
           v-if="showSubmission"
+          :disabled="!files || files.length === 0"
           >{{ handleChangeSubmitText }}</v-btn
         >
 
@@ -97,7 +98,7 @@
             <div class="progress-file-input-container">
               <v-icon
                 @click="handleRemoveFile"
-                :data-date="file.Submit_Date"
+                :data-date="file.date"
                 v-if="showSubmission"
                 >mdi-close</v-icon
               >
@@ -105,6 +106,7 @@
                 :clearable="false"
                 outlined
                 dense
+                :show-size="showSubmission"
                 prepend-icon=""
                 class="progress-file-input"
                 @click.prevent="handleDownloadSubmittedFile(index)"
@@ -127,6 +129,13 @@
             <p v-else>{{ showSubmission ? "Not Submitted" : "Submitted" }}</p>
           </div>
         </div>
+
+        <!-- Upload size progress bar -->
+        <div class="progress-file-display-container" v-show="showSubmission">
+          <v-progress-linear
+            :value="totalUploadSize.percentage"
+          ></v-progress-linear>
+        </div>
       </div>
     </v-card>
   </main>
@@ -138,10 +147,11 @@ export default {
     return {
       availableLinks: [],
       files: [],
+      // 2000000 byte => 2 Mb
+      maxSize: 2000000,
       showSubmission: true,
       uploadSrc: null,
       dropActive: false,
-      submitBtn: "Mark as done",
       submitTypes: ["Abstract", "Document"]
     };
   },
@@ -161,6 +171,14 @@ export default {
     submittedFiles: {
       type: Array,
       default: []
+    },
+    advisor: {
+      type: Object,
+      default: {}
+    },
+    committees: {
+      type: Array,
+      default: []
     }
   },
   computed: {
@@ -169,19 +187,39 @@ export default {
       if (this.files.length !== 0) {
         return "Turn In";
       } else {
-        return "Mark as done";
+        return "Please, add file(s) to upload";
       }
+    },
+    totalUploadSize() {
+      // Total size in byte
+      const totalSize = this.files.reduce(
+        (prev, current) => current.file.size + prev,
+        0
+      );
+
+      // const i = Math.floor( Math.log(size) / Math.log(1024) );
+      // const readableSize = ( totalSize / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
+      return {
+        percentage: ((totalSize / this.maxSize) * 100).toFixed(2),
+        byte: totalSize
+      };
     }
   },
   async mounted() {
+    console.log(this.$store.state);
+    console.log(this.submittedFiles);
+    console.log("Advisor: ", this.advisor);
+    console.log("Coms: ", this.committees);
     // If there are submitted files, add files into UI
     if (this.submittedFiles.length !== 0) {
       // Hide submission buttons
       this.showSubmission = false;
 
       let files = this.submittedFiles
-        // Filter all submitted files and only get type of "File"
-        .filter(file => file.Type === "File")
+        // Filter all submitted files and only get type of "File" and it's a student's file
+        .filter(
+          file => file.Type === "File" && [2, 3].includes(file.Group_Role)
+        )
         // Then, map each file and send axios get request to fetch the file from static folder in server
         .map(async file => {
           // Request response type to be 'blob'
@@ -222,6 +260,10 @@ export default {
     },
     handleBrowseFile(e) {
       if (e?.target.files[0]) {
+        //Check if total size (in byte) is exceeded
+        if (e.target.files[0].size + this.totalUploadSize.byte > this.maxSize)
+          return;
+
         // Upload using "browse"
         // Get date
         const d = new Date().toLocaleString();
@@ -231,10 +273,18 @@ export default {
       }
     },
     handleDropFile(e) {
+      console.log(this.totalUploadSize);
       // Toggling the drop effect back to normal
       this.toggleDropActive();
 
       if (e?.dataTransfer.files[0]) {
+        //Check if total size (in byte) is exceeded
+        if (
+          e.dataTransfer.files[0].size + this.totalUploadSize.byte >
+          this.maxSize
+        )
+          return;
+
         // Upload using drag and drop file
         // Get date
         const d = new Date().toLocaleString();
@@ -274,6 +324,9 @@ export default {
       const valid = this.$refs.linksForm.validate();
       if (!valid) return;
 
+      // Check if there are files to be submitted
+      if (!this.files || this.files.length === 0) return;
+
       // Append form data with files
       const formData = new FormData();
       // formData.append("file", this.files[0].file);
@@ -285,6 +338,10 @@ export default {
       formData.append(
         "Group_ID",
         this.$store.state.group.currentUserGroup.Group_ID
+      );
+      formData.append(
+        "Group_Member_ID",
+        this.$store.state.group.currentUserGroup.Group_Member_ID
       );
 
       // Append form data with links, if there are any

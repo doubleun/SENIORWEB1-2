@@ -5,10 +5,10 @@
       <!-- Switch file preview tabs -->
       <v-tabs show-arrows dark background-color="primary">
         <v-tab
-          v-for="(file, index) in files"
+          v-for="(fileName, index) in shortFileNames"
           :key="index"
           @click="handleChangeFilePreview(index)"
-          >{{ file.file.name }}</v-tab
+          >{{ fileName }}</v-tab
         >
       </v-tabs>
       <div :style="selectedFile ? 'display: unset' : 'display: none'">
@@ -30,32 +30,69 @@
 
         <div v-show="links.length !== 0">
           <h5>Links</h5>
-          <a
-            :href="link.File_Name"
-            target="_blank"
-            v-for="(link, index) in links"
-            :key="index"
-            >{{ "Link " + (index + 1) }}</a
-          >
+          <div class="d-flex" style="gap: 0.4rem">
+            <a
+              :href="link.File_Name"
+              target="_blank"
+              v-for="(link, index) in links"
+              :key="index"
+              >{{ "Link " + (index + 1) }}</a
+            >
+          </div>
         </div>
 
-        <h5>Score</h5>
-        <v-select :items="selectScores" dense outlined></v-select>
+        <v-form>
+          <h5>Score</h5>
+          <v-row>
+            <v-col cols="8">
+              <v-text-field
+                v-model="givenScore"
+                :disabled="showSubmitted"
+                :rules="[
+                  () => !!givenScore || 'This field is required',
+                  handleCheckValidScore
+                ]"
+                placeholder="Score:"
+                outlined
+                dense
+                type="number"
+                min="0"
+                step="1"
+                @keyup="handleScoreInput"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="4">
+              <p style="margin: 0; padding-top: 10px">/ {{ maxScore }}</p>
+            </v-col>
+          </v-row>
+          <!-- <v-select :items="selectScores" dense outlined></v-select> -->
 
-        <h5>Comment</h5>
-        <v-textarea auto-grow outlined rows="4" row-height="30"></v-textarea>
+          <h5>Comment</h5>
+          <v-textarea
+            v-model="comment"
+            :disabled="showSubmitted"
+            :rules="[() => !!comment || 'This field is required']"
+            placeholder="Comment:"
+            outlined
+            auto-grow
+            rows="4"
+            row-height="30"
+          ></v-textarea>
 
-        <h5>Upload File</h5>
-        <v-file-input
-          :clearable="false"
-          outlined
-          hide-details
-          dense
-          show-size
-          prepend-icon=""
-        ></v-file-input>
+          <h5>Upload File</h5>
+          <v-file-input
+            :clearable="false"
+            :disabled="showSubmitted"
+            outlined
+            hide-details
+            dense
+            show-size
+            prepend-icon=""
+            v-model="teacherFile"
+          ></v-file-input>
+        </v-form>
 
-        <v-btn color="primary">SUBMIT</v-btn>
+        <v-btn color="primary" @click="handleSubmitScore">SUBMIT</v-btn>
       </div>
     </v-card>
   </div>
@@ -71,26 +108,91 @@ export default {
     submittedFiles: {
       type: Array,
       default: []
+    },
+    maxScore: {
+      type: Number,
+      default: 0
+    },
+    Assignment_ID: {
+      type: Number,
+      default: 0
+    },
+    scoreInfo: {
+      type: null,
+      default: {}
     }
   },
   data() {
     return {
+      showSubmitted: false,
       selectScores: [1, 2, 3, 4, 5],
-      uploadFile: { type: "" },
+      teacherFile: null,
+      givenScore: null,
+      comment: null,
       uploadSrcs: [],
       files: [],
       links: [],
       selectedFile: { src: "" }
     };
   },
+  computed: {
+    // This will replace the middle of the string with '...' thus shorten each file name
+    shortFileNames() {
+      // Starting at 1/3rd position to 2/3rd position
+      return this.files.map(file => {
+        // Remove time stamp in front of each file name
+        const nameNoTime = file.file.name.replace(/(^\d+-)/, "");
+        return nameNoTime.length > 16
+          ? nameNoTime.replace(
+              nameNoTime.substring(
+                // 1/3rd position index
+                nameNoTime.length / 3,
+                // 2/3rd position index
+                (nameNoTime.length / 3) * 2
+              ),
+              "..."
+            )
+          : nameNoTime;
+      });
+    }
+  },
   async mounted() {
+    // * === Sets teacher submitted score and file if exists === * //
+    if (this.scoreInfo || typeof this.scoreInfo === "object") {
+      // console.log("score info:", this.scoreInfo);
+      this.showSubmitted = true;
+      // Sets score
+      this.givenScore = this.scoreInfo.Score;
+
+      // Sets comment
+      this.comment = this.scoreInfo.Comment;
+
+      // Sets file
+      const blob = await this.$axios.$get(
+        "/uploads/assignments/" + this.scoreInfo.File_Name,
+        {
+          responseType: "blob"
+        }
+      );
+      this.teacherFile = new File(
+        [blob],
+        // Remove time stamp in front of each file name
+        this.scoreInfo.File_Name.replace(/(^\d+-)/, ""),
+        {
+          type: blob.type
+        }
+      );
+    }
+
+    // * === Render student's files === * //
     // If there are submitted files get them from static folder
     if (this.submittedFiles.length !== 0) {
-      console.log(this.submittedFiles);
       // Get all submitted files as file object
       let files = this.submittedFiles
-        // Filter all submitted files and only get type of "File"
-        .filter(file => file.Type === "File")
+        // Filter all submitted files and only get type of "File" and it's a student's file
+        .filter(
+          file => file.Type === "File" && [2, 3].includes(file.Group_Role)
+        )
         // Then, map each file and send axios get request to fetch the file from static folder in server
         .map(async file => {
           // Request response type to be 'blob'
@@ -109,6 +211,9 @@ export default {
         });
       // Since, each loop is a promise, promise.all is needed
       this.files = await Promise.all(files);
+
+      // Shorten filename
+      console.log("Files: ", this.files);
     }
 
     // Create object string on all files
@@ -142,6 +247,41 @@ export default {
       link.click();
       // Revoke element from DOM
       URL.revokeObjectURL(link.href);
+    },
+    handleScoreInput() {
+      this.givenScore = Math.trunc(this.givenScore);
+    },
+    handleCheckValidScore() {
+      return this.givenScore > this.maxScore || this.givenScore < 0
+        ? "Invalid score"
+        : true;
+    },
+    async handleSubmitScore() {
+      // If already submitted score, this function won't run
+      if (!this.showSubmitted) return;
+
+      const formData = new FormData();
+
+      // Append form data with file
+      formData.append("file", this.teacherFile);
+
+      // Append the rest of the data
+      formData.append("Score", this.givenScore);
+      formData.append("Comment", this.comment);
+      formData.append(
+        "Group_Member_ID",
+        this.$store.state.group.currentUserGroup.Current_Member_ID
+      );
+      formData.append("Assignment_ID", this.Assignment_ID);
+
+      const res = await this.$axios.$post(
+        "/assignment/giveProgressScore",
+        formData
+      );
+
+      if (res.status === 200) {
+        this.showSubmitted = true;
+      }
     }
   }
 };

@@ -4,6 +4,8 @@
     :finalDocument="title === 'final documentation'"
     :progressId="progressId"
     :submittedFiles="submittedFiles"
+    :advisor="advisor"
+    :committees="committees"
   />
 </template>
 
@@ -47,12 +49,61 @@ export default {
         Progress_ID: progressId === 0 ? 8 : progressId
       }
     );
+
+    // Fetch teachers
+    let teachers = await $axios.$post("/group/getTeachersWithGroupID", {
+      Group_ID: store.state.group.currentUserGroup.Group_ID,
+      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm
+    });
+
+    // Create
+
+    // Add files for teachers
+    submittedFiles.forEach(file => {
+      switch (file.Group_Member_ID) {
+        // If file match advisor id
+        case teachers.advisor.Group_Member_ID:
+          teachers.advisor = {
+            ...teachers.advisor,
+            // Using rest syntax for spreading conditionally
+            ...(teachers.advisor?.files
+              ? { files: [...teachers.advisor.files, file] }
+              : { files: [file] })
+          };
+          break;
+        // If file match committee 1 id
+        case teachers.committees[0].Group_Member_ID:
+          teachers.committees[0] = {
+            ...teachers.committees[0],
+            // Using rest syntax for spreading conditionally
+            ...(teachers.committees[0]?.files
+              ? { files: [...teachers.committees[0].files, file] }
+              : { files: [file] })
+          };
+          break;
+        // If file match committee 2 id
+        case teachers.committees[1].Group_Member_ID:
+          teachers.committees[1] = {
+            ...teachers.committees[1],
+            // Using rest syntax for spreading conditionally
+            ...(teachers.committees[1]?.files
+              ? { files: [...teachers.committees[1].files, file] }
+              : { files: [file] })
+          };
+          break;
+      }
+    });
+
+    // console.log(teachers);
+
     return {
       // Replace the dash with space and use it as title
       title: params.progress.replace(dashRegex, " "),
       // If the allProgresses index is 0 then it needs to be 8 becuase proposal is progress id 8 in database
       progressId: progressId === 0 ? 8 : progressId,
-      submittedFiles
+      submittedFiles,
+      advisor: teachers.advisor,
+      committees: teachers.committees
     };
   }
 };

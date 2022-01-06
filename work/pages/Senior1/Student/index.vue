@@ -62,7 +62,7 @@ export default {
     // Computed current group progress for stepper
     currentProgress() {
       const progress = this.$store.state.group.currentUserGroup
-        .Group_Progression;
+        ?.Group_Progression;
       return progress >= 7 ? progress / 10 : progress;
     },
     // Computed steps that will be available
@@ -86,10 +86,14 @@ export default {
             : arr,
         []
       );
-      // Merge groupProposal, if senior 1 else return all progress, fetched from the database
-      return this.$store.state.auth.currentUser.senior === 1
-        ? [...groupProposal, ...finalAllProgress]
-        : finalAllProgress;
+
+      //! FIXME: This doesn't work anymore since we pulled 'senior' from 'users' table, fix this later
+      // // Merge groupProposal, if senior 1 else return all progress, fetched from the database
+      // return this.$store.state.auth.currentUser.senior === 1
+      //   ? [...groupProposal, ...finalAllProgress]
+      //   : finalAllProgress;
+
+      return [...groupProposal, ...finalAllProgress];
     }
   },
   async asyncData({ $axios, store }) {

@@ -14,4 +14,10 @@ criteriaRouter.post("/gradeMajor", criteriaController.getGradeByMajor); // admin
 // Edit criteria (insert, and update based on the criteria id sent from front-end)
 criteriaRouter.post("/gradeEdit", criteriaController.editGradeCriteria); // coordinator
 
+// Get max score of each progress
+criteriaRouter.post(
+  "/getProgressMaxScore",
+  criteriaController.getProgressMaxScore
+); // teacher
+
 module.exports = criteriaRouter;

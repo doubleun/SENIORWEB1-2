@@ -231,11 +231,37 @@ editGradeCriteria = async (req, res) => {
   }
 };
 
+getProgressMaxScore = (req, res) => {
+  const { Group_Role, Progress_ID, Project_on_term_ID } = req.body;
+  // Convert group role number to text
+  // TODO: This should fetch from the database (subroles) table ?
+  const role = Group_Role === 0 ? "Advisor_Score" : "Committee1_Score";
+  // TODO: If score criteria changed to only one comittee field, then this should also change
+  const sql = `SELECT ${role}, (SELECT Assignment_ID FROM assignments WHERE Progress_ID = ?) AS Assignment_ID FROM scorecriterias WHERE Progress_ID = ? AND  Project_on_term_ID = ?`;
+  try {
+    con.query(
+      sql,
+      [Progress_ID, Progress_ID, Project_on_term_ID],
+      (err, result, fields) => {
+        if (err) throw err;
+        // Basically, get the first result (which will be an object) then convert it into an array of 2 results,
+        // Which are score (index 0) follwed by assignment_id (index 1)
+        const arr = Object.values(result[0]);
+        res.status(200).json({ score: arr[0], Assignment_ID: arr[1] });
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 module.exports = {
   getScoreAllMajor,
   getScoreByMajor,
   editScoreCriteria,
   getGradeAllMajor,
   getGradeByMajor,
-  editGradeCriteria
+  editGradeCriteria,
+  getProgressMaxScore
 };
