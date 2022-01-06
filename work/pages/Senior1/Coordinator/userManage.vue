@@ -2,28 +2,30 @@
   <div>
     <v-container>
       <h2 class="header-title mb-2 mt-5 mb-10 white--text">User Manage</h2>
-      <v-row align="right" justify="right">
+      <v-row>
         <!-- <v-col > -->
         <div class="login">
           <!-- <v-row> -->
-            <v-btn
-              class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
-              @click="handleFileImport"
-            >
-              <v-icon dark-blue>
-                mdi-application-import
-              </v-icon>
+          <v-btn
+            class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
+            align="right"
+            justify="right"
+            @click="handleFileImport"
+          >
+            <v-icon dark-blue>
+              mdi-application-import
+            </v-icon>
 
-              Import
-            </v-btn>
-            <input
-              ref="uploader"
-              class="d-none"
-              id="fileBrowse"
-              type="file"
-              accept=".xlsx"
-              @change="handleBrowseFile"
-            />
+            Import
+          </v-btn>
+          <input
+            ref="uploader"
+            class="d-none"
+            id="fileBrowse"
+            type="file"
+            accept=".xlsx"
+            @change="handleBrowseFile"
+          />
           <!-- </v-row> -->
         </div>
         <!-- </v-col> -->
@@ -161,6 +163,22 @@ export default {
             }
           });
       }
+    },
+    async handelchangeRenderStudents() {
+      this.loading = true;
+      try {
+        this.students = await this.$axios.$post("/user/getAllUserWithMajor", {
+          Major_ID: this.$store.state.auth.currentUser.major,
+          Academic_Year: this.selectedYear,
+          Academic_Term: this.selectedSemester,
+          User_Role: "1"
+        });
+      } catch (error) {
+        console.log(error);
+      }
+
+      console.log(this.students);
+      this.loading = false;
     }
   },
   layout: "coordinatorsidebar"
