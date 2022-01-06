@@ -128,17 +128,13 @@ uploadfile = async (req, res) => {
       });
     } else {
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
-      let avatar = req.files[""];
-      const { Major, Senior } = req.body;
-
-      //Use the mv() method to place the file in upload directory (i.e. "uploads")
-      let name = Date.now() + "_" + avatar.name;
-      avatar.mv("uploads/excel/" + name);
-
+      
+      let name =  req.files[0]['filename'];
+      const{Major} = req.body
       var sql =
-        "REPLACE INTO users ( User_Email , User_Identity_ID , User_Name , User_Role , Course_code , Major_ID , Senior , Project_on_term_ID ) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
+        "INSERT INTO users ( User_Email , User_Identity_ID , User_Name , User_Role , Course_code , Major_ID ,  Project_on_term_ID ) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
-      var obj = readXlsxFile("uploads/excel/" + name).then(rows => {
+      var obj = readXlsxFile(req.files[0]['path']).then(rows => {
         let semiter;
         let term;
         let coursec;
@@ -160,10 +156,9 @@ uploadfile = async (req, res) => {
               rows[i][0],
               rows[i][1],
               rows[i][2],
-              "1",
+              1,
               coursec,
-              Major,
-              Senior,
+              req.body['Major'],
               semiter,
               term,
 
