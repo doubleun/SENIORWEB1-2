@@ -9,10 +9,8 @@
     <div class="score-criteria-content">
       <!-- Table attr -->
       <h4>CRITERIA</h4>
-      <h4>Advisor_Score</h4>
-      <h4>CO-Advisor_Score</h4>
-      <h4>COMMITTEE 1</h4>
-      <h4>COMMITTEE 2</h4>
+      <h4>Advisor Score</h4>
+      <h4>Committee 1/2 Score</h4>
       <h4>Total</h4>
       <h4>ACTIONS</h4>
 
@@ -23,21 +21,15 @@
           {{ criteria.Advisor_Score || 0 }}
         </p>
         <p :key="criteria.Progress_Name + 3">
-          {{ criteria.coAdvisor_Score || 0 }}
+          {{ criteria.Committee_Score || 0 }}
         </p>
-        <p :key="criteria.Progress_Name + 4">
-          {{ criteria.Committee1_Score || 0 }}
-        </p>
-        <p :key="criteria.Progress_Name + 5">
-          {{ criteria.Committee2_Score || 0 }}
-        </p>
-        <p :key="criteria.Progress_Name + 6">{{ criteria.Total || 0 }}</p>
+        <p :key="criteria.Progress_Name + 4">{{ criteria.Total || 0 }}</p>
 
         <!-- Edit score criteria button -->
         <v-dialog
           v-model="criteria.editDialog"
           width="500"
-          :key="criteria.Progress_Name + 7"
+          :key="criteria.Progress_Name + 5"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -52,16 +44,13 @@
 
           <!-- Edit score criteria pop up card -->
           <v-card class="score-criteria-dialog-card">
-            <v-card-title class="text-h5">
-              Score Criteria
-            </v-card-title>
+            <v-card-title class="text-h5"> Score Criteria </v-card-title>
 
             <div class="score-criteria-input-flex">
               <div v-for="(role, index) in editScoreRoles" :key="role.id">
                 <v-subheader>{{ role.name }}</v-subheader>
                 <v-text-field
                   v-model="criteria[role.value]"
-                  :disabled="index === 1"
                   outlined
                   dense
                   hide-details
@@ -95,37 +84,43 @@
 export default {
   props: {
     scoreCriterias: Array,
-    admin: Boolean
+    admin: Boolean,
   },
   data() {
     return {
       editScoreDialog: false,
       editScoreRoles: [
-        { id: 1, name: "Advisor_Score", score: 0, value: "Advisor_Score" },
-        { id: 2, name: "Co-Advisor_Score", score: 0, value: "" },
-        { id: 3, name: "Committee 1", score: 0, value: "Committee1_Score" },
-        { id: 4, name: "Committee 2", score: 0, value: "Committee2_Score" }
-      ]
+        { id: 1, name: "Advisor Score", score: 0, value: "Advisor_Score" },
+        {
+          id: 2,
+          name: "Committee 1/2 Score",
+          score: 0,
+          value: "Committee_Score",
+        },
+      ],
     };
   },
   methods: {
     async updateScoreCriteria(criteriaItem) {
       try {
         const res = await this.$axios.$post("/criteria/scoreEdit", {
-          ...criteriaItem
+          ...criteriaItem,
         });
         if (res.status === 200) {
           criteriaItem.editDialog = false;
           // Update total
           criteriaItem.Total =
             parseInt(criteriaItem.Advisor_Score) +
-            parseInt(criteriaItem.Committee1_Score) +
-            parseInt(criteriaItem.Committee2_Score);
+            parseInt(criteriaItem.Committee_Score);
+          // Refresh nuxt to re-fetch score criterias
+          this.$nuxt.refresh();
+        } else {
+          throw new Error("Score failed to update, please try again later");
         }
       } catch (err) {
         console.log(err);
       }
-    }
+    },
   },
   computed: {
     // TODO: It's working, probably...
@@ -135,8 +130,8 @@ export default {
         0
       );
       return total;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -158,7 +153,7 @@ export default {
 }
 .score-criteria-content {
   display: grid;
-  grid-template-columns: repeat(7, auto);
+  grid-template-columns: repeat(5, auto);
   overflow-x: auto;
   text-align: center;
   align-items: center;
@@ -174,7 +169,7 @@ export default {
   }
   .score-criteria-content {
     display: grid;
-    grid-template-columns: repeat(7, auto);
+    grid-template-columns: repeat(5, auto);
     overflow-x: auto;
     margin-block-start: 1rem;
     text-align: center;

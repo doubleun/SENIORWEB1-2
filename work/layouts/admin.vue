@@ -2,7 +2,7 @@
   <v-app dark>
     <StudentSidebar :items="items" theme="white" />
     <div class="it-background">
-      <GlobalAppbar theme="transparent" />
+      <MainAppbar theme="transparent" />
       <v-main>
         <v-container>
           <Nuxt />
@@ -23,36 +23,36 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/senior1/admin/"
+          to: "/senior1/admin/",
         },
         {
           icon: "mdi-account-group",
           title: "Group",
-          to: "/senior1/admin/group"
+          to: "/senior1/admin/group",
         },
         {
           icon: "mdi-account-cog",
           title: "Manage Student",
-          to: "/senior1/admin/student"
+          to: "/senior1/admin/student",
         },
         {
           icon: "mdi-office-building-cog",
           title: "Manage Teacher",
-          to: "/senior1/admin/teacher"
+          to: "/senior1/admin/teacher",
         },
         {
           icon: "mdi-clipboard-check-multiple",
           title: "Criteria",
-          to: "/senior1/admin/criteria"
+          to: "/senior1/admin/criteria",
         },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Semester Date",
-          to: "/senior1/admin/semesterDate"
-        }
-      ]
+          to: "/senior1/admin/semesterDate",
+        },
+      ],
     };
-  }
+  },
 };
 </script>
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <GlobalAppbar theme="white" />
+    <MainAppbar theme="white" />
     <StudentSidebar :items="items" theme="default" />
     <v-main>
       <v-container>
@@ -11,7 +11,7 @@
 </template>
 
 <script>
-// import Appbar from "@/components/Global/mainAppbar";
+// import GlobalAppbar from "@/components/global/Appbar";
 // import Sidebar from "@/components/Student/stuSidebar";
 
 export default {
@@ -19,104 +19,128 @@ export default {
     return {
       items: [
         {
+          id: 0,
           icon: "mdi-home",
           title: "Home",
           to: "/Senior1/student/",
-          disabled: false
+          disabled: false,
         },
         {
+          id: 0,
           icon: "people_alt",
           title: "Group",
           to: "/Senior1/student/stuCreateGroup",
-          disabled: false
+          disabled: false,
         },
         // {
+        // id: 3,
         //   icon: "topic",
         //   title: "Topic",
         //   to: "/Senior1/student/topic",
         // disabled: true
         // },
         {
+          id: 0,
           icon: "forum",
           title: "Proposal",
           to: "/Senior1/student/work/proposal",
-          disabled: !this.$store.state.group?.currentUserGroup
+          disabled: !this.$store.state.group?.currentUserGroup,
         },
         {
+          id: 3,
           icon: "mdi-numeric-1-circle",
           title: "Progress 1",
           to: "/Senior1/student/work/progress-1",
           disabled:
-            !this.$store.state.group?.currentUserGroup?.Group_Progression ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression === 7
+            !this.$store.state.group?.currentUserGroup ||
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 2,
         },
         {
+          id: 4,
           icon: "mdi-numeric-2-circle",
           title: "Progress 2",
           to: "/Senior1/student/work/progress-2",
           disabled:
-            !this.$store.state.group?.currentUserGroup?.Group_Progression ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 1 ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression >= 7
+            !this.$store.state.group?.currentUserGroup ||
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 3,
         },
         {
+          id: 5,
           icon: "mdi-numeric-3-circle",
           title: "Progress 3",
           to: "/Senior1/student/work/progress-3",
           disabled:
-            !this.$store.state.group?.currentUserGroup?.Group_Progression ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 2 ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression >= 7
+            !this.$store.state.group?.currentUserGroup ||
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 4,
         },
         {
+          id: 6,
           icon: "mdi-numeric-4-circle",
           title: "Progress 4",
           to: "/Senior1/student/work/progress-4",
           disabled:
-            !this.$store.state.group?.currentUserGroup?.Group_Progression ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 3 ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression >= 7
+            !this.$store.state.group?.currentUserGroup ||
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 5,
         },
         {
+          id: 7,
           icon: "co_present",
           title: "Final Presentation",
           to: "/Senior1/student/work/final-presentation",
           disabled:
-            !this.$store.state.group?.currentUserGroup?.Group_Progression ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 4 ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression >= 7
+            !this.$store.state.group?.currentUserGroup ||
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 6,
         },
         {
+          id: 8,
           icon: "text_snippet",
           title: "Final Documentation",
           to: "/Senior1/student/work/final-documentation",
           disabled:
-            !this.$store.state.group?.currentUserGroup?.Group_Progression ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 5 ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression >= 7
+            !this.$store.state.group?.currentUserGroup ||
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 7,
         },
         {
+          id: 0,
           icon: "stacked_bar_chart",
           title: "Evaluation Result",
           to: "/Senior1/student/evaluation-results",
           disabled:
-            !this.$store.state.group?.currentUserGroup?.Group_Progression ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 6 ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression >= 7
+            !this.$store.state.group?.currentUserGroup ||
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 8,
         },
         {
+          id: 0,
           icon: "mdi-restore",
           title: "Re - evaluation",
           to: "/Senior1/student/stuReevaluationForm",
-          disabled: !this.$store.state.group?.currentUserGroup
-            ?.Group_Progression
-        }
-      ]
+          disabled:
+            !this.$store.state.group?.currentUserGroup ||
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 9,
+        },
+      ],
     };
   },
   mounted() {
-    console.log(this.$store.state.group);
-  }
+    // console.log(this.$store.state.group);
+    console.log(
+      "All progresses (logged from side bar): ",
+      this.$store.state.group.availableProgress
+    );
+    console.log(
+      "Current group info (logged from side bar):",
+      this.$store.state.group.currentUserGroup
+    );
+    const availableIds = this.$store.state.group.availableProgress.map(
+      (progress) => progress.Progress_ID
+    );
+
+    // Filter to get only available progresses (which comes from score criterias where 'Total' not equal to 0)
+    // Includes the ones with id = 0, which means they're not depending on score criterias
+    this.items = this.items.filter(
+      (item) => item.id === 0 || availableIds.includes(item.id)
+    );
+  },
 };
 </script>
 <style scoped>

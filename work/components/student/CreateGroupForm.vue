@@ -37,6 +37,7 @@
                 ref=""
                 v-model="thaiName"
                 :rules="[() => !!thaiName || 'This field is required']"
+                :disabled="!headMember"
                 required
                 class="mt-5"
                 label="Thai Name"
@@ -47,6 +48,7 @@
                 ref="engName"
                 v-model="engName"
                 :rules="[() => !!engName || 'This field is required']"
+                :disabled="!headMember"
                 required
                 label="English Name"
                 outlined
@@ -67,7 +69,7 @@
                       ref="stuName"
                       v-model="name[member - 1]"
                       :rules="[
-                        () => !!name[member - 1] || 'This field is required'
+                        () => !!name[member - 1] || 'This field is required',
                       ]"
                       required
                       label="Student Name"
@@ -81,8 +83,9 @@
                       ref="stuPhoneNumber"
                       v-model="phone[member - 1]"
                       :rules="[
-                        () => !!phone[member - 1] || 'This field is required'
+                        () => !!phone[member - 1] || 'This field is required',
                       ]"
+                      :disabled="!headMember"
                       required
                       label="Student Phone Number"
                       outlined
@@ -109,7 +112,7 @@
                       :loading="studentLoading"
                       :items="allStudentsInSchool"
                       :filter="customStudentFilter"
-                      :disabled="index == 0"
+                      :disabled="index == 0 || !headMember"
                       class="mt-5"
                       outlined
                       dense
@@ -138,7 +141,7 @@
               </div>
             </div>
             <!-- Add and remove member flex -->
-            <div class="d-flex flex-row">
+            <div class="d-flex flex-row" v-if="headMember">
               <!-- Add member -->
               <div class="mb-5 mr-5" v-show="projectMembers.length < 4">
                 <a class="text-decoration-underline" @click="addMemberFields"
@@ -176,6 +179,9 @@
                     v-model="selectedAdvisor"
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
+                    :disabled="
+                      (!!selectedAdvisor && groupCreated) || !headMember
+                    "
                     outlined
                     dense
                     color="blue"
@@ -185,7 +191,7 @@
                     item-value="User_Name"
                     placeholder="Search advisor name"
                     :rules="[
-                      () => !!selectedAdvisor || 'This field is required'
+                      () => !!selectedAdvisor || 'This field is required',
                     ]"
                     clearable
                     return-object
@@ -194,6 +200,9 @@
                     v-model="selectedCoAdvisor"
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
+                    :disabled="
+                      (!!selectedCoAdvisor && groupCreated) || !headMember
+                    "
                     outlined
                     dense
                     color="blue"
@@ -239,6 +248,9 @@
                     v-model="selectedCommittee1"
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
+                    :disabled="
+                      (!!selectedCommittee1 && groupCreated) || !headMember
+                    "
                     outlined
                     dense
                     color="blue"
@@ -248,7 +260,7 @@
                     item-value="User_Name"
                     placeholder="Search committee 1"
                     :rules="[
-                      () => !!selectedCommittee1 || 'This field is required'
+                      () => !!selectedCommittee1 || 'This field is required',
                     ]"
                     clearable
                     return-object
@@ -257,6 +269,9 @@
                     v-model="selectedCommittee2"
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
+                    :disabled="
+                      (!!selectedCommittee2 && groupCreated) || !headMember
+                    "
                     outlined
                     dense
                     color="blue"
@@ -268,7 +283,7 @@
                     clearable
                     return-object
                     :rules="[
-                      () => !!selectedCommittee2 || 'This field is required'
+                      () => !!selectedCommittee2 || 'This field is required',
                     ]"
                   ></v-autocomplete>
                 </v-col>
@@ -299,6 +314,10 @@
 <script>
 export default {
   data: () => ({
+    // Flag for setting disabled field, this is for when group is created (some field can't be change if this is ture)
+    groupCreated: false,
+    // Flag for checking if current user is head of the group
+    headMember: true,
     // TODO: By the way there's more efficient way of doing this using object
     // Array containing each student info as object (after select one in the auto complete, it'll add into this array)
     selectedStudent: [null, null, null, null],
@@ -324,11 +343,11 @@ export default {
     stuPhoneNumber: "",
     stuEmail: "",
     emailRules: [
-      v => !!v || "E-mail is required",
-      v =>
+      (v) => !!v || "E-mail is required",
+      (v) =>
         /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
           v
-        ) || "E-mail must be valid"
+        ) || "E-mail must be valid",
     ],
     projectMembers: [1],
     name: ["", "", "", ""],
@@ -338,14 +357,14 @@ export default {
     major: 1,
     button: "Create",
     buttonaccept: "Accept",
-    buttondecline: "Decline"
+    buttondecline: "Decline",
   }),
   props: { groupMembers: Array },
   async fetch() {
     // TODO: This is big fetch, put this in a state and check if exists before fetch it
     // Fetch students and teachers
     const res = await this.$axios.$post("/user/getAllUsersInSchool", {
-      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
     });
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
@@ -357,16 +376,16 @@ export default {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
     // And assign value into name and email array
     selectedStudent(val) {
-      this.name = val.map(itm => itm?.User_Name);
-      this.email = val.map(itm => itm?.User_Email);
-    }
+      this.name = val.map((itm) => itm?.User_Name);
+      this.email = val.map((itm) => itm?.User_Email);
+    },
   },
   methods: {
     // Add member fields
     addMemberFields() {
       this.projectMembers = [
         ...this.projectMembers,
-        this.projectMembers.slice(-1)[0] + 1
+        this.projectMembers.slice(-1)[0] + 1,
       ];
     },
     // Remove member fields
@@ -410,9 +429,9 @@ export default {
           showCancelButton: true,
           confirmButtonColor: "#3085d6",
           cancelButtonColor: "#d33",
-          confirmButtonText: "Yes"
+          confirmButtonText: "Yes",
         })
-        .then(async result => {
+        .then(async (result) => {
           if (result.isConfirmed) {
             const res = await this.$axios.$post("group/createGroup", {
               Project_NameTh: this.thaiName,
@@ -431,14 +450,14 @@ export default {
               Email_Student3: this.email[2],
               Email_Student4: this.email[3],
               Major: this.major,
-              Project_on_term_ID: this.$store.state.auth.currentUser
-                .projectOnTerm
+              Project_on_term_ID:
+                this.$store.state.auth.currentUser.projectOnTerm,
             });
             console.log(res);
             if (res.status == 200) {
               this.$swal
                 .fire("Successed", "Group has been created.", "success")
-                .then(result => {
+                .then((result) => {
                   if (result.isConfirmed) window.location.reload();
                 });
             } else {
@@ -446,7 +465,7 @@ export default {
             }
           }
         });
-    }
+    },
   },
   mounted() {
     // console.log('Current user group: ', this.$store.state.group.currentUserGroup);
@@ -460,7 +479,7 @@ export default {
       // Sets project members
       this.groupMembers
         // Filter groupMembers array to get only group role 2, which is student role
-        .filter(itm => itm.Group_Role === 3 || itm.Group_Role === 2)
+        .filter((itm) => itm.Group_Role === 3 || itm.Group_Role === 2)
         .map((itm, index) => {
           index >= 1 &&
             // Add more project member fields
@@ -471,43 +490,61 @@ export default {
             User_Email: itm.User_Email,
             User_Identity_ID: itm.User_Identity_ID,
             User_Name: itm.User_Name,
-            User_Role: itm.User_Role
+            User_Role: itm.User_Role,
           };
           this.name[index] = itm.User_Name;
           this.email[index] = itm.User_Email;
           this.phone[index] = itm.User_Phone;
         });
       // Sets advisor
-      const advisor = this.groupMembers.filter(itm => itm.Group_Role === 0);
+      const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
       if (advisor.length !== 0)
         this.selectedAdvisor = {
           User_Email: advisor[0].User_Email,
-          User_Name: advisor[0].User_Name
+          User_Name: advisor[0].User_Name,
+          disabled: true,
         };
+      console.log(this.$store.state.group.currentUserGroup);
       //Set co-advisor name
-      this.selectedCoAdvisor = {
-        User_Name: this.$store.state.group.currentUserGroup.Co_Advisor
-      };
+      if (this.$store.state.group.currentUserGroup.Co_Advisor !== "") {
+        this.selectedCoAdvisor = {
+          User_Name: this.$store.state.group.currentUserGroup.Co_Advisor,
+        };
+      }
       // Set committes
       this.groupMembers
-        .filter(itm => itm.Group_Role === 1)
-        .map((itm, index) => {
+        .filter((member) => member.Group_Role === 1)
+        .map((member, index) => {
           this["selectedCommittee" + (index + 1)] = {
-            User_Name: itm.User_Name,
-            User_Email: itm.User_Email
+            User_Name: member.User_Name,
+            User_Email: member.User_Email,
           };
         });
+
+      // Sets group created to true
+      this.groupCreated = true;
     } else {
+      // If no groups, set group created to false
+      this.groupCreated = false;
+
+      // And insert the current user as head of the group (ie. first member)
       this.email[0] = this.$store.state.auth.currentUser.email;
       (this.name[0] = this.$store.state.auth.currentUser.name),
         (this.selectedStudent[0] = {
           User_Email: this.$store.state.auth.currentUser.email,
           User_Identity_ID: this.$store.state.auth.currentUser.userId,
           User_Name: this.$store.state.auth.currentUser.name,
-          User_Role: this.$store.state.auth.currentUser.role
+          User_Role: this.$store.state.auth.currentUser.role,
         });
     }
-  }
+
+    // Check if current user is the head of the group
+    if (this.email[0] === this.$store.state.auth.currentUser.email) {
+      this.headMember = true;
+    } else {
+      this.headMember = false;
+    }
+  },
 };
 </script>
 <style scoped>

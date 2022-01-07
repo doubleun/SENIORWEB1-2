@@ -62,12 +62,15 @@ export default {
       "progress-3",
       "progress-4",
       "final-presentation",
-      "final-documentation"
+      "final-documentation",
+      "re-evaluation",
     ];
     !allProgresses.includes(params.progress) && redirect("/Senior1/student/");
 
     // Find progress id using index
-    const progressId = allProgresses.findIndex(itm => itm === params.progress);
+    const progressId = allProgresses.findIndex(
+      (itm) => itm === params.progress
+    );
 
     // This regex will find the first non-word (ie. in this case a dash "-")
     const dashRegex = /[^\w]/g;
@@ -77,18 +80,18 @@ export default {
       "/assignment/getAssignmentFiles",
       {
         Group_ID: store.state.group.currentUserGroup.Group_ID,
-        Progress_ID: progressId === 0 ? 8 : progressId
+        Progress_ID: progressId + 2,
       }
     );
 
     // Fetch teachers
     let teachers = await $axios.$post("/group/getTeachersWithGroupID", {
       Group_ID: store.state.group.currentUserGroup.Group_ID,
-      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm
+      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
     });
 
     // Add files for teachers
-    submittedFiles.forEach(file => {
+    submittedFiles.forEach((file) => {
       switch (file.Group_Member_ID) {
         // If file match advisor id
         case teachers.advisor.Group_Member_ID:
@@ -97,7 +100,7 @@ export default {
             // Using rest syntax for spreading conditionally
             ...(teachers.advisor?.files
               ? { files: [...teachers.advisor.files, file] }
-              : { files: [file] })
+              : { files: [file] }),
           };
           break;
         // If file match committee 1 id
@@ -107,7 +110,7 @@ export default {
             // Using rest syntax for spreading conditionally
             ...(teachers.committees[0]?.files
               ? { files: [...teachers.committees[0].files, file] }
-              : { files: [file] })
+              : { files: [file] }),
           };
           break;
         // If file match committee 2 id
@@ -117,7 +120,7 @@ export default {
             // Using rest syntax for spreading conditionally
             ...(teachers.committees[1]?.files
               ? { files: [...teachers.committees[1].files, file] }
-              : { files: [file] })
+              : { files: [file] }),
           };
           break;
       }
@@ -129,12 +132,12 @@ export default {
       // Replace the dash with space and use it as title
       title: params.progress.replace(dashRegex, " "),
       // If the allProgresses index is 0 then it needs to be 8 becuase proposal is progress id 8 in database
-      progressId: progressId === 0 ? 8 : progressId,
+      progressId: progressId + 2,
       submittedFiles,
       advisor: teachers.advisor,
-      committees: teachers.committees
+      committees: teachers.committees,
     };
-  }
+  },
 };
 </script>
 

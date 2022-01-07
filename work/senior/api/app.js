@@ -28,7 +28,7 @@ const app = express();
 app.use(
   cookieSession({
     maxAge: 60 * 60 * 1000,
-    keys: [process.env.COOKIEKEY]
+    keys: [process.env.COOKIEKEY],
   })
 );
 
@@ -45,7 +45,12 @@ app.use(morgan("dev"));
 //   })
 // );
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// console.log(path.join(__dirname, "/../../public_senior"));
+
+app.use(
+  "/public_senior",
+  express.static(path.join(__dirname, "/../../public_senior"))
+);
 
 //initialize passportt for se/deserialization
 app.use(passport.initialize());

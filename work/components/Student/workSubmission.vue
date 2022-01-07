@@ -152,34 +152,34 @@ export default {
       showSubmission: true,
       uploadSrc: null,
       dropActive: false,
-      submitTypes: ["Abstract", "Document"]
+      submitTypes: ["Abstract", "Document"],
     };
   },
   props: {
     finalDocument: {
       type: Boolean,
-      default: false
+      default: false,
     },
     title: {
       type: String,
-      default: "Work submission"
+      default: "Work submission",
     },
     progressId: {
       type: Number,
-      default: 8
+      default: 2,
     },
     submittedFiles: {
       type: Array,
-      default: []
+      default: [],
     },
     advisor: {
       type: Object,
-      default: {}
+      default: {},
     },
     committees: {
       type: Array,
-      default: []
-    }
+      default: [],
+    },
   },
   computed: {
     // Change submit button text when files array changes
@@ -201,9 +201,9 @@ export default {
       // const readableSize = ( totalSize / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
       return {
         percentage: ((totalSize / this.maxSize) * 100).toFixed(2),
-        byte: totalSize
+        byte: totalSize,
       };
-    }
+    },
   },
   async mounted() {
     console.log(this.$store.state);
@@ -218,21 +218,21 @@ export default {
       let files = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file
         .filter(
-          file => file.Type === "File" && [2, 3].includes(file.Group_Role)
+          (file) => file.Type === "File" && [2, 3].includes(file.Group_Role)
         )
         // Then, map each file and send axios get request to fetch the file from static folder in server
-        .map(async file => {
+        .map(async (file) => {
           // Request response type to be 'blob'
           const blob = await this.$axios.$get(
-            "/uploads/assignments/" + file.File_Name,
+            "/public_senior/uploads/assignments/" + file.File_Name,
             {
-              responseType: "blob"
+              responseType: "blob",
             }
           );
           return {
             // Convert blob to File object
             file: new File([blob], file.File_Name, { type: blob.type }),
-            date: new Date(file.Submit_Date).toLocaleString()
+            date: new Date(file.Submit_Date).toLocaleString(),
           };
         });
       // Since, each loop is a promise, promise.all is needed
@@ -243,13 +243,13 @@ export default {
       // Now, links also needs to be put in to the UI
       this.submittedFiles
         // Filter to get only file with type 'Link'
-        .filter(file => file.Type === "Link")
+        .filter((file) => file.Type === "Link")
         // For each link push it into the 'availableLinks' array
-        .forEach(file =>
+        .forEach((file) =>
           this.availableLinks.push({
             // Get the last elememt's number in the array, if null fallback to zero
             number: (this.availableLinks.slice(-1)[0]?.number || 0) + 1,
-            text: file.File_Name
+            text: file.File_Name,
           })
         );
     }
@@ -292,13 +292,13 @@ export default {
         // Update the files array
         this.files = [
           ...this.files,
-          { file: e.dataTransfer.files[0], date: d }
+          { file: e.dataTransfer.files[0], date: d },
         ];
       }
     },
     handleRemoveFile(e) {
       this.files = this.files.filter(
-        file => file.date !== e.target.dataset.date
+        (file) => file.date !== e.target.dataset.date
       );
     },
     addLinkField() {
@@ -307,8 +307,8 @@ export default {
         {
           // Number can be null if the last element is poped, so a fallback of zero is needed
           number: (this.availableLinks.slice(-1)[0]?.number || 0) + 1,
-          text: ""
-        }
+          text: "",
+        },
       ];
     },
     removeLinkField() {
@@ -330,7 +330,7 @@ export default {
       // Append form data with files
       const formData = new FormData();
       // formData.append("file", this.files[0].file);
-      this.files.map(file => formData.append("files", file.file));
+      this.files.map((file) => formData.append("files", file.file));
 
       // Append form data with progress id, group id
       // Progress id is from '_progress.vue' page
@@ -346,7 +346,7 @@ export default {
 
       // Append form data with links, if there are any
       this.availableLinks.length !== 0 &&
-        this.availableLinks.map(link => formData.append("links", link.text));
+        this.availableLinks.map((link) => formData.append("links", link.text));
 
       // // console.log(this.availableLinks);
       // // console.log("Progress_ID: ", this.progressId);
@@ -372,7 +372,7 @@ export default {
 
       // Create new blob from file
       const blob = new Blob([this.files[fileIndex].file], {
-        type: this.files[fileIndex].file.type
+        type: this.files[fileIndex].file.type,
       });
       // Attach new 'a' tag element to DOM
       const link = document.createElement("a");
@@ -389,8 +389,8 @@ export default {
       // //   "/api/uploads/assignments/" + this.files[fileIndex].file.name,
       // //   "_blank"
       // // );
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -4,10 +4,10 @@
       <h1>{{ title }} (My Advisee)</h1>
 
       <!-- Card (Evaluation result) -->
-      <GlobalProjectDetailCard :GroupDetail="GroupDetail" />
+      <ProjectDetailCard :GroupDetail="GroupDetail" />
 
       <!-- Display work -->
-      <GlobalDisplayWorkSection
+      <DisplayWorkSection
         :progressId="progressId"
         :submittedFiles="submittedFiles"
         :maxScore="maxScore"
@@ -33,13 +33,15 @@ export default {
       "progress-3",
       "progress-4",
       "final-presentation",
-      "final-documentation"
+      "final-documentation",
     ];
     !allProgresses.includes(params.progress) &&
       redirect(`/Senior1/coordinator/${params.groupId}`);
 
     // Find progress id using index
-    const progressId = allProgresses.findIndex(itm => itm === params.progress);
+    const progressId = allProgresses.findIndex(
+      (itm) => itm === params.progress
+    );
 
     // This regex will find the first non-word (ie. in this case a dash "-")
     const dashRegex = /[^\w]/g;
@@ -51,14 +53,14 @@ export default {
       "/assignment/getAssignmentFiles",
       {
         Group_ID: groupId,
-        Progress_ID: progressId + 1
+        Progress_ID: progressId + 3,
       }
     );
 
     // Fetch group info
     const groupRes = await $axios.$post("/group/getGroupWithID", {
       Group_ID: groupId,
-      Email: store.state.auth.currentUser.email
+      Email: store.state.auth.currentUser.email,
     });
     if (groupRes.status !== 200) {
       redirect("/Senior1/coordinator/");
@@ -67,8 +69,8 @@ export default {
     // Fetch score criteria for setting the max score this user can give
     const maxScore = await $axios.$post("/criteria/getProgressMaxScore", {
       Group_Role: groupRes.groupInfo[0].Current_Member_Role,
-      Progress_ID: progressId + 1,
-      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm
+      Progress_ID: progressId + 3,
+      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
     });
 
     // Set group state, this is added in later for the layout to know current progress of each group
@@ -81,7 +83,7 @@ export default {
       "/assignment/getTeacherProgressScore",
       {
         Group_Member_ID: groupRes.groupInfo[0].Current_Member_ID,
-        Assignment_ID: maxScore.Assignment_ID
+        Assignment_ID: maxScore.Assignment_ID,
       }
     );
 
@@ -91,17 +93,17 @@ export default {
       // Replace the dash with space and use it as title
       title: params.progress.replace(dashRegex, " "),
       // If the allProgresses index is 0 then it needs to be 8 becuase proposal is progress id 8 in database
-      progressId: progressId + 1,
+      progressId: progressId + 3,
       submittedFiles,
       maxScore: maxScore.score,
       Assignment_ID: maxScore.Assignment_ID,
       GroupDetail: {
         GroupInfo: groupRes.groupInfo[0],
-        GroupMembers: groupRes.groupMembers
+        GroupMembers: groupRes.groupMembers,
       },
-      scoreInfo
+      scoreInfo,
     };
-  }
+  },
 };
 </script>
 

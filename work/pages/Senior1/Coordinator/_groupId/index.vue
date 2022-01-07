@@ -7,11 +7,11 @@
       <v-card class="co-group-eval-card">
         <v-card-title>EVALUATION RESULT</v-card-title>
         <!-- Score table -->
-        <GlobalEvaluationResultGrid :Group_ID="Group_ID" />
+        <EvaluationResultGrid :Group_ID="Group_ID" />
       </v-card>
 
       <!-- Second card (Group detail) -->
-      <GlobalGroupDetailCard
+      <GroupDetailCard
         style="margin-block-start: 4.2rem"
         :GroupDetail="GroupDetail"
       />
@@ -30,7 +30,7 @@ export default {
     const groupId = params.groupId.match(/(\d)/g).join("");
     const res = await $axios.$post("/group/getGroupWithID", {
       Group_ID: groupId,
-      Email: store.state.auth.currentUser.email
+      Email: store.state.auth.currentUser.email,
     });
     if (res.status !== 200) {
       redirect("/Senior1/coordinator/");
@@ -46,10 +46,10 @@ export default {
       Group_ID: groupId,
       GroupDetail: {
         GroupInfo: res.groupInfo[0],
-        GroupMembers: res.groupMembers
-      }
+        GroupMembers: res.groupMembers,
+      },
     };
-  }
+  },
 };
 </script>
 

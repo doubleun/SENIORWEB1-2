@@ -15,7 +15,7 @@ const fs = require("fs");
 // Upload assignments
 uploadAssignments = async (req, res) => {
   let { Progress_ID, Group_ID, links, Group_Member_ID } = req.body;
-  // If no link then assign empty array
+  // // If no link then assign empty array
   if (!links) links = [];
   // If there's only one link put it in an array
   if (typeof links === "string") links = [links];
@@ -44,8 +44,8 @@ uploadAssignments = async (req, res) => {
               current,
               "Link",
               assignmentResult.insertId,
-              Group_Member_ID
-            ]
+              Group_Member_ID,
+            ],
           ],
           []
         );
@@ -57,8 +57,8 @@ uploadAssignments = async (req, res) => {
               current.path,
               "File",
               assignmentResult.insertId,
-              Group_Member_ID
-            ]
+              Group_Member_ID,
+            ],
           ],
           []
         );
@@ -74,7 +74,7 @@ uploadAssignments = async (req, res) => {
 
     // 3.) Update: increment group progression
     const groupProgressSql =
-      "UPDATE `groups` SET `Group_Progression` = IF(`Group_Progression` = 8, 1, `Group_Progression` + 1)  WHERE `Group_ID` = ?";
+      "UPDATE `groups` SET `Group_Progression` = `Group_Progression` + 1  WHERE `Group_ID` = ?";
     con.query(groupProgressSql, [Group_ID], (err, result, fields) => {
       if (err) throw err;
     });
@@ -145,7 +145,7 @@ giveProgressScore = (req, res) => {
             req.file.path,
             "File",
             Assignment_ID,
-            Group_Member_ID
+            Group_Member_ID,
           ],
           (err, filesResult, fields) => {
             if (err) throw err;
@@ -254,12 +254,8 @@ updateProgression = async (req, res) => {
 // * if student don't send Group_Member_ID to api
 getAssignment = async (req, res) => {
   console.log(req.body);
-  const {
-    Group_ID,
-    Progress_ID,
-    Group_Member_ID,
-    Project_on_term_ID
-  } = req.body;
+  const { Group_ID, Progress_ID, Group_Member_ID, Project_on_term_ID } =
+    req.body;
   // const Project_on_term_ID = req.params.Project_on_term_ID
   // const assigment =
   //   "SELECT * FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Group_ID=? AND ass.Progress_ID=?";
@@ -342,7 +338,7 @@ countAssigment = async (req, res) => {
       Project_on_term_ID,
       Project_on_term_ID,
       Project_on_term_ID,
-      Project_on_term_ID
+      Project_on_term_ID,
     ],
     (err, result, fields) => {
       if (err) {
@@ -382,5 +378,5 @@ module.exports = {
   getTeacherProgressScore,
   getAssignmentFiles,
   getAssignment,
-  countFileByMajor
+  countFileByMajor,
 };

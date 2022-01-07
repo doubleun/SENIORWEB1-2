@@ -26,9 +26,7 @@
 
           <!-- Edit grade criteria pop up card -->
           <v-card class="grade-criteria-dialog-card">
-            <v-card-title class="text-h5">
-              Grade Criteria
-            </v-card-title>
+            <v-card-title class="text-h5"> Grade Criteria </v-card-title>
 
             <div
               class="grade-criteria-input-flex"
@@ -92,7 +90,7 @@ export default {
     return {
       editGradeDialog: false,
       low: 0,
-      gradeCriteriaArr: ["S", "U"]
+      gradeCriteriaArr: ["S", "U"],
     };
   },
   async asyncData({ $axios, store }) {
@@ -103,28 +101,39 @@ export default {
     try {
       // Fetch score criterias
       scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
-        Major_ID: store.state.auth.currentUser.major
+        Major_ID: store.state.auth.currentUser.major,
+        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
       // Fetch grade criterias
       gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
-        Major_ID: store.state.auth.currentUser.major
+        Major_ID: store.state.auth.currentUser.major,
       });
-      // Pass in latest project on term which will be in the scoreCriterias
-      gradeCriterias = gradeCriterias.map(itm => ({
-        ...itm,
-        Project_on_term_ID: scoreCriterias[0].Project_on_term_ID
-      }));
+      // // Pass in latest project on term which will be the latest available semester
+      // gradeCriterias = gradeCriterias.map((itm) => ({
+      //   ...itm,
+      //   Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+      // }));
     } catch (err) {
       console.log(err);
     }
 
+    console.log(scoreCriterias, gradeCriterias);
+
     return { scoreCriterias, gradeCriterias };
   },
-  methods: {},
+  methods: {
+    // Update grade criterias function (score criteria has a function in the compunent for update)
+    async handleUpdateGradeCriterias() {
+      const res = await this.$axios.$post("/criteria/gradeEdit", {
+        data: this.gradeCriterias.slice(0, 2),
+      });
+      if (res.status === 200) this.editGradeDialog = false;
+    },
+  },
   mounted() {
     console.log("Scores: ", this.scoreCriterias);
     console.log("Grades: ", this.gradeCriterias);
-  }
+  },
 };
 </script>
 

@@ -50,7 +50,7 @@
                 :disabled="showSubmitted"
                 :rules="[
                   () => !!givenScore || 'This field is required',
-                  handleCheckValidScore
+                  handleCheckValidScore,
                 ]"
                 placeholder="Score:"
                 outlined
@@ -108,24 +108,24 @@ export default {
   props: {
     progressId: {
       type: Number,
-      default: 1
+      default: 1,
     },
     submittedFiles: {
       type: Array,
-      default: []
+      default: [],
     },
     maxScore: {
       type: Number,
-      default: 0
+      default: 0,
     },
     Assignment_ID: {
       type: Number,
-      default: 0
+      default: 0,
     },
     scoreInfo: {
       type: null,
-      default: {}
-    }
+      default: {},
+    },
   },
   data() {
     return {
@@ -137,14 +137,14 @@ export default {
       uploadSrcs: [],
       files: [],
       links: [],
-      selectedFile: { src: "" }
+      selectedFile: { src: "" },
     };
   },
   computed: {
     // This will replace the middle of the string with '...' thus shorten each file name
     shortFileNames() {
       // Starting at 1/3rd position to 2/3rd position
-      return this.files.map(file => {
+      return this.files.map((file) => {
         // Remove time stamp in front of each file name
         const nameNoTime = file.file.name.replace(/(^\d+-)/, "");
         return nameNoTime.length > 16
@@ -159,7 +159,7 @@ export default {
             )
           : nameNoTime;
       });
-    }
+    },
   },
   async mounted() {
     // * === Sets teacher submitted score and file if exists === * //
@@ -174,9 +174,9 @@ export default {
 
       // Sets file
       const blob = await this.$axios.$get(
-        "/uploads/assignments/" + this.scoreInfo.File_Name,
+        "/public_senior/uploads/assignments/" + this.scoreInfo.File_Name,
         {
-          responseType: "blob"
+          responseType: "blob",
         }
       );
       this.teacherFile = new File(
@@ -184,7 +184,7 @@ export default {
         // Remove time stamp in front of each file name
         this.scoreInfo.File_Name.replace(/(^\d+-)/, ""),
         {
-          type: blob.type
+          type: blob.type,
         }
       );
     }
@@ -196,22 +196,23 @@ export default {
       let files = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file
         .filter(
-          file => file.Type === "File" && [2, 3].includes(file.Group_Role)
+          (file) => file.Type === "File" && [2, 3].includes(file.Group_Role)
         )
         // Then, map each file and send axios get request to fetch the file from static folder in server
-        .map(async file => {
+        .map(async (file) => {
           // Request response type to be 'blob'
           const blob = await this.$axios.$get(
-            "/uploads/assignments/" + encodeURIComponent(file.File_Name),
+            "/public_senior/uploads/assignments/" +
+              encodeURIComponent(file.File_Name),
             {
               "Content-Type": "application/json;charset=utf-8",
-              responseType: "blob"
+              responseType: "blob",
             }
           );
           return {
             // Convert blob to File object
             file: new File([blob], file.File_Name, { type: blob.type }),
-            date: new Date(file.Submit_Date).toLocaleString()
+            date: new Date(file.Submit_Date).toLocaleString(),
           };
         });
       // Since, each loop is a promise, promise.all is needed
@@ -222,18 +223,18 @@ export default {
     }
 
     // Create object string on all files
-    this.files.forEach(file => {
+    this.files.forEach((file) => {
       this.uploadSrcs.push(URL.createObjectURL(file.file));
     });
     // Sets initial selected src
     this.selectedFile = { src: this.uploadSrcs[0], index: 0 };
 
     // Set links array
-    this.links = this.submittedFiles.filter(file => file.Type === "Link");
+    this.links = this.submittedFiles.filter((file) => file.Type === "Link");
   },
   beforeDestroy() {
     // Clean up
-    this.uploadSrcs.forEach(src => URL.revokeObjectURL(src));
+    this.uploadSrcs.forEach((src) => URL.revokeObjectURL(src));
   },
   methods: {
     handleChangeFilePreview(fileIndex) {
@@ -288,8 +289,8 @@ export default {
       if (res.status === 200) {
         this.showSubmitted = true;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
