@@ -50,7 +50,7 @@
       </div>
 
       <!-- Data table here -->
-      <AdminSemesterDate
+      <AdminDataTable
         :tableTitle="'Manage Students'"
         :headers="headers"
         itemKey="User_Email"
@@ -80,14 +80,11 @@
 </template>
 
 <script>
-// import LongTableCard from "@/components/Admin/longTableCard";
-import AdminSemesterDate from "@/components/Admin/adminDataTable";
+// // import LongTableCard from "@/components/admin/longTableCard";
+// import AdminDataTable from "@/components/admin/adminDataTable";
 
 export default {
   layout: "admin",
-  components: {
-    AdminSemesterDate
-  },
   data: () => ({
     selectedMajor: {},
     selectedYear: null,

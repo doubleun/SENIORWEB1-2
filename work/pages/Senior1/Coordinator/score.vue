@@ -46,12 +46,12 @@
           </div>
         </v-col>
       </v-row>
-      <scoreDataTable :items="items" />
+      <CoordinatorScoreDataTable :items="items" />
     </v-container>
   </div>
 </template>
 <script>
-import scoreDataTable from "@/components/Coordinator/scoreDataTable";
+// import scoreDataTable from "@/components/coordinator/scoreDataTable";
 import exportXLSX from "@/mixins/exportXLSX";
 export default {
   data: () => ({
@@ -162,9 +162,6 @@ export default {
     ]
   }),
   mixins: [exportXLSX],
-  components: {
-    scoreDataTable
-  },
   layout: "coordinatorsidebar"
 };
 </script>

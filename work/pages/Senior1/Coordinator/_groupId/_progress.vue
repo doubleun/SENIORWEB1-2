@@ -4,10 +4,10 @@
       <h1>{{ title }} (My Advisee)</h1>
 
       <!-- Card (Evaluation result) -->
-      <ProjectDetailCard :GroupDetail="GroupDetail" />
+      <GlobalProjectDetailCard :GroupDetail="GroupDetail" />
 
       <!-- Display work -->
-      <DisplayWorkSection
+      <GlobalDisplayWorkSection
         :progressId="progressId"
         :submittedFiles="submittedFiles"
         :maxScore="maxScore"
@@ -19,15 +19,11 @@
 </template>
 
 <script>
-import ProjectDetailCard from "@/components/Global/projectDetailCard";
-import DisplayWorkSection from "@/components/Global/displayWorkSection";
+// import ProjectDetailCard from "@/components/global/projectDetailCard";
+// import DisplayWorkSection from "@/components/global/displayWorkSection";
 
 export default {
   layout: "coordinator",
-  components: {
-    ProjectDetailCard,
-    DisplayWorkSection
-  },
   async asyncData({ $axios, params, redirect, store }) {
     // If params is not available, redirect back to the group info page
     // TODO: these should be from the available progress, cuz each major has differnt number of progresses

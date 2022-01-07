@@ -1,17 +1,13 @@
 <template>
   <div>
-    <allSubmission title="Topic" />
+    <StudentAllSubmission title="Topic" />
   </div>
 </template>
 
 <script>
-import allSubmission from "@/components/Student/allSubmission";
+// import allSubmission from "@/components/student/allSubmission";
 
-export default {
-  components: {
-    allSubmission
-  }
-};
+export default {};
 </script>
 
 <style></style>

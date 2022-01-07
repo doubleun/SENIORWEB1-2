@@ -1,8 +1,8 @@
 <template>
   <v-app dark>
-    <Sidebar :items="items" theme="white" />
+    <StudentSidebar :items="items" theme="white" />
     <div class="it-background">
-      <Appbar theme="transparent" />
+      <GlobalAppbar theme="transparent" />
       <v-main>
         <v-container>
           <Nuxt />
@@ -13,14 +13,10 @@
 </template>
 
 <script>
-import Appbar from "@/components/Global/mainAppbar";
-import Sidebar from "@/components/Student/stuSidebar";
+// import Appbar from "@/components/Global/mainAppbar";
+// import Sidebar from "@/components/Student/stuSidebar";
 
 export default {
-  components: {
-    Appbar,
-    Sidebar
-  },
   data() {
     return {
       items: [

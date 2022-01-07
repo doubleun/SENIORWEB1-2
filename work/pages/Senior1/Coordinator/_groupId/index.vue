@@ -7,11 +7,11 @@
       <v-card class="co-group-eval-card">
         <v-card-title>EVALUATION RESULT</v-card-title>
         <!-- Score table -->
-        <EvaluationResultGrid :Group_ID="Group_ID" />
+        <GlobalEvaluationResultGrid :Group_ID="Group_ID" />
       </v-card>
 
       <!-- Second card (Group detail) -->
-      <GroupDetailCard
+      <GlobalGroupDetailCard
         style="margin-block-start: 4.2rem"
         :GroupDetail="GroupDetail"
       />
@@ -20,15 +20,11 @@
 </template>
 
 <script>
-import EvaluationResultGrid from "@/components/Global/evaluationResultGrid";
-import GroupDetailCard from "@/components/Global/groupDetailCard";
+// import EvaluationResultGrid from "@/components/global/evaluationResultGrid";
+// import GroupDetailCard from "@/components/global/groupDetailCard";
 
 export default {
   layout: "coordinator",
-  components: {
-    EvaluationResultGrid,
-    GroupDetailCard
-  },
   async asyncData({ params, store, redirect, $axios }) {
     // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group io)
     const groupId = params.groupId.match(/(\d)/g).join("");

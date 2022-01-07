@@ -1,21 +1,52 @@
 <template>
-  <WorkSubmission
-    :title="title"
-    :finalDocument="title === 'final documentation'"
-    :progressId="progressId"
-    :submittedFiles="submittedFiles"
-    :advisor="advisor"
-    :committees="committees"
-  />
+  <main>
+    <StudentWorkSubmission
+      :title="title"
+      :finalDocument="title === 'final documentation'"
+      :progressId="progressId"
+      :submittedFiles="submittedFiles"
+      :advisor="advisor"
+      :committees="committees"
+    />
+
+    <!-- Advisor comment -->
+    <v-card class="mx-auto my-6 pb-5" v-if="advisor.Score">
+      <v-card-title>
+        ADVISOR: {{ advisor.Score }}
+        <!-- <v-spacer></v-spacer>
+            RESULT: I -->
+      </v-card-title>
+      <v-divider class="mx-4"></v-divider>
+      <v-row class="pl-5 mt-4 pr-4">
+        <v-col cols="6" sm="6"> <h4>COMMENTS</h4> </v-col>
+        <v-col cols="12" sm="6">
+          <span>
+            {{ advisor.Comment }}
+          </span>
+        </v-col>
+      </v-row>
+      <v-row class="pl-5 mt-4 pr-4" v-if="advisor.files">
+        <v-col cols="6" sm="6"><h4>FILES</h4> </v-col>
+        <v-col cols="12" sm="6">
+          <li>
+            <a
+              :href="'/api/uploads/assignments/' + advisor.files[0].File_Name"
+              target="_blank"
+              class="text-decoration-none"
+              >{{ advisor.files[0].File_Name }}</a
+            >
+          </li>
+        </v-col>
+      </v-row>
+      <v-spacer></v-spacer>
+    </v-card>
+  </main>
 </template>
 
 <script>
-import WorkSubmission from "@/components/Student/workSubmission";
+// import WorkSubmission from "@/components/student/workSubmission";
 
 export default {
-  components: {
-    WorkSubmission
-  },
   async asyncData({ $axios, params, redirect, store }) {
     // If currentUserGroup is missing, fetch it first
     if (store.state.group.currentUserGroup === null)
@@ -55,8 +86,6 @@ export default {
       Group_ID: store.state.group.currentUserGroup.Group_ID,
       Project_on_term_ID: store.state.auth.currentUser.projectOnTerm
     });
-
-    // Create
 
     // Add files for teachers
     submittedFiles.forEach(file => {

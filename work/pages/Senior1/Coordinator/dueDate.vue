@@ -4,19 +4,16 @@
       <h1>Due Date</h1>
 
       <!-- Assignment date card -->
-      <DueAssignmentCard />
+      <CoordinatorDueAssignmentCard />
     </main>
   </section>
 </template>
 
 <script>
-import DueAssignmentCard from "@/components/Coordinator/dueAssignmentCard";
+// import DueAssignmentCard from "@/components/coordinator/dueAssignmentCard";
 
 export default {
-  layout: "coordinatorsidebar",
-  components: {
-    DueAssignmentCard
-  }
+  layout: "coordinatorsidebar"
 };
 </script>
 

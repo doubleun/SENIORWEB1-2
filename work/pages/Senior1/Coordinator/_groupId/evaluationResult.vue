@@ -11,7 +11,7 @@
       <!-- Evaluation result -->
       <v-card class="co-evaluation-result-card mt-16">
         <v-card-title>EVALUATION RESULT</v-card-title>
-        <EvaluationResultGrid :Group_ID="Group_ID" />
+        <GlobalEvaluationResultGrid :Group_ID="Group_ID" />
       </v-card>
 
       <!-- Evaluation form -->
@@ -50,15 +50,11 @@
 </template>
 
 <script>
-import ProjectDetailCard from "@/components/Global/projectDetailCard";
-import EvaluationResultGrid from "@/components/Global/evaluationResultGrid";
+// import ProjectDetailCard from "@/components/global/projectDetailCard";
+// import EvaluationResultGrid from "@/components/global/evaluationResultGrid";
 
 export default {
   layout: "coordinator",
-  components: {
-    ProjectDetailCard,
-    EvaluationResultGrid
-  },
   data() {
     return {
       comment: "",

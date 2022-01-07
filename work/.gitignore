@@ -89,5 +89,7 @@ sw.*
 # Vim swap files
 *.swp
 
-api/uploads/
+senior/api/uploads/
 test.js
+
+package-lock.json

@@ -4,7 +4,10 @@
       <h1>Criteria</h1>
 
       <!-- Score criteria card -->
-      <ScoreCriteriaCard :scoreCriterias="scoreCriterias" :admin="false" />
+      <CoordinatorScoreCriteriaCard
+        :scoreCriterias="scoreCriterias"
+        :admin="false"
+      />
 
       <!-- Grade criteria card -->
       <!-- Edit criteria button -->
@@ -71,7 +74,7 @@
         </v-dialog>
       </div>
 
-      <GradeCriteriaCard
+      <CoordinatorGradeCriteriaCard
         :gradeCriterias="gradeCriterias"
         class="coordinator-criteria-grade-card"
       />
@@ -80,15 +83,11 @@
 </template>
 
 <script>
-import ScoreCriteriaCard from "@/components/Coordinator/scoreCriteriaCard";
-import GradeCriteriaCard from "@/components/Coordinator/gradeCriteriaCard";
+// import ScoreCriteriaCard from "@/components/coordinator/scoreCriteriaCard";
+// import GradeCriteriaCard from "@/components/coordinator/gradeCriteriaCard";
 
 export default {
   layout: "coordinatorsidebar",
-  components: {
-    ScoreCriteriaCard,
-    GradeCriteriaCard
-  },
   data() {
     return {
       editGradeDialog: false,

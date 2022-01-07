@@ -43,11 +43,11 @@ export default {
 
   axios: {
     baseURL: "http://localhost:3000/api",
-    credentials: true,
+    credentials: true
   },
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ["@nuxtjs/axios", 'nuxt-sweetalert2'],
+  modules: ["@nuxtjs/axios", "nuxt-sweetalert2"],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
@@ -71,7 +71,7 @@ export default {
   router: {
     middleware: "authenticated"
   },
-  serverMiddleware: [{ path: "/api", handler: "~/api/app.js" }],
+  serverMiddleware: [{ path: "/api", handler: "~/senior/api/app.js" }]
 
   // // Auth
   // //! The commented out is an alternative, to use the backend redirect needs to be rewrote
@@ -102,7 +102,7 @@ export default {
   // },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
-    watch: ["api/src/"]
-  }
+  // build: {
+  //   watch: ["/senior/api/src/"]
+  // }
 };

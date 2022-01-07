@@ -23,7 +23,7 @@
       </div>
 
       <!-- Score criteria card -->
-      <ScoreCriteriaCard :scoreCriterias="scoreCriterias" admin />
+      <CoordinatorScoreCriteriaCard :scoreCriterias="scoreCriterias" admin />
 
       <!-- Select grade study program -->
       <!-- <div class="admin-criteria-score-actions">
@@ -109,7 +109,7 @@
         </v-dialog>
       </div>
 
-      <GradeCriteriaCard
+      <CoordinatorGradeCriteriaCard
         class="admin-criteria-grade-card"
         :gradeCriterias="gradeCriterias"
       />
@@ -118,15 +118,11 @@
 </template>
 
 <script>
-import ScoreCriteriaCard from "@/components/Coordinator/scoreCriteriaCard";
-import GradeCriteriaCard from "@/components/Coordinator/gradeCriteriaCard";
+// import ScoreCriteriaCard from "@/components/coordinator/scoreCriteriaCard";
+// import GradeCriteriaCard from "@/components/coordinator/gradeCriteriaCard";
 
 export default {
   layout: "admin",
-  components: {
-    ScoreCriteriaCard,
-    GradeCriteriaCard
-  },
   data() {
     return {
       selectedMajor: null,

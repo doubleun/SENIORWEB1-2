@@ -71,9 +71,9 @@
   </div>
 </template>
 <script>
-import AdminDataTable from "@/components/Admin/adminDataTable";
+// import AdminDataTable from "@/components/admin/adminDataTable";
 
-import userDataTable from "@/components/Coordinator/userDataTable";
+// import UserDataTable from "@/components/coordinator/userDataTable";
 export default {
   data: () => ({
     sem: ["1/2564", "2/2564"],
@@ -91,10 +91,6 @@ export default {
       { text: "EMAIL", align: "center", value: "User_Email" }
     ]
   }),
-  components: {
-    userDataTable,
-    AdminDataTable
-  },
   async asyncData({ $axios, store }) {
     let students, yearNSemsters;
 

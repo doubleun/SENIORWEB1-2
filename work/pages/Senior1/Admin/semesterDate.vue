@@ -11,19 +11,16 @@
       </div>
 
       <!-- Semester date card -->
-      <SemesterDateCard :academicYear="academicYear" />
+      <AdminSemesterDateCard :academicYear="academicYear" />
     </main>
   </section>
 </template>
 
 <script>
-import SemesterDateCard from "@/components/Admin/semesterDateCard";
+// import SemesterDateCard from "@/components/admin/semesterDateCard";
 
 export default {
   layout: "admin",
-  components: {
-    SemesterDateCard
-  },
   methods: {
     async handleNewAcademicYear() {
       if (this.academicYear === null || this.academicYear === undefined) return;

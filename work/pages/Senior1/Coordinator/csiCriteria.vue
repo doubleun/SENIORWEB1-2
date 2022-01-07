@@ -1,25 +1,16 @@
 <template>
   <section>
     <main class="coordinator-criteria-main">
-      
-
-     
-      <CsiCriteria class="coordinator-criteria-grade-card" />
-    
-    
+      <GlobalCsiCriteria class="coordinator-criteria-grade-card" />
     </main>
   </section>
 </template>
 
 <script>
-import CsiCriteria from "@/components/Global/csiCriteria";
-
+// import CsiCriteria from "@/components/global/csiCriteria";
 
 export default {
   layout: "coordinatorsidebar",
-  components: {
-    CsiCriteria
-  },
   data() {
     return {
       dialog: false

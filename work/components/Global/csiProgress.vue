@@ -22,7 +22,7 @@
       <br />
 
       <!-- Card (Evaluation result) -->
-      <ProjectDetailCard />
+      <GlobalProjectDetailCard />
 
       <v-dialog v-model="dialog" persistent max-width="600">
         <!-- submit button -->
@@ -66,14 +66,14 @@
       <br /><br />
 
       <!-- Display work -->
-      <CsiDisplayWorkSection />
+      <GlobalCsiDisplayWorkSection />
     </main>
   </section>
 </template>
 
 <script>
-import ProjectDetailCard from "@/components/Global/projectDetailCard";
-import CsiDisplayWorkSection from "@/components/Global/csiDisplayworksection";
+// import ProjectDetailCard from "@/components/Global/projectDetailCard";
+// import CsiDisplayWorkSection from "@/components/Global/csiDisplayworksection";
 
 export default {
   data() {
@@ -87,11 +87,7 @@ export default {
       this.submitted = true;
     }
   },
-  layout: "coordinator",
-  components: {
-    ProjectDetailCard,
-    CsiDisplayWorkSection
-  }
+  layout: "coordinator"
 };
 </script>
 

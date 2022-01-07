@@ -1,18 +1,14 @@
 <template>
   <div>
-    <CardStatus :info="info" />
-    <Announcement :announcements="announcements" editable />
+    <CoordinatorHomeCardStatus :info="info" />
+    <CoordinatorHomeAnnouncement :announcements="announcements" editable />
   </div>
 </template>
 <script>
-import CardStatus from "@/components/Coordinator/homeCardStatus";
-import Announcement from "@/components/Coordinator/homeAnnouncement";
+// import CardStatus from "@/components/coordinator/homeCardStatus";
+// import Announcement from "@/components/coordinator/homeAnnouncement";
 export default {
   layout: "coordinatorsidebar",
-  components: {
-    CardStatus,
-    Announcement
-  },
   async asyncData(context) {
     const announcements = await context.$axios.$post(
       "http://localhost:3000/api/announc/major",

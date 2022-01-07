@@ -50,14 +50,13 @@
       </v-row>
     </v-card>
 
-    <Announcement :announcements="announcements" />
+    <CoordinatorHomeAnnouncement :announcements="announcements" />
     <!-- </div> -->
   </div>
 </template>
 <script>
-import Announcement from "@/components/Coordinator/homeAnnouncement";
+// import Announcement from "@/components/coordinator/homeAnnouncement";
 export default {
-  components: { Announcement },
   computed: {
     // Computed current group progress for stepper
     currentProgress() {
