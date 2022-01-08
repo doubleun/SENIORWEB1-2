@@ -10,7 +10,7 @@
     />
 
     <!-- Advisor comment -->
-    <v-card class="mx-auto my-6 pb-5" v-if="advisor.Score">
+    <v-card class="mx-auto my-6 pb-5" v-if="advisor">
       <v-card-title>
         ADVISOR: {{ advisor.Score }}
         <!-- <v-spacer></v-spacer>
@@ -49,11 +49,18 @@
 export default {
   async asyncData({ $axios, params, redirect, store }) {
     // If currentUserGroup is missing, fetch it first
-    if (store.state.group.currentUserGroup === null)
+    if (!store.state.group.currentUserGroup)
       // Dispatch event to store current user group info
       await store.dispatch("group/storeGroupInfo");
 
-    // If params is not available, redirect back to the home page
+    // If after fetching group the store still don't have current user group info, redirect them
+    if (!store.state.group.currentUserGroup) {
+      redirect("/Senior1/student/stuCreateGroup");
+      return;
+    }
+    console.log("after redirect no group!");
+
+    // allProgresses is for listing allowed params
     // TODO: these should be from the available progress, cuz each major has differnt number of progresses
     const allProgresses = [
       "proposal",
@@ -65,14 +72,40 @@ export default {
       "final-documentation",
       "re-evaluation",
     ];
+    // If params is not available in the allowed params, redirect back to the home page
     !allProgresses.includes(params.progress) && redirect("/Senior1/student/");
 
-    // Find progress id using index
+    // Find progress id using index, this still needs to be offset by 2 (ie. + 2, when use)
     const progressId = allProgresses.findIndex(
       (itm) => itm === params.progress
     );
 
+    // * === Block user from getting to progress pages while members are not in the group === * //
+    console.log("ProgressID: ", progressId);
+    console.log(
+      "Current user group members: ",
+      store.state.group.currentUserGroupMembers
+    );
+    // Check if the user alrady has group members in store, if not dispatch an event to fetch it
+    if (!store.state.group.currentUserGroupMembers)
+      await store.dispatch("group/storeGroupMembers");
+
+    // Then check if there are any members that does not accept the invite yet
+    const notAccpetMembers = store.state.group.currentUserGroupMembers.filter(
+      (member) => member.User_Status === 0
+    );
+    console.log("Not accept members: ", notAccpetMembers);
+    // If there are, show alert, redirect, and return the function
+    if (notAccpetMembers.length > 0) {
+      // If notAcceptMembers is return from the asyncData, then we show alert and redirect
+      alert("Please wait until all members accept the group invite");
+      // Redirect to create group page so they can see all members status
+      redirect("/Senior1/student/stuCreateGroup");
+      return;
+    }
+
     // This regex will find the first non-word (ie. in this case a dash "-")
+    // It's use for construct a work submission card's title from the params (which is one of the option in 'allProgresses')
     const dashRegex = /[^\w]/g;
 
     // Fetch submitted file(s)
@@ -126,8 +159,6 @@ export default {
       }
     });
 
-    // console.log(teachers);
-
     return {
       // Replace the dash with space and use it as title
       title: params.progress.replace(dashRegex, " "),
@@ -137,6 +168,23 @@ export default {
       advisor: teachers.advisor,
       committees: teachers.committees,
     };
+  },
+  methods: {
+    // handleNotAcceptGroup(notAccpetMembers) {
+    //   // If notAcceptMembers is return from the asyncData, then we show alert and redirect
+    //   if (!!notAccpetMembers && notAccpetMembers.length > 0) {
+    //     // Show alert telling user the list of group members who are yet to accept the invitation
+    //     this.$swal.fire({
+    //       title: "Please wait until all group members accept the invite",
+    //       text: "Bla bla",
+    //       icon: "warning",
+    //       confirmButtonColor: "#3085d6",
+    //       confirmButtonText: "Understood",
+    //     });
+    //     // Redirect user back to home page
+    //     this.$router.push("/Senior1/student/");
+    //   }
+    // },
   },
 };
 </script>

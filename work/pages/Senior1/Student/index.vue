@@ -92,12 +92,18 @@ export default {
 
     // Dispatch event to store current user group info
     await store.dispatch("group/storeGroupInfo");
-    // // Dispatch event to store available group progressions
-    // await store.dispatch("group/storeAvailableProgressions");
+
+    // Add group and proposal to the availableSteps if senior is 1
+    // TODO: This should be check from a flag in 'users' table (like showGroupProposal: true/false)
+    const availableSteps = [
+      { Progress_ID: 1, Progress_Name: "Group" },
+      { Progress_ID: 2, Progress_Name: "Proposal" },
+      ...store.state.group.availableProgress,
+    ];
 
     return {
       announcements,
-      availableSteps: store.state.group.availableProgress,
+      availableSteps,
     };
   },
   mounted() {

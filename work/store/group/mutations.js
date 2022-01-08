@@ -6,4 +6,7 @@ export default {
   SET_AVAILABLE_PROGRESS(state, payload) {
     state.availableProgress = payload;
   },
+  SET_GROUP_MEMBERS(state, payload) {
+    state.currentUserGroupMembers = payload;
+  },
 };

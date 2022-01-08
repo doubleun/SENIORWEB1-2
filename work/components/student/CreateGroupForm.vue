@@ -290,21 +290,43 @@
               </v-row>
             </div>
             <!-- Create button -->
-            <v-row class="text-center"
-              ><v-col>
+            <v-row
+              class="text-center"
+              v-if="
+                this.$store.state.group.currentUserGroup.User_Status === 0 ||
+                headMember
+              "
+            >
+              <v-col v-if="headMember">
                 <v-btn rounded dark color="indigo" @click="submitInfo">
                   {{ button }}
                 </v-btn>
-                <div v-if="created">
-                  <v-btn rounded dark color="indigo" @click="submitInfo">
+              </v-col>
+
+              <!-- If not head member, then shows accept and decline invite instead -->
+              <template v-else>
+                <v-col cols="12" sm="6">
+                  <v-btn
+                    rounded
+                    dark
+                    color="success"
+                    @click="handleInviteResponse(1)"
+                  >
                     Accept
                   </v-btn>
-                  <v-btn rounded dark color="error" @click="submitInfo">
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-btn
+                    rounded
+                    dark
+                    color="error"
+                    @click="handleInviteResponse(2)"
+                  >
                     Decline
                   </v-btn>
-                </div>
-              </v-col></v-row
-            >
+                </v-col>
+              </template>
+            </v-row>
           </v-col>
         </v-row>
       </v-card>
@@ -465,6 +487,41 @@ export default {
             }
           }
         });
+    },
+    async handleInviteResponse(response) {
+      // Just in case, validate form to make sure that everything is filled
+      this.$refs.form.validate();
+
+      // Request invite response api
+      try {
+        // Show confirm dialog
+        this.$swal
+          .fire({
+            icon: "info",
+            title: `Confirm ${
+              response === 1 ? "accept" : "decline"
+            } group invitation ?`,
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Confirm",
+          })
+          .then(async (result) => {
+            if (result.isConfirmed) {
+              const res = await this.$axios.$post("/group/updateMemberStatus", {
+                User_Email: this.$store.state.auth.currentUser.email,
+                Group_Id: this.$store.state.group.currentUserGroup.Group_ID,
+                Status: response,
+              });
+              if (res.status !== 200) throw err;
+            } else {
+              return;
+            }
+          });
+      } catch (err) {
+        console.log(err);
+        this.$swal.fire("Error");
+      }
     },
   },
   mounted() {

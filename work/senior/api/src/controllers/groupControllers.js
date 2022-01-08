@@ -19,7 +19,7 @@ createGroup = async (req, res) => {
     Email_Student2,
     Email_Student3,
     Email_Student4,
-    Project_on_term_ID
+    Project_on_term_ID,
   } = req.body;
   console.log(req.body);
   const sql =
@@ -52,7 +52,7 @@ createGroup = async (req, res) => {
       Project_NameEn,
       CoAdvisor_Name,
       Major,
-      Project_on_term_ID
+      Project_on_term_ID,
     ]);
   }
 
@@ -101,7 +101,7 @@ getGroupWithID = (req, res) => {
         if (err) throw err;
 
         // Check if the person is a member or not first, if not return failed to fetch
-        if (!groupMembers.map(itm => itm.User_Email).includes(Email))
+        if (!groupMembers.map((itm) => itm.User_Email).includes(Email))
           res.json({ msg: "Failed to fetch", status: 404 });
 
         // Query for group info
@@ -131,7 +131,7 @@ getGroupWithID = (req, res) => {
 getGroupInfo = async (req, res) => {
   const { User_Email, Project_on_term_ID } = req.body;
   const sql =
-    "SELECT gm.Group_Member_ID, gm.User_Phone, gm.Group_Role, gm.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Group_Status,g.Group_Progression, g.Grade, g.Final_Grade FROM `groupmembers` gm INNER JOIN `groups` g ON gm.Group_ID = g.Group_ID WHERE gm.User_Email = ? AND gm.Project_on_term_ID = ? AND NOT gm.User_Status = 2 AND NOT g.Group_Status = 0";
+    "SELECT gm.Group_Member_ID, gm.User_Phone, gm.Group_Role, gm.Group_ID, gm.User_Status, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Group_Status, g.Group_Progression, g.Grade, g.Final_Grade FROM `groupmembers` gm INNER JOIN `groups` g ON gm.Group_ID = g.Group_ID WHERE gm.User_Email = ? AND gm.Project_on_term_ID = ? AND NOT gm.User_Status = 2 AND NOT g.Group_Status = 0";
   con.query(sql, [User_Email, Project_on_term_ID], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -146,7 +146,7 @@ getGroupInfo = async (req, res) => {
 getGroupMembers = async (req, res) => {
   const { Group_ID } = req.body;
   const sql =
-    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Phone FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email WHERE gm.Group_ID = ? AND NOT gm.User_Status = 2 ORDER BY gm.Group_Role DESC";
+    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Phone, gm.User_Status FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email WHERE gm.Group_ID = ? AND NOT gm.User_Status = 2 ORDER BY gm.Group_Role DESC";
   con.query(sql, [Group_ID], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -182,8 +182,8 @@ getTeachersWithGroupID = (req, res) => {
     con.query(sql, [Group_ID, Project_on_term_ID], (err, result, fields) => {
       if (err) throw err;
       res.status(200).json({
-        advisor: result.filter(teacher => teacher.Group_Role === 0)[0],
-        committees: result.filter(teacher => teacher.Group_Role === 1)
+        advisor: result.filter((teacher) => teacher.Group_Role === 0)[0],
+        committees: result.filter((teacher) => teacher.Group_Role === 1),
       });
     });
   } catch (err) {
@@ -231,13 +231,13 @@ deletes = async (req, res) => {
     "INSERT INTO `groups`(`Group_ID`, `Group_Status`) VALUES ? ON DUPLICATE KEY UPDATE Group_Status=VALUES(Group_Status)";
   con.query(
     sql,
-    [data.map(itm => Object.values(itm))],
+    [data.map((itm) => Object.values(itm))],
     (err, result, fields) => {
       if (err) {
         console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
-        const deleteIDs = data.map(itm => itm.Group_ID);
+        const deleteIDs = data.map((itm) => itm.Group_ID);
         res.status(200).json({ msg: "sucess", status: 200, result: deleteIDs });
       }
     }
@@ -276,22 +276,25 @@ statusgroup = async (req, res) => {
   );
 };
 
-request = async (req, res) => {
+// Use for update group member status after user accept or decline group invitation
+updateMemberStatus = (req, res) => {
   const { Status, User_Email, Group_Id } = req.body;
+  console.log(Status, User_Email, Group_Id);
   const sql =
     "UPDATE `groupmembers` SET `User_Status`= ? WHERE Group_ID = ? AND User_Email = ?";
-  await con.query(
-    sql,
-    [Status, Group_Id, User_Email],
-    (err, result, fields) => {
+  try {
+    con.query(sql, [Status, Group_Id, User_Email], (err, result, fields) => {
       if (err) {
-        console.log(err);
-        res.status(500).send("Internal Server Error");
+        throw err;
       } else {
-        res.status(200).json(result);
+        res.status(200).json({ msg: "Success", status: 200 });
       }
-    }
-  );
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Interal Server Error", status: 500 });
+    return;
+  }
 };
 
 getScoreCoor = async (req, res) => {
@@ -332,7 +335,7 @@ getGroupScore = async (req, res) => {
       Group_ID,
       Group_ID,
       Group_ID,
-      Group_ID
+      Group_ID,
     ],
     (err, result, fields) => {
       if (err) {
@@ -375,7 +378,7 @@ listrequestGroup = async (req, res) => {
     Project_on_term_ID,
     Group_Role,
     User_Status,
-    Group_Role2
+    Group_Role2,
   } = req.body;
   const sql =
     "SELECT Group_ID,Group_Name_Thai,Group_Name_Eng,Co_Advisor,(SELECT Major_Name FROM majors WHERE Major_ID = Major)AS Major,Group_Progression, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=1 ) AS Committees,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT groups.Group_ID AS Group_ID, groups.Group_Name_Thai,groups.Group_Name_Eng,groups.Co_Advisor,groups.Major,groups.Group_Progression,groupmembers.User_Email AS Members, groupmembers.User_Phone,groupmembers.Group_Role AS Roles FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND (Group_Role=? OR Group_Role=?) AND User_Status = ?) AND groups.Project_on_term_ID=? AND groups.Group_Status=1 ) AS subquery GROUP BY subquery.Group_ID";
@@ -470,8 +473,8 @@ module.exports = {
   getGroupScore,
   getAllGroupsAdmin,
   listrequestGroup,
-  request,
+  updateMemberStatus,
   getMyGroup,
   grading,
-  deleteById
+  deleteById,
 };

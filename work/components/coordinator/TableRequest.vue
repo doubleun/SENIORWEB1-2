@@ -56,9 +56,7 @@
               Disagree
             </v-btn>
 
-            <v-btn color="green darken-1" text @click="save">
-              Agree
-            </v-btn>
+            <v-btn color="green darken-1" text @click="save"> Agree </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -93,12 +91,12 @@ export default {
       {
         text: "GROUP ID",
         align: "d-none",
-        value: "ID"
+        value: "ID",
       },
       {
         text: "GROUP NAME",
         align: "center",
-        value: "groupName"
+        value: "groupName",
       },
       { text: "MEMBER", value: "member", align: "center" },
       { text: "ADVISOR", value: "advisor", align: "center" },
@@ -108,8 +106,8 @@ export default {
         value: "actions",
         sortable: false,
         align: "center",
-        width: 200
-      }
+        width: 200,
+      },
     ],
     idgroup: "",
     groupInfo: [],
@@ -119,15 +117,15 @@ export default {
       calories: 0,
       fat: 0,
       carbs: 0,
-      protein: 0
+      protein: 0,
     },
     defaultItem: {
       name: "",
       calories: 0,
       fat: 0,
       carbs: 0,
-      protein: 0
-    }
+      protein: 0,
+    },
   }),
   async fetch() {
     const res = await this.$axios.$post("/group/listrequestGroup", {
@@ -135,7 +133,7 @@ export default {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       Group_Role: 1,
       Group_Role2: 0,
-      User_Status: 0
+      User_Status: 0,
     });
 
     for (let i = 0; i < res.length; i++) {
@@ -144,7 +142,7 @@ export default {
         member: res[i].Students,
         advisor: res[i].Advisor,
         committee: res[i].Committees,
-        ID: res[i].Group_ID
+        ID: res[i].Group_ID,
       });
     }
     console.log("group info", this.groupInfo);
@@ -152,7 +150,7 @@ export default {
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
-    }
+    },
   },
   watch: {
     dialog(val) {
@@ -160,7 +158,7 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
-    }
+    },
   },
   created() {
     this.initialize();
@@ -194,10 +192,10 @@ export default {
       console.log(this.idgroup);
     },
     async deleteItemConfirm() {
-      const res = await this.$axios.$post("/group/request", {
+      const res = await this.$axios.$post("/group/updateMemberStatus", {
         User_Email: this.$store.state.auth.currentUser.email,
         Group_Id: this.idgroup,
-        Status: 2
+        Status: 2,
       });
 
       this.closeDelete();
@@ -209,14 +207,14 @@ export default {
       this.dialogDelete = false;
     },
     async save() {
-      const res = await this.$axios.$post("/group/request", {
+      const res = await this.$axios.$post("/group/updateMemberStatus", {
         User_Email: this.$store.state.auth.currentUser.email,
         Group_Id: this.idgroup,
-        Status: 1
+        Status: 1,
       });
 
       this.close();
-    }
-  }
+    },
+  },
 };
 </script>

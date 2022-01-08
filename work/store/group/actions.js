@@ -32,4 +32,15 @@ export default {
       await state.commit("SET_AVAILABLE_PROGRESS", null);
     }
   },
+  async storeGroupMembers(state) {
+    // Fetch group members from database, where user status not equal to 2 (2 means left the group)
+    const groupMembers = await this.$axios.$post("/group/getGroupMembers", {
+      Group_ID: state.rootState.group.currentUserGroup.Group_ID,
+    });
+    if (groupMembers.length !== 0) {
+      await state.commit("SET_GROUP_MEMBERS", groupMembers);
+    } else {
+      await state.commit("SET_GROUP_MEMBERS", []);
+    }
+  },
 };

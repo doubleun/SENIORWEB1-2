@@ -19,7 +19,7 @@ groupRouter.post("/getScoreCoor", groupController.getScoreCoor);
 groupRouter.post("/socre", groupController.getGroupScore);
 groupRouter.post("/getAllAdmin", groupController.getAllGroupsAdmin);
 groupRouter.post("/listrequestGroup", groupController.listrequestGroup);
-groupRouter.post("/request", groupController.request);
+groupRouter.post("/updateMemberStatus", groupController.updateMemberStatus); // student, teacher
 groupRouter.post("/getMyGroup", groupController.getMyGroup);
 groupRouter.post("/grading", groupController.grading);
 groupRouter.put("/delete/one", groupController.deleteById);

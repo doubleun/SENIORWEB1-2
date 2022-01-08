@@ -7,7 +7,11 @@
 <script>
 // import allSubmission from "@/components/student/allSubmission";
 
-export default {};
+export default {
+  // async asyncData(context) {
+  //   console.log(context);
+  // },
+};
 </script>
 
 <style></style>
