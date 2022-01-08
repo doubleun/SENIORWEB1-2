@@ -28,12 +28,14 @@ export default {
     // If params is not available, redirect back to the group info page
     // TODO: these should be from the available progress, cuz each major has differnt number of progresses
     const allProgresses = [
+      "proposal",
       "progress-1",
       "progress-2",
       "progress-3",
       "progress-4",
       "final-presentation",
       "final-documentation",
+      "re-evaluation",
     ];
     !allProgresses.includes(params.progress) &&
       redirect(`/Senior1/coordinator/${params.groupId}`);
@@ -53,7 +55,7 @@ export default {
       "/assignment/getAssignmentFiles",
       {
         Group_ID: groupId,
-        Progress_ID: progressId + 3,
+        Progress_ID: progressId + 2,
       }
     );
 
@@ -66,12 +68,22 @@ export default {
       redirect("/Senior1/coordinator/");
     }
 
-    // Fetch score criteria for setting the max score this user can give
-    const maxScore = await $axios.$post("/criteria/getProgressMaxScore", {
-      Group_Role: groupRes.groupInfo[0].Current_Member_Role,
-      Progress_ID: progressId + 3,
-      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-    });
+    let maxScore = { score: 0, Assignment_ID: 0 };
+    // If progress id is 0 then we can't get max score (since progress id 2 is proposal)
+    // Then instead of fetching max score, we fetch only assignment id
+    if (progressId === 0) {
+      maxScore.Assignment_ID = await $axios.$post("/criteria/getAssignmentId", {
+        Progress_ID: progressId + 2,
+        Group_ID: groupId,
+      });
+    } else {
+      // Fetch score criteria for setting the max score this user can give
+      maxScore = await $axios.$post("/criteria/getProgressMaxScore", {
+        Group_Role: groupRes.groupInfo[0].Current_Member_Role,
+        Progress_ID: progressId + 2,
+        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+      });
+    }
 
     // Set group state, this is added in later for the layout to know current progress of each group
     // Check if the group state is already set, if not commit again
@@ -93,7 +105,7 @@ export default {
       // Replace the dash with space and use it as title
       title: params.progress.replace(dashRegex, " "),
       // If the allProgresses index is 0 then it needs to be 8 becuase proposal is progress id 8 in database
-      progressId: progressId + 3,
+      progressId: progressId + 2,
       submittedFiles,
       maxScore: maxScore.score,
       Assignment_ID: maxScore.Assignment_ID,

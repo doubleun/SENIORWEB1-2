@@ -298,9 +298,16 @@
               "
             >
               <v-col v-if="headMember">
-                <v-btn rounded dark color="indigo" @click="submitInfo">
-                  {{ button }}
+                <v-btn
+                  rounded
+                  dark
+                  color="indigo"
+                  @click="submitInfo"
+                  v-if="this.groupMembers.length === 0"
+                >
+                  Create
                 </v-btn>
+                <v-btn rounded dark color="indigo" v-else> Update </v-btn>
               </v-col>
 
               <!-- If not head member, then shows accept and decline invite instead -->
@@ -377,9 +384,6 @@ export default {
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: 1,
-    button: "Create",
-    buttonaccept: "Accept",
-    buttondecline: "Decline",
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -491,6 +495,7 @@ export default {
     async handleInviteResponse(response) {
       // Just in case, validate form to make sure that everything is filled
       this.$refs.form.validate();
+      if (!this.valid) return;
 
       // Request invite response api
       try {

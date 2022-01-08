@@ -174,18 +174,21 @@ getAllGroupsAdmin = async (req, res) => {
 
 // Get group student progress page
 getTeachersWithGroupID = (req, res) => {
-  const { Group_ID, Project_on_term_ID } = req.body;
-  console.log(Group_ID, Project_on_term_ID);
-  const sql =
-    "SELECT gm.Group_Member_ID, gm.User_Email, gm.Group_Role, sc.Score, sc.Comment, (SELECT `User_Name` FROM `users` WHERE `User_Email` = gm.User_Email) AS `User_Name` FROM `groupmembers` gm LEFT JOIN `scores` sc ON sc.Group_Member_ID = gm.Group_Member_ID WHERE gm.Group_ID = ? AND gm.Project_on_term_ID = ? AND gm.Group_Role IN (0,1)";
+  const { Group_ID, Progress_ID, Project_on_term_ID } = req.body;
+  const getTeachersProgressSql =
+    "SELECT gm.Group_Member_ID, gm.User_Email, gm.Group_Role, sc.Score, sc.Max_Score, sc.Comment, (SELECT `User_Name` FROM `users` WHERE `User_Email` = gm.User_Email) AS `User_Name` FROM `groupmembers` gm LEFT JOIN `scores` sc ON sc.Group_Member_ID = gm.Group_Member_ID WHERE gm.Group_ID = ? AND sc.Assignment_ID = (SELECT `Assignment_ID` FROM `assignments` WHERE `Progress_ID` = ? AND `Group_ID` = ?) AND gm.Project_on_term_ID = ? AND gm.Group_Role IN (0,1)";
   try {
-    con.query(sql, [Group_ID, Project_on_term_ID], (err, result, fields) => {
-      if (err) throw err;
-      res.status(200).json({
-        advisor: result.filter((teacher) => teacher.Group_Role === 0)[0],
-        committees: result.filter((teacher) => teacher.Group_Role === 1),
-      });
-    });
+    con.query(
+      getTeachersProgressSql,
+      [Group_ID, Progress_ID, Group_ID, Project_on_term_ID],
+      (err, result, fields) => {
+        if (err) throw err;
+        res.status(200).json({
+          advisor: result.filter((teacher) => teacher.Group_Role === 0)[0],
+          committees: result.filter((teacher) => teacher.Group_Role === 1),
+        });
+      }
+    );
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal Server Error");

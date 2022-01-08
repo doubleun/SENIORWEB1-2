@@ -41,30 +41,32 @@
           </div>
         </div>
 
-        <v-form>
-          <h5>Score</h5>
-          <v-row>
-            <v-col cols="8">
-              <v-text-field
-                v-model="givenScore"
-                :disabled="showSubmitted"
-                :rules="[
-                  () => !!givenScore || 'This field is required',
-                  handleCheckValidScore,
-                ]"
-                placeholder="Score:"
-                outlined
-                dense
-                type="number"
-                min="0"
-                step="1"
-                @keyup="handleScoreInput"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="4">
-              <p style="margin: 0; padding-top: 10px">/ {{ maxScore }}</p>
-            </v-col>
-          </v-row>
+        <v-form ref="form" v-model="valid">
+          <div v-if="maxScore !== 0">
+            <h5>Score</h5>
+            <v-row>
+              <v-col cols="8">
+                <v-text-field
+                  v-model="givenScore"
+                  :disabled="showSubmitted"
+                  :rules="[
+                    () => givenScore !== null || 'This field is required',
+                    handleCheckValidScore,
+                  ]"
+                  placeholder="Score:"
+                  outlined
+                  dense
+                  type="number"
+                  min="0"
+                  step="1"
+                  @keyup="handleScoreInput"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4">
+                <p style="margin: 0; padding-top: 10px">/ {{ maxScore }}</p>
+              </v-col>
+            </v-row>
+          </div>
           <!-- <v-select :items="selectScores" dense outlined></v-select> -->
 
           <h5>Comment</h5>
@@ -129,6 +131,7 @@ export default {
   },
   data() {
     return {
+      valid: true,
       showSubmitted: false,
       selectScores: [1, 2, 3, 4, 5],
       teacherFile: null,
@@ -267,19 +270,46 @@ export default {
       // If already submitted score, this function won't run
       if (this.showSubmitted) return;
 
+      // Validate form
+      this.$refs.form.validate();
+      if (!this.valid) return;
+
       const formData = new FormData();
 
       // Append form data with file
       formData.append("file", this.teacherFile);
 
       // Append the rest of the data
-      formData.append("Score", this.givenScore);
+      formData.append("Score", this.givenScore || 0);
+      formData.append("Max_Score", this.maxScore);
       formData.append("Comment", this.comment);
       formData.append(
         "Group_Member_ID",
         this.$store.state.group.currentUserGroup.Current_Member_ID
       );
+      formData.append(
+        "Group_ID",
+        this.$store.state.group.currentUserGroup.Group_ID
+      );
       formData.append("Assignment_ID", this.Assignment_ID);
+
+      // If this progress is proposal, skip finding the next progress id and simply use the current one
+      if (this.progressId === 2) {
+        formData.append("Next_Progress_ID", 2);
+      } else {
+        // Else get current progress index from all avaialble progresses
+        const currentProgressIndex =
+          this.$store.state.group.availableProgress.findIndex(
+            (progress) => progress.Progress_ID === this.progressId
+          );
+        // The next progress id will be in the current progress id (ie. mark that current progress is finished)
+        // More info: each group progression marks if it's done yet. So by updating group progression to current ones, we mark that it's done
+        formData.append(
+          "Next_Progress_ID",
+          this.$store.state.group.availableProgress[currentProgressIndex]
+            .Progress_ID
+        );
+      }
 
       const res = await this.$axios.$post(
         "/assignment/giveProgressScore",

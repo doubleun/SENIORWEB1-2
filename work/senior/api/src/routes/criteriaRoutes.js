@@ -19,5 +19,7 @@ criteriaRouter.post(
   "/getProgressMaxScore",
   criteriaController.getProgressMaxScore
 ); // teacher
+// Get assignment id of each progress
+criteriaRouter.post("/getAssignmentId", criteriaController.getAssignmentId); // teacher
 
 module.exports = criteriaRouter;

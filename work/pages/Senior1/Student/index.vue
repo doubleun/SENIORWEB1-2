@@ -44,9 +44,7 @@ export default {
   computed: {
     // Computed current group progress for stepper
     currentProgress() {
-      const progress =
-        this.$store.state.group.currentUserGroup?.Group_Progression;
-      return progress >= 7 ? progress / 10 : progress;
+      return this.$store.state.group.currentUserGroup?.Group_Progression;
     },
     // // Computed steps that will be available
     // availableSteps() {
@@ -100,6 +98,7 @@ export default {
       { Progress_ID: 2, Progress_Name: "Proposal" },
       ...store.state.group.availableProgress,
     ];
+    console.log("availableSteps", availableSteps);
 
     return {
       announcements,

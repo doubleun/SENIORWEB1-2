@@ -9,37 +9,11 @@
       :committees="committees"
     />
 
-    <!-- Advisor comment -->
-    <v-card class="mx-auto my-6 pb-5" v-if="advisor">
-      <v-card-title>
-        ADVISOR: {{ advisor.Score }}
-        <!-- <v-spacer></v-spacer>
-            RESULT: I -->
-      </v-card-title>
-      <v-divider class="mx-4"></v-divider>
-      <v-row class="pl-5 mt-4 pr-4">
-        <v-col cols="6" sm="6"> <h4>COMMENTS</h4> </v-col>
-        <v-col cols="12" sm="6">
-          <span>
-            {{ advisor.Comment }}
-          </span>
-        </v-col>
-      </v-row>
-      <v-row class="pl-5 mt-4 pr-4" v-if="advisor.files">
-        <v-col cols="6" sm="6"><h4>FILES</h4> </v-col>
-        <v-col cols="12" sm="6">
-          <li>
-            <a
-              :href="'/api/uploads/assignments/' + advisor.files[0].File_Name"
-              target="_blank"
-              class="text-decoration-none"
-              >{{ advisor.files[0].File_Name }}</a
-            >
-          </li>
-        </v-col>
-      </v-row>
-      <v-spacer></v-spacer>
-    </v-card>
+    <CommentCard
+      :advisor="advisor"
+      :committees="committees"
+      :progressId="progressId"
+    />
   </main>
 </template>
 
@@ -120,14 +94,17 @@ export default {
     // Fetch teachers
     let teachers = await $axios.$post("/group/getTeachersWithGroupID", {
       Group_ID: store.state.group.currentUserGroup.Group_ID,
+      Progress_ID: progressId + 2,
       Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
     });
+    // console.log("submittedFiles: ", submittedFiles);
+    // console.log("Teachers in progress (line: 126): ", teachers);
 
     // Add files for teachers
     submittedFiles.forEach((file) => {
       switch (file.Group_Member_ID) {
         // If file match advisor id
-        case teachers.advisor.Group_Member_ID:
+        case teachers.advisor?.Group_Member_ID:
           teachers.advisor = {
             ...teachers.advisor,
             // Using rest syntax for spreading conditionally
@@ -137,7 +114,7 @@ export default {
           };
           break;
         // If file match committee 1 id
-        case teachers.committees[0].Group_Member_ID:
+        case teachers.committees[0]?.Group_Member_ID:
           teachers.committees[0] = {
             ...teachers.committees[0],
             // Using rest syntax for spreading conditionally
@@ -147,7 +124,7 @@ export default {
           };
           break;
         // If file match committee 2 id
-        case teachers.committees[1].Group_Member_ID:
+        case teachers.committees[1]?.Group_Member_ID:
           teachers.committees[1] = {
             ...teachers.committees[1],
             // Using rest syntax for spreading conditionally
@@ -167,6 +144,7 @@ export default {
       submittedFiles,
       advisor: teachers.advisor,
       committees: teachers.committees,
+      teachers,
     };
   },
   methods: {

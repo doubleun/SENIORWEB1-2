@@ -71,13 +71,6 @@ uploadAssignments = async (req, res) => {
         });
       }
     );
-
-    // 3.) Update: increment group progression
-    const groupProgressSql =
-      "UPDATE `groups` SET `Group_Progression` = `Group_Progression` + 1  WHERE `Group_ID` = ?";
-    con.query(groupProgressSql, [Group_ID], (err, result, fields) => {
-      if (err) throw err;
-    });
   } catch (err) {
     console.log(err);
     res.status(422).json({ msg: "Query Error", staus: 422 });
@@ -121,23 +114,33 @@ getAssignmentFiles = (req, res) => {
 // };
 
 giveProgressScore = (req, res) => {
-  const { Score, Comment, Group_Member_ID, Assignment_ID } = req.body;
-  console.log(Score, Comment, Group_Member_ID, Assignment_ID);
+  const {
+    Score,
+    Max_Score,
+    Comment,
+    Group_Member_ID,
+    Group_ID,
+    Assignment_ID,
+    Next_Progress_ID,
+  } = req.body;
+  console.log(Score, Max_Score, Comment, Group_Member_ID, Assignment_ID);
   console.log("File: ", req.file);
+  console.log("Next_Progress_ID: ", Next_Progress_ID);
   const insertScore =
-    "INSERT INTO `scores`(`Score`, `Comment`, `Group_Member_ID`, `Assignment_ID`) VALUES (?,?,?,?)";
+    "INSERT INTO `scores`(`Score`, Max_Score, `Comment`, `Group_Member_ID`, `Assignment_ID`) VALUES (?,?,?,?, ?)";
   try {
-    // Insert score
+    // 1.) Insert score
     con.query(
       insertScore,
-      [Score, Comment, Group_Member_ID, Assignment_ID],
+      [Score, Max_Score, Comment, Group_Member_ID, Assignment_ID],
       (err, result, fields) => {
         if (err) throw err;
         // Insert files
         const filesSql =
           "INSERT INTO files(File_Name, Path, Type, Assignment_ID, Group_Member_ID) VALUES (?, ?, ?, ?, ?)";
 
-        // Insert files into database
+        // 2.) Insert files into database
+        // If there are files insert files too
         con.query(
           filesSql,
           [
@@ -148,7 +151,28 @@ giveProgressScore = (req, res) => {
             Group_Member_ID,
           ],
           (err, filesResult, fields) => {
-            if (err) throw err;
+            if (err) {
+              throw err;
+            } else {
+              // If next group progression id is not 'null' update the current group progression to the next one
+              if (!!Next_Progress_ID) {
+                // 3.) Update group progression to the next one
+                const groupProgressSql =
+                  "UPDATE `groups` SET `Group_Progression` = ?  WHERE `Group_ID` = ?";
+                con.query(
+                  groupProgressSql,
+                  [Next_Progress_ID, Group_ID],
+                  (err, result, fields) => {
+                    if (err) {
+                      throw err;
+                    } else {
+                      res.status(200).json({ msg: "success", status: 200 });
+                      return;
+                    }
+                  }
+                );
+              }
+            }
           }
         );
       }
@@ -157,7 +181,6 @@ giveProgressScore = (req, res) => {
     console.log(err);
     res.status(500).send("Internal Server Error");
   }
-  res.status(200).json({ msg: "success", status: 200 });
 };
 
 // For teacher progress page, since it fetch only current teacher's score information
