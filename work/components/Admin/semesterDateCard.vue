@@ -76,9 +76,7 @@
 
           <!-- Dialog card -->
           <v-card>
-            <v-card-title class="text-h5 mb-3">
-              Add new semester
-            </v-card-title>
+            <v-card-title class="text-h5 mb-3"> Add new semester </v-card-title>
             <v-row class="mx-5">
               <v-col class="d-flex" cols="12" sm="12" md="4">
                 <div class="d-flex flex-column">
@@ -132,6 +130,7 @@
 
 <script>
 export default {
+  //asd
   props: { academicYear: Number },
   data() {
     return {
@@ -146,34 +145,34 @@ export default {
           Academic_Term: "1",
           selectedDate: [
             new Date().toISOString().substr(0, 10),
-            new Date().toISOString().substr(0, 10)
+            new Date().toISOString().substr(0, 10),
           ],
-          dateMenu: false
+          dateMenu: false,
         },
         {
           Project_on_term_ID: 2,
           Academic_Term: "2",
           selectedDate: [
             new Date().toISOString().substr(0, 10),
-            new Date().toISOString().substr(0, 10)
+            new Date().toISOString().substr(0, 10),
           ],
-          dateMenu: false
-        }
-      ]
+          dateMenu: false,
+        },
+      ],
     };
   },
   async fetch() {
     try {
       // Fetch latest project on term
       this.dateData = await this.$axios.$post("/date/semester/get", {
-        year: this.academicYear
+        year: this.academicYear,
       });
       this.availableSemesters = [1, 2, 3];
       if (this.dateData.length !== 0) {
         // Sort by academic term
         this.dateData.sort((a, b) => a.Academic_Term - b.Academic_Term);
         // Offset date to the locale timezone, else it'll be one day different
-        this.dateData = this.dateData.map(itm => {
+        this.dateData = this.dateData.map((itm) => {
           const baseStart = new Date(itm.Access_Date_Start);
           const baseEnd = new Date(itm.Access_Date_End);
           return {
@@ -183,16 +182,16 @@ export default {
             ).toISOString(),
             Access_Date_End: new Date(
               baseEnd.getTime() - baseEnd.getTimezoneOffset() * 60000
-            ).toISOString()
+            ).toISOString(),
           };
         });
         // Extract start and end date into an array
-        this.dateData = this.dateData.map(itm => ({
+        this.dateData = this.dateData.map((itm) => ({
           ...itm,
           selectedDate: [
             itm.Access_Date_Start.slice(0, 10),
-            itm.Access_Date_End.slice(0, 10)
-          ]
+            itm.Access_Date_End.slice(0, 10),
+          ],
         }));
         // Slice available semesters, for add new semester
         this.availableSemesters = this.availableSemesters.slice(
@@ -209,12 +208,12 @@ export default {
     academicYear(val) {
       console.log("academicYear changed");
       this.$fetch();
-    }
+    },
   },
   methods: {
     async dateMenuSave(id, date) {
       const res = await this.$axios.$post("/date/semester/update", {
-        data: [...date, id]
+        data: [...date, id],
       });
       if (res.status === 200) {
         // Update date picker UI
@@ -232,9 +231,9 @@ export default {
                 year: this.academicYear,
                 term: this.selectedSemester,
                 dateStart: new Date().toISOString().substr(0, 10),
-                dateEnd: new Date().toISOString().substr(0, 10)
-              }
-            ]
+                dateEnd: new Date().toISOString().substr(0, 10),
+              },
+            ],
           }
         );
         // Close add new semester dialog
@@ -245,8 +244,8 @@ export default {
         console.log(err);
       }
     },
-    allowedDates: val => val >= new Date().toISOString().slice(0, 10)
-  }
+    allowedDates: (val) => val >= new Date().toISOString().slice(0, 10),
+  },
 };
 </script>
 

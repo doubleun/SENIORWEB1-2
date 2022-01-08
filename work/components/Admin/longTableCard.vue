@@ -20,10 +20,11 @@
 
 <script>
 export default {
+  //asd
   props: {
     tableTitle: String,
-    smallBtn: Boolean
-  }
+    smallBtn: Boolean,
+  },
 };
 </script>
 
