@@ -26,29 +26,35 @@
 export default {
   layout: "coordinator",
   async asyncData({ params, store, redirect, $axios }) {
-    // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group io)
-    const groupId = params.groupId.match(/(\d)/g).join("");
-    const res = await $axios.$post("/group/getGroupWithID", {
-      Group_ID: groupId,
-      Email: store.state.auth.currentUser.email,
-    });
-    if (res.status !== 200) {
-      redirect("/Senior1/coordinator/");
-    }
-    // console.log({
-    //   GroupInfo: res.groupInfo[0],
-    //   GroupMembers: res.groupMembers
-    // });
+    try {
+      // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group io)
+      const groupId = params.groupId.match(/(\d)/g).join("");
+      const res = await $axios.$post("/group/getGroupWithID", {
+        Group_ID: groupId,
+        Email: store.state.auth.currentUser.email,
+      });
+      // if (res.status !== 200) {
+      //   redirect("/Senior1/coordinator/");
+      // }
 
-    // Set group state, this is added in later for the layout to know current progress of each group
-    store.commit("group/SET_GROUP", res.groupInfo[0]);
-    return {
-      Group_ID: groupId,
-      GroupDetail: {
-        GroupInfo: res.groupInfo[0],
-        GroupMembers: res.groupMembers,
-      },
-    };
+      // console.log({
+      //   GroupInfo: res.groupInfo[0],
+      //   GroupMembers: res.groupMembers
+      // });
+
+      // Set group state, this is added in later for the layout to know current progress of each group
+      store.commit("group/SET_GROUP", res.groupInfo[0]);
+      return {
+        Group_ID: groupId,
+        GroupDetail: {
+          GroupInfo: res.groupInfo[0],
+          GroupMembers: res.groupMembers,
+        },
+      };
+    } catch (error) {
+      console.log(error);
+      return redirect("/Senior1/coordinator/");
+    }
   },
 };
 </script>
