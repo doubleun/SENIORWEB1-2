@@ -13,8 +13,7 @@ const upload = multer({ storage });
 
 storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // FIXME:
-    cb(null, "api/uploads/excel");
+    cb(null, "public_senior/uploads/excel");
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);

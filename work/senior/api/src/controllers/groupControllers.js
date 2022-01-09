@@ -86,6 +86,93 @@ createGroup = async (req, res) => {
   // }
 };
 
+updateGroup = async (req, res) => {
+  const {
+    Project_NameTh,
+    Project_NameEn,
+    Studen_Number,
+    Advisor_Email,
+    Group_ID,
+    CoAdvisor_Name,
+    Committee1_Email,
+    Committee2_Email,
+    Student1_Tel,
+    Student2_Tel,
+    Student3_Tel,
+    Student4_Tel,
+    Email_Student1,
+    Major,
+    Email_Student2,
+    Email_Student3,
+    Email_Student4,
+    Project_on_term_ID,
+    Group_Member_ID
+  } = req.body;
+  console.log(req.body);
+  const sql =
+    "REPLACE `groups` SET ,`Group_Name_Thai`=?,`Group_Name_Eng`=?,`Co_Advisor`=?,`Major`=?  WHERE `Group_ID`=?";
+  const sql2 =
+    "REPLACE `groupmembers` SET `User_Email`=?,`User_Phone`=?,`Group_Role`=?,`Project_on_term_ID`=? WHERE `User_Email`=? AND `Group_ID`=?";
+  let user = [];
+  let group = [];
+  let error = 0;
+  let success = 0;
+  user.push([Email_Student1, Student1_Tel, 3, Project_on_term_ID,Email_Student1,Group_ID]);
+
+  if (Studen_Number == 2) {
+    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID,Email_Student1, Group_ID]);
+  } else if (Studen_Number == 3) {
+    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID,Email_Student2, Group_ID]);
+    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID,Email_Student3,Group_ID]);
+  } else if (Studen_Number == 4) {
+    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID, Email_Student3,Group_ID]);
+    user.push([Email_Student4, Student4_Tel, 2, Project_on_term_ID,Email_Student4,Group_ID]);
+  }
+  user.push([Advisor_Email, "", 0, Project_on_term_ID,Advisor_Email,Group_ID]);
+  user.push([Committee1_Email, "", 1, Project_on_term_ID,Committee1_Email,Group_ID]);
+  user.push([Committee2_Email, "", 1, Project_on_term_ID,Committee2_Email,Group_ID]);
+  if (CoAdvisor_Name == "" || CoAdvisor_Name == null) {
+    group.push([Project_NameTh, Project_NameEn, "", Major, Group_ID]);
+  } else {
+    group.push([
+      Project_NameTh,
+      Project_NameEn,
+      CoAdvisor_Name,
+      Major,
+      Group_ID,
+    ]);
+  }
+
+  await con.query(sql, group[0], async (err, result, fields) => {
+    if (err) {
+      console.log("error code first is " + err.code);
+      error++;
+    } else {
+      for (let i = 0; i < user.length; i++) {
+        console.log(user[i]);
+        try {
+          await con.query(sql2, [user[i]], (err, result, fields) => {
+            // console.log("success", success);
+            if (err) throw error;
+          });
+        } catch (error) {
+          console.log(error);
+          res.status(500).json({ msg: "Internal Server Error", status: 500 });
+        }
+      }
+      res.status(200).json({ msg: "Create group Successed", status: 200 });
+    }
+  });
+  console.log("suss", success);
+  console.log("user.length", user.length);
+  // if (success == user.length) {
+  //   console.log("successed");
+  // }
+  // if (error > 0) {
+  //   res.status(500).json({ msg: "Internal Server Error", status: 500 });
+  // }
+};
+
 // Get group based on ID (for my advisee, comittee pages)
 getGroupWithID = (req, res) => {
   const { Group_ID, Email } = req.body;
@@ -480,4 +567,5 @@ module.exports = {
   getMyGroup,
   grading,
   deleteById,
+  updateGroup
 };

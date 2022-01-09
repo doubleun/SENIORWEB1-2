@@ -22,6 +22,8 @@ groupRouter.post("/listrequestGroup", groupController.listrequestGroup);
 groupRouter.post("/updateMemberStatus", groupController.updateMemberStatus); // student, teacher
 groupRouter.post("/getMyGroup", groupController.getMyGroup);
 groupRouter.post("/grading", groupController.grading);
+groupRouter.post("/updateGroup", groupController.updateGroup);
+
 groupRouter.put("/delete/one", groupController.deleteById);
 
 module.exports = groupRouter;

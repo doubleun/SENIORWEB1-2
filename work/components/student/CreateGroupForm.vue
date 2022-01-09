@@ -307,7 +307,7 @@
                 >
                   Create
                 </v-btn>
-                <v-btn rounded dark color="indigo" v-else> Update </v-btn>
+                <v-btn rounded dark color="indigo" @click="updateInfo" v-else> Update </v-btn>
               </v-col>
 
               <!-- If not head member, then shows accept and decline invite instead -->
@@ -384,6 +384,7 @@ export default {
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: 1,
+    Group_ID:17
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -476,6 +477,64 @@ export default {
               Email_Student3: this.email[2],
               Email_Student4: this.email[3],
               Major: this.major,
+              Project_on_term_ID:
+                this.$store.state.auth.currentUser.projectOnTerm,
+            });
+            console.log(res);
+            if (res.status == 200) {
+              this.$swal
+                .fire("Successed", "Group has been created.", "success")
+                .then((result) => {
+                  if (result.isConfirmed) window.location.reload();
+                });
+            } else {
+              this.$swal.fire("Error", res.msg, "error");
+            }
+          }
+        });
+    },
+    async updateInfo() {
+      // Validate form to make sure that everything is filled
+      this.$refs.form.validate();
+
+      // Make sure that atleast one advisor and one committee is selected
+      if (
+        this.selectedAdvisor === null ||
+        this.selectedCommittee1 === null ||
+        this.valid === false
+      )
+        return;
+
+      this.$swal
+        .fire({
+          icon: "info",
+          title: "Update group",
+          text: "Confirm update group.",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        })
+        .then(async (result) => {
+          if (result.isConfirmed) {
+            const res = await this.$axios.$post("group/updateGroup", {
+              Project_NameTh: this.thaiName,
+              Project_NameEn: this.engName,
+              Studen_Number: this.projectMembers.length,
+              Advisor_Email: this.selectedAdvisor.User_Email,
+              CoAdvisor_Name: this.selectedCoAdvisor?.User_Name || "",
+              Committee1_Email: this.selectedCommittee1?.User_Email,
+              Committee2_Email: this.selectedCommittee2?.User_Email || "",
+              Student1_Tel: this.phone[0],
+              Student2_Tel: this.phone[1],
+              Student3_Tel: this.phone[2],
+              Student4_Tel: this.phone[3],
+              Email_Student1: this.email[0],
+              Email_Student2: this.email[1],
+              Email_Student3: this.email[2],
+              Email_Student4: this.email[3],
+              Major: this.major,
+              Group_ID: this.Group_ID,
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
             });
