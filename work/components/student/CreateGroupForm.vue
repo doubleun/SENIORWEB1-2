@@ -388,8 +388,8 @@ export default {
     phone: ["", "", "", ""],
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
-    major: 1,
-    Group_ID: 17,
+    major: "1",
+    Group_ID: "19",
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -522,7 +522,7 @@ export default {
         })
         .then(async (result) => {
           if (result.isConfirmed) {
-            const res = await this.$axios.$post("group/updateGroup", {
+            const res = await this.$axios.$put("group/updateGroup", {
               Project_NameTh: this.thaiName,
               Project_NameEn: this.engName,
               Studen_Number: this.projectMembers.length,
