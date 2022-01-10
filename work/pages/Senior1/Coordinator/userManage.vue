@@ -131,7 +131,7 @@ export default {
         // Update the files array
         this.files = [...this.files, { file: e.target.files[0], date: d }];
         this.files.map(file => formData.append("files", file.file));
-        formData.append("Major", 1);
+        formData.append("Major", this.$store.state.auth.currentUser.major);
         console.log(formData);
         this.$swal
           .fire({
@@ -152,7 +152,11 @@ export default {
               );
               console.log(res);
               if (res === "success") {
-                this.$swal.fire("Saved!", "", "success");
+                this.$swal.fire("Saved!", "", "success").then(async result=>{
+                  if (result.isConfirmed) {
+                  window.location.reload();
+                  }
+                });
               } else {
                 this.$swal.fire("Error! some thing went wrong", "", "warning");
               }

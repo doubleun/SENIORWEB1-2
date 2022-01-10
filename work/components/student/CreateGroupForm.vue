@@ -384,7 +384,7 @@ export default {
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: "1",
-    Group_ID:"19"
+    
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -534,7 +534,7 @@ export default {
               Email_Student3: this.email[2],
               Email_Student4: this.email[3],
               Major: this.major,
-              Group_ID: this.Group_ID,
+              Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
             });
