@@ -11,7 +11,7 @@
       <!-- Evaluation result -->
       <v-card class="co-evaluation-result-card mt-16">
         <v-card-title>EVALUATION RESULT</v-card-title>
-        <GlobalEvaluationResultGrid :Group_ID="Group_ID" />
+        <EvaluationResultGrid :Group_ID="Group_ID" />
       </v-card>
 
       <!-- Evaluation form -->
@@ -61,41 +61,41 @@ export default {
       selectedGrades: null,
       haveGrade: true,
       grade: [],
-      Group_ID: 0
+      Group_ID: 0,
     };
   },
+  async asyncData({ params }) {
+    const groupId = params.groupId.match(/(\d)/g).join("");
+    return { Group_ID: groupId };
+  },
   async fetch() {
-    // dispath
-
-    this.Group_ID = this.$route.params.groupId.match(/(\d)/g).join("");
-    // fetch grade criteria for teacher grading
-    const data = await this.$axios.$post("/criteria/gradeMajor", {
-      Major_ID: this.$store.state.group.currentUserGroup.Major
-      // FIXME: to do event to commit groupinfo
-    });
-
-    // set grade to grading
-    data.forEach(el => {
-      this.grade.push(el.Grade_Criteria_Name);
-    });
-
-    // get group info
-    const group = await this.$axios.$post("/group/getMyGroup", {
-      Group_ID: this.Group_ID
-      //FIXME:
-    });
-
-    if (group[0].Grade != null && group[0].Grade != "") {
-      this.selectedGrades = group[0].Grade;
-      this.haveGrade = true;
-    } else {
-      this.haveGrade = false;
-    }
-    if (group[0].Comment_Grade != null && group[0].Comment_Grade != "") {
-      this.comment = group[0].Comment_Grade;
-    }
-    console.log("have grade", this.haveGrade);
-    // if(group[0].)
+    // // dispath
+    // this.Group_ID = this.$route.params.groupId.match(/(\d)/g).join("");
+    // // fetch grade criteria for teacher grading
+    // const data = await this.$axios.$post("/criteria/gradeMajor", {
+    //   Major_ID: this.$store.state.group.currentUserGroup.Major,
+    //   // FIXME: to do event to commit groupinfo
+    // });
+    // // set grade to grading
+    // data.forEach((el) => {
+    //   this.grade.push(el.Grade_Criteria_Name);
+    // });
+    // // get group info
+    // const group = await this.$axios.$post("/group/getMyGroup", {
+    //   Group_ID: this.Group_ID,
+    //   //FIXME:
+    // });
+    // if (group[0].Grade != null && group[0].Grade != "") {
+    //   this.selectedGrades = group[0].Grade;
+    //   this.haveGrade = true;
+    // } else {
+    //   this.haveGrade = false;
+    // }
+    // if (group[0].Comment_Grade != null && group[0].Comment_Grade != "") {
+    //   this.comment = group[0].Comment_Grade;
+    // }
+    // console.log("have grade", this.haveGrade);
+    // // if(group[0].)
   },
   methods: {
     async submitGrad() {
@@ -118,15 +118,15 @@ export default {
           showCancelButton: true,
           confirmButtonColor: "#3085d6",
           cancelButtonColor: "#d33",
-          confirmButtonText: "Yes"
+          confirmButtonText: "Yes",
         })
-        .then(async result => {
+        .then(async (result) => {
           if (result.isConfirmed) {
             const res = await this.$axios.$post("/group/grading", {
               Group_ID: this.Group_ID, //FIXME:
               event: 0,
               Grade: this.selectedGrades,
-              Comment: this.comment
+              Comment: this.comment,
             });
 
             if (res.status == 200) {
@@ -138,8 +138,8 @@ export default {
           }
         });
       // console.log("selected grade ", this.selectedGrades);
-    }
-  }
+    },
+  },
 };
 </script>
 

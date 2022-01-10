@@ -20,6 +20,7 @@
               class="white--text"
               v-on="on"
               v-bind="attrs"
+              v-show="!noGradeCriterias"
             >
               Edit Grade Criteria</v-btn
             >
@@ -29,9 +30,32 @@
           <v-card class="grade-criteria-dialog-card">
             <v-card-title class="text-h5"> Grade Criteria </v-card-title>
 
-            <div
+            <section class="d-flex flex-column" style="gap: 0.6rem">
+              <div
+                class="grade-criteria-input-flex"
+                v-for="(grade, index) in gradeCriterias"
+                :key="index"
+              >
+                <div style="width: 12%">
+                  <v-subheader v-if="index === 0">Grade</v-subheader>
+                  <p>{{ grade.Grade_Criteria_Name }}</p>
+                </div>
+                <div style="width: 60%">
+                  <v-subheader v-if="index === 0">Pass Score</v-subheader>
+                  <p v-if="index === gradeCriterias.length - 1"></p>
+                  <v-text-field
+                    v-else
+                    v-model="grade.Grade_Criteria_Pass"
+                    outlined
+                    dense
+                    hide-details
+                  ></v-text-field>
+                </div>
+              </div>
+            </section>
+            <!-- <div
               class="grade-criteria-input-flex"
-              v-for="(grade, index) in gradeCriterias.slice(0, 2)"
+              v-for="(grade, index) in gradeCriterias"
               :key="index"
             >
               <div>
@@ -47,16 +71,7 @@
                   hide-details
                 ></v-text-field>
               </div>
-              <!-- <div>
-                <v-subheader>High Score</v-subheader>
-                <v-text-field
-                  v-model="high"
-                  outlined
-                  dense
-                  hide-details
-                ></v-text-field>
-              </div> -->
-            </div>
+            </div> -->
 
             <v-divider></v-divider>
 
@@ -75,6 +90,8 @@
 
       <CoordinatorGradeCriteriaCard
         :gradeCriterias="gradeCriterias"
+        :noGradeCriterias="noGradeCriterias"
+        @add-grade-criterias="refresh"
         class="coordinator-criteria-grade-card"
       />
     </main>
@@ -116,7 +133,12 @@ export default {
       // }));
       console.log(scoreCriterias, gradeCriterias);
 
-      return { scoreCriterias, gradeCriterias };
+      // Sets no grade criteria to true if grade criteria length is zero
+      return {
+        scoreCriterias,
+        gradeCriterias,
+        noGradeCriterias: gradeCriterias.length === 0,
+      };
     } catch (err) {
       console.log(err);
       return;
@@ -126,11 +148,12 @@ export default {
     // Update grade criterias function (score criteria has a function in the compunent for update)
     async handleUpdateGradeCriterias() {
       const res = await this.$axios.$post("/criteria/gradeEdit", {
-        data: this.gradeCriterias.slice(0, 2),
+        data: this.gradeCriterias,
       });
       if (res.status === 200) this.editGradeDialog = false;
     },
     refresh() {
+      console.log("refresh");
       this.$nuxt.refresh();
     },
   },

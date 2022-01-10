@@ -13,6 +13,8 @@ criteriaRouter.get("/gradeAllMajor", criteriaController.getGradeAllMajor); // ad
 criteriaRouter.post("/gradeMajor", criteriaController.getGradeByMajor); // admin
 // Edit criteria (insert, and update based on the criteria id sent from front-end)
 criteriaRouter.post("/gradeEdit", criteriaController.editGradeCriteria); // coordinator
+// Add grade criteria
+criteriaRouter.post("/gradeAdd", criteriaController.addGradeCriteria); // coordinator
 
 // Get max score of each progress
 criteriaRouter.post(

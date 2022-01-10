@@ -56,7 +56,7 @@ createGroup = async (req, res) => {
     ]);
   }
 
-  await con.query(sql, group[0], async (err, result, fields) => {
+  con.query(sql, group[0], async (err, result, fields) => {
     if (err) {
       console.log("error code first is " + err.code);
       error++;
@@ -64,7 +64,7 @@ createGroup = async (req, res) => {
       for (let i = 0; i < user.length; i++) {
         console.log(user[i]);
         try {
-          await con.query(sql2, [user[i]], (err, result, fields) => {
+          con.query(sql2, [user[i]], (err, result, fields) => {
             // console.log("success", success);
             if (err) throw error;
           });
@@ -129,7 +129,14 @@ updateGroup = async (req, res) => {
   ]);
 
   if (Studen_Number == 2) {
-    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID,Email_Student2, Group_ID]);
+    user.push([
+      Email_Student2,
+      Student2_Tel,
+      2,
+      Project_on_term_ID,
+      Email_Student2,
+      Group_ID,
+    ]);
   } else if (Studen_Number == 3) {
     user.push([
       Email_Student2,
@@ -192,46 +199,65 @@ updateGroup = async (req, res) => {
   if (CoAdvisor_Name == "" || CoAdvisor_Name == null) {
     group.push([Project_NameTh, Project_NameEn, "", Major]);
   } else {
-    group.push([
-      Project_NameTh,
-      Project_NameEn,
-      CoAdvisor_Name,
-      Major,
-      
-    ]);
+    group.push([Project_NameTh, Project_NameEn, CoAdvisor_Name, Major]);
   }
 
-  await con.query(sql, [group[0][0],group[0][1],group[0][2],group[0][3],Group_ID], async (err, result, fields) => {
-    console.log(user)
-    if (err) {
-      console.log("error code first is " + err.sqlMessage);
-      error++;
-    } else {
-      for (let i = 0; i < user.length; i++) {
-        try {
-          await con.query(sql2, [user[i][0],user[i][1],user[i][2],user[i][3],user[i][4],user[i][5]], (err, result, fields) => {
-            console.log("success", result['affectedRows']);
-            if(result['affectedRows'] == 0){
-              con.query(insert, [user[i][0],user[i][1],user[i][2],user[i][3],user[i][5]], (err, result, fields) => {
-                if (err){
-                  console.log("error code third is " + err.sqlMessage);
-                }else{
-                  success++
+  con.query(
+    sql,
+    [group[0][0], group[0][1], group[0][2], group[0][3], Group_ID],
+    async (err, result, fields) => {
+      console.log(user);
+      if (err) {
+        console.log("error code first is " + err.sqlMessage);
+        error++;
+      } else {
+        for (let i = 0; i < user.length; i++) {
+          try {
+            con.query(
+              sql2,
+              [
+                user[i][0],
+                user[i][1],
+                user[i][2],
+                user[i][3],
+                user[i][4],
+                user[i][5],
+              ],
+              (err, result, fields) => {
+                console.log("success", result["affectedRows"]);
+                if (result["affectedRows"] == 0) {
+                  con.query(
+                    insert,
+                    [
+                      user[i][0],
+                      user[i][1],
+                      user[i][2],
+                      user[i][3],
+                      user[i][5],
+                    ],
+                    (err, result, fields) => {
+                      if (err) {
+                        console.log("error code third is " + err.sqlMessage);
+                      } else {
+                        success++;
+                      }
+                    }
+                  );
+                } else {
+                  success++;
                 }
-              })
-            }else{
-              success++
-            }
-            if (err) throw error;
-          });
-        } catch (error) {
-          console.log("hear err"+error);
-          res.status(500).json({ msg: "Internal Server Error", status: 500 });
+                if (err) throw error;
+              }
+            );
+          } catch (error) {
+            console.log("hear err" + error);
+            res.status(500).json({ msg: "Internal Server Error", status: 500 });
+          }
         }
+        res.status(200).json({ msg: "Create group Successed", status: 200 });
       }
-      res.status(200).json({ msg: "Create group Successed", status: 200 });
     }
-  });
+  );
   console.log("suss", success);
   console.log("user.length", user.length);
   // if (success == user.length) {

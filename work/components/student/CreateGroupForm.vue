@@ -400,9 +400,9 @@ export default {
     });
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
-    console.log("Students: ", res.students);
+    // console.log("Students: ", res.students);
     this.allTeachersInSchool = res.teachers;
-    console.log("Teachers: ", res.students);
+    // console.log("Teachers: ", res.students);
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
@@ -509,6 +509,10 @@ export default {
         this.valid === false
       )
         return;
+      console.log(
+        "NEW STATE CHECK: ",
+        this.$store.state.auth.currentUser.major
+      );
 
       this.$swal
         .fire({
@@ -538,8 +542,8 @@ export default {
               Email_Student2: this.email[1],
               Email_Student3: this.email[2],
               Email_Student4: this.email[3],
-              Major: this.major,
-              Group_ID: this.Group_ID,
+              Major: this.$store.state.auth.currentUser.major,
+              Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
             });

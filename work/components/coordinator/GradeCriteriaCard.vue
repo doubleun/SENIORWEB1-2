@@ -2,17 +2,11 @@
   <v-card class="grade-criteria-card">
     <v-card-title>
       <h4>Grade Criteria</h4>
-      <!-- <v-text-field
-        label="Search"
-        outlined
-        dense
-        hide-details
-        class="grade-criteria-search"
-      ></v-text-field> -->
     </v-card-title>
 
     <!-- Grade criteria table -->
-    <div class="grade-criteria-content">
+    <!-- If there are grade criterias, show them  -->
+    <div class="grade-criteria-content" v-if="!noGradeCriterias">
       <!-- Table attr -->
       <h4>GRADE</h4>
       <h4>PASS</h4>
@@ -20,16 +14,85 @@
       <!-- <h4>TOTAL</h4> -->
 
       <!-- Table records -->
-      <template v-for="grade in gradeCriterias">
-        <p :key="grade.Grade_Criteria_ID || grade.Grade_Criteria_Name + 1">
+      <template v-for="(grade, index) in gradeCriterias">
+        <p :key="grade.Grade_Criteria_Name + 1">
           {{ grade.Grade_Criteria_Name }}
         </p>
-        <p :key="grade.Grade_Criteria_ID || grade.Grade_Criteria_Name + 2">
-          {{ grade.Grade_Criteria_Pass }}
+        <p :key="grade.Grade_Criteria_Name + 2">
+          {{
+            index === gradeCriterias.length - 1
+              ? "0 - " +
+                (gradeCriterias[gradeCriterias.length - 2].Grade_Criteria_Pass -
+                  1)
+              : grade.Grade_Criteria_Pass
+          }}
         </p>
-        <!-- <p :key="grade.grade + 3">{{ grade.high }}</p> -->
-        <!-- <p :key="grade.grade + 3">{{ grade.total }}</p> -->
       </template>
+    </div>
+
+    <!-- Else, show add grade criterias dialog -->
+    <div class="d-flex justify-center pb-5" v-else>
+      <v-dialog v-model="addGradeDialog" width="500">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn color="primary darken-2" v-on="on" v-bind="attrs"
+            >Add grade criterias</v-btn
+          >
+        </template>
+
+        <!-- Add new grade criterias pop up card -->
+        <v-card class="grade-criteria-dialog-card">
+          <v-card-title class="text-h5"> Add grade criterias </v-card-title>
+
+          <!-- Select grade criterias template -->
+          <div class="d-flex mx-auto" style="width: 80%">
+            <v-select
+              :items="options"
+              v-model="selectedGradeOption"
+              label="Select criteria template"
+              hide-details
+              dense
+              outlined
+            ></v-select>
+          </div>
+
+          <!-- Display grade and pass score section -->
+          <section class="d-flex flex-column" style="gap: 0.6rem">
+            <div
+              class="grade-criteria-input-flex"
+              v-for="(grade, index) in criteriasTemplate"
+              :key="index"
+            >
+              <div style="width: 12%">
+                <v-subheader v-if="index === 0">Grade</v-subheader>
+                <p>{{ grade.Grade_Criteria_Name }}</p>
+              </div>
+              <div style="width: 60%">
+                <v-subheader v-if="index === 0">Pass Score</v-subheader>
+                <p v-if="index === criteriasTemplate.length - 1"></p>
+                <v-text-field
+                  v-else
+                  v-model="grade.Grade_Criteria_Pass"
+                  outlined
+                  dense
+                  hide-details
+                ></v-text-field>
+              </div>
+            </div>
+          </section>
+
+          <v-divider></v-divider>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="secondary" text @click="addGradeDialog = false">
+              Cancel
+            </v-btn>
+            <v-btn color="primary" @click="handleAddGradeCriterias">
+              Save
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
   </v-card>
 </template>
@@ -37,8 +100,69 @@
 <script>
 export default {
   props: {
-    gradeCriterias: Array
-  }
+    gradeCriterias: Array,
+    noGradeCriterias: Boolean,
+  },
+  data: () => ({
+    // Available option, used only for showing user in v-select
+    options: ["S/U", "A-F"],
+    // Keep track of selected option, default is options[0]
+    selectedGradeOption: "S/U",
+    // Grade criteria option A and B
+    criteriasOptionA: ["S", "U"],
+    criteriasOptionB: ["A", "B", "C", "D", "F"],
+    addGradeDialog: false,
+  }),
+  computed: {
+    // Create template for selected grade criterias option
+    // TODO: This can be reactive, without using computed
+    criteriasTemplate() {
+      if (this.selectedGradeOption === this.options[0]) {
+        // Return template of criteria option A (first one)
+        return this.criteriasOptionA.map((criteria) => ({
+          Grade_Criteria_Name: criteria,
+          Grade_Criteria_Pass: 0,
+          Major_ID: this.$store.state.auth.currentUser.major,
+          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+        }));
+      } else {
+        // Return template of criteria option B (second one)
+        return this.criteriasOptionB.map((criteria) => ({
+          Grade_Criteria_Name: criteria,
+          Grade_Criteria_Pass: 0,
+          Major_ID: this.$store.state.auth.currentUser.major,
+          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+        }));
+      }
+    },
+  },
+  methods: {
+    async handleAddGradeCriterias() {
+      // console.log(this.criteriasTemplate);
+      try {
+        // Post new grade criterias
+        const addGradeCriteriaRes = await this.$axios.$post(
+          "/criteria/gradeAdd",
+          {
+            data: this.criteriasTemplate,
+          }
+        );
+        if (addGradeCriteriaRes.status !== 200)
+          throw new Error(
+            "Failed to add grade criterias, please try again later"
+          );
+        // Update UI
+        // Emit event for refresh
+        this.$emit("add-grade-criterias");
+        this.noGradeCriterias = false;
+        // this.gradeCriterias = this.criteriasTemplate;
+        return;
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+    },
+  },
 };
 </script>
 
