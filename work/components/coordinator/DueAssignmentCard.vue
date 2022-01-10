@@ -12,42 +12,46 @@
         <!-- set start/end date -->
         <template v-slot:item.DueDate_Start="{ item }">
           <span v-if="item.selectedDate[0] < item.selectedDate[1]">
-            <span v-if="item.selectedDate[0] == offsetDate(access_Date_Start)">
-              yyyy/mm/dd
+            <!-- <span v-if="item.selectedDate[0] == offsetDate(access_Date_Start)">
+              -
             </span>
             <span v-else>
               {{ item.selectedDate[0] }}
-            </span>
+            </span> -->
+            {{ item.selectedDate[0] }}
           </span>
 
           <span v-else>
-            <span v-if="item.selectedDate[1] == offsetDate(access_Date_End)">
-              yyyy/mm/dd
+            <!-- <span v-if="item.selectedDate[1] == offsetDate(access_Date_End)">
+              -
             </span>
             <span v-else>
               {{ item.selectedDate[1] }}
-            </span>
+            </span> -->
+            {{ item.selectedDate[1] }}
           </span>
         </template>
 
         <template v-slot:item.DueDate_End="{ item }">
           <span v-if="item.selectedDate[0] > item.selectedDate[1]">
-            <span v-if="item.selectedDate[0] == offsetDate(access_Date_Start)">
-              yyyy/mm/dd
+            <!-- <span v-if="item.selectedDate[0] == offsetDate(access_Date_Start)">
+              -
             </span>
             <span v-else>
               {{ item.selectedDate[0] }}
-            </span>
+            </span> -->
+            {{ item.selectedDate[0] }}
           </span>
 
           <span v-else>
-            <span v-if="item.selectedDate[1] == offsetDate(access_Date_End)">
-              yyyy/mm/dd
+            <!-- <span v-if="item.selectedDate[1] == offsetDate(access_Date_End)">
+              -
             </span>
 
             <span v-else>
               {{ item.selectedDate[1] }}
-            </span>
+            </span> -->
+            {{ item.selectedDate[1] }}
           </span>
         </template>
 
@@ -67,6 +71,7 @@
                   :ref="'dateMenu' + item.Progress_ID"
                   v-model="item.dateMenu"
                   :close-on-content-click="false"
+                  :return-value.sync="date"
                   transition="scale-transition"
                   offset-y
                 >
@@ -76,17 +81,21 @@
                       class="white--text px-5"
                       v-on="on"
                       v-bind="attrs"
+                      :disabled="!item.editable"
                     >
-                      <v-icon>mdi-calendar-month</v-icon> EDIT
+                      <v-icon>mdi-calendar-month</v-icon>
+                      <span v-if="item.assignable">Assign</span>
+                      <span v-else>Edit</span>
                     </v-btn>
                   </template>
                   <v-date-picker
                     v-model="item.selectedDate"
-                    :allowed-dates="allowedDates"
                     color=""
                     no-title
                     scrollable
                     range
+                    :max="offsetDate(access_Date_End)"
+                    :min="offsetDate(access_Date_Start)"
                   >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="item.dateMenu = false">
@@ -96,11 +105,12 @@
                       text
                       color="primary"
                       @click="
-                        dateMenuSave(
-                          item.selectedDate,
-                          item.Progress_ID,
-                          item.Progression_Info_ID
-                        )
+                        (item.dateMenu = false),
+                          dateMenuSave(
+                            item.selectedDate,
+                            item.Progress_ID,
+                            item.Progression_Info_ID
+                          )
                       "
                     >
                       OK
@@ -129,13 +139,13 @@ export default {
         {
           text: "TOPIC",
           value: "Progress_Name",
-          align: "center"
+          align: "center",
         },
         { text: "ASSIGNDATE", value: "DueDate_Start", align: "center" },
         { text: "DUEDATE", value: "DueDate_End", align: "center" },
         { text: "FILE", value: "totalFile", align: "center" },
-        { text: "ACTION", value: "action", align: "center" }
-      ]
+        { text: "ACTION", value: "action", align: "center" },
+      ],
     };
   },
   async fetch() {
@@ -143,24 +153,27 @@ export default {
       var duedate = await this.$axios.$post("/date/progression", {
         Senior: this.$store.state.auth.currentUser.senior,
         Major_ID: this.$store.state.auth.currentUser.major,
-        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       });
-      // console.log("progression Duedate", duedate);
+      console.log("progression Duedate", duedate);
 
       var criteria = await this.$axios.$post("/criteria/scoreMajor", {
-        Major_ID: this.$store.state.auth.currentUser.major
+        Major_ID: this.$store.state.auth.currentUser.major,
+        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       });
+
+      console.log(" criteria1", criteria);
 
       // set ascess date
       this.access_Date_Start = duedate.projectOnTerm[0].Access_Date_Start;
       this.access_Date_End = duedate.projectOnTerm[0].Access_Date_End;
 
       // move topic to first
-      const indexArr = criteria.findIndex(el => el.Progress_ID === 7);
-      const topic = criteria.splice(indexArr, 1);
+      // const indexArr = criteria.findIndex((el) => el.Progress_ID === 7);
+      // const topic = criteria.splice(indexArr, 1);
 
-      criteria = [...topic, ...criteria];
-      console.log("criteria old", criteria);
+      // criteria = [...topic, ...criteria];
+      // console.log("criteria old", criteria);
 
       // delete progress that don't have score (Total = 0)
       criteria.forEach(async (el, index) => {
@@ -182,7 +195,7 @@ export default {
         let total = await this.$axios.$post("/assignment/countFile", {
           Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
           Progress_ID: criteria[index].Progress_ID,
-          Major: this.$store.state.auth.currentUser.major
+          Major: this.$store.state.auth.currentUser.major,
         });
         criteria[index].totalFile = await total[0].TotalFile;
       }
@@ -190,47 +203,88 @@ export default {
       // map date
       // no due date in this semester
       if (duedate.progressionDuedate.length == 0) {
-        criteria = criteria.map(el => ({
+        console.log("No due date");
+        criteria = criteria.map((el, index) => ({
           ...el,
           selectedDate: [
-            this.offsetDate(duedate.projectOnTerm[0].Access_Date_Start),
-            this.offsetDate(duedate.projectOnTerm[0].Access_Date_End)
+            this.offsetDate(Date.now()),
+            this.offsetDate(Date.now()),
+            // this.offsetDate(duedate.projectOnTerm[0].Access_Date_Start),
+            // this.offsetDate(duedate.projectOnTerm[0].Access_Date_End),
           ],
           Progression_Info_ID: 0,
-          dateMenu: false
+          dateMenu: false,
+          editable: index == 0 ? true : false,
+          assignable: true,
         }));
       } else {
-        // console.log("have some due date");
+        console.log("have some due date");
         // if have due date in this semester
+
         for (let i = 0; i < criteria.length; i++) {
           for (let j = 0; j < duedate.progressionDuedate.length; j++) {
             // have some due date in this semster
+            console.log(
+              duedate.progressionDuedate[j].Progress_ID,
+              "==",
+              criteria[i].Progress_ID
+            );
             if (
               duedate.progressionDuedate[j].Progress_ID ==
               criteria[i].Progress_ID
             ) {
               criteria[i].selectedDate = [
                 this.offsetDate(duedate.progressionDuedate[j].DueDate_Start),
-                this.offsetDate(duedate.progressionDuedate[j].DueDate_End)
+                this.offsetDate(duedate.progressionDuedate[j].DueDate_End),
               ];
               criteria[i].Progression_Info_ID =
                 duedate.progressionDuedate[j].Progression_Info_ID;
 
               criteria[i].dateMenu = false;
+
+              criteria[i].editable = true;
+              console.log(
+                "duate length 1",
+                duedate.progressionDuedate.length - 1,
+                i
+              );
+              if (i != criteria.length - 1) {
+                console.log(
+                  "duate length 2",
+                  duedate.progressionDuedate.length
+                );
+                criteria[i + 1].editable = true;
+              }
+              // criteria[i].editable =
+              //   i + 1 > duedate.progressionDuedate.length
+              //     ? null
+              //     : ((criteria[i].editable = true),
+              //       (criteria[i + 1].editable = true));
+              criteria[i].assignable = false;
+              console.log("index", i);
               break;
             }
 
             criteria[i].selectedDate = [
-              this.offsetDate(duedate.projectOnTerm[0].Access_Date_Start),
-              this.offsetDate(duedate.projectOnTerm[0].Access_Date_End)
+              this.offsetDate(Date.now()),
+              this.offsetDate(Date.now()),
+              // this.offsetDate(duedate.projectOnTerm[0].Access_Date_Start),
+              // this.offsetDate(duedate.projectOnTerm[0].Access_Date_End),
             ];
             criteria[i].Progression_Info_ID = 0;
 
             criteria[i].dateMenu = false;
+            criteria[i].editable = criteria[i].editable
+              ? criteria[i].editable
+              : false;
+            criteria[i].assignable = true;
           }
         }
       }
-      this.progressionDuedate = criteria;
+
+      this.progressionDuedate = criteria.sort((a, b) =>
+        a.Progress_ID > b.Progress_ID ? 1 : -1
+      );
 
       console.log("progression Duedate22", this.progressionDuedate);
     } catch (error) {}
@@ -264,16 +318,18 @@ export default {
         Progression_Info_ID: progressInfoId,
         Major_ID: this.$store.state.auth.currentUser.major,
         Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-        Senior: this.$store.state.auth.currentUser.senior
+        Senior: this.$store.state.auth.currentUser.senior,
       });
 
       if (res.status == 200) {
         console.log("success", res);
+        this.$nuxt.refresh();
+        this.$swal.fire("Successed", "", "success");
         // console.log("ref", this.$refs["dateMenu" + progressId]);
-        this.$refs["dateMenu" + progressId] = false;
+        // this.$refs["dateMenu" + progressId] = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
