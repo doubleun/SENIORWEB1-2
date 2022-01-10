@@ -135,7 +135,7 @@ createGroup = (req, res) => {
     ]);
   }
 
-  con.query(sql, group[0], async (err, result, fields) => {
+  con.query(sql, group[0], (err, result, fields) => {
     if (err) {
       console.log("error code first is " + err.code);
       error++;
@@ -226,16 +226,10 @@ updateGroup = (req, res) => {
     Group_ID,
   ]);
 
-  if (Studen_Number == 2) {
-    user.push([
-      Email_Student2,
-      Student2_Tel,
-      2,
-      Project_on_term_ID,
-      Email_Student2,
-      Group_ID,
-    ]);
-  } else if (Studen_Number == 3) {
+  if (Studen_Number > 1) {
+    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID, Email_Student2, Group_ID]);
+  }
+  if (Studen_Number > 2) {
     user.push([
       Email_Student3,
       Student3_Tel,
@@ -380,9 +374,9 @@ updateGroup = (req, res) => {
         });
 
       }
+      res.status(200).json({ msg: "Create group Successed", status: 200 });
     }
-  }
-  );
+  });
   console.log("suss", success);
   console.log("user.length", user.length);
   // if (success == user.length) {
@@ -395,7 +389,7 @@ updateGroup = (req, res) => {
 
 // Get group based on ID (for my advisee, comittee pages)
 getGroupWithID = (req, res) => {
-  const { Group_ID, Email, Project_on_term_ID } = req.body;
+  const { Group_ID, Email } = req.body;
 
   // Query for group members
   const sqlGroupMembers =
@@ -404,9 +398,9 @@ getGroupWithID = (req, res) => {
     try {
       if (err) throw err;
 
-        // Check if the person is a member or not first, if not return failed to fetch
-        if (!groupMembers.map((member) => member.User_Email).includes(Email))
-          throw new Error("Not a member of this group");
+      // Check if the person is a member or not first, if not return failed to fetch
+      if (!groupMembers.map((member) => member.User_Email).includes(Email))
+        throw new Error("Not a member of this group");
 
       // Query for group info
       const sqlGroupInfo =
@@ -415,40 +409,16 @@ getGroupWithID = (req, res) => {
         if (err) throw err;
         con.query(sqlGroupInfo, [Email, Group_ID], (err, groupInfo, fields) => {
           if (err) throw err;
-          con.query(
-            sqlGroupInfo,
-            [Email, Group_ID],
-            (err, groupInfo, fields) => {
-              if (err) throw err;
-              resolve(groupInfo);
-            }
-          );
+          resolve(groupInfo);
         });
+      });
 
-        res.status(200).json({ groupInfo, groupMembers, status: 200 });
-      } catch (err) {
-        console.log(err);
-        res.status(500).json({ msg: err, status: 500 });
-      }
+      res.status(200).json({ groupInfo, groupMembers, status: 200 });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ msg: err, status: 500 });
     }
-  );
-};
-
-// Get group based on group id (exclude group members)
-getOnlyGroupWithID = (req, res) => {
-  const { Group_ID } = req.body;
-  const getOnlyGroup = "SELECT * FROM `groups` WHERE `Group_ID` = ?";
-  try {
-    con.query(getOnlyGroup, [Group_ID], (err, result) => {
-      if (err) throw err;
-      res.status(200).json(result[0]);
-      return;
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ msg: err, status: 500 });
-    return;
-  }
+  });
 };
 
 // Get current user group info if the student has one
@@ -787,7 +757,6 @@ grading = (req, res) => {
 module.exports = {
   getAll,
   getGroupWithID,
-  getOnlyGroupWithID,
   getGroupInfo,
   getGroupMembers,
   getTeachersWithGroupID,
