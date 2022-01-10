@@ -8,6 +8,7 @@
 
       <!-- Display work -->
       <DisplayWorkSection
+        :noWorkSubmitted="noWorkSubmitted"
         :progressId="progressId"
         :submittedFiles="submittedFiles"
         :maxScore="maxScore"
@@ -49,9 +50,17 @@ export default {
       // This regex will find the first non-word (ie. in this case a dash "-")
       const dashRegex = /[^\w]/g;
 
-      // Fetch submitted file(s)
       // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group io)
       const groupId = params.groupId.match(/(\d)/g).join("");
+
+      // Fetch group info
+      // If the user is not advisor or committee of this group, an error will be thrown and they will redirect to teacher home page
+      const groupRes = await $axios.$post("/group/getGroupWithID", {
+        Group_ID: groupId,
+        Email: store.state.auth.currentUser.email,
+      });
+
+      // Fetch submitted file(s)
       const submittedFiles = await $axios.$post(
         "/assignment/getAssignmentFiles",
         {
@@ -59,20 +68,30 @@ export default {
           Progress_ID: progressId + 2,
         }
       );
-
-      // Fetch group info
-      const groupRes = await $axios.$post("/group/getGroupWithID", {
-        Group_ID: groupId,
-        Email: store.state.auth.currentUser.email,
-      });
-      // if (groupRes.status !== 200) {
-      //   throw new Error("Not group member");
-      // }
+      console.log("submittedFiles: ", submittedFiles);
+      // If no submitted files hides the DisplaWorkSection compoenent
+      if (submittedFiles.length === 0) {
+        console.log("submittedFiles length is zero, returning null !");
+        return {
+          GroupDetail: {
+            GroupInfo: groupRes.groupInfo[0],
+            GroupMembers: groupRes.groupMembers,
+          },
+          submittedFiles,
+          noWorkSubmitted: true,
+          title: params.progress.replace(dashRegex, " "),
+          Assignment_ID: null,
+          progressId: null,
+          maxScore: null,
+          scoreInfo: null,
+        };
+      }
 
       let maxScore = { score: 0, Assignment_ID: 0 };
       // If progress id is 0 then we can't get max score (since progress id 2 is proposal)
       // Then instead of fetching max score, we fetch only assignment id
       if (progressId === 0) {
+        console.log("getting assignment id for proposal");
         maxScore.Assignment_ID = await $axios.$post(
           "/criteria/getAssignmentId",
           {
@@ -122,6 +141,7 @@ export default {
           GroupMembers: groupRes.groupMembers,
         },
         scoreInfo,
+        noWorkSubmitted: false,
       };
     } catch (error) {
       console.log(error);

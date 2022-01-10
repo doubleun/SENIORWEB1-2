@@ -1,5 +1,20 @@
 <template>
   <div class="display-work-container">
+    <!-- Work submission alert -->
+    <div style="width: 100%">
+      <v-alert type="warning" style="width: fit-content" v-if="noWorkSubmitted"
+        >No work submitted</v-alert
+      >
+      <!-- If there are work submission, display submit 'on time' or 'late' accordingly -->
+      <div v-else>
+        <v-alert type="success" style="width: fit-content" v-if="submitOnTime"
+          >Work submitted on time {{ submitDate }}</v-alert
+        >
+        <v-alert type="error" style="width: fit-content" v-else
+          >Work submitted late ({{ submitDate }})</v-alert
+        >
+      </div>
+    </div>
     <!-- (Left-side)Preview file -->
     <v-card class="preview-work-card">
       <!-- Switch file preview tabs -->
@@ -26,6 +41,7 @@
           color="primary"
           style="margin: 0.2rem 0 1rem 0"
           @click="handleDownloadFile"
+          :disabled="noWorkSubmitted"
           >Download</v-btn
         >
 
@@ -109,6 +125,10 @@
 <script>
 export default {
   props: {
+    noWorkSubmitted: {
+      type: Boolean,
+      default: false,
+    },
     progressId: {
       type: Number,
       default: 1,
@@ -127,13 +147,15 @@ export default {
     },
     scoreInfo: {
       type: null,
-      default: {},
+      default: null,
     },
   },
   data() {
     return {
       valid: true,
       showSubmitted: false,
+      submitOnTime: false,
+      submitDate: "",
       selectScores: [1, 2, 3, 4, 5],
       teacherFile: null,
       givenScore: null,
@@ -166,8 +188,15 @@ export default {
     },
   },
   async mounted() {
+    // If no work submitted then set show submitted to true (ie. lock all fields and submit button)
+    if (this.noWorkSubmitted) {
+      this.showSubmitted = true;
+    }
+    // console.log(!this.noWorkSubmitted && !!this.scoreInfo?.Score);
     // * === Sets teacher submitted score and file if exists === * //
-    if (this.scoreInfo || typeof this.scoreInfo === "object") {
+    // If there is score to display or score is zero (in case of 0 score or proposal which score will always be zero)
+    // Then set the UI of submitted score
+    if (!!this.scoreInfo?.Score || this.scoreInfo?.Score === 0) {
       // console.log("score info:", this.scoreInfo);
       this.showSubmitted = true;
       // Sets score
@@ -196,9 +225,18 @@ export default {
     // * === Render student's files === * //
     // If there are submitted files get them from static folder
     if (this.submittedFiles.length !== 0) {
+      // TODO: Check submitted date to the due date and set 'submittedOnTime' flag accordingly
+      // Format work submission date (according to `assignments` data table)
+      this.submitDate = new Date(
+        this.submittedFiles[0].Submit_Date
+      ).toLocaleString("th-TH", {
+        dateStyle: "full",
+        timeStyle: "medium",
+      });
+
       // Get all submitted files as file object
       let files = this.submittedFiles
-        // Filter all submitted files and only get type of "File" and it's a student's file
+        // Filter all submitted files and only get type of "File" and it's a student's file (role 2 and 3 are for students)
         .filter(
           (file) => file.Type === "File" && [2, 3].includes(file.Group_Role)
         )
@@ -277,8 +315,8 @@ export default {
     },
     async handleSubmitScore() {
       // console.log(this.showSubmitted)
-      // If already submitted score, this function won't run
-      if (this.showSubmitted) return;
+      // If already submitted score or no work has been submitted this function won't run
+      if (this.showSubmitted || this.noWorkSubmitted) return;
 
       // Validate form
       this.$refs.form.validate();
@@ -337,7 +375,7 @@ export default {
 <style>
 /* Display work */
 .display-work-container {
-  margin-block-start: 4rem;
+  margin-block-start: 2rem;
   padding-block-end: 2rem;
   display: flex;
   flex-wrap: wrap;

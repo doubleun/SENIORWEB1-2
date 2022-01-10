@@ -15,7 +15,7 @@
       <h4>ACTIONS</h4>
 
       <!-- Table records -->
-      <template v-for="criteria in scoreCriterias">
+      <template v-for="(criteria, index) in scoreCriterias">
         <p :key="criteria.Progress_Name + 1">{{ criteria.Progress_Name }}</p>
         <p :key="criteria.Progress_Name + 2">
           {{ criteria.Advisor_Score || 0 }}
@@ -37,7 +37,10 @@
               class="white--text"
               v-on="on"
               v-bind="attrs"
-              :disabled="admin"
+              :disabled="
+                admin ||
+                (index !== 0 && !scoreCriterias[index - 1].Score_criteria_ID)
+              "
               ><v-icon>mdi-pen</v-icon> Edit</v-btn
             >
           </template>
@@ -47,7 +50,7 @@
             <v-card-title class="text-h5"> Score Criteria </v-card-title>
 
             <div class="score-criteria-input-flex">
-              <div v-for="(role, index) in editScoreRoles" :key="role.id">
+              <div v-for="role in editScoreRoles" :key="role.id">
                 <v-subheader>{{ role.name }}</v-subheader>
                 <v-text-field
                   v-model="criteria[role.value]"
@@ -77,6 +80,7 @@
         </v-dialog>
       </template>
     </div>
+    <v-btn @click="test">test</v-btn>
   </v-card>
 </template>
 
@@ -103,23 +107,30 @@ export default {
   methods: {
     async updateScoreCriteria(criteriaItem) {
       try {
+        // Check if total goes higher than 100, if it dose return
+        if (allScoresTotal > 100) return;
         const res = await this.$axios.$post("/criteria/scoreEdit", {
           ...criteriaItem,
         });
-        if (res.status === 200) {
-          criteriaItem.editDialog = false;
-          // Update total
-          criteriaItem.Total =
-            parseInt(criteriaItem.Advisor_Score) +
-            parseInt(criteriaItem.Committee_Score);
-          // Refresh nuxt to re-fetch score criterias
-          this.$nuxt.refresh();
-        } else {
+        if (res.status !== 200)
           throw new Error("Score failed to update, please try again later");
-        }
+
+        criteriaItem.editDialog = false;
+        // Update total
+        criteriaItem.Total =
+          parseInt(criteriaItem.Advisor_Score) +
+          parseInt(criteriaItem.Committee_Score);
+        // Refresh nuxt to re-fetch score criterias
+        this.$emit("score-updated");
+        // this.$nuxt.refresh();
+        return;
       } catch (err) {
         console.log(err);
+        return;
       }
+    },
+    test() {
+      console.log(this.scoreCriterias);
     },
   },
   computed: {

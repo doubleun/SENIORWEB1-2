@@ -1,4 +1,5 @@
 const con = require("../config/db");
+const promisePool = con.promise();
 const fs = require("fs");
 // // Upload one file
 // uploadFile = async (req, res) => {
@@ -82,7 +83,7 @@ uploadAssignments = async (req, res) => {
 // Get assignment files
 getAssignmentFiles = (req, res) => {
   const { Group_ID, Progress_ID } = req.body;
-  console.log(Group_ID, Progress_ID);
+  // console.log(Group_ID, Progress_ID);
   try {
     const sql =
       "SELECT `File_Name`, `Type`, `Group_Member_ID`, (SELECT `Submit_Date` FROM `assignments` WHERE `Assignment_ID` = files.Assignment_ID) AS `Submit_Date`, (SELECT `Group_Role` FROM `groupmembers` WHERE `Group_Member_ID` = files.Group_Member_ID) AS `Group_Role` FROM `files` WHERE `Assignment_ID` = (SELECT `Assignment_ID` FROM `assignments` WHERE `Group_ID` = ? AND `Progress_ID` = ? ORDER BY `Submit_Date` DESC LIMIT 1)";
@@ -113,7 +114,7 @@ getAssignmentFiles = (req, res) => {
 //   );
 // };
 
-giveProgressScore = (req, res) => {
+giveProgressScore = async (req, res) => {
   const {
     Score,
     Max_Score,
@@ -126,62 +127,138 @@ giveProgressScore = (req, res) => {
   console.log(Score, Max_Score, Comment, Group_Member_ID, Assignment_ID);
   console.log("File: ", req.file);
   console.log("Next_Progress_ID: ", Next_Progress_ID);
-  const insertScore =
-    "INSERT INTO `scores`(`Score`, Max_Score, `Comment`, `Group_Member_ID`, `Assignment_ID`) VALUES (?,?,?,?, ?)";
   try {
+    // Create new transaction
+    promisePool.beginTransaction((err) => {
+      if (err) throw err;
+    });
     // 1.) Insert score
-    con.query(
+    const insertScore =
+      "INSERT INTO `scores`(`Score`, Max_Score, `Comment`, `Group_Member_ID`, `Assignment_ID`) VALUES (?,?,?,?, ?)";
+    // TODO: check affected rows
+    await promisePool.execute(
       insertScore,
       [Score, Max_Score, Comment, Group_Member_ID, Assignment_ID],
-      (err, result, fields) => {
+      (err, result) => {
         if (err) throw err;
-        // Insert files
-        const filesSql =
-          "INSERT INTO files(File_Name, Path, Type, Assignment_ID, Group_Member_ID) VALUES (?, ?, ?, ?, ?)";
-
-        // 2.) Insert files into database
-        // If there are files insert files too
-        con.query(
-          filesSql,
-          [
-            req.file.filename,
-            req.file.path,
-            "File",
-            Assignment_ID,
-            Group_Member_ID,
-          ],
-          (err, filesResult, fields) => {
-            if (err) {
-              throw err;
-            } else {
-              // If next group progression id is not 'null' update the current group progression to the next one
-              if (!!Next_Progress_ID) {
-                // 3.) Update group progression to the next one
-                const groupProgressSql =
-                  "UPDATE `groups` SET `Group_Progression` = ?  WHERE `Group_ID` = ?";
-                con.query(
-                  groupProgressSql,
-                  [Next_Progress_ID, Group_ID],
-                  (err, result, fields) => {
-                    if (err) {
-                      throw err;
-                    } else {
-                      res.status(200).json({ msg: "success", status: 200 });
-                      return;
-                    }
-                  }
-                );
-              }
-            }
-          }
-        );
       }
     );
+
+    // If there is a file, insert into the database
+    if (!!req.file) {
+      // 2.) Insert files into database
+      const filesSql =
+        "INSERT INTO files(File_Name, Path, Type, Assignment_ID, Group_Member_ID) VALUES (?, ?, ?, ?, ?)";
+      await promisePool.execute(
+        filesSql,
+        [
+          req.file.filename,
+          req.file.path,
+          "File",
+          Assignment_ID,
+          Group_Member_ID,
+        ],
+        (err, result) => {
+          if (err) throw err;
+        }
+      );
+    }
+
+    // 3.) Update group progression to the next one
+    // Query will count number or scores given based on the assignemnt ID if it's 3, then the group progression will go up to the next available progress
+    const groupProgressSql =
+      "UPDATE `groups` SET `Group_Progression` = IF((SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?) = 3, ?, `Group_Progression`) WHERE `Group_ID` = ?";
+    await promisePool.execute(
+      groupProgressSql,
+      [Assignment_ID, Next_Progress_ID, Group_ID],
+      (err, result) => {
+        if (err) throw err;
+      }
+    );
+    // Commit transaction
+    await promisePool.commit();
+    res.status(200).json({ msg: "success", status: 200 });
+    return;
   } catch (err) {
-    console.log(err);
+    console.log(`Error occurred while creating order: ${err.message}`, err);
+    connection.rollback();
+    console.log("Rollback successfully");
     res.status(500).send("Internal Server Error");
+    return;
   }
 };
+
+//! OLD
+// giveProgressScore = (req, res) => {
+//   const {
+//     Score,
+//     Max_Score,
+//     Comment,
+//     Group_Member_ID,
+//     Group_ID,
+//     Assignment_ID,
+//     Next_Progress_ID,
+//   } = req.body;
+//   console.log(Score, Max_Score, Comment, Group_Member_ID, Assignment_ID);
+//   console.log("File: ", req.file);
+//   console.log("Next_Progress_ID: ", Next_Progress_ID);
+//   const insertScore =
+//     "INSERT INTO `scores`(`Score`, Max_Score, `Comment`, `Group_Member_ID`, `Assignment_ID`) VALUES (?,?,?,?, ?)";
+//   try {
+//     // 1.) Insert score
+//     con.query(
+//       insertScore,
+//       [Score, Max_Score, Comment, Group_Member_ID, Assignment_ID],
+//       (err, result, fields) => {
+//         if (err) throw err;
+//         // Insert files
+//         const filesSql =
+//           "INSERT INTO files(File_Name, Path, Type, Assignment_ID, Group_Member_ID) VALUES (?, ?, ?, ?, ?)";
+
+//         // 2.) Insert files into database
+//         con.query(
+//           filesSql,
+//           [
+//             req.file.filename,
+//             req.file.path,
+//             "File",
+//             Assignment_ID,
+//             Group_Member_ID,
+//           ],
+//           (err, filesResult, fields) => {
+//             if (err) {
+//               throw err;
+//             } else {
+//               // If next group progression id is not 'null' update the current group progression to the next one
+//               if (!!Next_Progress_ID) {
+//                 // 3.) Update group progression to the next one
+//                 // Query will count number or scores given based on the assignemnt ID if it's 3
+//                 // Then the group progression will go up to the next available progress
+//                 const groupProgressSql =
+//                   "UPDATE `groups` SET `Group_Progression` = IF((SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?) = 3, ?, `Group_Progression`) WHERE `Group_ID` = ?";
+//                 con.query(
+//                   groupProgressSql,
+//                   [Assignment_ID, Next_Progress_ID, Group_ID],
+//                   (err, result, fields) => {
+//                     if (err) {
+//                       throw err;
+//                     } else {
+//                       res.status(200).json({ msg: "success", status: 200 });
+//                       return;
+//                     }
+//                   }
+//                 );
+//               }
+//             }
+//           }
+//         );
+//       }
+//     );
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
 
 // For teacher progress page, since it fetch only current teacher's score information
 getTeacherProgressScore = (req, res) => {

@@ -7,6 +7,7 @@
       <CoordinatorScoreCriteriaCard
         :scoreCriterias="scoreCriterias"
         :admin="false"
+        @score-updated="refresh"
       />
 
       <!-- Grade criteria card -->
@@ -94,7 +95,7 @@ export default {
     };
   },
   async asyncData({ $axios, store }) {
-    console.log("Major: ", store.state.auth.currentUser.major);
+    // console.log("Major: ", store.state.auth.currentUser.major);
 
     /// Initial fetch
     let scoreCriterias, gradeCriterias;
@@ -113,13 +114,13 @@ export default {
       //   ...itm,
       //   Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       // }));
+      console.log(scoreCriterias, gradeCriterias);
+
+      return { scoreCriterias, gradeCriterias };
     } catch (err) {
       console.log(err);
+      return;
     }
-
-    console.log(scoreCriterias, gradeCriterias);
-
-    return { scoreCriterias, gradeCriterias };
   },
   methods: {
     // Update grade criterias function (score criteria has a function in the compunent for update)
@@ -128,6 +129,9 @@ export default {
         data: this.gradeCriterias.slice(0, 2),
       });
       if (res.status === 200) this.editGradeDialog = false;
+    },
+    refresh() {
+      this.$nuxt.refresh();
     },
   },
   mounted() {

@@ -9,7 +9,7 @@ const passport = require("passport");
 const cookieSession = require("cookie-session");
 const passportSetup = require("./src/config/passport");
 const multer = require("multer");
-const mysql = require("mysql");
+// const mysql = require("mysql");
 const config = require("./src/config/db");
 var _ = require("lodash");
 
