@@ -7,7 +7,11 @@
       <v-card class="co-group-eval-card">
         <v-card-title>EVALUATION RESULT</v-card-title>
         <!-- Score table -->
-        <EvaluationResultGrid :Group_ID="Group_ID" />
+        <EvaluationResultGrid
+          :Group_ID="Group_ID"
+          :gradeCriterias="gradeCriterias"
+          :evalScores="fetchScoresRes"
+        />
       </v-card>
 
       <!-- Second card (Group detail) -->
@@ -27,29 +31,55 @@ export default {
   layout: "coordinator",
   async asyncData({ params, store, redirect, $axios }) {
     try {
-      // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group io)
+      // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group id)
       const groupId = params.groupId.match(/(\d)/g).join("");
       const res = await $axios.$post("/group/getGroupWithID", {
         Group_ID: groupId,
         Email: store.state.auth.currentUser.email,
+        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
-      // if (res.status !== 200) {
-      //   redirect("/Senior1/coordinator/");
-      // }
-
-      // console.log({
-      //   GroupInfo: res.groupInfo[0],
-      //   GroupMembers: res.groupMembers
-      // });
 
       // Set group state, this is added in later for the layout to know current progress of each group
       store.commit("group/SET_GROUP", res.groupInfo[0]);
+
+      // Fetch available grade criterias
+      // Fetch grade from grade criterias
+      const gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
+        Major_ID: store.state.auth.currentUser.major,
+      });
+      console.log("Eval grade criterias: ", gradeCriterias);
+
+      // Fetch evaluation scores
+      const fetchScoresRes = await $axios.$post(
+        "/assignment/getEvaluationScores",
+        {
+          Group_ID: groupId,
+        }
+      );
+      console.log("Fetched eval scores: ", fetchScoresRes);
+      // Calculate total score
+      fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
+        (prev, current) => parseInt(prev) + (!current ? 0 : parseInt(current)),
+        0
+      );
+
+      // Calculate sugesstion grade
+      const suggestGrade = gradeCriterias.find(
+        (criteria) => fetchScoresRes.total >= criteria.Grade_Criteria_Pass
+      );
+      console.log("Suggest grade: ", suggestGrade);
+
+      // Add to fetchScoresRes
+      fetchScoresRes.grade = suggestGrade.Grade_Criteria_Name;
+
       return {
         Group_ID: groupId,
         GroupDetail: {
           GroupInfo: res.groupInfo[0],
           GroupMembers: res.groupMembers,
         },
+        gradeCriterias,
+        fetchScoresRes,
       };
     } catch (error) {
       console.log(error);

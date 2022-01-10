@@ -3,6 +3,7 @@ const groupController = require("../controllers/groupControllers");
 
 groupRouter.get("/getByMajor", groupController.getByMajor); // addmin, co, advisor, committee
 groupRouter.post("/getGroupWithID", groupController.getGroupWithID); // coordinator
+groupRouter.post("/getOnlyGroupWithID", groupController.getOnlyGroupWithID); // teacher
 groupRouter.post("/getGroupInfo", groupController.getGroupInfo); // student
 groupRouter.post("/getGroupMembers", groupController.getGroupMembers); // student
 groupRouter.post(

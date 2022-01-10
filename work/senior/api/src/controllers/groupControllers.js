@@ -30,20 +30,20 @@ createGroup = async (req, res) => {
   let group = [];
   let error = 0;
   let success = 0;
-  user.push([Email_Student1, Student1_Tel, 3, Project_on_term_ID,1]);
+  user.push([Email_Student1, Student1_Tel, 3, Project_on_term_ID, 1]);
 
   if (Studen_Number == 2) {
-    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID,0]);
+    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID, 0]);
   } else if (Studen_Number == 3) {
-    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID],0);
-    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID],0);
+    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID], 0);
+    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID], 0);
   } else if (Studen_Number == 4) {
-    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID],0);
-    user.push([Email_Student4, Student4_Tel, 2, Project_on_term_ID],0);
+    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID], 0);
+    user.push([Email_Student4, Student4_Tel, 2, Project_on_term_ID], 0);
   }
-  user.push([Advisor_Email, "", 0, Project_on_term_ID,0]);
-  user.push([Committee1_Email, "", 1, Project_on_term_ID,0]);
-  user.push([Committee2_Email, "", 1, Project_on_term_ID,0]);
+  user.push([Advisor_Email, "", 0, Project_on_term_ID, 0]);
+  user.push([Committee1_Email, "", 1, Project_on_term_ID, 0]);
+  user.push([Committee2_Email, "", 1, Project_on_term_ID, 0]);
   if (CoAdvisor_Name == "" || CoAdvisor_Name == null) {
     group.push([Project_NameTh, Project_NameEn, "", Major, Project_on_term_ID]);
   } else {
@@ -270,36 +270,61 @@ updateGroup = async (req, res) => {
 
 // Get group based on ID (for my advisee, comittee pages)
 getGroupWithID = (req, res) => {
-  const { Group_ID, Email } = req.body;
+  const { Group_ID, Email, Project_on_term_ID } = req.body;
 
   // Query for group members
   const sqlGroupMembers =
-    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Status, gm.User_Phone  FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email WHERE gm.Group_ID = ? AND gm.User_Status = 1 ORDER BY gm.Group_Role DESC";
-  con.query(sqlGroupMembers, [Group_ID], async (err, groupMembers, fields) => {
-    try {
-      if (err) throw err;
-
-      // Check if the person is a member or not first, if not return failed to fetch
-      if (!groupMembers.map((member) => member.User_Email).includes(Email))
-        throw new Error("Not a member of this group");
-
-      // Query for group info
-      const sqlGroupInfo =
-        "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Final_Grade, g.Comment_Grade, g.Comment_FinalGrade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
-      const groupInfo = await new Promise((resolve, reject) => {
+    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Status, gm.User_Phone  FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email WHERE gm.Group_ID = ? AND gm.User_Status = 1 AND gm.Project_on_term_ID = ? ORDER BY gm.Group_Role DESC";
+  con.query(
+    sqlGroupMembers,
+    [Group_ID, Project_on_term_ID],
+    async (err, groupMembers, fields) => {
+      try {
         if (err) throw err;
-        con.query(sqlGroupInfo, [Email, Group_ID], (err, groupInfo, fields) => {
-          if (err) throw err;
-          resolve(groupInfo);
-        });
-      });
 
-      res.status(200).json({ groupInfo, groupMembers, status: 200 });
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({ msg: err, status: 500 });
+        // Check if the person is a member or not first, if not return failed to fetch
+        if (!groupMembers.map((member) => member.User_Email).includes(Email))
+          throw new Error("Not a member of this group");
+
+        // Query for group info
+        const sqlGroupInfo =
+          "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Final_Grade, g.Comment_Grade, g.Comment_FinalGrade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
+        const groupInfo = await new Promise((resolve, reject) => {
+          if (err) throw err;
+          con.query(
+            sqlGroupInfo,
+            [Email, Group_ID],
+            (err, groupInfo, fields) => {
+              if (err) throw err;
+              resolve(groupInfo);
+            }
+          );
+        });
+
+        res.status(200).json({ groupInfo, groupMembers, status: 200 });
+      } catch (err) {
+        console.log(err);
+        res.status(500).json({ msg: err, status: 500 });
+      }
     }
-  });
+  );
+};
+
+// Get group based on group id (exclude group members)
+getOnlyGroupWithID = (req, res) => {
+  const { Group_ID } = req.body;
+  const getOnlyGroup = "SELECT * FROM `groups` WHERE `Group_ID` = ?";
+  try {
+    con.query(getOnlyGroup, [Group_ID], (err, result) => {
+      if (err) throw err;
+      res.status(200).json(result[0]);
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: err, status: 500 });
+    return;
+  }
 };
 
 // Get current user group info if the student has one
@@ -591,7 +616,7 @@ getMyGroup = async (req, res) => {
   });
 };
 
-grading = async (req, res) => {
+grading = (req, res) => {
   // event 0 for update grad in group
   // event 1 for update final grad in group
   const { Group_ID, event, Grade, Comment } = req.body;
@@ -606,7 +631,7 @@ grading = async (req, res) => {
   const commentFinalGrade =
     "UPDATE `groups` SET `Comment_FinalGrade` = ? WHERE `groups`.`Group_ID` = ?";
 
-  await con.query(
+  con.query(
     event == 0 ? grade : finalGrade,
     [Grade, Group_ID],
     (err, result, fields) => {
@@ -638,6 +663,7 @@ grading = async (req, res) => {
 module.exports = {
   getAll,
   getGroupWithID,
+  getOnlyGroupWithID,
   getGroupInfo,
   getGroupMembers,
   getTeachersWithGroupID,

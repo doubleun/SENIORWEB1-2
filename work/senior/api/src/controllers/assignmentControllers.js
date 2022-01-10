@@ -457,7 +457,7 @@ countFileByMajor = async (req, res) => {
   console.log(req.body);
   const sql =
     "SELECT COUNT(*) AS TotalFile FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND gp.Major=? AND ass.Progress_ID=?";
-  await con.query(
+  con.query(
     sql,
     [Project_on_term_ID, Major, Progress_ID],
     (err, result, fields) => {
@@ -472,6 +472,24 @@ countFileByMajor = async (req, res) => {
   );
 };
 
+getEvaluationScores = (req, res) => {
+  const { Group_ID } = req.body;
+  try {
+    const getEvalScoresSql =
+      "SELECT (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 3) AS `progress1`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 4) AS `progress2`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 5) AS `progress3`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 6) AS `progress4`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 7) AS `finalPresentation`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 8) AS `finalDocument` FROM `scores` sc INNER JOIN `assignments` assign ON sc.Assignment_ID = assign.Assignment_ID WHERE assign.Group_ID = ?";
+
+    con.query(getEvalScoresSql, [Group_ID], (err, result) => {
+      if (err) throw err;
+      res.status(200).json(result[0]);
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
+  }
+};
+
 module.exports = {
   uploadAssignments,
   giveProgressScore,
@@ -479,4 +497,5 @@ module.exports = {
   getAssignmentFiles,
   getAssignment,
   countFileByMajor,
+  getEvaluationScores,
 };

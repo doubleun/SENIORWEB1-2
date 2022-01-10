@@ -58,6 +58,7 @@ export default {
       const groupRes = await $axios.$post("/group/getGroupWithID", {
         Group_ID: groupId,
         Email: store.state.auth.currentUser.email,
+        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
 
       // Fetch submitted file(s)
