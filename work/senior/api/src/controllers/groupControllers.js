@@ -110,9 +110,11 @@ updateGroup = async (req, res) => {
   } = req.body;
   console.log(req.body);
   const sql =
-    "REPLACE `groups` SET ,`Group_Name_Thai`=?,`Group_Name_Eng`=?,`Co_Advisor`=?,`Major`=?  WHERE `Group_ID`=?";
+    "UPDATE `groups` SET `Group_Name_Thai`=?,`Group_Name_Eng`=?,`Co_Advisor`=? ,`Major`=? WHERE `Group_ID`=?";
   const sql2 =
-    "REPLACE `groupmembers` SET `User_Email`=?,`User_Phone`=?,`Group_Role`=?,`Project_on_term_ID`=? WHERE `User_Email`=? AND `Group_ID`=?";
+    "UPDATE `groupmembers` SET `User_Email`=?,`User_Phone`=?,`Group_Role`=?,`Project_on_term_ID`=? WHERE `User_Email`=? AND `Group_ID`=?";
+  const insert =
+    "INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID, `Group_ID`) VALUES (?,?,?,?,?)";
   let user = [];
   let group = [];
   let error = 0;
@@ -120,7 +122,7 @@ updateGroup = async (req, res) => {
   user.push([Email_Student1, Student1_Tel, 3, Project_on_term_ID,Email_Student1,Group_ID]);
 
   if (Studen_Number == 2) {
-    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID,Email_Student1, Group_ID]);
+    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID,Email_Student2, Group_ID]);
   } else if (Studen_Number == 3) {
     user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID,Email_Student2, Group_ID]);
     user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID,Email_Student3,Group_ID]);
@@ -132,31 +134,42 @@ updateGroup = async (req, res) => {
   user.push([Committee1_Email, "", 1, Project_on_term_ID,Committee1_Email,Group_ID]);
   user.push([Committee2_Email, "", 1, Project_on_term_ID,Committee2_Email,Group_ID]);
   if (CoAdvisor_Name == "" || CoAdvisor_Name == null) {
-    group.push([Project_NameTh, Project_NameEn, "", Major, Group_ID]);
+    group.push([Project_NameTh, Project_NameEn, "", Major]);
   } else {
     group.push([
       Project_NameTh,
       Project_NameEn,
       CoAdvisor_Name,
       Major,
-      Group_ID,
+      
     ]);
   }
 
-  await con.query(sql, group[0], async (err, result, fields) => {
+  await con.query(sql, [group[0][0],group[0][1],group[0][2],group[0][3],Group_ID], async (err, result, fields) => {
+    console.log(user)
     if (err) {
-      console.log("error code first is " + err.code);
+      console.log("error code first is " + err.sqlMessage);
       error++;
     } else {
       for (let i = 0; i < user.length; i++) {
-        console.log(user[i]);
         try {
-          await con.query(sql2, [user[i]], (err, result, fields) => {
-            // console.log("success", success);
+          await con.query(sql2, [user[i][0],user[i][1],user[i][2],user[i][3],user[i][4],user[i][5]], (err, result, fields) => {
+            console.log("success", result['affectedRows']);
+            if(result['affectedRows'] == 0){
+              con.query(insert, [user[i][0],user[i][1],user[i][2],user[i][3],user[i][5]], (err, result, fields) => {
+                if (err){
+                  console.log("error code third is " + err.sqlMessage);
+                }else{
+                  success++
+                }
+              })
+            }else{
+              success++
+            }
             if (err) throw error;
           });
         } catch (error) {
-          console.log(error);
+          console.log("hear err"+error);
           res.status(500).json({ msg: "Internal Server Error", status: 500 });
         }
       }
