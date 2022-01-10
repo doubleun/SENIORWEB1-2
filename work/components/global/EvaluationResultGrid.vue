@@ -63,7 +63,7 @@ export default {
       headers: [
         {
           text: "Progress 1",
-          value: "progress1"
+          value: "progress1",
         },
         { text: "Progress 2", value: "progress2" },
         { text: "Progress 3", value: "progress3" },
@@ -71,41 +71,44 @@ export default {
         { text: "Final Presentation", value: "FinalPresentation" },
         { text: "Final Documentation", value: "FinalDocumentation" },
         { text: "Total", value: "Total" },
-        { text: "Suggestion Grade", value: "Grade" }
-      ]
+        { text: "Suggestion Grade", value: "Grade" },
+      ],
     };
   },
   async fetch() {
-    var grade;
-    // this.Group_ID = parseInt(this.Group_ID);
+    console.log(this.Group_ID);
     try {
-      const score = await this.$axios.$post("/group/socre", {
-        Group_ID: this.Group_ID //FIXME:
-      });
-      console.log("score", score);
-
-      var data = await this.$axios.$post("/criteria/gradeMajor", {
-        Major_ID: this.$store.state.group.currentUserGroup.Major
-      });
-
-      data.sort((a, b) => {
-        return a.Grade_Criteria_Pass - b.Grade_Criteria_Pass;
-      });
-      // console.log("criteria", data);
-
-      data.forEach(el => {
-        if (score[0].Total >= el.Grade_Criteria_Pass) {
-          grade = el.Grade_Criteria_Name;
-        }
-      });
-      score[0].Grade = grade;
-      this.score.push(score[0]);
-
-      console.log("grade", grade);
-    } catch (error) {
-      console.log(error);
+      // const scores = await this.$axios.$post()
+    } catch (err) {
+      console.log(err);
+      return;
     }
-  }
+    // var grade;
+    // // this.Group_ID = parseInt(this.Group_ID);
+    // try {
+    //   const score = await this.$axios.$post("/group/socre", {
+    //     Group_ID: this.Group_ID //FIXME:
+    //   });
+    //   console.log("score", score);
+    //   var data = await this.$axios.$post("/criteria/gradeMajor", {
+    //     Major_ID: this.$store.state.group.currentUserGroup.Major
+    //   });
+    //   data.sort((a, b) => {
+    //     return a.Grade_Criteria_Pass - b.Grade_Criteria_Pass;
+    //   });
+    //   // console.log("criteria", data);
+    //   data.forEach(el => {
+    //     if (score[0].Total >= el.Grade_Criteria_Pass) {
+    //       grade = el.Grade_Criteria_Name;
+    //     }
+    //   });
+    //   score[0].Grade = grade;
+    //   this.score.push(score[0]);
+    //   console.log("grade", grade);
+    // } catch (error) {
+    //   console.log(error);
+    // }
+  },
 };
 </script>
 

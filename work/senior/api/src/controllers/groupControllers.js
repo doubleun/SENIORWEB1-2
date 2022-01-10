@@ -135,7 +135,7 @@ createGroup = (req, res) => {
     ]);
   }
 
-  con.query(sql, group[0], (err, result, fields) => {
+  con.query(sql, group[0], async (err, result, fields) => {
     if (err) {
       console.log("error code first is " + err.code);
       error++;
@@ -226,10 +226,16 @@ updateGroup = (req, res) => {
     Group_ID,
   ]);
 
-  if (Studen_Number > 1) {
-    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID, Email_Student2, Group_ID]);
-  }
-  if (Studen_Number > 2) {
+  if (Studen_Number == 2) {
+    user.push([
+      Email_Student2,
+      Student2_Tel,
+      2,
+      Project_on_term_ID,
+      Email_Student2,
+      Group_ID,
+    ]);
+  } else if (Studen_Number == 3) {
     user.push([
       Email_Student3,
       Student3_Tel,
@@ -374,9 +380,9 @@ updateGroup = (req, res) => {
         });
 
       }
-      res.status(200).json({ msg: "Create group Successed", status: 200 });
     }
-  });
+  }
+  );
   console.log("suss", success);
   console.log("user.length", user.length);
   // if (success == user.length) {

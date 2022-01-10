@@ -389,7 +389,6 @@ export default {
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: "1",
-    
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -400,9 +399,9 @@ export default {
     });
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
-    console.log("Students: ", res.students);
+    // console.log("Students: ", res.students);
     this.allTeachersInSchool = res.teachers;
-    console.log("Teachers: ", res.students);
+    // console.log("Teachers: ", res.students);
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
@@ -522,6 +521,10 @@ export default {
         this.valid === false
       )
         return;
+      console.log(
+        "NEW STATE CHECK: ",
+        this.$store.state.auth.currentUser.major
+      );
 
       this.$swal
         .fire({
