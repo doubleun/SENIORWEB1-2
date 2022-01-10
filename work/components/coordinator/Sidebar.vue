@@ -24,7 +24,7 @@
       <v-list-item-group color="white">
         <v-list-item
           v-for="(item, i) in items"
-          :key="i"
+          :key="item.id + i"
           :to="item.to"
           router
           exact
@@ -85,7 +85,6 @@ export default {
           title: "Criteria",
           to: "/Senior1/Coordinator/criteria",
         },
-        
       ],
     };
   },

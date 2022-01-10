@@ -248,7 +248,7 @@ getGroupWithID = (req, res) => {
       if (err) throw err;
 
       // Check if the person is a member or not first, if not return failed to fetch
-      if (!groupMembers.map((itm) => itm.User_Email).includes(Email))
+      if (!groupMembers.map((member) => member.User_Email).includes(Email))
         throw new Error("Not a member of this group");
 
       // Query for group info

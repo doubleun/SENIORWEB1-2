@@ -290,10 +290,13 @@
               </v-row>
             </div>
             <!-- Create button -->
+            <!-- v-if checks if user has a group and if they do what is thier group member status (user status) -->
+            <!-- if it's zero meaning they are pending member, but if they are not pending member we check if they are head member next -->
             <v-row
               class="text-center"
               v-if="
-                this.$store.state.group.currentUserGroup.User_Status === 0 ||
+                (this.$store.state.group.currentUserGroup &&
+                  this.$store.state.group.currentUserGroup.User_Status === 0) ||
                 headMember
               "
             >
@@ -307,7 +310,9 @@
                 >
                   Create
                 </v-btn>
-                <v-btn rounded dark color="indigo" @click="updateInfo" v-else> Update </v-btn>
+                <v-btn rounded dark color="indigo" @click="updateInfo" v-else>
+                  Update
+                </v-btn>
               </v-col>
 
               <!-- If not head member, then shows accept and decline invite instead -->
@@ -384,7 +389,7 @@ export default {
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: 1,
-    Group_ID:17
+    Group_ID: 17,
   }),
   props: { groupMembers: Array },
   async fetch() {

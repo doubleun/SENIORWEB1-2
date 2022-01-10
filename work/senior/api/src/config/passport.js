@@ -9,7 +9,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/redirect"
+      callbackURL: "/api/auth/google/redirect",
       // passReqToCallback: true
     },
     (accessToken, refreshToken, profile, done) => {
@@ -21,7 +21,7 @@ passport.use(
       const user = {
         name: profile.displayName,
         email: profile.emails[0].value,
-        photo: profile.photos[0].value
+        photo: profile.photos[0].value,
       };
 
       done(null, user);
@@ -30,7 +30,8 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  const sqlAdmin = "SELECT * FROM `users` WHERE User_Email=?";
+  const sqlAdmin =
+    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, u.Course_code, u.Major_ID, u.Project_on_term_ID ,pj.Academic_Year, pj.Academic_Term, pj.Access_Date_Start, pj.Access_Date_End, pj.Senior FROM `users` u INNER JOIN `projectonterm` pj ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email= ?";
   con.query(sqlAdmin, user.email, (err, result, fields) => {
     if (err) {
       data = { message: "Internal Server Error", status: 422 };
@@ -48,6 +49,11 @@ passport.serializeUser((user, done) => {
         user.major = result[0].Major_ID;
         user.projectOnTerm = result[0].Project_on_term_ID;
         user.userId = result[0].User_Identity_ID;
+        user.accessDateStart = result[0].Access_Date_Start;
+        user.accessDateEnd = result[0].Access_Date_End;
+        user.academicYear = result[0].Academic_Year;
+        user.academicTerm = result[0].Academic_Term;
+        user.senior = result[0].Senior;
         user.status = 200;
 
         // console.log("Serialize: ", user);
