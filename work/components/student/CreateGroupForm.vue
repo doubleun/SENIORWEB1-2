@@ -389,7 +389,6 @@ export default {
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: "1",
-    Group_ID: "19",
   }),
   props: { groupMembers: Array },
   async fetch() {
