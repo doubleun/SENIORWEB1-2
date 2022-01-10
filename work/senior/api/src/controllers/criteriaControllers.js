@@ -147,35 +147,70 @@ getGradeAllMajor = async (req, res) => {
 // Get grade criteria by major id
 getGradeByMajor = async (req, res) => {
   const majorId = req.body.Major_ID;
-  const sql =
+  // Query selecting grade criterias in a major based on latest project on term (ie. latest semester)
+  const getGradeCriteriasSql =
     "SELECT * FROM `gradecriterias` WHERE Major_ID = ? AND Project_on_term_ID = (SELECT `Project_on_term_ID` FROM `projectonterm` ORDER BY projectonterm.Project_on_term_ID DESC LIMIT 1) ORDER BY Grade_Criteria_ID ASC";
   try {
-    con.query(sql, [majorId], (err, result, fields) => {
-      if (err) {
-        throw err;
-      } else {
-        if (result.length === 0) {
-          // If there are no criterias, return the default values
-          res.status(200).json([
-            {
-              Grade_Criteria_Name: "S",
-              Grade_Criteria_Pass: 0,
-              Major_ID: majorId,
-            },
-            {
-              Grade_Criteria_Name: "U",
-              Grade_Criteria_Pass: 0,
-              Major_ID: majorId,
-            },
-          ]);
-        } else {
-          res.status(200).json(result);
-        }
-      }
+    con.query(getGradeCriteriasSql, [majorId], (err, result) => {
+      if (err) throw err;
+      res.status(200).json(result);
+      return;
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Internal Server Error", status: 500 });
+    res.status(500).send("Interal Server Error");
+    return;
+  }
+  // try {
+  //   con.query(sql, [majorId], (err, result, fields) => {
+  //     if (err) {
+  //       throw err;
+  //     } else {
+  //       if (result.length === 0) {
+  //         // If there are no criterias, return the default values
+  //         res.status(200).json([
+  //           {
+  //             Grade_Criteria_Name: "S",
+  //             Grade_Criteria_Pass: 0,
+  //             Major_ID: majorId,
+  //           },
+  //           {
+  //             Grade_Criteria_Name: "U",
+  //             Grade_Criteria_Pass: 0,
+  //             Major_ID: majorId,
+  //           },
+  //         ]);
+  //       } else {
+  //         res.status(200).json(result);
+  //       }
+  //     }
+  //   });
+  // } catch (err) {
+  //   console.log(err);
+  //   res.status(500).json({ msg: "Internal Server Error", status: 500 });
+  // }
+};
+
+// Add grade criterias
+addGradeCriteria = async (req, res) => {
+  const { data } = req.body;
+  // Insert new grade criteria
+  const insertGradeCriteria =
+    "INSERT INTO gradecriterias(Grade_Criteria_Name, Grade_Criteria_Pass, Major_ID, Project_on_term_ID) VALUES ?";
+  try {
+    con.query(
+      insertGradeCriteria,
+      [data.map((obj) => Object.values(obj))],
+      (err, result, fields) => {
+        if (err) throw err;
+        res.status(200).json({ msg: "success", status: 200 });
+        return;
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(422).json({ msg: "Query Error", err });
+    return;
   }
 };
 
@@ -183,41 +218,22 @@ getGradeByMajor = async (req, res) => {
 editGradeCriteria = async (req, res) => {
   const { data } = req.body;
   // Update grade criteria if "Grade_Criteria_ID" exists
-  if (data[0].Grade_Criteria_ID) {
+  try {
     const updateGradeCriteria =
       "INSERT INTO gradecriterias(Grade_Criteria_ID, Grade_Criteria_Name, Grade_Criteria_Pass, Major_ID, Project_on_term_ID) VALUES ? ON DUPLICATE KEY UPDATE Grade_Criteria_Pass=VALUES(Grade_Criteria_Pass)";
-    // "UPDATE gradecriterias SET `Grade_Criteria_Name`=?, `Grade_Criteria_Pass`=? WHERE `Grade_Criteria_ID` = ?";
     con.query(
       updateGradeCriteria,
       [data.map((obj) => Object.values(obj))],
       (err, result, fields) => {
-        try {
-          if (err) throw err;
-        } catch (err) {
-          console.log(err);
-          res.status(422).json({ msg: "Query Error", err });
-        }
+        if (err) throw err;
       }
     );
     res.status(200).json({ msg: "success", status: 200 });
-  } else {
-    // Insert new grade criteria
-    // console.log("Insert (criteriaController: 216): ", data);
-    const insertGradeCriteria =
-      "INSERT INTO gradecriterias(Grade_Criteria_Name, Grade_Criteria_Pass, Major_ID, Project_on_term_ID) VALUES ?";
-    con.query(
-      insertGradeCriteria,
-      [data.map((obj) => Object.values(obj))],
-      (err, result, fields) => {
-        try {
-          if (err) throw err;
-        } catch (err) {
-          console.log(err);
-          res.status(422).json({ msg: "Query Error", err });
-        }
-      }
-    );
-    res.status(200).json({ msg: "success", status: 200 });
+    return;
+  } catch (err) {
+    console.log(err);
+    res.status(422).json({ msg: "Query Error", err });
+    return;
   }
 };
 
@@ -275,4 +291,5 @@ module.exports = {
   editGradeCriteria,
   getProgressMaxScore,
   getAssignmentId,
+  addGradeCriteria,
 };

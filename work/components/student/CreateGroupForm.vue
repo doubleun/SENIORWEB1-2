@@ -143,7 +143,7 @@
             <!-- Add and remove member flex -->
             <div class="d-flex flex-row" v-if="headMember">
               <!-- Add member -->
-              <div class="mb-5 mr-5" v-show="projectMembers.length < 4">
+              <div class="mb-5 mr-5" v-show="projectMembers.length < 10">
                 <a class="text-decoration-underline" @click="addMemberFields"
                   >+ Add Member</a
                 >
@@ -389,7 +389,6 @@ export default {
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: "1",
-    
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -400,9 +399,9 @@ export default {
     });
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
-    console.log("Students: ", res.students);
+    // console.log("Students: ", res.students);
     this.allTeachersInSchool = res.teachers;
-    console.log("Teachers: ", res.students);
+    // console.log("Teachers: ", res.students);
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
@@ -464,6 +463,7 @@ export default {
           confirmButtonText: "Yes",
         })
         .then(async (result) => {
+          console.log(this.projectMembers.length)
           if (result.isConfirmed) {
             const res = await this.$axios.$post("group/createGroup", {
               Project_NameTh: this.thaiName,
@@ -477,10 +477,22 @@ export default {
               Student2_Tel: this.phone[1],
               Student3_Tel: this.phone[2],
               Student4_Tel: this.phone[3],
+              Student5_Tel: this.phone[4],
+              Student6_Tel: this.phone[5],
+              Student7_Tel: this.phone[6],
+              Student8_Tel: this.phone[7],
+              Student9_Tel: this.phone[8],
+              Student10_Tel: this.phone[9],
               Email_Student1: this.email[0],
               Email_Student2: this.email[1],
               Email_Student3: this.email[2],
               Email_Student4: this.email[3],
+              Email_Student5: this.email[4],
+              Email_Student6: this.email[5],
+              Email_Student7: this.email[6],
+              Email_Student8: this.email[7],
+              Email_Student9: this.email[8],
+              Email_Student10: this.email[9],
               Major: this.major,
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
@@ -509,6 +521,10 @@ export default {
         this.valid === false
       )
         return;
+      console.log(
+        "NEW STATE CHECK: ",
+        this.$store.state.auth.currentUser.major
+      );
 
       this.$swal
         .fire({
@@ -534,10 +550,22 @@ export default {
               Student2_Tel: this.phone[1],
               Student3_Tel: this.phone[2],
               Student4_Tel: this.phone[3],
+              Student5_Tel: this.phone[4],
+              Student6_Tel: this.phone[5],
+              Student7_Tel: this.phone[6],
+              Student8_Tel: this.phone[7],
+              Student9_Tel: this.phone[8],
+              Student10_Tel: this.phone[9],
               Email_Student1: this.email[0],
               Email_Student2: this.email[1],
               Email_Student3: this.email[2],
               Email_Student4: this.email[3],
+              Email_Student5: this.email[4],
+              Email_Student6: this.email[5],
+              Email_Student7: this.email[6],
+              Email_Student8: this.email[7],
+              Email_Student9: this.email[8],
+              Email_Student10: this.email[9],
               Major: this.major,
               Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
               Project_on_term_ID:

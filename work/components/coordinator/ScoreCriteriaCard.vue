@@ -80,7 +80,6 @@
         </v-dialog>
       </template>
     </div>
-    <v-btn @click="test">test</v-btn>
   </v-card>
 </template>
 
@@ -128,9 +127,6 @@ export default {
         console.log(err);
         return;
       }
-    },
-    test() {
-      console.log(this.scoreCriterias);
     },
   },
   computed: {

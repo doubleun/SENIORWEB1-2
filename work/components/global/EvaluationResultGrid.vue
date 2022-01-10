@@ -4,7 +4,7 @@
     <v-container>
       <v-data-table
         :headers="headers"
-        :items="score"
+        :items="[evalScores]"
         :hide-default-footer="true"
         class="elevation-1"
       >
@@ -20,10 +20,10 @@
         <template v-slot:item.progress4="{ item }">
           {{ item.progress4 == null ? 0 : item.progress4 }}
         </template>
-        <template v-slot:item.FinalPresentation="{ item }">
+        <template v-slot:item.finalPresentation="{ item }">
           {{ item.FinalPresentation == null ? 0 : item.FinalPresentation }}
         </template>
-        <template v-slot:item.FinalDocumentation="{ item }">
+        <template v-slot:item.finalDocumentation="{ item }">
           {{ item.FinalDocumentation == null ? 0 : item.FinalDocumentation }}
         </template>
 
@@ -56,56 +56,56 @@
 
 <script>
 export default {
-  props: { Group_ID: String },
+  props: { Group_ID: String, gradeCriterias: Array, evalScores: Object },
   data() {
     return {
-      score: [],
       headers: [
         {
           text: "Progress 1",
-          value: "progress1"
+          value: "progress1",
+          align: "center",
+          sortable: false,
         },
-        { text: "Progress 2", value: "progress2" },
-        { text: "Progress 3", value: "progress3" },
-        { text: "Progress 4", value: "progress4" },
-        { text: "Final Presentation", value: "FinalPresentation" },
-        { text: "Final Documentation", value: "FinalDocumentation" },
-        { text: "Total", value: "Total" },
-        { text: "Suggestion Grade", value: "Grade" }
-      ]
+        {
+          text: "Progress 2",
+          value: "progress2",
+          align: "center",
+          sortable: false,
+        },
+        {
+          text: "Progress 3",
+          value: "progress3",
+          align: "center",
+          sortable: false,
+        },
+        {
+          text: "Progress 4",
+          value: "progress4",
+          align: "center",
+          sortable: false,
+        },
+        {
+          text: "Final Presentation",
+          value: "finalPresentation",
+          align: "center",
+          sortable: false,
+        },
+        {
+          text: "Final Documentation",
+          value: "finalDocumentation",
+          align: "center",
+          sortable: false,
+        },
+        { text: "Total", value: "total", align: "center", sortable: false },
+        {
+          text: "Suggestion Grade",
+          value: "grade",
+          align: "center",
+          sortable: false,
+        },
+      ],
     };
   },
-  async fetch() {
-    var grade;
-    // this.Group_ID = parseInt(this.Group_ID);
-    try {
-      const score = await this.$axios.$post("/group/socre", {
-        Group_ID: this.Group_ID //FIXME:
-      });
-      console.log("score", score);
-
-      var data = await this.$axios.$post("/criteria/gradeMajor", {
-        Major_ID: this.$store.state.group.currentUserGroup.Major
-      });
-
-      data.sort((a, b) => {
-        return a.Grade_Criteria_Pass - b.Grade_Criteria_Pass;
-      });
-      // console.log("criteria", data);
-
-      data.forEach(el => {
-        if (score[0].Total >= el.Grade_Criteria_Pass) {
-          grade = el.Grade_Criteria_Name;
-        }
-      });
-      score[0].Grade = grade;
-      this.score.push(score[0]);
-
-      console.log("grade", grade);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 };
 </script>
 
