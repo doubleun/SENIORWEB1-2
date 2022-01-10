@@ -12,7 +12,8 @@
         >
       </v-tabs>
       <div :style="selectedFile ? 'display: unset' : 'display: none'">
-        <embed :src="selectedFile.src" class="preview-work-card-content" />
+        <!-- <embed :src="selectedFile.src" class="preview-work-card-content" /> -->
+        <object :data="selectedFile.src" width="100%" height="100%"></object>
       </div>
     </v-card>
 
@@ -88,7 +89,7 @@
             outlined
             hide-details
             dense
-            show-size
+            :show-size="!showSubmitted"
             prepend-icon=""
             v-model="teacherFile"
           ></v-file-input>
@@ -221,7 +222,7 @@ export default {
       // Since, each loop is a promise, promise.all is needed
       this.files = await Promise.all(files);
 
-      // Shorten filename
+      // TODO: Delete this !
       console.log("Files: ", this.files);
     }
 
@@ -229,6 +230,7 @@ export default {
     this.files.forEach((file) => {
       this.uploadSrcs.push(URL.createObjectURL(file.file));
     });
+
     // Sets initial selected src
     this.selectedFile = { src: this.uploadSrcs[0], index: 0 };
 
@@ -251,10 +253,18 @@ export default {
       const link = document.createElement("a");
       // Create link from selected object string
       link.href = this.selectedFile.src;
+
       // Download with the file name
-      link.download = this.files[this.selectedFile.index].file.name;
+      // Remove time stamp in front of the file name
+      const nameNoTime = this.files[this.selectedFile.index].file.name.replace(
+        /(^\d+-)/,
+        ""
+      );
+      // Create download with the file name that has time stamp removed
+      link.download = nameNoTime;
+      // Initiate download
       link.click();
-      // Revoke element from DOM
+      // Revoke donwload link element from DOM
       URL.revokeObjectURL(link.href);
     },
     handleScoreInput() {
