@@ -555,6 +555,22 @@ deleteById = (req, res) => {
   });
 };
 
+getOnlyGroupWithID = (req, res) => {
+  const { Group_ID } = req.body;
+  const getOnlyGroup = "SELECT * FROM `groups` WHERE `Group_ID` = ?";
+  try {
+    con.query(getOnlyGroup, [Group_ID], (err, result) => {
+      if (err) throw err;
+      res.status(200).json(result[0]);
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: err, status: 500 });
+    return;
+  }
+};
+
 statusgroup = (req, res) => {
   const { User_Status, User_Email, Group_Id } = req.body;
   const sql =
