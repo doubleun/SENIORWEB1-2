@@ -40,7 +40,12 @@
             <v-row><h4 class="white--text">Grade</h4></v-row>
             <v-row>
               <v-select
-                :items="fillterGrade"
+                v-model="selectedGrade"
+                :items="gradeCriteria"
+                @change="handelFilterWithGrade"
+                item-text="Grade_Criteria_Name"
+                item-value="Grade_Criteria_Name"
+                return-object
                 label="Grade"
                 dense
                 solo
@@ -64,7 +69,7 @@
           </div>
         </v-col>
       </v-row>
-      <CoordinatorScoreDataTable :items="grade" />
+      <CoordinatorScoreDataTable :items="filterGrade" />
     </v-container>
   </div>
 </template>
@@ -75,10 +80,10 @@ export default {
   data: () => ({
     loading3: false,
     sem: ["1/2564", "2/2564"],
-    fillterGrade: [],
+    filterGrade: [],
     selectedYear: null,
     selectedSemester: null,
-    selectedGrade: null,
+    selectedGrade: {},
   }),
   mixins: [exportXLSX],
   layout: "coordinatorsidebar",
@@ -88,12 +93,13 @@ export default {
       const yearNSemsters = await $axios.$get("/date/allYearsSemester");
 
       // Fetch student score
-      var score = await $axios.$post("/group/getScoreCoor", {
+      let score = await $axios.$post("/group/getScoreCoor", {
         Major: store.state.auth.currentUser.major,
         Academic_Year: yearNSemsters[0].Academic_Year,
         Academic_Term: yearNSemsters[0].Academic_Term,
       });
-      // console.log("score", score);
+
+      // handel final grade
       var newGrade = [];
       score.forEach((el) => {
         el.newGrade =
@@ -102,14 +108,21 @@ export default {
             : el.grade;
         newGrade.push(el);
       });
-      // console.log("new score", newGrade);
-      // score.forEach((obj, index) => {
-      //   // console.log(obj);
-      //   console.log(Object.values(obj));
-      //   console.log(typeof Object.values(obj[index]) === "number");
-      //   // typeof Object.value(obj) === "number" ? obj : 0;
-      // });
-      return { yearNSemsters, grade: newGrade };
+
+      // Fetch grade criteria score
+      var gradeCriteria = await $axios.$post("/criteria/gradeMajor", {
+        Major_ID: store.state.auth.currentUser.major,
+      });
+
+      // sorting grade criteria
+      gradeCriteria.sort((a, b) =>
+        a.Grade_Criteria_Pass < b.Grade_Criteria_Pass ? 1 : -1
+      );
+
+      // add filtter grade (All)
+      gradeCriteria.unshift({ Grade_Criteria_Name: "All" });
+
+      return { yearNSemsters, grade: [...newGrade], gradeCriteria };
     } catch (error) {
       console.log(error);
     }
@@ -117,32 +130,64 @@ export default {
   mounted() {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    this.selectedGrade = this.gradeCriteria[0];
+    this.filterGrade = this.grade.filter((el) => el.newGrade != "All");
   },
   methods: {
     async handelFilterWithAcademic() {
-      // console.log("fillter");
+      console.log("major", this.$store.state.auth.currentUser.major);
+      console.log("year", this.selectedYear);
+      console.log("sem", this.selectedSemester);
+
       this.loading3 = true;
       try {
         // Fetch student score
-        this.score = await this.$axios.$post("/group/getScoreCoor", {
+        let score = await this.$axios.$post("/group/getScoreCoor", {
           Major: this.$store.state.auth.currentUser.major,
           Academic_Year: this.selectedYear,
           Academic_Term: this.selectedSemester,
         });
+
+        // handel final grade
+        let newGrade = [];
+        score.forEach((el) => {
+          el.newGrade =
+            el.finalgrade != "" && el.finalgrade != null
+              ? el.finalgrade
+              : el.grade;
+          newGrade.push(el);
+        });
+        this.grade = newGrade;
+        this.filterGrade = this.grade.filter((el) =>
+          this.selectedGrade.Grade_Criteria_Name == "All"
+            ? el.newGrade != "All"
+            : el.newGrade == this.selectedGrade.Grade_Criteria_Name
+        );
+        console.log("score", score);
+        // console.log("filter grade", this.finalgrade);
       } catch (error) {
         console.log(error);
       }
       this.loading3 = false;
     },
-    async handelFilterWithAcademic() {
-      // console.log("fillter");
+    async handelFilterWithGrade() {
+      // console.log("filter", this.selectedGrade.Grade_Criteria_Name == "All");
+      console.log(" grade", this.grade);
+      // let grade = this.selectedGrade.Grade_Criteria_Name;
       this.loading3 = true;
       try {
+        this.filterGrade = this.grade.filter((el) =>
+          this.selectedGrade.Grade_Criteria_Name == "All"
+            ? el.newGrade != "All"
+            : el.newGrade == this.selectedGrade.Grade_Criteria_Name
+        );
+        console.log("filter grade", this.filterGrade);
       } catch (error) {
         console.log(error);
       }
       this.loading3 = false;
     },
+    // filterGrade(item) {},
     // total(score) {
     //   score.forEach((obj, index) => {
     //     console.log(Object.value(obj));
