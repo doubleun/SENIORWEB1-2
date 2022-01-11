@@ -49,76 +49,28 @@ createGroup = (req, res) => {
     user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 2) {
-    user.push([
-      Email_Student3,
-      Student3_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 3) {
-    user.push([
-      Email_Student4,
-      Student4_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student4, Student4_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 4) {
-    user.push([
-      Email_Student5,
-      Student5_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student5, Student5_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 5) {
-    user.push([
-      Email_Student6,
-      Student6_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student6, Student6_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 6) {
-    user.push([
-      Email_Student7,
-      Student7_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student7, Student7_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 7) {
-    user.push([
-      Email_Student8,
-      Student8_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student8, Student8_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 8) {
-    user.push([
-      Email_Student9,
-      Student9_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student9, Student9_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 9) {
-    user.push([
-      Email_Student10,
-      Student10_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student10, Student10_Tel, 2, Project_on_term_ID, 0]);
   }
   user.push([Advisor_Email, "", 0, Project_on_term_ID, 0]);
   user.push([Committee1_Email, "", 1, Project_on_term_ID, 0]);
@@ -148,19 +100,17 @@ createGroup = (req, res) => {
           if (err) {
             console.log(error);
             res.status(500).json({ msg: "Internal Server Error", status: 500 });
-            
-          }else{
-            success++
-          };
+          } else {
+            success++;
+          }
         });
       }
     }
   });
-  console.log(sucess+" com "+user.length)
-  if(sucess == user.length){
+  console.log(sucess + " com " + user.length);
+  if (sucess == user.length) {
     res.status(200).json({ msg: "Create group Successed", status: 200 });
-  }else{
-
+  } else {
   }
   console.log("suss", success);
   console.log("user.length", user.length);
@@ -227,7 +177,14 @@ updateGroup = (req, res) => {
   ]);
 
   if (Studen_Number > 1) {
-    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID, Email_Student2, Group_ID]);
+    user.push([
+      Email_Student2,
+      Student2_Tel,
+      2,
+      Project_on_term_ID,
+      Email_Student2,
+      Group_ID,
+    ]);
   }
   if (Studen_Number > 2) {
     user.push([
@@ -337,46 +294,59 @@ updateGroup = (req, res) => {
   if (CoAdvisor_Name == "" || CoAdvisor_Name == null) {
     group.push([Project_NameTh, Project_NameEn, "", Major]);
   } else {
-    group.push([
-      Project_NameTh,
-      Project_NameEn,
-      CoAdvisor_Name,
-      Major,
-
-    ]);
+    group.push([Project_NameTh, Project_NameEn, CoAdvisor_Name, Major]);
   }
 
-  con.query(sql, [group[0][0], group[0][1], group[0][2], group[0][3], Group_ID], (err, result, fields) => {
-    console.log(user)
-    if (err) {
-      console.log("error code first is " + err.sqlMessage);
-      error++;
-    } else {
-      for (let i = 0; i < user.length; i++) {
-
-        con.query(sql2, [user[i][0], user[i][1], user[i][2], user[i][3], user[i][4], user[i][5]], (err, result, fields) => {
-          console.log("success", result['affectedRows']);
-          if (result['affectedRows'] == 0) {
-            con.query(insert, [user[i][0], user[i][1], user[i][2], user[i][3], user[i][5]], (err, result, fields) => {
-              if (err) {
-                console.log("error code third is " + err.sqlMessage);
+  con.query(
+    sql,
+    [group[0][0], group[0][1], group[0][2], group[0][3], Group_ID],
+    (err, result, fields) => {
+      console.log(user);
+      if (err) {
+        console.log("error code first is " + err.sqlMessage);
+        error++;
+      } else {
+        for (let i = 0; i < user.length; i++) {
+          con.query(
+            sql2,
+            [
+              user[i][0],
+              user[i][1],
+              user[i][2],
+              user[i][3],
+              user[i][4],
+              user[i][5],
+            ],
+            (err, result, fields) => {
+              console.log("success", result["affectedRows"]);
+              if (result["affectedRows"] == 0) {
+                con.query(
+                  insert,
+                  [user[i][0], user[i][1], user[i][2], user[i][3], user[i][5]],
+                  (err, result, fields) => {
+                    if (err) {
+                      console.log("error code third is " + err.sqlMessage);
+                    } else {
+                      success++;
+                    }
+                  }
+                );
               } else {
-                success++
+                success++;
               }
-            })
-          } else {
-            success++
-          }
-          if (err) {
-            console.log("hear err" + error);
-            res.status(500).json({ msg: "Internal Server Error", status: 500 });
-          };
-        });
-
+              if (err) {
+                console.log("hear err" + error);
+                res
+                  .status(500)
+                  .json({ msg: "Internal Server Error", status: 500 });
+              }
+            }
+          );
+        }
+        res.status(200).json({ msg: "Create group Successed", status: 200 });
       }
-      res.status(200).json({ msg: "Create group Successed", status: 200 });
     }
-  });
+  );
   console.log("suss", success);
   console.log("user.length", user.length);
   // if (success == user.length) {
@@ -575,18 +545,14 @@ statusgroup = (req, res) => {
   const { User_Status, User_Email, Group_Id } = req.body;
   const sql =
     "UPDATE groupmembers SET User_Status =? WHERE User_Email = ? AND Group_ID = ?;";
-  con.query(
-    sql,
-    [User_Status, User_Email, Group_Id],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        res.status(500).send("Internal Server Error");
-      } else {
-        res.status(200).json(result);
-      }
+  con.query(sql, [User_Status, User_Email, Group_Id], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
     }
-  );
+  });
 };
 
 // Use for update group member status after user accept or decline group invitation
@@ -612,6 +578,7 @@ updateMemberStatus = (req, res) => {
 
 getScoreCoor = (req, res) => {
   const { Major, Academic_Year, Academic_Term } = req.body;
+  console.log(req.body);
   // const major = req.body.Major;
   // const Projectonterm = req.body.Projectonterm;
 
@@ -619,7 +586,7 @@ getScoreCoor = (req, res) => {
     "SELECT st.User_Identity_ID,st.User_Name AS student,tea.User_Name AS Advisor,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=gm.Group_ID) AS progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gm.Group_ID) AS progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS Topic FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?;";
   con.query(
     sql,
-    [Major, Academic_Year, Academic_Term],
+    [Academic_Year, Academic_Term, Major],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -791,4 +758,5 @@ module.exports = {
   grading,
   deleteById,
   updateGroup,
+  getOnlyGroupWithID,
 };

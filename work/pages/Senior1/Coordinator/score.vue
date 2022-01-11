@@ -3,21 +3,39 @@
     <v-container>
       <h2 class="header-title mb-2 mt-5 mb-10 white--text">Score</h2>
       <v-row class="btsem">
-        <v-col cols="4" sm="4" md="4" lg="4">
+        <v-col cols="3" sm="3" md="3" lg="3">
           <div class="login" align="center" justify="center">
-            <v-row><h4 class="white--text">Semester</h4></v-row>
+            <v-row><h4 class="white--text">Year</h4></v-row>
             <v-row>
               <v-select
-                :items="sem"
-                label="semester"
+                v-model="selectedYear"
+                :items="yearNSemsters.map((itm) => itm.Academic_Year)"
+                @change="handelFilterScore"
                 dense
                 solo
+                hide-details
                 class="teb mb-1 mt-1 ma-2 mb-1"
               ></v-select>
             </v-row>
           </div>
         </v-col>
-        <v-col cols="4" sm="4" md="4" lg="4">
+        <v-col cols="3" sm="3" md="3" lg="3">
+          <div class="login" align="center" justify="center">
+            <v-row><h4 class="white--text">Semester</h4></v-row>
+            <v-row>
+              <v-select
+                v-model="selectedSemester"
+                :items="yearNSemsters.map((itm) => itm.Academic_Term)"
+                @change="handelFilterScore"
+                dense
+                solo
+                hide-details
+                class="teb mb-1 mt-1 ma-2 mb-1"
+              ></v-select>
+            </v-row>
+          </div>
+        </v-col>
+        <v-col cols="3" sm="3" md="3" lg="3">
           <div class="login" align="center" justify="center">
             <v-row><h4 class="white--text">Grade</h4></v-row>
             <v-row>
@@ -31,7 +49,7 @@
             </v-row>
           </div>
         </v-col>
-        <v-col cols="4" sm="4" md="4" lg="4">
+        <v-col cols="3" sm="3" md="3" lg="3">
           <div class="login" align="center" justify="center">
             <v-row>
               <v-btn
@@ -46,7 +64,7 @@
           </div>
         </v-col>
       </v-row>
-      <CoordinatorScoreDataTable :items="items" />
+      <CoordinatorScoreDataTable :items="score" />
     </v-container>
   </div>
 </template>
@@ -58,111 +76,54 @@ export default {
     loading3: false,
     sem: ["1/2564", "2/2564"],
     grade: ["S", "U", "I"],
-    items: [
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      },
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      },
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      },
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      },
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      },
-
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      },
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      },
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      },
-      {
-        id: "6131302010",
-        name: "Anuthep Tayngam",
-        advisor: "Surapong uttama",
-        progress1: "10",
-        progress2: "10",
-        finalpresent: "25",
-        finaldocument: "45",
-        total: "90",
-        grade: "S"
-      }
-    ]
+    selectedYear: null,
+    selectedSemester: null,
   }),
   mixins: [exportXLSX],
-  layout: "coordinatorsidebar"
+  layout: "coordinatorsidebar",
+  async asyncData({ $axios, store }) {
+    try {
+      // Fetch all years and semesters
+      const yearNSemsters = await $axios.$get("/date/allYearsSemester");
+
+      // Fetch student score
+      const score = await $axios.$post("/group/getScoreCoor", {
+        Major: store.state.auth.currentUser.major,
+        Academic_Year: yearNSemsters[0].Academic_Year,
+        Academic_Term: yearNSemsters[0].Academic_Term,
+      });
+      // console.log("score", score);
+      return { yearNSemsters, score };
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  mounted() {
+    this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+  },
+  methods: {
+    async handelFilterScore() {
+      console.log('fillter')
+      this.loading3 = true;
+      try {
+        // Fetch student score
+        this.score = await this.$axios.$post("/group/getScoreCoor", {
+          Major: this.$store.state.auth.currentUser.major,
+          Academic_Year: this.selectedYear,
+          Academic_Term: this.selectedSemester,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+      this.loading3 = false;
+    },
+    // total(score){
+    //   score.forEach((obj,index) => {
+    //     Object.value(obj).every
+    //   });
+    // }
+  },
 };
 </script>
 <style scoped>

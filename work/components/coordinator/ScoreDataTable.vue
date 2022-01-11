@@ -15,11 +15,24 @@
         color="blue"
       ></v-text-field>
     </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="items"
-      :search="search"
-    ></v-data-table>
+    <v-data-table :headers="headers" :items="items" :search="search">
+      <template v-slot:item.total="{ item }">
+        {{
+          parseInt(
+            +item.progress1 +
+              +item.progress2 +
+              +item.progress3 +
+              +item.progress4 +
+              +item.FinalPresentation +
+              +item.FinalDocumentation
+          )
+        }}
+      </template>
+
+      <!-- <template v-slot:item.grade="{ item }">
+        {{}}
+      </template> -->
+    </v-data-table>
   </v-card>
 </template>
 
@@ -29,24 +42,47 @@ export default {
   data() {
     return {
       search: "",
+      gradeCriteria: [],
       headers: [
         {
           text: "ID",
-          align: "start",
+          align: "center",
           filterable: false,
-          value: "id"
+          value: "User_Identity_ID",
         },
-        { text: "NAME", value: "name" },
-        { text: "ADVISOR", value: "advisor" },
-        { text: "Progress1", value: "progress1" },
-        { text: "Progress2", value: "progress2" },
-        { text: "FINAL PRESENT", value: "finalpresent" },
-        { text: "FINAL DOCUMENT", value: "finaldocument" },
-        { text: "TOTAL", value: "total" },
-        { text: "GRADE", value: "grade" }
-      ]
+        { text: "NAME", value: "student", align: "center" },
+        { text: "ADVISOR", value: "Advisor" },
+        { text: "Progress1", value: "progress1", align: "center" },
+        { text: "Progress2", value: "progress2", align: "center" },
+        { text: "Progress3", value: "progress3", align: "center" },
+        { text: "Progress4", value: "progress4", align: "center" },
+        { text: "FINAL PRESENT", value: "FinalPresentation", align: "center" },
+        {
+          text: "FINAL DOCUMENT",
+          value: "FinalDocumentation",
+          align: "center",
+        },
+        { text: "TOTAL", value: "total", align: "center" },
+        { text: "GRADE", value: "grade", align: "center" },
+      ],
     };
-  }
+  },
+  async fetch() {
+    try {
+      const gradeCriteria = await this.$axios.$post("/criteria/gradeMajor", {
+        Major_ID: this.$store.state.auth.currentUser.major,
+      });
+      this.gradeCriteria.sort((a, b) =>
+        a.Grade_Criteria_Pass > b.Grade_Criteria_Pass ? 1 : -1
+      );
+      console.log("criteria", this.gradeCriteria);
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  // methods: {
+  //   grede
+  // },
 };
 </script>
 
