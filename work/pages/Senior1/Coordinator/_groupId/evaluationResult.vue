@@ -1,7 +1,10 @@
 <template>
   <section>
     <main class="coordinator-eval-main">
-      <h1>Evaluation Result (My Advisee)</h1>
+      <h1>
+        Evaluation Result
+        {{ groupAdvisor ? "(My Advisee)" : "(My Committee)" }}
+      </h1>
 
       <!-- Card (Evaluation result) -->
       <!-- <ProjectDetailCard /> -->
@@ -11,7 +14,6 @@
         <v-card-title>EVALUATION RESULT</v-card-title>
         <EvaluationResultGrid
           :Group_ID="Group_ID"
-          :gradeCriterias="gradeCriterias"
           :evalScores="fetchScoresRes"
         />
       </v-card>
@@ -30,15 +32,24 @@
             row-height="30"
           ></v-textarea>
 
-          <h5>Grade</h5>
+          <div v-if="groupAdvisor">
+            <h5>Grade</h5>
 
-          <v-select
-            v-model="selectedGrade"
-            :items="gradeNameArr"
-            :disabled="haveGrade"
-            dense
-            outlined
-          ></v-select>
+            <v-select
+              v-model="selectedGrade"
+              :items="gradeNameArr"
+              :disabled="haveGrade"
+              v-if="!gradeI"
+              dense
+              outlined
+            ></v-select>
+
+            <v-checkbox
+              v-model="gradeI"
+              label="Re-evaluation (Grade I)"
+              :disabled="haveGrade"
+            ></v-checkbox>
+          </div>
 
           <v-btn :disabled="haveGrade" color="primary" @click="submitGrade"
             >SUBMIT</v-btn
@@ -61,12 +72,14 @@ export default {
     return {
       comment: "",
       selectedGrade: null,
-      grade: [],
       // 'haveGrade' is a flag use to check if grade has been given or not
       haveGrade: false,
+      gradeI: false,
+      groupAdvisor: false,
+      currentMemberId: null,
     };
   },
-  async asyncData({ params, store, $axios }) {
+  async asyncData({ params, redirect, store, $axios }) {
     // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group id)
     const groupId = params.groupId.match(/(\d)/g).join("");
 
@@ -76,6 +89,11 @@ export default {
       Major_ID: store.state.auth.currentUser.major,
     });
     console.log("Eval grade criterias: ", gradeCriterias);
+
+    // If grade criteria has not been set, redirect user back
+    if (gradeCriterias.length === 0) {
+      return redirect("/Senior1/coordinator/");
+    }
     // Fetch evaluation scores
     const fetchScoresRes = await $axios.$post(
       "/assignment/getEvaluationScores",
@@ -97,7 +115,7 @@ export default {
     console.log("Suggest grade: ", suggestGrade);
 
     // Add to fetchScoresRes
-    fetchScoresRes.grade = suggestGrade.Grade_Criteria_Name;
+    fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
 
     // Create grade name array using all available grade criterias
     let gradeNameArr = gradeCriterias.map(
@@ -109,26 +127,45 @@ export default {
   },
 
   async fetch() {
-    // Fetch given evaluation grade and comment, which can be found in group datatable
-    const groupInfo = await this.$axios.$post("/group/getOnlyGroupWithID", {
+    // Fetch given evaluation grade and comment
+    const groupInfo = await this.$axios.$post("/group/getTeachersEval", {
+      Email: this.$store.state.auth.currentUser.email,
       Group_ID: this.Group_ID,
+      Single: true,
+      Group_Info: true,
     });
+    // console.log("GroupInfo: ", groupInfo);
 
-    // Check if group alrady has a grade
-    if (groupInfo.Grade !== "") {
+    // TODO: Maybe create groupInfo in data and use it as this.groupInfo ??
+    // Sets group advisor to true if the current user is the advisor of the group (Member_Role of 0 is advisor)
+    if (groupInfo.group.Current_Member_Role === 0) this.groupAdvisor = true;
+    // Assign group member id
+    this.currentMemberId = groupInfo.group.Current_Member_ID;
+
+    // Check if the group alrady has a comment from this user(teacher)
+    if (groupInfo.eval[0]?.Comment) {
       // If they have been graded, set 'haveGrade' to true and set grade and comment
       this.haveGrade = true;
-      this.comment = groupInfo.Comment_Grade;
-      this.selectedGrade = groupInfo.Grade;
+      // Since 'eval' return from SQL query as an array, we only need the first result since it's the current user's comment
+      this.comment = groupInfo.eval[0]?.Comment;
+      // Check if the group got an I
+      if (groupInfo.group.Grade === "I") {
+        this.gradeI = true;
+      } else {
+        this.gradeI = false;
+      }
+      // Assign grade to selected grade
+      this.selectedGrade = groupInfo.group.Grade;
     }
   },
   methods: {
     async submitGrade() {
       // If group alrady has a grade, teacher can't give them again
-      if (this.haveGrade) return;
+      // If no current group member id also return
+      if (this.haveGrade || !this.currentMemberId) return;
 
       // If no grade has been selected, warn the user
-      if (this.selectedGrade === null) {
+      if (this.groupAdvisor && this.selectedGrade === null) {
         this.$swal.fire(
           "Missing data",
           "Please select Grade before submit.",
@@ -137,11 +174,14 @@ export default {
         return;
       }
 
+      // If re-eval is checked (graded I) assign grade I to the 'selectedGrade'
+      if (this.gradeI) this.selectedGrade = "I";
+
       this.$swal
         .fire({
           icon: "info",
-          title: "Submit Grade",
-          text: "You can submit a grade once.",
+          title: "Submit Evaluation",
+          text: "You can submit evaluation only once.",
           showCancelButton: true,
           confirmButtonColor: "#3085d6",
           cancelButtonColor: "#d33",
@@ -152,13 +192,16 @@ export default {
             if (result.isConfirmed) {
               const res = await this.$axios.$post("/group/grading", {
                 Group_ID: this.Group_ID,
-                event: 0, // Event 0 is for normal grade and 1 is for final grade
+                // Event 0 is for normal grade and 1 is for final grade
+                event: 0,
                 // Input grade based on selected option
                 Grade:
                   this.selectedGrade === "As system suggested"
-                    ? this.fetchScoresRes.grade
+                    ? this.fetchScoresRes.suggestGrade
                     : this.selectedGrade,
+                isAdvisor: this.groupAdvisor,
                 Comment: this.comment,
+                Group_Member_ID: this.currentMemberId,
               });
 
               if (res.status == 200) {
@@ -169,13 +212,16 @@ export default {
                 );
                 // Update UI
                 this.$nuxt.refresh();
+                return;
               } else {
                 this.$swal.fire("Error", res.msg, "error");
+                return;
               }
             }
           } catch (err) {
             console.log(err);
             this.$swal.fire("Error", err.message, "error");
+            return;
           }
         });
       // console.log("selected grade ", this.selectedGrade);

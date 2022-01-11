@@ -62,15 +62,27 @@
               <!-- Student -->
               <!-- Loop the "projectMembers" array and render each student fields -->
               <div v-for="(member, index) in projectMembers" :key="member">
-                <h5 class="font-weight-bold mt-5">Student {{ member }}</h5>
+                <h5 class="font-weight-bold mt-5">
+                  Student {{ member }}
+                  <!-- Icon indicate if teacher submiited eval comment yet -->
+                  <v-icon
+                    right
+                    color="success"
+                    v-if="memberStatus[index] === 1"
+                  >
+                    mdi-checkbox-marked-circle
+                  </v-icon>
+                  <v-icon right color="orange" v-else>
+                    mdi-clock-time-four
+                  </v-icon>
+                </h5>
+                <!-- {{ memberStatus[index] }} -->
                 <v-row>
                   <v-col cols="12" sm="6">
                     <v-text-field
                       ref="stuName"
-                      v-model="name[member - 1]"
-                      :rules="[
-                        () => !!name[member - 1] || 'This field is required',
-                      ]"
+                      v-model="name[index]"
+                      :rules="[() => !!name[index] || 'This field is required']"
                       required
                       label="Student Name"
                       outlined
@@ -81,9 +93,9 @@
                     </v-text-field>
                     <v-text-field
                       ref="stuPhoneNumber"
-                      v-model="phone[member - 1]"
+                      v-model="phone[index]"
                       :rules="[
-                        () => !!phone[member - 1] || 'This field is required',
+                        () => !!phone[index] || 'This field is required',
                       ]"
                       :disabled="!headMember"
                       required
@@ -108,7 +120,7 @@
                     >
                     </v-text-field> -->
                     <v-autocomplete
-                      v-model="selectedStudent[member - 1]"
+                      v-model="selectedStudent[index]"
                       :loading="studentLoading"
                       :items="allStudentsInSchool"
                       :filter="customStudentFilter"
@@ -127,7 +139,7 @@
                     ></v-autocomplete>
                     <v-text-field
                       ref="stuEmail"
-                      v-model="email[member - 1]"
+                      v-model="email[index]"
                       :rules="emailRules"
                       required
                       label="Student Lamduan Mail"
@@ -292,14 +304,7 @@
             <!-- Create button -->
             <!-- v-if checks if user has a group and if they do what is thier group member status (user status) -->
             <!-- if it's zero meaning they are pending member, but if they are not pending member we check if they are head member next -->
-            <v-row
-              class="text-center"
-              v-if="
-                (this.$store.state.group.currentUserGroup &&
-                  this.$store.state.group.currentUserGroup.User_Status === 0) ||
-                headMember
-              "
-            >
+            <v-row class="text-center" v-if="showResposeBtn || headMember">
               <v-col v-if="headMember">
                 <v-btn
                   rounded
@@ -384,11 +389,13 @@ export default {
         ) || "E-mail must be valid",
     ],
     projectMembers: [1],
+    memberStatus: [],
     name: ["", "", "", ""],
     phone: ["", "", "", ""],
     // idstu: ["", "", "", ""],
     email: ["", "", "", ""],
     major: "1",
+    showResposeBtn: false,
   }),
   props: { groupMembers: Array },
   async fetch() {
@@ -463,7 +470,7 @@ export default {
           confirmButtonText: "Yes",
         })
         .then(async (result) => {
-          console.log(this.projectMembers.length)
+          console.log(this.projectMembers.length);
           if (result.isConfirmed) {
             const res = await this.$axios.$post("group/createGroup", {
               Project_NameTh: this.thaiName,
@@ -521,10 +528,6 @@ export default {
         this.valid === false
       )
         return;
-      console.log(
-        "NEW STATE CHECK: ",
-        this.$store.state.auth.currentUser.major
-      );
 
       this.$swal
         .fire({
@@ -611,6 +614,11 @@ export default {
                 Status: response,
               });
               if (res.status !== 200) throw err;
+              // Update the UI
+              //! Cannot use 'this.$nuxt.refresh()' because the logic for updating member status is in mounted()
+              this.showResposeBtn = false;
+              window.location.reload();
+              return;
             } else {
               return;
             }
@@ -623,7 +631,7 @@ export default {
   },
   mounted() {
     // console.log('Current user group: ', this.$store.state.group.currentUserGroup);
-    // console.log("Group members: ", this.groupMembers);
+    console.log("Group members: ", this.groupMembers);
     // Check if there are group members array before pass in value to text fields
     if (this.groupMembers.length !== 0) {
       // Sets project name
@@ -649,6 +657,7 @@ export default {
           this.name[index] = itm.User_Name;
           this.email[index] = itm.User_Email;
           this.phone[index] = itm.User_Phone;
+          this.memberStatus[index] = itm.User_Status;
         });
       // Sets advisor
       const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
@@ -658,7 +667,7 @@ export default {
           User_Name: advisor[0].User_Name,
           disabled: true,
         };
-      console.log(this.$store.state.group.currentUserGroup);
+      // console.log(this.$store.state.group.currentUserGroup);
       //Set co-advisor name
       if (this.$store.state.group.currentUserGroup.Co_Advisor !== "") {
         this.selectedCoAdvisor = {
@@ -683,19 +692,25 @@ export default {
 
       // And insert the current user as head of the group (ie. first member)
       this.email[0] = this.$store.state.auth.currentUser.email;
-      (this.name[0] = this.$store.state.auth.currentUser.name),
-        (this.selectedStudent[0] = {
-          User_Email: this.$store.state.auth.currentUser.email,
-          User_Identity_ID: this.$store.state.auth.currentUser.userId,
-          User_Name: this.$store.state.auth.currentUser.name,
-          User_Role: this.$store.state.auth.currentUser.role,
-        });
+      this.name[0] = this.$store.state.auth.currentUser.name;
+      this.selectedStudent[0] = {
+        User_Email: this.$store.state.auth.currentUser.email,
+        User_Identity_ID: this.$store.state.auth.currentUser.userId,
+        User_Name: this.$store.state.auth.currentUser.name,
+        User_Role: this.$store.state.auth.currentUser.role,
+      };
+      this.memberStatus[0] = 1;
     }
 
     // Check if current user is the head of the group
     if (this.email[0] === this.$store.state.auth.currentUser.email) {
       this.headMember = true;
+    } else if (this.$store.state.group.currentUserGroup.User_Status === 0) {
+      // If the current user is not head of the group, check if he has user status of pending (ie. status of 0)
+      this.showResposeBtn = true;
+      this.headMember = false;
     } else {
+      // Else, the current user is a member of the group, and they alrady accept the invite
       this.headMember = false;
     }
   },

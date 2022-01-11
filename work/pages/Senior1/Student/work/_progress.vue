@@ -91,7 +91,7 @@ export default {
       }
     );
 
-    // Fetch teachers
+    // Fetch teachers and given scores
     let teachers = await $axios.$post("/group/getTeachersWithGroupID", {
       Group_ID: store.state.group.currentUserGroup.Group_ID,
       Progress_ID: progressId + 2,

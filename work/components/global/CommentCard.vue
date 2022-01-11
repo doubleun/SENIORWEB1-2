@@ -7,7 +7,7 @@
       :key="teacher.Group_Member_ID"
     >
       <v-card-title>
-        <div class="d-flex" style="gap: 1rem">
+        <div class="d-flex" style="gap: 6rem">
           <span>{{
             teacher.Group_Role === 0 ? "ADVISOR:" : "COMMITTEE:"
           }}</span>
@@ -25,16 +25,16 @@
       </v-row>
       <v-divider class="mx-4"></v-divider>
       <v-row class="pl-5 mt-4 pr-4">
-        <v-col cols="6" sm="6"> <h4>COMMENTS</h4> </v-col>
-        <v-col cols="12" sm="6">
+        <v-col cols="6" sm="2"> <h4>COMMENT:</h4> </v-col>
+        <v-col cols="12" sm="10">
           <span>
             {{ teacher.Comment }}
           </span>
         </v-col>
       </v-row>
       <v-row class="pl-5 mt-4 pr-4" v-if="teacher.files">
-        <v-col cols="6" sm="6"><h4>FILES</h4> </v-col>
-        <v-col cols="12" sm="6">
+        <v-col cols="6" sm="2"><h4>FILES</h4> </v-col>
+        <v-col cols="12" sm="10">
           <li>
             <a
               :href="'/api/uploads/assignments/' + teacher.files[0].File_Name"

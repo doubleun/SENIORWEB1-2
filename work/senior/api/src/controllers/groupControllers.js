@@ -1,5 +1,6 @@
 const { result } = require("lodash");
 const con = require("../config/db");
+const conPromise = con.promise();
 
 createGroup = (req, res) => {
   const {
@@ -49,76 +50,28 @@ createGroup = (req, res) => {
     user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 2) {
-    user.push([
-      Email_Student3,
-      Student3_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 3) {
-    user.push([
-      Email_Student4,
-      Student4_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student4, Student4_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 4) {
-    user.push([
-      Email_Student5,
-      Student5_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student5, Student5_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 5) {
-    user.push([
-      Email_Student6,
-      Student6_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student6, Student6_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 6) {
-    user.push([
-      Email_Student7,
-      Student7_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student7, Student7_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 7) {
-    user.push([
-      Email_Student8,
-      Student8_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student8, Student8_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 8) {
-    user.push([
-      Email_Student9,
-      Student9_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student9, Student9_Tel, 2, Project_on_term_ID, 0]);
   }
   if (Studen_Number > 9) {
-    user.push([
-      Email_Student10,
-      Student10_Tel,
-      2,
-      Project_on_term_ID,
-      0,
-    ]);
+    user.push([Email_Student10, Student10_Tel, 2, Project_on_term_ID, 0]);
   }
   user.push([Advisor_Email, "", 0, Project_on_term_ID, 0]);
   user.push([Committee1_Email, "", 1, Project_on_term_ID, 0]);
@@ -148,19 +101,17 @@ createGroup = (req, res) => {
           if (err) {
             console.log(error);
             res.status(500).json({ msg: "Internal Server Error", status: 500 });
-            
-          }else{
-            success++
-          };
+          } else {
+            success++;
+          }
         });
       }
     }
   });
-  console.log(sucess+" com "+user.length)
-  if(sucess == user.length){
+  console.log(sucess + " com " + user.length);
+  if (sucess == user.length) {
     res.status(200).json({ msg: "Create group Successed", status: 200 });
-  }else{
-
+  } else {
   }
   console.log("suss", success);
   console.log("user.length", user.length);
@@ -227,7 +178,14 @@ updateGroup = (req, res) => {
   ]);
 
   if (Studen_Number > 1) {
-    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID, Email_Student2, Group_ID]);
+    user.push([
+      Email_Student2,
+      Student2_Tel,
+      2,
+      Project_on_term_ID,
+      Email_Student2,
+      Group_ID,
+    ]);
   }
   if (Studen_Number > 2) {
     user.push([
@@ -337,46 +295,59 @@ updateGroup = (req, res) => {
   if (CoAdvisor_Name == "" || CoAdvisor_Name == null) {
     group.push([Project_NameTh, Project_NameEn, "", Major]);
   } else {
-    group.push([
-      Project_NameTh,
-      Project_NameEn,
-      CoAdvisor_Name,
-      Major,
-
-    ]);
+    group.push([Project_NameTh, Project_NameEn, CoAdvisor_Name, Major]);
   }
 
-  con.query(sql, [group[0][0], group[0][1], group[0][2], group[0][3], Group_ID], (err, result, fields) => {
-    console.log(user)
-    if (err) {
-      console.log("error code first is " + err.sqlMessage);
-      error++;
-    } else {
-      for (let i = 0; i < user.length; i++) {
-
-        con.query(sql2, [user[i][0], user[i][1], user[i][2], user[i][3], user[i][4], user[i][5]], (err, result, fields) => {
-          console.log("success", result['affectedRows']);
-          if (result['affectedRows'] == 0) {
-            con.query(insert, [user[i][0], user[i][1], user[i][2], user[i][3], user[i][5]], (err, result, fields) => {
-              if (err) {
-                console.log("error code third is " + err.sqlMessage);
+  con.query(
+    sql,
+    [group[0][0], group[0][1], group[0][2], group[0][3], Group_ID],
+    (err, result, fields) => {
+      console.log(user);
+      if (err) {
+        console.log("error code first is " + err.sqlMessage);
+        error++;
+      } else {
+        for (let i = 0; i < user.length; i++) {
+          con.query(
+            sql2,
+            [
+              user[i][0],
+              user[i][1],
+              user[i][2],
+              user[i][3],
+              user[i][4],
+              user[i][5],
+            ],
+            (err, result, fields) => {
+              console.log("success", result["affectedRows"]);
+              if (result["affectedRows"] == 0) {
+                con.query(
+                  insert,
+                  [user[i][0], user[i][1], user[i][2], user[i][3], user[i][5]],
+                  (err, result, fields) => {
+                    if (err) {
+                      console.log("error code third is " + err.sqlMessage);
+                    } else {
+                      success++;
+                    }
+                  }
+                );
               } else {
-                success++
+                success++;
               }
-            })
-          } else {
-            success++
-          }
-          if (err) {
-            console.log("hear err" + error);
-            res.status(500).json({ msg: "Internal Server Error", status: 500 });
-          };
-        });
-
+              if (err) {
+                console.log("hear err" + error);
+                res
+                  .status(500)
+                  .json({ msg: "Internal Server Error", status: 500 });
+              }
+            }
+          );
+        }
+        res.status(200).json({ msg: "Create group Successed", status: 200 });
       }
-      res.status(200).json({ msg: "Create group Successed", status: 200 });
     }
-  });
+  );
   console.log("suss", success);
   console.log("user.length", user.length);
   // if (success == user.length) {
@@ -388,37 +359,39 @@ updateGroup = (req, res) => {
 };
 
 // Get group based on ID (for my advisee, comittee pages)
-getGroupWithID = (req, res) => {
-  const { Group_ID, Email } = req.body;
+getGroupWithID = async (req, res) => {
+  const { Group_ID, Email, Project_on_term_ID } = req.body;
 
-  // Query for group members
-  const sqlGroupMembers =
-    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Status, gm.User_Phone  FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email WHERE gm.Group_ID = ? AND gm.User_Status = 1 ORDER BY gm.Group_Role DESC";
-  con.query(sqlGroupMembers, [Group_ID], (err, groupMembers, fields) => {
-    try {
-      if (err) throw err;
-
-      // Check if the person is a member or not first, if not return failed to fetch
-      if (!groupMembers.map((member) => member.User_Email).includes(Email))
-        throw new Error("Not a member of this group");
-
-      // Query for group info
-      const sqlGroupInfo =
-        "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Final_Grade, g.Comment_Grade, g.Comment_FinalGrade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
-      const groupInfo = new Promise((resolve, reject) => {
+  try {
+    // 1.) Select query for group members
+    const sqlGroupMembers =
+      "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Status, gm.User_Phone FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email WHERE gm.Group_ID = ? AND gm.User_Status = 1 AND gm.Project_on_term_ID = ? ORDER BY gm.Group_Role DESC";
+    // Group members result
+    // First element in the returned array is 'row', the second is 'field'
+    const [groupMembers] = await con
+      .promise()
+      .query(sqlGroupMembers, [Group_ID, Project_on_term_ID], (err) => {
         if (err) throw err;
-        con.query(sqlGroupInfo, [Email, Group_ID], (err, groupInfo, fields) => {
-          if (err) throw err;
-          resolve(groupInfo);
-        });
       });
 
+    // Check if the person is a member or not first, if not return failed to fetch
+    if (!groupMembers.map((member) => member.User_Email).includes(Email))
+      throw new Error("Not a member of this group");
+
+    // 2.) Select query for group info
+    const sqlGroupInfo =
+      "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Final_Grade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
+    // Group info result
+    con.query(sqlGroupInfo, [Email, Group_ID], (err, groupInfo) => {
+      if (err) throw err;
       res.status(200).json({ groupInfo, groupMembers, status: 200 });
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({ msg: err, status: 500 });
-    }
-  });
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: err, status: 500 });
+    return;
+  }
 };
 
 // Get current user group info if the student has one
@@ -466,7 +439,7 @@ getAllGroupsAdmin = (req, res) => {
   });
 };
 
-// Get group student progress page
+// Get teachers with score on each progress, using group id
 getTeachersWithGroupID = (req, res) => {
   const { Group_ID, Progress_ID, Project_on_term_ID } = req.body;
   const getTeachersProgressSql =
@@ -486,6 +459,50 @@ getTeachersWithGroupID = (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal Server Error");
+    return;
+  }
+};
+
+// Get eval comment of advisor and 2 committees (for eval page)
+// This could be all teachers(use in student side) or only one(use in teacher side)
+getTeachersEval = (req, res) => {
+  const { Email, Group_ID, Single, Group_Info } = req.body;
+  try {
+    // Check if 'Single' is true, if it is then query for single teacher eval comment using email
+    const getTeachersEval = `SELECT ec.Comment, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
+      Single ? "gm.User_Email = ? AND" : ""
+    } ec.Group_ID = ?`;
+    console.log("GetTeachersEvalSQL: ", getTeachersEval);
+    // 1.) Select eval comment(s)
+    // Here rest parameter syntax is used for conditionally spread element in the array
+    con.query(
+      getTeachersEval,
+      [...(Single ? [Email] : []), Group_ID],
+      (err, evalResult) => {
+        if (err) throw err;
+        console.log("Eval result: ", evalResult);
+
+        // 2.) In some case, group info may also needed (for getting the grade) If it's needed, query for group info next
+        // This query includes 'Current_Member_Role' and 'Current_Member_ID'
+        if (Group_Info) {
+          const getGroupWithId =
+            "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Final_Grade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
+          con.query(getGroupWithId, [Email, Group_ID], (err, groupResult) => {
+            if (err) throw err;
+            console.log("Group info result: ", groupResult);
+            res.status(200).json({ eval: evalResult, group: groupResult[0] });
+          });
+        } else {
+          // If no request for group info then only response with evalResult
+          res.status(200).json({ eval: evalResult });
+          return;
+        }
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
   }
 };
 
@@ -575,18 +592,14 @@ statusgroup = (req, res) => {
   const { User_Status, User_Email, Group_Id } = req.body;
   const sql =
     "UPDATE groupmembers SET User_Status =? WHERE User_Email = ? AND Group_ID = ?;";
-  con.query(
-    sql,
-    [User_Status, User_Email, Group_Id],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        res.status(500).send("Internal Server Error");
-      } else {
-        res.status(200).json(result);
-      }
+  con.query(sql, [User_Status, User_Email, Group_Id], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
     }
-  );
+  });
 };
 
 // Use for update group member status after user accept or decline group invitation
@@ -715,7 +728,7 @@ listrequestGroup = (req, res) => {
 getMyGroup = (req, res) => {
   const groupId = req.body.Group_ID;
   const sql =
-    "SELECT gmb.Group_Member_ID, gp.Group_ID,gp.Major,gp.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gp.Grade,gp.Final_Grade,gp.Comment_Grade,gp.Comment_FinalGrade,gp.Co_Advisor,usr.User_Name,gmb.Group_Role,usr.User_Email,usr.User_Identity_ID,gmb.User_Phone,gmb.User_Status FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email AND gmb.Project_on_term_ID=usr.Project_on_term_ID WHERE gmb.Group_ID=? AND gmb.User_Status=1 ORDER BY gmb.Group_Member_ID";
+    "SELECT gmb.Group_Member_ID, gp.Group_ID,gp.Major,gp.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gp.Grade,gp.Final_Grade,gp.Co_Advisor,usr.User_Name,gmb.Group_Role,usr.User_Email,usr.User_Identity_ID,gmb.User_Phone,gmb.User_Status FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email AND gmb.Project_on_term_ID=usr.Project_on_term_ID WHERE gmb.Group_ID=? AND gmb.User_Status=1 ORDER BY gmb.Group_Member_ID";
   con.query(sql, [groupId], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -726,56 +739,97 @@ getMyGroup = (req, res) => {
   });
 };
 
-grading = (req, res) => {
-  // event 0 for update grad in group
-  // event 1 for update final grad in group
-  const { Group_ID, event, Grade, Comment } = req.body;
+grading = async (req, res) => {
+  // event 0 for update normal grade in group
+  // event 1 for update final grade in group
+  const { Group_ID, event, isAdvisor, Grade, Comment, Group_Member_ID } =
+    req.body;
 
-  const grade = "UPDATE `groups` SET `Grade` = ? WHERE `groups`.`Group_ID` = ?";
-  const finalGrade =
-    "UPDATE `groups` SET `Final_Grade` = ? WHERE `groups`.`Group_ID` = ?";
-
-  const commentGrade =
-    "UPDATE `groups` SET `Comment_Grade` = ? WHERE `groups`.`Group_ID` = ?";
-
-  const commentFinalGrade =
-    "UPDATE `groups` SET `Comment_FinalGrade` = ? WHERE `groups`.`Group_ID` = ?";
-
-  con.query(
-    event == 0 ? grade : finalGrade,
-    [Grade, Group_ID],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ msg: "Internal Server Error", status: 500 });
-      } else {
-        con.query(
-          event == 0 ? commentGrade : commentFinalGrade,
-          [Comment, Group_ID],
-          (err, result, fields) => {
-            if (err) {
-              console.log(err);
-              res
-                .status(500)
-                .json({ msg: "Internal Server Error", status: 500 });
-            } else {
-              res.status(200).json({ msg: "graded", status: 200 });
-            }
-          }
-        );
-
-        // res.status(200).json({ msg: 'graded', status: 200 })
+  try {
+    // Begin transaction
+    await conPromise.beginTransaction((err) => {
+      if (err) throw err;
+    });
+    // 1.) Insert comment in 'evalcomment' table
+    const insertEvalComment =
+      "INSERT INTO `evalcomment`(`Comment`, `Group_Member_ID`, `Group_ID`) VALUES (?, ?, ?)";
+    await conPromise.execute(
+      insertEvalComment,
+      [Comment, Group_Member_ID, Group_ID],
+      (err) => {
+        if (err) throw err;
       }
+    );
+
+    // 2.) If is advisor, then update grade in 'groups' table
+    if (isAdvisor && Grade) {
+      const updateGrade = `UPDATE groups SET ${
+        event === 0 ? "Grade" : "Final_Grade"
+      } = ? WHERE groups.Group_ID = ?`;
+      await conPromise.execute(updateGrade, [Grade, Group_ID], (err) => {
+        if (err) throw err;
+      });
     }
-  );
+    // Commit
+    await conPromise.commit();
+    res.status(200).json({ msg: "Insert successfully", status: 200 });
+    return;
+  } catch (err) {
+    console.log(err);
+    conPromise.rollback();
+    console.log("Rollback successfully");
+    res.status(500).json({ msg: "Interal Server Error", status: 500 });
+    return;
+  }
+  // Check if isAdvisor is true, if it is then 'UPDATE' grade query will execute
+
+  // const grade = "UPDATE `groups` SET `Grade` = ? WHERE `groups`.`Group_ID` = ?";
+  // const finalGrade =
+  //   "UPDATE `groups` SET `Final_Grade` = ? WHERE `groups`.`Group_ID` = ?";
+
+  // const commentGrade =
+  //   "UPDATE `groups` SET `Comment_Grade` = ? WHERE `groups`.`Group_ID` = ?";
+
+  // const commentFinalGrade =
+  //   "UPDATE `groups` SET `Comment_FinalGrade` = ? WHERE `groups`.`Group_ID` = ?";
+
+  // con.query(
+  //   event == 0 ? grade : finalGrade,
+  //   [Grade, Group_ID],
+  //   (err, result, fields) => {
+  //     if (err) {
+  //       console.log(err);
+  //       res.status(500).json({ msg: "Internal Server Error", status: 500 });
+  //     } else {
+  //       con.query(
+  //         event == 0 ? commentGrade : commentFinalGrade,
+  //         [Comment, Group_ID],
+  //         (err, result, fields) => {
+  //           if (err) {
+  //             console.log(err);
+  //             res
+  //               .status(500)
+  //               .json({ msg: "Internal Server Error", status: 500 });
+  //           } else {
+  //             res.status(200).json({ msg: "graded", status: 200 });
+  //           }
+  //         }
+  //       );
+
+  //       // res.status(200).json({ msg: 'graded', status: 200 })
+  //     }
+  //   }
+  // );
 };
 
 module.exports = {
   getAll,
   getGroupWithID,
+  getOnlyGroupWithID,
   getGroupInfo,
   getGroupMembers,
   getTeachersWithGroupID,
+  getTeachersEval,
   createGroup,
   statusgroup,
   getByMajor,

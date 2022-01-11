@@ -9,7 +9,6 @@
         <!-- Score table -->
         <EvaluationResultGrid
           :Group_ID="Group_ID"
-          :gradeCriterias="gradeCriterias"
           :evalScores="fetchScoresRes"
         />
       </v-card>
@@ -39,7 +38,10 @@ export default {
         Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
 
+      console.log("SET GROUP: ", res.groupInfo[0]);
+
       // Set group state, this is added in later for the layout to know current progress of each group
+      // TODO: Not needed anymore ??
       store.commit("group/SET_GROUP", res.groupInfo[0]);
 
       // Fetch available grade criterias
@@ -48,6 +50,11 @@ export default {
         Major_ID: store.state.auth.currentUser.major,
       });
       console.log("Eval grade criterias: ", gradeCriterias);
+
+      // If grade criteria has not been set, redirect user back
+      if (gradeCriterias.length === 0) {
+        return redirect("/Senior1/coordinator/");
+      }
 
       // Fetch evaluation scores
       const fetchScoresRes = await $axios.$post(
@@ -70,7 +77,7 @@ export default {
       console.log("Suggest grade: ", suggestGrade);
 
       // Add to fetchScoresRes
-      fetchScoresRes.grade = suggestGrade.Grade_Criteria_Name;
+      fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
 
       return {
         Group_ID: groupId,
@@ -78,7 +85,6 @@ export default {
           GroupInfo: res.groupInfo[0],
           GroupMembers: res.groupMembers,
         },
-        gradeCriterias,
         fetchScoresRes,
       };
     } catch (error) {
