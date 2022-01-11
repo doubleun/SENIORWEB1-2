@@ -29,8 +29,32 @@
         }}
       </template>
 
+      <template v-slot:item.progress1="{ item }">
+        {{ +item.progress1 }}
+      </template>
+
+      <template v-slot:item.progress2="{ item }">
+        {{ +item.progress2 }}
+      </template>
+
+      <template v-slot:item.progress3="{ item }">
+        {{ +item.progress3 }}
+      </template>
+
+      <template v-slot:item.progress4="{ item }">
+        {{ +item.progress4 }}
+      </template>
+
+      <template v-slot:item.FinalPresentation="{ item }">
+        {{ +item.FinalPresentation }}
+      </template>
+
+      <template v-slot:item.FinalDocumentation="{ item }">
+        {{ +item.FinalDocumentation }}
+      </template>
       <!-- <template v-slot:item.grade="{ item }">
-        {{}}
+        <span v-if="item.finalgrade != null">{{ item.finalgrade }}</span>
+        <span v-else>{{ item.grade }}</span>
       </template> -->
     </v-data-table>
   </v-card>
@@ -42,7 +66,7 @@ export default {
   data() {
     return {
       search: "",
-      gradeCriteria: [],
+      // gradeCriteria: [],
       headers: [
         {
           text: "ID",
@@ -63,23 +87,23 @@ export default {
           align: "center",
         },
         { text: "TOTAL", value: "total", align: "center" },
-        { text: "GRADE", value: "grade", align: "center" },
+        { text: "GRADE", value: "newGrade", align: "center" },
       ],
     };
   },
-  async fetch() {
-    try {
-      const gradeCriteria = await this.$axios.$post("/criteria/gradeMajor", {
-        Major_ID: this.$store.state.auth.currentUser.major,
-      });
-      this.gradeCriteria.sort((a, b) =>
-        a.Grade_Criteria_Pass > b.Grade_Criteria_Pass ? 1 : -1
-      );
-      console.log("criteria", this.gradeCriteria);
-    } catch (error) {
-      console.log(error);
-    }
-  },
+  // async fetch() {
+  //   try {
+  //     const gradeCriteria = await this.$axios.$post("/criteria/gradeMajor", {
+  //       Major_ID: this.$store.state.auth.currentUser.major,
+  //     });
+  //     this.gradeCriteria.sort((a, b) =>
+  //       a.Grade_Criteria_Pass > b.Grade_Criteria_Pass ? 1 : -1
+  //     );
+  //     console.log("criteria", this.gradeCriteria);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // },
   // methods: {
   //   grede
   // },

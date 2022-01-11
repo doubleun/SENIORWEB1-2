@@ -10,7 +10,7 @@
               <v-select
                 v-model="selectedYear"
                 :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-                @change="handelFilterScore"
+                @change="handelFilterWithAcademic"
                 dense
                 solo
                 hide-details
@@ -26,7 +26,7 @@
               <v-select
                 v-model="selectedSemester"
                 :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-                @change="handelFilterScore"
+                @change="handelFilterWithAcademic"
                 dense
                 solo
                 hide-details
@@ -40,7 +40,7 @@
             <v-row><h4 class="white--text">Grade</h4></v-row>
             <v-row>
               <v-select
-                :items="grade"
+                :items="fillterGrade"
                 label="Grade"
                 dense
                 solo
@@ -64,7 +64,7 @@
           </div>
         </v-col>
       </v-row>
-      <CoordinatorScoreDataTable :items="score" />
+      <CoordinatorScoreDataTable :items="grade" />
     </v-container>
   </div>
 </template>
@@ -75,9 +75,10 @@ export default {
   data: () => ({
     loading3: false,
     sem: ["1/2564", "2/2564"],
-    grade: ["S", "U", "I"],
+    fillterGrade: [],
     selectedYear: null,
     selectedSemester: null,
+    selectedGrade: null,
   }),
   mixins: [exportXLSX],
   layout: "coordinatorsidebar",
@@ -87,13 +88,28 @@ export default {
       const yearNSemsters = await $axios.$get("/date/allYearsSemester");
 
       // Fetch student score
-      const score = await $axios.$post("/group/getScoreCoor", {
+      var score = await $axios.$post("/group/getScoreCoor", {
         Major: store.state.auth.currentUser.major,
         Academic_Year: yearNSemsters[0].Academic_Year,
         Academic_Term: yearNSemsters[0].Academic_Term,
       });
       // console.log("score", score);
-      return { yearNSemsters, score };
+      var newGrade = [];
+      score.forEach((el) => {
+        el.newGrade =
+          el.finalgrade != "" && el.finalgrade != null
+            ? el.finalgrade
+            : el.grade;
+        newGrade.push(el);
+      });
+      // console.log("new score", newGrade);
+      // score.forEach((obj, index) => {
+      //   // console.log(obj);
+      //   console.log(Object.values(obj));
+      //   console.log(typeof Object.values(obj[index]) === "number");
+      //   // typeof Object.value(obj) === "number" ? obj : 0;
+      // });
+      return { yearNSemsters, grade: newGrade };
     } catch (error) {
       console.log(error);
     }
@@ -103,8 +119,8 @@ export default {
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
   methods: {
-    async handelFilterScore() {
-      console.log('fillter')
+    async handelFilterWithAcademic() {
+      // console.log("fillter");
       this.loading3 = true;
       try {
         // Fetch student score
@@ -118,11 +134,22 @@ export default {
       }
       this.loading3 = false;
     },
-    // total(score){
-    //   score.forEach((obj,index) => {
-    //     Object.value(obj).every
+    async handelFilterWithAcademic() {
+      // console.log("fillter");
+      this.loading3 = true;
+      try {
+      } catch (error) {
+        console.log(error);
+      }
+      this.loading3 = false;
+    },
+    // total(score) {
+    //   score.forEach((obj, index) => {
+    //     console.log(Object.value(obj));
+    //     console.log(typeof Object.value(obj) === "number");
+    //     typeof Object.value(obj) === "number" ? obj : 0;
     //   });
-    // }
+    // },
   },
 };
 </script>
