@@ -9,32 +9,40 @@
 // import Announcement from "@/components/coordinator/homeAnnouncement";
 export default {
   layout: "coordinatorsidebar",
-  async asyncData(context) {
-    const announcements = await context.$axios.$post(
-      "http://localhost:3000/api/announc/major",
-      {
-        MajorID: context.store.state.auth.currentUser.major
-      }
-    );
-    //! Fetch home info (mock)
-    const teacherInfo = [
-      {
-        title: "My advisee",
-        amount: 0,
-        icon: "mdi-account-supervisor"
-      },
-      {
-        title: "Committee",
-        amount: 0,
-        icon: "mdi-account-multiple"
-      },
-      {
-        title: "Group Request",
-        amount: 0,
-        icon: "mdi-account-multiple-plus"
-      }
-    ];
-    return { announcements, info: teacherInfo };
-  }
+  async asyncData({ $axios, store }) {
+    try {
+      const announcements = await $axios.$post("/announc/major", {
+        MajorID: store.state.auth.currentUser.major,
+      });
+      const data = await $axios.$post("/group/countMyGroup", {
+        User_Email: store.state.auth.currentUser.email,
+        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+      });
+
+      console.log(data)
+
+      //! Fetch home info (mock)
+      const teacherInfo = [
+        {
+          title: "My advisee",
+          amount: data[0].Advisor,
+          icon: "mdi-account-supervisor",
+        },
+        {
+          title: "Committee",
+          amount: data[0].Committee,
+          icon: "mdi-account-multiple",
+        },
+        {
+          title: "Group Request",
+          amount: data[0].GroupRequest,
+          icon: "mdi-account-multiple-plus",
+        },
+      ];
+      return { announcements, info: teacherInfo };
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
 </script>

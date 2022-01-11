@@ -737,6 +737,32 @@ grading = (req, res) => {
   );
 };
 
+countTeachergroup = (req, res) => {
+  // count amount of my group and group request
+  const { User_Email, Project_on_term_ID } = req.body;
+  const sql =
+    "SELECT ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.Group_Role=0 AND gmb.User_Status=1) AS Advisor, ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.Group_Role=1 AND gmb.User_Status=1) AS Committee, ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.User_Status=0) AS GroupRequest";
+  con.query(
+    sql,
+    [
+      User_Email,
+      Project_on_term_ID,
+      User_Email,
+      Project_on_term_ID,
+      User_Email,
+      Project_on_term_ID,
+    ],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        res.status(200).json(result);
+      }
+    }
+  );
+};
+
 module.exports = {
   getAll,
   getGroupWithID,
@@ -759,4 +785,5 @@ module.exports = {
   deleteById,
   updateGroup,
   getOnlyGroupWithID,
+  countTeachergroup,
 };
