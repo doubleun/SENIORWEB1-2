@@ -64,20 +64,24 @@ export default {
         }
       );
       console.log("Fetched eval scores: ", fetchScoresRes);
-      // Calculate total score
-      fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
-        (prev, current) => parseInt(prev) + (!current ? 0 : parseInt(current)),
-        0
-      );
+      // If there are score (in any progress from 1 - final) then calculate the total score, and suggested grade
+      if (!!fetchScoresRes && fetchScoresRes.length !== 0) {
+        // Calculate total score
+        fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
+          (prev, current) =>
+            parseInt(prev) + (!current ? 0 : parseInt(current)),
+          0
+        );
 
-      // Calculate sugesstion grade
-      const suggestGrade = gradeCriterias.find(
-        (criteria) => fetchScoresRes.total >= criteria.Grade_Criteria_Pass
-      );
-      console.log("Suggest grade: ", suggestGrade);
+        // Calculate sugesstion grade
+        const suggestGrade = gradeCriterias.find(
+          (criteria) => fetchScoresRes.total >= criteria.Grade_Criteria_Pass
+        );
+        console.log("Suggest grade: ", suggestGrade);
 
-      // Add to fetchScoresRes
-      fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
+        // Add to fetchScoresRes
+        fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
+      }
 
       return {
         Group_ID: groupId,
@@ -85,7 +89,8 @@ export default {
           GroupInfo: res.groupInfo[0],
           GroupMembers: res.groupMembers,
         },
-        fetchScoresRes,
+        // If there are no score yet, fetchScoreRes will be undefined, so this'll return an empty object instead
+        fetchScoresRes: !!fetchScoresRes ? fetchScoresRes : {},
       };
     } catch (error) {
       console.log(error);

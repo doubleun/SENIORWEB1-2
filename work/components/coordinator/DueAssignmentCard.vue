@@ -160,8 +160,27 @@ export default {
       var criteria = await this.$axios.$post("/criteria/scoreMajor", {
         Major_ID: this.$store.state.auth.currentUser.major,
         Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+        onlyAvailable: true,
       });
 
+      // Add in group and proposal before all available progress
+      const progressTemplate = [
+        {
+          Major_ID: 1,
+          Progress_ID: 1,
+          Progress_Name: "Group",
+          Project_on_term_ID: 15,
+          Total: 0,
+        },
+        {
+          Major_ID: 1,
+          Progress_ID: 2,
+          Progress_Name: "Proposal",
+          Project_on_term_ID: 15,
+          Total: 0,
+        },
+      ];
+      criteria = [...progressTemplate, ...criteria];
       console.log(" criteria1", criteria);
 
       // set ascess date
@@ -175,20 +194,20 @@ export default {
       // criteria = [...topic, ...criteria];
       // console.log("criteria old", criteria);
 
-      // delete progress that don't have score (Total = 0)
-      criteria.forEach(async (el, index) => {
-        if (
-          el.Total === 0 &&
-          (el.Progress_ID === 1 ||
-            el.Progress_ID === 2 ||
-            el.Progress_ID === 3 ||
-            el.Progress_ID === 4)
-        ) {
-          criteria.splice(index, 1);
-          // return;
-          // console.log("delete pg id", el.Progress_ID);
-        }
-      });
+      // // delete progress that don't have score (Total = 0)
+      // criteria.forEach(async (el, index) => {
+      //   if (
+      //     el.Total === 0 &&
+      //     (el.Progress_ID === 1 ||
+      //       el.Progress_ID === 2 ||
+      //       el.Progress_ID === 3 ||
+      //       el.Progress_ID === 4)
+      //   ) {
+      //     criteria.splice(index, 1);
+      //     // return;
+      //     // console.log("delete pg id", el.Progress_ID);
+      //   }
+      // });
 
       // get count file
       for (let index = 0; index < criteria.length; index++) {

@@ -107,7 +107,7 @@ export default {
     async updateScoreCriteria(criteriaItem) {
       try {
         // Check if total goes higher than 100, if it dose return
-        if (allScoresTotal > 100) return;
+        if (this.allScoresTotal > 100) return;
         const res = await this.$axios.$post("/criteria/scoreEdit", {
           ...criteriaItem,
         });

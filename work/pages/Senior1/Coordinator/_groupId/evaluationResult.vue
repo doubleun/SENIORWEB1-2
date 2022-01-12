@@ -102,20 +102,23 @@ export default {
       }
     );
     console.log("Fetched eval scores: ", fetchScoresRes);
-    // Calculate total score
-    fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
-      (prev, current) => parseInt(prev) + (!current ? 0 : parseInt(current)),
-      0
-    );
+    // If there are score (in any progress from 1 - final) then calculate the total score, and suggested grade
+    if (!!fetchScoresRes && fetchScoresRes.length !== 0) {
+      // Calculate total score
+      fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
+        (prev, current) => parseInt(prev) + (!current ? 0 : parseInt(current)),
+        0
+      );
 
-    // Calculate sugesstion grade
-    const suggestGrade = gradeCriterias.find(
-      (criteria) => fetchScoresRes.total >= criteria.Grade_Criteria_Pass
-    );
-    console.log("Suggest grade: ", suggestGrade);
+      // Calculate sugesstion grade
+      const suggestGrade = gradeCriterias.find(
+        (criteria) => fetchScoresRes.total >= criteria.Grade_Criteria_Pass
+      );
+      console.log("Suggest grade: ", suggestGrade);
 
-    // Add to fetchScoresRes
-    fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
+      // Add to fetchScoresRes
+      fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
+    }
 
     // Create grade name array using all available grade criterias
     let gradeNameArr = gradeCriterias.map(
@@ -123,7 +126,12 @@ export default {
     );
     // Add 'as system suggested' as the first element in the array
     gradeNameArr = ["As system suggested", ...gradeNameArr];
-    return { Group_ID: groupId, gradeCriterias, gradeNameArr, fetchScoresRes };
+    return {
+      Group_ID: groupId,
+      gradeCriterias,
+      gradeNameArr,
+      fetchScoresRes: !!fetchScoresRes ? fetchScoresRes : {},
+    };
   },
 
   async fetch() {

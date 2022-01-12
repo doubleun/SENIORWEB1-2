@@ -4,7 +4,7 @@
       <h1>Due Date</h1>
 
       <!-- Assignment date card -->
-      <CoordinatorDueAssignmentCard :duedate="duedate" />
+      <CoordinatorDueAssignmentCard />
     </main>
   </section>
 </template>
@@ -14,15 +14,15 @@
 
 export default {
   layout: "coordinatorsidebar",
-  async asyncData({ $axios, store }) {
-    const duedate = await $axios.$post("/date/progression", {
-      Senior: store.state.auth.currentUser.senior,
-      Major_ID: store.state.auth.currentUser.major,
-      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-    });
-    console.log(duedate);
-    return { duedate };
-  },
+  // async asyncData({ $axios, store }) {
+  //   const duedate = await $axios.$post("/date/progression", {
+  //     Senior: store.state.auth.currentUser.senior,
+  //     Major_ID: store.state.auth.currentUser.major,
+  //     Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+  //   });
+  //   console.log(duedate);
+  //   return { duedate };
+  // },
 };
 </script>
 
