@@ -59,18 +59,51 @@ export default {
         },
         { text: "Type", value: "type", align: "center" },
         { text: "Date", value: "date", align: "center" },
-        { text: "Size", value: "size", align: "center" },
+        { text: "Group", value: "group", align: "center" },
+        { text: "Action", value: "group", align: "center" },
       ],
       desserts: [
         {
           namefile: "document progress 1.doc",
           type: "Doc",
           date: "11/12/2021",
-          size: "2.8 MB",
+          group: "",
+          // size: "2.8 MB",
         },
       ],
     };
   },
+  // async asyncData({ $axios,store }) {
+  //   // get file name,submit date, group name in major
+  //   // let res
+  //   // const res = await $axios.$post("/user/getAllUsersInSchool", {
+  //   //   Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+  //   // });
+  //   res = await $axios.$post("/assignment/getBymajor", {
+  //     Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+  //     Major:store.state.auth.currentUser.major
+  //   });
+  //   console.log(res)
+  // },
+  async fetch() {
+    // TODO: This is big fetch, put this in a state and check if exists before fetch it
+    // Fetch students and teachers
+    const res = await this.$axios.$post("/group/getAllFilesMajor", {
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+      Major: this.$store.state.auth.currentUser.major,
+    });
+    console.log(res[0]);
+    for (let i = 0; i > res.length; i++) {
+      this.desserts.push({
+        namefile: res[i]["File_Name"],
+        type: res[i]["Type"],
+        date: res[i]["time"],
+        group: res[i]["group_Name"],
+        // size: "2.8 MB",
+      });
+    }
+  },
+  methods: {},
   // computed: {
   //   displayArr() {
   //     const startIndex = 16 * (this.page - 1);
