@@ -65,16 +65,22 @@
                 <h5 class="font-weight-bold mt-5">
                   Student {{ member }}
                   <!-- Icon indicate if teacher submiited eval comment yet -->
-                  <v-icon
+                  <v-chip class="ma-2" color="green" text-color="white" v-if="memberStatus[index] === 1">
+                    Accepted
+                  </v-chip>
+                  <v-chip class="ma-2" color="orange" text-color="white" v-else>
+                    Pendding
+                  </v-chip>
+                  <!-- <v-icon
                     right
                     color="success"
                     v-if="memberStatus[index] === 1"
                   >
                     mdi-checkbox-marked-circle
-                  </v-icon>
-                  <v-icon right color="orange" v-else>
+                  </v-icon> -->
+                  <!-- <v-icon right color="orange" v-else>
                     mdi-clock-time-four
-                  </v-icon>
+                  </v-icon> -->
                 </h5>
                 <!-- {{ memberStatus[index] }} -->
                 <v-row>
@@ -124,7 +130,7 @@
                       :loading="studentLoading"
                       :items="allStudentsInSchool"
                       :filter="customStudentFilter"
-                      :disabled="index == 0 || !headMember"
+                      :disabled="index == 0 || !headMember || memberStatus[index] === 1"
                       class="mt-5"
                       outlined
                       dense

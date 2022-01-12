@@ -36,7 +36,18 @@
           :headers="headers"
           :items="desserts"
           :search="search"
-        ></v-data-table>
+          
+        >
+        <template v-slot:item.action="{ item }">
+      <v-row class="mb-6 pa-5 justify-center" no-gutters>
+        <button @click="download(item)">download</button>
+          <!-- <a href= item[0][4] download="">Download</a> -->
+        
+        
+      </v-row>
+    </template>
+        </v-data-table>
+         
       </v-card>
     </main>
   </section>
@@ -59,17 +70,49 @@ export default {
         },
         { text: "Type", value: "type", align: "center" },
         { text: "Date", value: "date", align: "center" },
-        { text: "Size", value: "size", align: "center" },
+        { text: "Group", value: "group", align: "center" },
+        { text: "Action", value: "action", align: "center" },
       ],
       desserts: [
-        {
-          namefile: "document progress 1.doc",
-          type: "Doc",
-          date: "11/12/2021",
-          size: "2.8 MB",
-        },
+       
       ],
     };
+  },
+  // async asyncData({ $axios,store }) {
+  //   // get file name,submit date, group name in major
+  //   // let res
+  //   // const res = await $axios.$post("/user/getAllUsersInSchool", {
+  //   //   Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+  //   // });
+  //   res = await $axios.$post("/assignment/getBymajor", {
+  //     Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+  //     Major:store.state.auth.currentUser.major
+  //   });
+  //   console.log(res)
+  // },
+  async fetch() {
+    // TODO: This is big fetch, put this in a state and check if exists before fetch it
+    // Fetch students and teachers
+    const res = await this.$axios.$post("/group/getAllFilesMajor", {
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+      Major: this.$store.state.auth.currentUser.major,
+    });
+    
+    for (let i = 0; i < res.length; i++) {
+      this.desserts.push({
+        namefile: res[i]["File_Name"],
+        type: res[i]["Type"],
+        date: res[i]["time"],
+        group: res[i]["group_Name"],
+        path: res[i]["Path"]
+        // size: "2.8 MB",
+      });
+    }
+  },
+  methods: {
+    download(item){
+      window.location.href = "/api/"+item["path"]
+    }
   },
   // computed: {
   //   displayArr() {

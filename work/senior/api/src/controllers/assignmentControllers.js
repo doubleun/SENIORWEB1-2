@@ -95,6 +95,8 @@ getAssignmentFiles = (req, res) => {
   }
 };
 
+
+
 // givecomment = async (req, res) => {
 //   const { Score, Assignment_Id, Comment, GroupmemberId } = req.body;
 //   const sql =
@@ -498,4 +500,5 @@ module.exports = {
   getAssignment,
   countFileByMajor,
   getEvaluationScores,
+  
 };
