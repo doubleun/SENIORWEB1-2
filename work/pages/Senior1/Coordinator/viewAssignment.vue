@@ -36,7 +36,18 @@
           :headers="headers"
           :items="desserts"
           :search="search"
-        ></v-data-table>
+          
+        >
+        <template v-slot:item.action="{ item }">
+      <v-row class="mb-6 pa-5 justify-center" no-gutters>
+        <button @click="download(item)">download</button>
+          <!-- <a href= item[0][4] download="">Download</a> -->
+        
+        
+      </v-row>
+    </template>
+        </v-data-table>
+         
       </v-card>
     </main>
   </section>
@@ -60,16 +71,10 @@ export default {
         { text: "Type", value: "type", align: "center" },
         { text: "Date", value: "date", align: "center" },
         { text: "Group", value: "group", align: "center" },
-        { text: "Action", value: "group", align: "center" },
+        { text: "Action", value: "action", align: "center" },
       ],
       desserts: [
-        {
-          namefile: "document progress 1.doc",
-          type: "Doc",
-          date: "11/12/2021",
-          group: "",
-          // size: "2.8 MB",
-        },
+       
       ],
     };
   },
@@ -92,18 +97,23 @@ export default {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       Major: this.$store.state.auth.currentUser.major,
     });
-    console.log(res[0]);
-    for (let i = 0; i > res.length; i++) {
+    
+    for (let i = 0; i < res.length; i++) {
       this.desserts.push({
         namefile: res[i]["File_Name"],
         type: res[i]["Type"],
         date: res[i]["time"],
         group: res[i]["group_Name"],
+        path: res[i]["Path"]
         // size: "2.8 MB",
       });
     }
   },
-  methods: {},
+  methods: {
+    download(item){
+      window.location.href = "/api/"+item["path"]
+    }
+  },
   // computed: {
   //   displayArr() {
   //     const startIndex = 16 * (this.page - 1);
