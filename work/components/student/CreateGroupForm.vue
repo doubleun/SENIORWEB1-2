@@ -505,15 +505,15 @@ export default {
                 this.$store.state.auth.currentUser.projectOnTerm,
             });
             console.log(res);
-            if (res.status == 200) {
-              this.$swal
-                .fire("Successed", "Group has been created.", "success")
-                .then((result) => {
-                  if (result.isConfirmed) window.location.reload();
-                });
-            } else {
-              this.$swal.fire("Error", res.msg, "error");
-            }
+            // if (res.status == 200) {
+            this.$swal
+              .fire("Successed", "Group has been created.", "success")
+              .then((result) => {
+                if (result.isConfirmed) window.location.reload();
+              });
+            // } else {
+            //   this.$swal.fire("Error", res.msg, "error");
+            // }
           }
         });
     },

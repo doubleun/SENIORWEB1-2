@@ -37,7 +37,10 @@
         <v-col cols="12" sm="10">
           <li>
             <a
-              :href="'/api/uploads/assignments/' + teacher.files[0].File_Name"
+              :href="
+                '/api/public_senior/uploads/assignments/' +
+                teacher.files[0].File_Name
+              "
               target="_blank"
               class="text-decoration-none"
               >{{ teacher.files[0].File_Name }}</a

@@ -181,7 +181,7 @@ giveProgressScore = async (req, res) => {
     return;
   } catch (err) {
     console.log(`Error occurred while creating order: ${err.message}`, err);
-    connection.rollback();
+    promisePool.rollback();
     console.log("Rollback successfully");
     res.status(500).send("Internal Server Error");
     return;
