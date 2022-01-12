@@ -1,6 +1,24 @@
 <template>
   <main class="progress-main">
+    <div></div>
     <h1>{{ title }}</h1>
+
+    <!-- Work submission alert -->
+    <div class="my-2 ml-auto" style="width: fit-content">
+      <v-alert type="warning" v-if="showSubmission"
+        >No work submitted, please submit before: {{ submitDate }}
+      </v-alert>
+      <!-- If there are work submission, display submit 'on time' or 'late' accordingly -->
+      <div v-else>
+        <v-alert type="success" style="width: fit-content" v-if="submitOnTime"
+          >Work submitted on time {{ submitDate }}</v-alert
+        >
+        <v-alert type="error" style="width: fit-content" v-else
+          >Work submitted late ({{ submitDate }})</v-alert
+        >
+      </div>
+      <!-- <v-alert type="success" v-else>Work submitted</v-alert> -->
+    </div>
 
     <!-- Progress card -->
     <v-card class="progress-container">
@@ -153,6 +171,8 @@ export default {
       uploadSrc: null,
       dropActive: false,
       submitTypes: ["Abstract", "Document"],
+      submitDate: "",
+      submitOnTime: false,
     };
   },
   props: {
@@ -170,15 +190,19 @@ export default {
     },
     submittedFiles: {
       type: Array,
-      default: [],
+      default: () => [],
     },
     advisor: {
       type: Object,
-      default: {},
+      default: () => ({}),
     },
     committees: {
       type: Array,
-      default: [],
+      default: () => [],
+    },
+    progressionDueDate: {
+      type: Object,
+      default: () => ({}),
     },
   },
   computed: {
@@ -210,8 +234,30 @@ export default {
     console.log(this.submittedFiles);
     console.log("Advisor: ", this.advisor);
     console.log("Coms: ", this.committees);
+
+    // Create new date object from progress due date, set by coordinator
+    const assignmentDueDate = new Date(this.progressionDueDate.DueDate_End);
+
     // If there are submitted files, add files into UI
     if (this.submittedFiles.length !== 0) {
+      // Create new date object from student submission time
+      const assignmentSubmissionDate = new Date(
+        this.submittedFiles[0].Submit_Date
+      );
+
+      // First we check if work submission date is more than due date, if it is then student submit work late
+      if (assignmentSubmissionDate > assignmentDueDate) {
+        this.submitOnTime = false;
+      } else {
+        this.submitOnTime = true;
+      }
+
+      // Format work submission date (according to `assignments` data table)
+      this.submitDate = assignmentSubmissionDate.toLocaleString("th-TH", {
+        dateStyle: "full",
+        timeStyle: "medium",
+      });
+
       // Hide submission buttons
       this.showSubmission = false;
 
@@ -252,6 +298,13 @@ export default {
             text: file.File_Name,
           })
         );
+    } else {
+      // * === If no files submitted, due date will be shown * === //
+      // Format work submission date (according to `assignments` data table)
+      this.submitDate = assignmentDueDate.toLocaleString("th-TH", {
+        dateStyle: "full",
+        timeStyle: "medium",
+      });
     }
   },
   methods: {
@@ -364,6 +417,18 @@ export default {
       if (res.status === 200) {
         // Update the UI
         this.showSubmission = false;
+
+        // Check if work submission date is more than due date, if it is then student submit work late
+        const submitTimeStamp = new Date();
+        if (submitTimeStamp > new Date(this.progressionDueDate.DueDate_End)) {
+          this.submitOnTime = false;
+        } else {
+          this.submitOnTime = true;
+        }
+        this.submitDate = submitTimeStamp.toLocaleString("th-TH", {
+          dateStyle: "full",
+          timeStyle: "medium",
+        });
       }
     },
     handleDownloadSubmittedFile(fileIndex) {

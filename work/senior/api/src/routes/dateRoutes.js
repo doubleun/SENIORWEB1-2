@@ -12,5 +12,6 @@ dateRoutes.post("/semester/get", dateControllers.getSemesterDate); // Admin
 dateRoutes.post("/semester/new", dateControllers.newSemesterDate); // Admin
 dateRoutes.post("/semester/update", dateControllers.updateSemesterDate); // Admin
 dateRoutes.get("/allYearsSemester", dateControllers.getYearsSemester); // Admin
+dateRoutes.post("/getProgressDueDate", dateControllers.getProgressDueDate); // Student, Teacher
 
 module.exports = dateRoutes;

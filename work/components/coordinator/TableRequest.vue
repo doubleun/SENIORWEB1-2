@@ -207,13 +207,26 @@ export default {
       this.dialogDelete = false;
     },
     async save() {
-      const res = await this.$axios.$post("/group/updateMemberStatus", {
-        User_Email: this.$store.state.auth.currentUser.email,
-        Group_Id: this.idgroup,
-        Status: 1,
-      });
+      try {
+        const res = await this.$axios.$post("/group/updateMemberStatus", {
+          User_Email: this.$store.state.auth.currentUser.email,
+          Group_Id: this.idgroup,
+          Status: 1,
+        });
 
-      this.close();
+        // Update UI
+        this.groupInfo = this.groupInfo.filter(
+          (group) => group.id === this.idgroup
+        );
+        console.log(this.groupInfo);
+
+        // Close modal
+        this.close();
+        return;
+      } catch (err) {
+        console.log(err);
+        return;
+      }
     },
   },
 };

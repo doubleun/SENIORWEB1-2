@@ -7,6 +7,7 @@
       :submittedFiles="submittedFiles"
       :advisor="advisor"
       :committees="committees"
+      :progressionDueDate="progressionDueDate"
     />
 
     <CommentCard
@@ -136,6 +137,14 @@ export default {
       }
     });
 
+    // Fetch progression due date
+    const progressionDueDate = await $axios.$post("/date/getProgressDueDate", {
+      Progress_ID: progressId + 2,
+      Major_ID: store.state.auth.currentUser.major,
+      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+    });
+    console.log("ProgressDueDate: ", progressionDueDate);
+
     return {
       // Replace the dash with space and use it as title
       title: params.progress.replace(dashRegex, " "),
@@ -145,6 +154,7 @@ export default {
       advisor: teachers.advisor,
       committees: teachers.committees,
       teachers,
+      progressionDueDate,
     };
   },
   methods: {

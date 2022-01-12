@@ -3,7 +3,8 @@
     <!-- Work submission alert -->
     <div style="width: 100%">
       <v-alert type="warning" style="width: fit-content" v-if="noWorkSubmitted"
-        >No work submitted</v-alert
+        >No work submitted, student must submit file before:
+        {{ submitDate }}</v-alert
       >
       <!-- If there are work submission, display submit 'on time' or 'late' accordingly -->
       <div v-else>
@@ -149,6 +150,10 @@ export default {
       type: null,
       default: null,
     },
+    progressionDueDate: {
+      type: Object,
+      default: {},
+    },
   },
   data() {
     return {
@@ -222,14 +227,26 @@ export default {
       );
     }
 
+    // Create new date object from progress due date, set by coordinator
+    const assignmentDueDate = new Date(this.progressionDueDate.DueDate_End);
+
     // * === Render student's files === * //
     // If there are submitted files get them from static folder
     if (this.submittedFiles.length !== 0) {
-      // TODO: Check submitted date to the due date and set 'submittedOnTime' flag accordingly
-      // Format work submission date (according to `assignments` data table)
-      this.submitDate = new Date(
+      // Create new date object from student submission time
+      const assignmentSubmissionDate = new Date(
         this.submittedFiles[0].Submit_Date
-      ).toLocaleString("th-TH", {
+      );
+
+      // First we check if work submission date is more than due date, if it is then student submit work late
+      if (assignmentSubmissionDate > assignmentDueDate) {
+        this.submitOnTime = false;
+      } else {
+        this.submitOnTime = true;
+      }
+
+      // Format work submission date (according to `assignments` data table)
+      this.submitDate = assignmentSubmissionDate.toLocaleString("th-TH", {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -262,6 +279,13 @@ export default {
 
       // TODO: Delete this !
       console.log("Files: ", this.files);
+    } else {
+      // * === If no files submitted, due date will be shown * === //
+      // Format work submission date (according to `assignments` data table)
+      this.submitDate = assignmentDueDate.toLocaleString("th-TH", {
+        dateStyle: "full",
+        timeStyle: "medium",
+      });
     }
 
     // Create object string on all files

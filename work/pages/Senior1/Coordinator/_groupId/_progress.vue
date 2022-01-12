@@ -14,6 +14,7 @@
         :maxScore="maxScore"
         :Assignment_ID="Assignment_ID"
         :scoreInfo="scoreInfo"
+        :progressionDueDate="progressionDueDate"
       />
     </main>
   </section>
@@ -70,6 +71,18 @@ export default {
         }
       );
       console.log("submittedFiles: ", submittedFiles);
+
+      // Fetch progression due date
+      const progressionDueDate = await $axios.$post(
+        "/date/getProgressDueDate",
+        {
+          Progress_ID: progressId + 2,
+          Major_ID: store.state.auth.currentUser.major,
+          Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+        }
+      );
+      console.log("ProgressDueDate: ", progressionDueDate);
+
       // If no submitted files hides the DisplaWorkSection compoenent
       if (submittedFiles.length === 0) {
         console.log("submittedFiles length is zero, returning null !");
@@ -85,6 +98,7 @@ export default {
           progressId: null,
           maxScore: null,
           scoreInfo: null,
+          progressionDueDate,
         };
       }
 
@@ -109,6 +123,7 @@ export default {
         });
       }
 
+      // FIXME: There should be a check before fetching group, not after fetched it
       // Set group state, this is added in later for the layout to know current progress of each group
       // Check if the group state is already set, if not commit again
       if (!store.state.group.currentUserGroup)
@@ -143,6 +158,7 @@ export default {
         },
         scoreInfo,
         noWorkSubmitted: false,
+        progressionDueDate,
       };
     } catch (error) {
       console.log(error);
