@@ -95,6 +95,8 @@ getAssignmentFiles = (req, res) => {
   }
 };
 
+
+
 // givecomment = async (req, res) => {
 //   const { Score, Assignment_Id, Comment, GroupmemberId } = req.body;
 //   const sql =
@@ -181,7 +183,7 @@ giveProgressScore = async (req, res) => {
     return;
   } catch (err) {
     console.log(`Error occurred while creating order: ${err.message}`, err);
-    connection.rollback();
+    promisePool.rollback();
     console.log("Rollback successfully");
     res.status(500).send("Internal Server Error");
     return;
@@ -498,4 +500,5 @@ module.exports = {
   getAssignment,
   countFileByMajor,
   getEvaluationScores,
+  
 };
