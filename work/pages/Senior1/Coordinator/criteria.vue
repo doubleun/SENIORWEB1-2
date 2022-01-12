@@ -90,7 +90,7 @@
 
       <CoordinatorGradeCriteriaCard
         :gradeCriterias="gradeCriterias"
-        :noGradeCriterias="noGradeCriterias"
+        :noGradeCriteriasProp="noGradeCriterias"
         @add-grade-criterias="refresh"
         class="coordinator-criteria-grade-card"
       />

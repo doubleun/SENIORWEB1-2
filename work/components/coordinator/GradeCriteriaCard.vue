@@ -101,7 +101,7 @@
 export default {
   props: {
     gradeCriterias: Array,
-    noGradeCriterias: Boolean,
+    noGradeCriteriasProp: Boolean,
   },
   data: () => ({
     // Available option, used only for showing user in v-select
@@ -112,33 +112,45 @@ export default {
     criteriasOptionA: ["S", "U"],
     criteriasOptionB: ["A", "B", "C", "D", "F"],
     addGradeDialog: false,
+    noGradeCriterias: false,
   }),
   computed: {
-    // Create template for selected grade criterias option
-    // TODO: This can be reactive, without using computed
+    // Return criterias option (S/U or A-F) based on the 'selectedGradeOption'
     criteriasTemplate() {
       if (this.selectedGradeOption === this.options[0]) {
-        // Return template of criteria option A (first one)
-        return this.criteriasOptionA.map((criteria) => ({
-          Grade_Criteria_Name: criteria,
-          Grade_Criteria_Pass: 0,
-          Major_ID: this.$store.state.auth.currentUser.major,
-          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-        }));
+        return this.criteriasOptionA;
       } else {
-        // Return template of criteria option B (second one)
-        return this.criteriasOptionB.map((criteria) => ({
-          Grade_Criteria_Name: criteria,
-          Grade_Criteria_Pass: 0,
-          Major_ID: this.$store.state.auth.currentUser.major,
-          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-        }));
+        return this.criteriasOptionB;
       }
     },
   },
+  mounted() {
+    // Avoid overriding the prop value Vue suggest using data and assign prop value to the data instead
+    // 'noGradeCriterias' is used for checking if coordinator has set the criteria yet
+    this.noGradeCriterias = this.noGradeCriteriasProp;
+
+    // Set criteria option to the object template that we can use to send to database
+    // Criterias option A which are S and U
+    this.criteriasOptionA = this.criteriasOptionA.map((criteria) => ({
+      Grade_Criteria_Name: criteria,
+      Grade_Criteria_Pass: 0,
+      Major_ID: this.$store.state.auth.currentUser.major,
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+    }));
+
+    // Criterias option B which are A to F
+    this.criteriasOptionB = this.criteriasOptionB.map((criteria) => ({
+      Grade_Criteria_Name: criteria,
+      Grade_Criteria_Pass: 0,
+      Major_ID: this.$store.state.auth.currentUser.major,
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+    }));
+  },
   methods: {
+    // Handle adding grade criterias to the database
     async handleAddGradeCriterias() {
-      // console.log(this.criteriasTemplate);
+      // Check if there's a criterias template to send, and if the grade criterias have already been fetched
+      if (!this.criteriasTemplate || this.noGradeCriterias === false) return;
       try {
         // Post new grade criterias
         const addGradeCriteriaRes = await this.$axios.$post(
@@ -155,7 +167,6 @@ export default {
         // Emit event for refresh
         this.$emit("add-grade-criterias");
         this.noGradeCriterias = false;
-        // this.gradeCriterias = this.criteriasTemplate;
         return;
       } catch (err) {
         console.log(err);
