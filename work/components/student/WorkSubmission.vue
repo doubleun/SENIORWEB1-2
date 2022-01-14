@@ -50,7 +50,7 @@
               @change="handleBrowseFile"
             />
           </p>
-          <p>ONLY PDF,DOC,PPT, FILEMAX UPLOAD FILE SIZE 2 MB</p>
+          <p>ONLY PDF,DOC,PPT, FILEMAX UPLOAD FILE SIZE 5 MB</p>
         </div>
 
         <!-- Link text field -->
@@ -104,7 +104,7 @@
             <!-- Table attributes -->
             <p>Name</p>
             <p>Date</p>
-            <p>Type</p>
+            <p>Status</p>
           </div>
 
           <!-- Table instance(s) -->
@@ -136,15 +136,15 @@
             </p>
 
             <!-- If type is needed it'll be display here, otherwise it's a status -->
-            <div class="progress-file-type" v-if="finalDocument">
+            <!-- <div class="progress-file-type" v-if="finalDocument">
               <v-combobox
                 :items="submitTypes"
                 outlined
                 dense
                 disable-lookup
               ></v-combobox>
-            </div>
-            <p v-else>{{ showSubmission ? "Not Submitted" : "Submitted" }}</p>
+            </div> -->
+            <p>{{ showSubmission ? "Not Submitted" : "Submitted" }}</p>
           </div>
         </div>
 
@@ -165,8 +165,8 @@ export default {
     return {
       availableLinks: [],
       files: [],
-      // 2000000 byte => 2 Mb
-      maxSize: 2000000,
+      // 5000000 byte => 5 Mb
+      maxSize: 5000000,
       showSubmission: true,
       uploadSrc: null,
       dropActive: false,
@@ -253,7 +253,7 @@ export default {
       }
 
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentSubmissionDate.toLocaleString("th-TH", {
+      this.submitDate = assignmentSubmissionDate.toLocaleString("en-US", {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -301,7 +301,7 @@ export default {
     } else {
       // * === If no files submitted, due date will be shown * === //
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentDueDate.toLocaleString("th-TH", {
+      this.submitDate = assignmentDueDate.toLocaleString("en-US", {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -373,62 +373,96 @@ export default {
       //TODO: Check allowed file types
       //TODO: Limit link's text length
       // TODO: Show total files size ??
-      // Check if user input a link into the form
-      const valid = this.$refs.linksForm.validate();
-      if (!valid) return;
+      try {
+        // Check if user input a link into the form
+        const valid = this.$refs.linksForm.validate();
+        if (!valid) return;
 
-      // Check if there are files to be submitted
-      if (!this.files || this.files.length === 0) return;
+        // Check if there are files to be submitted
+        if (!this.files || this.files.length === 0) return;
 
-      // Append form data with files
-      const formData = new FormData();
-      // formData.append("file", this.files[0].file);
-      this.files.map((file) => formData.append("files", file.file));
+        // Append form data with files
+        const formData = new FormData();
+        // formData.append("file", this.files[0].file);
+        this.files.map((file) => formData.append("files", file.file));
 
-      // Append form data with progress id, group id
-      // Progress id is from '_progress.vue' page
-      formData.append("Progress_ID", this.progressId);
-      formData.append(
-        "Group_ID",
-        this.$store.state.group.currentUserGroup.Group_ID
-      );
-      formData.append(
-        "Group_Member_ID",
-        this.$store.state.group.currentUserGroup.Group_Member_ID
-      );
+        // Append form data with progress id, group id
+        // Progress id is from '_progress.vue' page
+        formData.append("Progress_ID", this.progressId);
+        formData.append(
+          "Group_ID",
+          this.$store.state.group.currentUserGroup.Group_ID
+        );
+        formData.append(
+          "Group_Member_ID",
+          this.$store.state.group.currentUserGroup.Group_Member_ID
+        );
 
-      // Append form data with links, if there are any
-      this.availableLinks.length !== 0 &&
-        this.availableLinks.map((link) => formData.append("links", link.text));
+        // Append form data with links, if there are any
+        this.availableLinks.length !== 0 &&
+          this.availableLinks.map((link) =>
+            formData.append("links", link.text)
+          );
 
-      // // console.log(this.availableLinks);
-      // // console.log("Progress_ID: ", this.progressId);
-      // // console.log(this.files);
-      // // console.log(
-      // //   "Group_ID: ",
-      // //   this.$store.state.group.currentUserGroup.Group_ID
-      // // );
+        // Shows confirm upload file(s) dialog
+        this.$swal
+          .fire({
+            title: `Confirm upload files for ${this.title}`,
+            text: "You won't be able to re-upload the files",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Confirm",
+          })
+          .then(async (result) => {
+            try {
+              if (result.isConfirmed) {
+                // Upload file to server
+                const res = await this.$axios.$post(
+                  "/assignment/uploadAssignments",
+                  formData
+                );
 
-      const res = await this.$axios.$post(
-        "/assignment/uploadAssignments",
-        formData
-      );
+                // If the response status is not 200 and axios has not thrown an error, this'll throw new error
+                if (res.status !== 200) {
+                  throw new Error(
+                    "Failed to upload file, please try again later."
+                  );
+                }
 
-      if (res.status === 200) {
-        // Update the UI
-        this.showSubmission = false;
+                // Update the UI
+                this.showSubmission = false;
 
-        // Check if work submission date is more than due date, if it is then student submit work late
-        const submitTimeStamp = new Date();
-        if (submitTimeStamp > new Date(this.progressionDueDate.DueDate_End)) {
-          this.submitOnTime = false;
-        } else {
-          this.submitOnTime = true;
-        }
-        this.submitDate = submitTimeStamp.toLocaleString("th-TH", {
-          dateStyle: "full",
-          timeStyle: "medium",
-        });
+                // Check if work submission date is more than due date, if it is then student submit work late
+                const submitTimeStamp = new Date();
+                if (
+                  submitTimeStamp >
+                  new Date(this.progressionDueDate.DueDate_End)
+                ) {
+                  this.submitOnTime = false;
+                } else {
+                  this.submitOnTime = true;
+                }
+                this.submitDate = submitTimeStamp.toLocaleString("en-US", {
+                  dateStyle: "full",
+                  timeStyle: "medium",
+                });
+
+                // Showing upload succeed
+                this.$swal.fire({ title: "Files uploaded", icon: "success" });
+                return;
+              } else {
+                return;
+              }
+            } catch (err) {
+              console.log(err);
+              return;
+            }
+          });
+      } catch (err) {
+        console.log(err);
+        return;
       }
     },
     handleDownloadSubmittedFile(fileIndex) {

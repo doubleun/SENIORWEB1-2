@@ -53,7 +53,7 @@ export default {
           to: "/Senior1/student/work/progress-1",
           disabled:
             !this.$store.state.group?.currentUserGroup ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 2,
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 3,
         },
         {
           id: 4,
@@ -62,7 +62,7 @@ export default {
           to: "/Senior1/student/work/progress-2",
           disabled:
             !this.$store.state.group?.currentUserGroup ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 3,
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 4,
         },
         {
           id: 5,
@@ -71,7 +71,7 @@ export default {
           to: "/Senior1/student/work/progress-3",
           disabled:
             !this.$store.state.group?.currentUserGroup ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 4,
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 5,
         },
         {
           id: 6,
@@ -80,7 +80,7 @@ export default {
           to: "/Senior1/student/work/progress-4",
           disabled:
             !this.$store.state.group?.currentUserGroup ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 5,
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 6,
         },
         {
           id: 7,
@@ -89,7 +89,7 @@ export default {
           to: "/Senior1/student/work/final-presentation",
           disabled:
             !this.$store.state.group?.currentUserGroup ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 6,
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 7,
         },
         {
           id: 8,
@@ -98,7 +98,7 @@ export default {
           to: "/Senior1/student/work/final-documentation",
           disabled:
             !this.$store.state.group?.currentUserGroup ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 7,
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 8,
         },
         {
           id: 0,
@@ -107,16 +107,16 @@ export default {
           to: "/Senior1/student/evaluation-results",
           disabled:
             !this.$store.state.group?.currentUserGroup ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 8,
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 9,
         },
         {
-          id: 0,
+          id: 9,
           icon: "mdi-restore",
           title: "Re - evaluation",
           to: "/Senior1/student/stuReevaluationForm",
           disabled:
             !this.$store.state.group?.currentUserGroup ||
-            this.$store.state.group?.currentUserGroup?.Group_Progression < 9,
+            this.$store.state.group?.currentUserGroup?.Group_Progression < 10,
         },
       ],
     };

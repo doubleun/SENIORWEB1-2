@@ -11,8 +11,8 @@
           <v-stepper-header>
             <template v-for="(step, index) in availableSteps">
               <v-stepper-step
-                :step="index + 1"
-                :complete="currentProgress >= step.Progress_ID"
+                :step="step.Progress_ID"
+                :complete="currentProgress > step.Progress_ID"
                 :key="step.Score_criteria_ID"
               >
                 {{ step.Progress_Name }}

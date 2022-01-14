@@ -95,8 +95,6 @@ getAssignmentFiles = (req, res) => {
   }
 };
 
-
-
 // givecomment = async (req, res) => {
 //   const { Score, Assignment_Id, Comment, GroupmemberId } = req.body;
 //   const sql =
@@ -267,7 +265,7 @@ getTeacherProgressScore = (req, res) => {
   const { Group_Member_ID, Assignment_ID } = req.body;
   console.log(Group_Member_ID, Assignment_ID);
   const sql =
-    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc INNER JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ?";
+    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc LEFT JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ?";
   try {
     con.query(sql, [Group_Member_ID, Assignment_ID], (err, result, fields) => {
       if (err) throw err;
@@ -478,11 +476,27 @@ getEvaluationScores = (req, res) => {
   const { Group_ID } = req.body;
   try {
     const getEvalScoresSql =
-      "SELECT (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 3) AS `progress1`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 4) AS `progress2`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 5) AS `progress3`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 6) AS `progress4`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 7) AS `finalPresentation`, (SELECT SUM(sc.Score) FROM `scores` sc WHERE sc.Assignment_ID = assign.Assignment_ID AND assign.Progress_ID = 8) AS `finalDocument` FROM `scores` sc INNER JOIN `assignments` assign ON sc.Assignment_ID = assign.Assignment_ID WHERE assign.Group_ID = ?";
+      "SELECT SUM(sc.Score) AS `score`, (SELECT `Progress_Name` FROM `progressions` p WHERE p.Progress_ID = assign.Progress_ID) AS `name` FROM `scores` sc INNER JOIN `assignments` assign ON sc.Assignment_ID = assign.Assignment_ID WHERE assign.Group_ID = ?  GROUP BY assign.Progress_ID;";
 
     con.query(getEvalScoresSql, [Group_ID], (err, result) => {
       if (err) throw err;
-      res.status(200).json(result[0]);
+
+      // Construct objct of evaluation scores
+      // 'result' has 2 properties: name and score
+      const finalRes = result.reduce(
+        (prev, current) => ({
+          ...prev,
+          // 1.) Convert each progress name into camelCase, becuase on the front-end they use camelCase in data-table
+          [current.name
+            .toLowerCase()
+            .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())]:
+            // 2.) Assign score to each progress name
+            current.score,
+        }),
+        {}
+      );
+
+      res.status(200).json(finalRes);
       return;
     });
   } catch (err) {
@@ -500,5 +514,4 @@ module.exports = {
   getAssignment,
   countFileByMajor,
   getEvaluationScores,
-  
 };

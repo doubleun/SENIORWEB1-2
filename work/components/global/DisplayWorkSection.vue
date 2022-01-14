@@ -29,6 +29,7 @@
       </v-tabs>
       <div :style="selectedFile ? 'display: unset' : 'display: none'">
         <!-- <embed :src="selectedFile.src" class="preview-work-card-content" /> -->
+        <!-- <iframe :src="selectedFile.src" width="100%" height="100%"> </iframe> -->
         <object :data="selectedFile.src" width="100%" height="100%"></object>
       </div>
     </v-card>
@@ -210,21 +211,26 @@ export default {
       // Sets comment
       this.comment = this.scoreInfo.Comment;
 
-      // Sets file
-      const blob = await this.$axios.$get(
-        "/public_senior/uploads/assignments/" + this.scoreInfo.File_Name,
-        {
-          responseType: "blob",
-        }
-      );
-      this.teacherFile = new File(
-        [blob],
-        // Remove time stamp in front of each file name
-        this.scoreInfo.File_Name.replace(/(^\d+-)/, ""),
-        {
-          type: blob.type,
-        }
-      );
+      // If there's file teacher submitted in this progress, then create a blob
+      if (this.scoreInfo.File_Name) {
+        // Sets file
+        const blob = await this.$axios.$get(
+          "/public_senior/uploads/assignments/" + this.scoreInfo.File_Name,
+          {
+            responseType: "blob",
+          }
+        );
+        this.teacherFile = new File(
+          [blob],
+          // Remove time stamp in front of each file name
+          this.scoreInfo.File_Name.replace(/(^\d+-)/, ""),
+          {
+            type: blob.type,
+          }
+        );
+      } else {
+        this.teacherFile = null;
+      }
     }
 
     // Create new date object from progress due date, set by coordinator
@@ -246,7 +252,7 @@ export default {
       }
 
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentSubmissionDate.toLocaleString("th-TH", {
+      this.submitDate = assignmentSubmissionDate.toLocaleString("en-US", {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -282,7 +288,7 @@ export default {
     } else {
       // * === If no files submitted, due date will be shown * === //
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentDueDate.toLocaleString("th-TH", {
+      this.submitDate = assignmentDueDate.toLocaleString("en-US", {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -339,57 +345,108 @@ export default {
     },
     async handleSubmitScore() {
       // console.log(this.showSubmitted)
-      // If already submitted score or no work has been submitted this function won't run
-      if (this.showSubmitted || this.noWorkSubmitted) return;
+      try {
+        // If already submitted score or no work has been submitted this function won't run
+        if (this.showSubmitted || this.noWorkSubmitted) return;
 
-      // Validate form
-      this.$refs.form.validate();
-      if (!this.valid) return;
+        // Validate form
+        this.$refs.form.validate();
+        if (!this.valid) return;
 
-      const formData = new FormData();
+        const formData = new FormData();
 
-      // Append form data with file
-      formData.append("file", this.teacherFile);
+        // Append form data with file
+        formData.append("file", this.teacherFile);
 
-      // Append the rest of the data
-      formData.append("Score", this.givenScore || 0);
-      formData.append("Max_Score", this.maxScore);
-      formData.append("Comment", this.comment);
-      formData.append(
-        "Group_Member_ID",
-        this.$store.state.group.currentUserGroup.Current_Member_ID
-      );
-      formData.append(
-        "Group_ID",
-        this.$store.state.group.currentUserGroup.Group_ID
-      );
-      formData.append("Assignment_ID", this.Assignment_ID);
-
-      // If this progress is proposal, skip finding the next progress id and simply use the current one
-      if (this.progressId === 2) {
-        formData.append("Next_Progress_ID", 2);
-      } else {
-        // Else get current progress index from all avaialble progresses
-        const currentProgressIndex =
-          this.$store.state.group.availableProgress.findIndex(
-            (progress) => progress.Progress_ID === this.progressId
-          );
-        // The next progress id will be in the current progress id (ie. mark that current progress is finished)
-        // More info: each group progression marks if it's done yet. So by updating group progression to current ones, we mark that it's done
+        // Append the rest of the data
+        formData.append("Score", this.givenScore || 0);
+        formData.append("Max_Score", this.maxScore);
+        formData.append("Comment", this.comment);
         formData.append(
-          "Next_Progress_ID",
-          this.$store.state.group.availableProgress[currentProgressIndex]
-            .Progress_ID
+          "Group_Member_ID",
+          this.$store.state.group.currentUserGroup.Current_Member_ID
         );
-      }
+        formData.append(
+          "Group_ID",
+          this.$store.state.group.currentUserGroup.Group_ID
+        );
+        formData.append("Assignment_ID", this.Assignment_ID);
 
-      const res = await this.$axios.$post(
-        "/assignment/giveProgressScore",
-        formData
-      );
+        // If this progress is proposal, skip finding the next progress id and simply use the current one
+        if (this.progressId === 2) {
+          formData.append("Next_Progress_ID", 2);
+        } else {
+          // Else get current progress index from all avaialble progresses
+          const currentProgressIndex =
+            this.$store.state.group.availableProgress.findIndex(
+              (progress) => progress.Progress_ID === this.progressId
+            );
+          // // The next progress id will be in the current progress id (ie. mark that current progress is finished)
+          // // More info: each group progression marks if it's done yet. So by updating group progression to current ones, we mark that it's done
+          // Check if this is the last progress in the availableProgress
+          if (
+            this.$store.state.group.availableProgress[currentProgressIndex] ===
+            this.$store.state.group.availableProgress.at(-1)
+          ) {
+            formData.append(
+              "Next_Progress_ID",
+              this.$store.state.group.availableProgress[currentProgressIndex]
+                .Progress_ID + 1
+            );
+          } else {
+            // The next progress id will be in the next element in the availableProgress array
+            formData.append(
+              "Next_Progress_ID",
+              this.$store.state.group.availableProgress[
+                currentProgressIndex + 1
+              ].Progress_ID
+            );
+          }
+        }
 
-      if (res.status === 200) {
-        this.showSubmitted = true;
+        // Shows confirm upload file(s) dialog
+        this.$swal
+          .fire({
+            title: "Confirm submit score",
+            text: "You won't be able to change given score, file or comment",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Confirm",
+          })
+          .then(async (result) => {
+            try {
+              if (result.isConfirmed) {
+                // Submit file, score and comment
+                const res = await this.$axios.$post(
+                  "/assignment/giveProgressScore",
+                  formData
+                );
+
+                if (res.status !== 200) {
+                  throw new Error(
+                    "Failed to submit score, please try again later."
+                  );
+                }
+
+                this.showSubmitted = true;
+                // Show submitted score sucessfully
+                this.$swal.fire({
+                  title: "Submit score sucessfully",
+                  icon: "success",
+                });
+                return;
+              } else {
+                return;
+              }
+            } catch (err) {
+              console.log(err);
+            }
+          });
+      } catch (err) {
+        console.log(err);
+        return;
       }
     },
   },

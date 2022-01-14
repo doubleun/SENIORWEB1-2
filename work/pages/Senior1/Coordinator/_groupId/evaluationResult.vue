@@ -101,6 +101,7 @@ export default {
         Group_ID: groupId,
       }
     );
+    console.log("Group id: ", groupId);
     console.log("Fetched eval scores: ", fetchScoresRes);
     // If there are score (in any progress from 1 - final) then calculate the total score, and suggested grade
     if (!!fetchScoresRes && fetchScoresRes.length !== 0) {

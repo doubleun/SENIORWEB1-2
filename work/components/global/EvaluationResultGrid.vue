@@ -21,10 +21,10 @@
       {{ item.progress4 == null ? "-" : item.progress4 }}
     </template>
     <template v-slot:item.finalPresentation="{ item }">
-      {{ item.FinalPresentation == null ? "-" : item.FinalPresentation }}
+      {{ item.finalPresentation == null ? "-" : item.finalPresentation }}
     </template>
     <template v-slot:item.finalDocumentation="{ item }">
-      {{ item.FinalDocumentation == null ? "-" : item.FinalDocumentation }}
+      {{ item.finalDocumentation == null ? "-" : item.finalDocumentation }}
     </template>
 
     <!-- <template v-slot:item.total="{ item }">
