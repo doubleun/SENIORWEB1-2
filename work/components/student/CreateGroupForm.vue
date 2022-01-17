@@ -510,7 +510,7 @@ export default {
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
             });
-            console.log(res);
+            console.log(res.status);
             // if (res.status == 200) {
             this.$swal
               .fire("Successed", "Group has been created.", "success")

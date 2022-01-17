@@ -94,25 +94,33 @@ createGroup = (req, res) => {
       error++;
     } else {
       for (let i = 0; i < user.length; i++) {
-        console.log(user[i]);
+        
 
-        con.query(sql2, [user[i]], (err, result, fields) => {
+        con.query(sql2, [user[i]], (err, result2, fields) => {
           // console.log("success", success);
           if (err) {
+            // console.log("err hear")
             console.log(error);
-            res.status(500).json({ msg: "Internal Server Error", status: 500 });
+            res.status(500).send("Internal Server Error");
           } else {
-            success++;
+            // console.log("hear")
+            // console.log(success + " com " + user.length);
+            success ++
+            console.log(result2.affectedRows)
+            if(success == user.length){
+              res.status(200).send("Success");
+            }
+            
           }
         });
       }
     }
   });
-  console.log(sucess + " com " + user.length);
-  if (sucess == user.length) {
-    res.status(200).json({ msg: "Create group Successed", status: 200 });
-  } else {
-  }
+  
+  // if (sucess == user.length) {
+  //   res.status(200).json({ msg: "Create group Successed", status: 200 });
+  // } else {
+  // }
   console.log("suss", success);
   console.log("user.length", user.length);
   // if (success == user.length) {
