@@ -94,8 +94,8 @@
                     no-title
                     scrollable
                     range
-                    :max="offsetDate(access_Date_End)"
-                    :min="offsetDate(access_Date_Start)"
+                    :max="item.endDate"
+                    :min="item.startDate"
                   >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="item.dateMenu = false">
@@ -181,7 +181,7 @@ export default {
         },
       ];
       criteria = [...progressTemplate, ...criteria];
-      console.log(" criteria1", criteria);
+      // console.log(" criteria1", criteria);
 
       // set ascess date
       this.access_Date_Start = duedate.projectOnTerm[0].Access_Date_Start;
@@ -228,13 +228,13 @@ export default {
           selectedDate: [
             this.offsetDate(Date.now()),
             this.offsetDate(Date.now()),
-            // this.offsetDate(duedate.projectOnTerm[0].Access_Date_Start),
-            // this.offsetDate(duedate.projectOnTerm[0].Access_Date_End),
           ],
           Progression_Info_ID: 0,
           dateMenu: false,
           editable: index == 0 ? true : false,
           assignable: true,
+          startDate: this.offsetDate(this.access_Date_Start),
+          endDate: this.offsetDate(this.access_Date_End),
         }));
       } else {
         console.log("have some due date");
@@ -243,11 +243,11 @@ export default {
         for (let i = 0; i < criteria.length; i++) {
           for (let j = 0; j < duedate.progressionDuedate.length; j++) {
             // have some due date in this semster
-            console.log(
-              duedate.progressionDuedate[j].Progress_ID,
-              "==",
-              criteria[i].Progress_ID
-            );
+            // console.log(
+            //   duedate.progressionDuedate[j].Progress_ID,
+            //   "==",
+            //   criteria[i].Progress_ID
+            // );
             if (
               duedate.progressionDuedate[j].Progress_ID ==
               criteria[i].Progress_ID
@@ -262,33 +262,34 @@ export default {
               criteria[i].dateMenu = false;
 
               criteria[i].editable = true;
-              console.log(
-                "duate length 1",
-                duedate.progressionDuedate.length - 1,
-                i
-              );
+
               if (i != criteria.length - 1) {
-                console.log(
-                  "duate length 2",
-                  duedate.progressionDuedate.length
-                );
                 criteria[i + 1].editable = true;
               }
-              // criteria[i].editable =
-              //   i + 1 > duedate.progressionDuedate.length
-              //     ? null
-              //     : ((criteria[i].editable = true),
-              //       (criteria[i + 1].editable = true));
               criteria[i].assignable = false;
+
+              // add start, end datepicker
+              if (i == 0) {
+                criteria[i].startDate = this.offsetDate(this.access_Date_Start);
+              } else {
+                criteria[i].startDate = criteria[i - 1].selectedDate[1];
+                // this.offsetDate(
+                //   criteria[i - 1].selectedDate[1]
+                //   // new Date(criteria[i - 1].selectedDate[1]).getDate - 1
+                // );
+              }
+              criteria[i].endDate = this.offsetDate(this.access_Date_End);
+
               console.log("index", i);
               break;
             }
 
+            // don't have duedate
             criteria[i].selectedDate = [
               this.offsetDate(Date.now()),
               this.offsetDate(Date.now()),
-              // this.offsetDate(duedate.projectOnTerm[0].Access_Date_Start),
-              // this.offsetDate(duedate.projectOnTerm[0].Access_Date_End),
+              // this.offsetDate(duedate.progressionDuedate[j-1].DueDate_End),
+              // this.offsetDate(Date.now()),
             ];
             criteria[i].Progression_Info_ID = 0;
 
@@ -297,6 +298,16 @@ export default {
               ? criteria[i].editable
               : false;
             criteria[i].assignable = true;
+
+            //
+            var IncreaseDay = new Date(
+              new Date(criteria[i - 1].selectedDate[1]).getTime()
+            );
+            IncreaseDay.setDate(IncreaseDay.getDate() + 1);
+
+            criteria[i].startDate = this.offsetDate(IncreaseDay);
+
+            criteria[i].endDate = this.offsetDate(this.access_Date_End);
           }
         }
       }
@@ -319,6 +330,7 @@ export default {
 
     // offset date
     offsetDate(date) {
+      // console.log("offsetdate", date);
       return new Date(
         new Date(date).getTime() - new Date(date).getTimezoneOffset() * 60000
       )
