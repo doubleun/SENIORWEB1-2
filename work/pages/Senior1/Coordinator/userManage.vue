@@ -15,16 +15,24 @@
             <v-icon dark-blue>
               mdi-application-import
             </v-icon>
-
             Import
+          </v-btn>
+          <v-btn
+            class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
+            align="right"
+            justify="right"
+            @click="handleFileImport"
+          >
+            <v-icon dark-blue>
+              mdi-application-import
+            </v-icon>
+            dowload templete
           </v-btn>
           <input
             ref="uploader"
             class="d-none"
             id="fileBrowse"
-            type="file"
-            accept=".xlsx"
-            @change="handleBrowseFile"
+            @click="downloadtemplete"
           />
           <!-- </v-row> -->
         </div>
@@ -121,6 +129,10 @@ export default {
       window.addEventListener("focus", () => {}, { once: true });
       // Trigger click on the FileInput
       this.$refs.uploader.click();
+    },
+    downloadtemplete(){
+
+      window.location.href = "/api/public_senior/templete/studentsTemplete.xlsx"
     },
     handleBrowseFile(e) {
       if (e?.target.files[0]) {

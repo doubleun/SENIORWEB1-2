@@ -68,6 +68,23 @@
             accept=".xlsx"
             @change="handleBrowseFile"
           />
+          <v-btn
+            class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
+            align="right"
+            justify="right"
+            @click="handleFileImport"
+          >
+            <v-icon dark-blue>
+              mdi-application-import
+            </v-icon>
+            dowload templete
+          </v-btn>
+          <input
+            ref="uploader"
+            class="d-none"
+            id="fileBrowse"
+            @click="downloadtemplete"
+          />
         </div>
       </div>
 
@@ -176,6 +193,11 @@ export default {
 
       this.loading = false;
     },
+
+    downloadtemplete(){
+      window.location.href = "/api/public_senior/templete/teacherTemplete.xlsx"
+    },
+
     handleFileImport() {
       window.addEventListener(
         "focus",
