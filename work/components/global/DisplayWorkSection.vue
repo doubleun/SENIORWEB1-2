@@ -336,7 +336,9 @@ export default {
       URL.revokeObjectURL(link.href);
     },
     handleScoreInput() {
-      this.givenScore = Math.trunc(this.givenScore);
+      this.givenScore = this.givenScore
+      // Math.trunc(this.givenScore);
+      // console.log('given score',this.givenScore)
     },
     handleCheckValidScore() {
       return this.givenScore > this.maxScore || this.givenScore < 0
