@@ -59,7 +59,14 @@
             <h5 class="font-weight-bold">Link {{ link.number }}</h5>
             <v-text-field
               v-model="link.text"
-              :rules="[() => !!link.text || 'This field is required']"
+              :rules="[
+                () => !!link.text || 'This field is required',
+                () =>
+                  !!link.text.match('http') ||
+                  'a link must includes http or https',
+                () =>
+                  !link.text.includes(' ') || 'a link must not contain spcace',
+              ]"
               required
               placeholder="Submit link"
               outlined
