@@ -65,7 +65,12 @@
                 <h5 class="font-weight-bold mt-5">
                   Student {{ member }}
                   <!-- Icon indicate if teacher submiited eval comment yet -->
-                  <v-chip class="ma-2" color="green" text-color="white" v-if="memberStatus[index] === 1">
+                  <v-chip
+                    class="ma-2"
+                    color="green"
+                    text-color="white"
+                    v-if="memberStatus[index] === 1"
+                  >
                     Accepted
                   </v-chip>
                   <v-chip class="ma-2" color="orange" text-color="white" v-else>
@@ -130,7 +135,9 @@
                       :loading="studentLoading"
                       :items="allStudentsInSchool"
                       :filter="customStudentFilter"
-                      :disabled="index == 0 || !headMember || memberStatus[index] === 1"
+                      :disabled="
+                        index == 0 || !headMember || memberStatus[index] === 1
+                      "
                       class="mt-5"
                       outlined
                       dense
@@ -187,12 +194,7 @@
                     outlined
                     dense
                   ></v-text-field>
-                  <v-text-field
-                    v-model="coadvisorName"
-                    label="Co-advisor Name"
-                    outlined
-                    dense
-                  ></v-text-field> -->
+                   -->
                   <v-autocomplete
                     v-model="selectedAdvisor"
                     :items="allTeachersInSchool"
@@ -214,7 +216,15 @@
                     clearable
                     return-object
                   ></v-autocomplete>
-                  <v-autocomplete
+                  <v-text-field
+                    v-model="coadvisorName"
+                    label="Co-advisor Name"
+                    :disabled="!headMember"
+                    color="blue"
+                    outlined
+                    dense
+                  ></v-text-field>
+                  <!-- <v-autocomplete
                     v-model="selectedCoAdvisor"
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
@@ -231,7 +241,7 @@
                     placeholder="Search co-advisor name"
                     clearable
                     return-object
-                  ></v-autocomplete>
+                  ></v-autocomplete> -->
                 </v-col>
               </v-row>
             </div>
@@ -377,7 +387,8 @@ export default {
     filteredStudents: [],
     // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
     selectedAdvisor: null,
-    selectedCoAdvisor: null,
+    // selectedCoAdvisor: null,
+    coadvisorName: "",
     selectedCommittee1: null,
     selectedCommittee2: null,
     valid: true,
@@ -414,7 +425,7 @@ export default {
     this.allStudentsInSchool = res.students;
     // console.log("Students: ", res.students);
     this.allTeachersInSchool = res.teachers;
-    // console.log("Teachers: ", res.students);
+    // console.log("Teachers: ", res.teachers);
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
@@ -448,7 +459,7 @@ export default {
       return (
         item.User_Role !== 1 &&
         queryText !== this.selectedAdvisor &&
-        queryText !== this.selectedCoAdvisor &&
+        // queryText !== this.selectedCoAdvisor &&
         queryText !== this.selectedCommittee1 &&
         item.User_Name.indexOf(queryText) > -1
       );
@@ -483,7 +494,8 @@ export default {
               Project_NameEn: this.engName,
               Studen_Number: this.projectMembers.length,
               Advisor_Email: this.selectedAdvisor.User_Email,
-              CoAdvisor_Name: this.selectedCoAdvisor?.User_Name || "",
+              // CoAdvisor_Name: this.selectedCoAdvisor?.User_Name || "",
+              CoAdvisor_Name: this.coadvisorName || "",
               Committee1_Email: this.selectedCommittee1?.User_Email,
               Committee2_Email: this.selectedCommittee2?.User_Email || "",
               Student1_Tel: this.phone[0],
@@ -552,7 +564,7 @@ export default {
               Project_NameEn: this.engName,
               Studen_Number: this.projectMembers.length,
               Advisor_Email: this.selectedAdvisor.User_Email,
-              CoAdvisor_Name: this.selectedCoAdvisor?.User_Name || "",
+              CoAdvisor_Name: this.coadvisorName || "",
               Committee1_Email: this.selectedCommittee1?.User_Email,
               Committee2_Email: this.selectedCommittee2?.User_Email || "",
               Student1_Tel: this.phone[0],
@@ -676,9 +688,11 @@ export default {
       // console.log(this.$store.state.group.currentUserGroup);
       //Set co-advisor name
       if (this.$store.state.group.currentUserGroup.Co_Advisor !== "") {
-        this.selectedCoAdvisor = {
-          User_Name: this.$store.state.group.currentUserGroup.Co_Advisor,
-        };
+        // this.selectedCoAdvisor = {
+        //   User_Name: this.$store.state.group.currentUserGroup.Co_Advisor,
+        // };
+        this.coadvisorName =
+          this.$store.state.group.currentUserGroup.Co_Advisor;
       }
       // Set committes
       this.groupMembers

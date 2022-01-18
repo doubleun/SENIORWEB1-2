@@ -19,72 +19,117 @@
 export default {
   data() {
     return {
+      isCo: false,
       items: [
         {
           id: 0,
           icon: "mdi-arrow-left",
           title: "Back",
-          to: "/Senior1/coordinator/",
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/`,
         },
         {
           id: 0,
           icon: "people_alt",
           title: "Group Info",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}`,
         },
         {
           id: 0,
           icon: "mdi-file-send",
           title: "Proposal",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}/proposal`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}/proposal`,
         },
         {
           id: 3,
           icon: "mdi-numeric-1-circle",
           title: "Progress 1",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}/progress-1`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}/progress-1`,
         },
         {
           id: 4,
           icon: "mdi-numeric-2-circle",
           title: "Progress 2",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}/progress-2`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}/progress-2`,
         },
         {
           id: 5,
           icon: "mdi-numeric-3-circle",
           title: "Progress 3",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}/progress-3`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}/progress-3`,
         },
         {
           id: 6,
           icon: "mdi-numeric-4-circle",
           title: "Progress 4",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}/progress-4`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}/progress-4`,
         },
         {
           id: 7,
           icon: "co_present",
           title: "Final Presentation",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}/final-presentation`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}/final-presentation`,
         },
         {
           id: 8,
           icon: "text_snippet",
           title: "Final Documentation",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}/final-documentation`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}/final-documentation`,
         },
         {
           id: 0,
           icon: "stacked_bar_chart",
           title: "Evaluation Result",
-          to: `/Senior1/coordinator/${this.$route.params.groupId}/evaluationResult`,
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/${this.$route.params.groupId}/evaluationResult`,
         },
         {
           id: 9,
           icon: "mdi-restore",
           title: "Re - evaluation",
-          to: "/Senior1/coordinator/progress",
+          to: `/Senior1/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/progress`,
         },
       ],
     };

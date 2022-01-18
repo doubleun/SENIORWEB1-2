@@ -37,7 +37,8 @@ export default {
     console.log("Fetched eval scores: ", fetchScoresRes);
     // Calculate total score
     fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
-      (prev, current) => parseInt(prev) + (!current ? 0 : parseInt(current)),
+      (prev, current) =>
+        parseFloat(prev) + (!current ? 0 : parseFloat(current)),
       0
     );
 

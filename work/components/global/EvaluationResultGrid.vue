@@ -26,6 +26,9 @@
     <template v-slot:item.finalDocumentation="{ item }">
       {{ item.finalDocumentation == null ? "-" : item.finalDocumentation }}
     </template>
+    <template v-slot:item.normalGrade="{ item }">
+      {{ item.normalGrade == null ? "" : item.normalGrade }}
+    </template>
 
     <!-- <template v-slot:item.total="{ item }">
         {{
@@ -92,6 +95,11 @@ export default {
         {
           text: "Suggestion Grade",
           value: "suggestGrade",
+          align: "center",
+        },
+        {
+          text: "Grade",
+          value: "normalGrade",
           align: "center",
         },
       ],

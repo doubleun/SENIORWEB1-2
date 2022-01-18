@@ -53,7 +53,7 @@ countUser = async (req, res) => {
         res.status(200).json({
           students: result[0].student,
           teachers: result[0].teacher,
-          groups: result[0].groups
+          groups: result[0].groups,
         });
       }
     }
@@ -101,7 +101,7 @@ getAllUsersInSchool = async (req, res) => {
     );
   });
   const teachersSQL =
-    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 0 AND `Project_on_term_ID` = ?";
+    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 0 OR `User_Role` = 2 AND `Project_on_term_ID` = ?";
   const teachers = await new Promise((resolve, reject) => {
     con.query(
       teachersSQL,
@@ -124,17 +124,17 @@ uploadfile = async (req, res) => {
     if (!req.files) {
       res.send({
         status: false,
-        message: "No file uploaded"
+        message: "No file uploaded",
       });
     } else {
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
-      
-      let name =  req.files[0]['filename'];
-      const{Major} = req.body
+
+      let name = req.files[0]["filename"];
+      const { Major } = req.body;
       var sql =
         "INSERT INTO users ( User_Email , User_Identity_ID , User_Name , User_Role , Course_code , Major_ID ,  Project_on_term_ID ) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
-      var obj = readXlsxFile(req.files[0]['path']).then(rows => {
+      var obj = readXlsxFile(req.files[0]["path"]).then((rows) => {
         let semiter;
         let term;
         let coursec;
@@ -158,12 +158,12 @@ uploadfile = async (req, res) => {
               rows[i][2],
               1,
               coursec,
-              req.body['Major'],
+              req.body["Major"],
               semiter,
               term,
 
               rows[i][2],
-              coursec
+              coursec,
             ],
             (err, result, fields) => {
               if (err) {
@@ -192,12 +192,11 @@ uploadfile = async (req, res) => {
 
 uploadfileteacher = async (req, res) => {
   try {
-    console.log(req.files[0])
+    console.log(req.files[0]);
     if (!req.files) {
-      
       res.send({
         status: false,
-        message: "No file uploaded"
+        message: "No file uploaded",
       });
     } else {
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
@@ -205,18 +204,18 @@ uploadfileteacher = async (req, res) => {
       // const { Senior } = req.body;
 
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
-      let name =  req.files[0]['filename'];
+      let name = req.files[0]["filename"];
       // avatar.mv("uploads/excel/" + name);
       // console.log(req.files[0]['filename'])
       var sql =
         "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
-      var obj = readXlsxFile(req.files[0]['path']).then(rows => {
+      var obj = readXlsxFile(req.files[0]["path"]).then((rows) => {
         let semiter;
         let term;
         let coursec = null;
         let errorcou = 0;
-        console.log(rows)
+        console.log(rows);
         for (let i = 4; i < rows.length; i++) {
           console.log(rows[i]);
           // rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
@@ -251,9 +250,9 @@ uploadfileteacher = async (req, res) => {
               "0",
               coursec,
               rows[i][4],
-        
+
               semiter,
-              term
+              term,
             ],
             (err, result, fields) => {
               if (err) {
@@ -287,5 +286,5 @@ module.exports = {
   countUser,
   getUser,
   getAllMajors,
-  getTeacherRole
+  getTeacherRole,
 };

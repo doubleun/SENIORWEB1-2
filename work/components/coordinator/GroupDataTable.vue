@@ -6,7 +6,7 @@
         <p class="white--text my-0">Year</p>
         <v-select
           v-model="selectedYear"
-          :items="yearNSemsters.map(itm => itm.Academic_Year)"
+          :items="yearNSemsters.map((itm) => itm.Academic_Year)"
           @change="handleChangeRenderGroups"
           dense
           solo
@@ -17,7 +17,7 @@
         <p class="white--text my-0">Semester</p>
         <v-select
           v-model="selectedSemester"
-          :items="yearNSemsters.map(itm => itm.Academic_Term)"
+          :items="yearNSemsters.map((itm) => itm.Academic_Term)"
           @change="handleChangeRenderGroups"
           dense
           solo
@@ -95,7 +95,7 @@
 <script>
 export default {
   props: {
-    Group_Role: Number
+    Group_Role: Number,
   },
   data() {
     return {
@@ -112,7 +112,7 @@ export default {
           text: "GROUP NAME",
           align: "center",
           sortable: false,
-          value: "Group_Name_Eng"
+          value: "Group_Name_Eng",
         },
         { text: "MEMBER", align: "center", value: "Students" },
         { text: "ADVISOR", align: "center", value: "Advisor" },
@@ -123,11 +123,11 @@ export default {
           value: "actions",
           sortable: false,
           align: "center",
-          width: 170
-        }
+          width: 170,
+        },
       ],
       yearNSemsters: [],
-      groups: []
+      groups: [],
     };
   },
   async fetch() {
@@ -145,7 +145,7 @@ export default {
         User_Email: this.$store.state.auth.currentUser.email,
         Year: this.selectedYear,
         Semester: this.selectedSemester,
-        Group_Role: this.Group_Role
+        Group_Role: this.Group_Role,
       });
       console.log("groups", this.groups);
     } catch (err) {
@@ -160,7 +160,13 @@ export default {
   methods: {
     // TODO: keep group id to state for scoring of group
     pushOtherPage(id) {
-      this.$router.push(`/Senior1/coordinator/group${id}`);
+      this.$router.push(
+        `/Senior1/${
+          this.$store.state.auth.currentUser.role === 0
+            ? "teacher"
+            : "coordianator"
+        }/group${id}`
+      );
     },
     async handleChangeRenderGroups() {
       // let this = this;
@@ -170,9 +176,9 @@ export default {
           User_Email: this.$store.state.auth.currentUser.email,
           Year: this.selectedYear,
           Semester: this.selectedSemester,
-          Group_Role: this.Group_Role
+          Group_Role: this.Group_Role,
         });
-        this.groups.map(el => {
+        this.groups.map((el) => {
           if ((el.Group_Role = 0)) {
             this.advisor.push(el);
           }
@@ -192,12 +198,12 @@ export default {
           showCancelButton: true,
           confirmButtonColor: "#3085d6",
           cancelButtonColor: "#d33",
-          confirmButtonText: "Yes"
+          confirmButtonText: "Yes",
         })
-        .then(async result => {
+        .then(async (result) => {
           if (result.isConfirmed) {
             const res = await this.$axios.$put("/group/delete/one", {
-              Group_ID: id
+              Group_ID: id,
             });
             if (res.status == 200) {
               this.$nuxt.refresh();
@@ -207,7 +213,7 @@ export default {
             }
           }
         });
-    }
-  }
+    },
+  },
 };
 </script>

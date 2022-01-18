@@ -31,27 +31,35 @@
             <v-card-title class="text-h5"> Grade Criteria </v-card-title>
 
             <section class="d-flex flex-column" style="gap: 0.6rem">
-              <div
-                class="grade-criteria-input-flex"
-                v-for="(grade, index) in gradeCriterias"
-                :key="index"
-              >
-                <div style="width: 12%">
-                  <v-subheader v-if="index === 0">Grade</v-subheader>
-                  <p>{{ grade.Grade_Criteria_Name }}</p>
+              <v-form ref="form" v-model="valid">
+                <div
+                  class="grade-criteria-input-flex"
+                  v-for="(grade, index) in gradeCriterias"
+                  :key="index"
+                >
+                  <div style="width: 12%">
+                    <v-subheader v-if="index === 0">Grade</v-subheader>
+                    <p>{{ grade.Grade_Criteria_Name }}</p>
+                  </div>
+                  <div style="width: 60%">
+                    <v-subheader v-if="index === 0">Pass Score</v-subheader>
+                    <p v-if="index === gradeCriterias.length - 1"></p>
+                    <v-text-field
+                      v-model="grade.Grade_Criteria_Pass"
+                      :rules="[
+                        () =>
+                          grade.Grade_Criteria_Pass !== null ||
+                          'This field is required',
+                        handleCheckValidScore(grade.Grade_Criteria_Pass),
+                      ]"
+                      v-else
+                      outlined
+                      dense
+                      hide-details
+                    ></v-text-field>
+                  </div>
                 </div>
-                <div style="width: 60%">
-                  <v-subheader v-if="index === 0">Pass Score</v-subheader>
-                  <p v-if="index === gradeCriterias.length - 1"></p>
-                  <v-text-field
-                    v-else
-                    v-model="grade.Grade_Criteria_Pass"
-                    outlined
-                    dense
-                    hide-details
-                  ></v-text-field>
-                </div>
-              </div>
+              </v-form>
             </section>
             <!-- <div
               class="grade-criteria-input-flex"
@@ -108,7 +116,7 @@ export default {
     return {
       editGradeDialog: false,
       low: 0,
-      gradeCriteriaArr: ["S", "U"],
+      valid: true,
     };
   },
   async asyncData({ $axios, store }) {
@@ -147,14 +155,58 @@ export default {
   methods: {
     // Update grade criterias function (score criteria has a function in the compunent for update)
     async handleUpdateGradeCriterias() {
-      const res = await this.$axios.$post("/criteria/gradeEdit", {
-        data: this.gradeCriterias,
-      });
-      if (res.status === 200) this.editGradeDialog = false;
+      console.log(this.$refs);
+      console.log(this.$refs.form);
+      // Validate form
+      this.$refs.form.validate();
+      if (!this.valid) return;
+
+      try {
+        // Show confirm dialog
+        this.$swal
+          .fire({
+            title: "Please, confirm your changes.",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Confirm",
+          })
+          .then(async (result) => {
+            if (result.isConfirmed) {
+              // Post new grade criteria to update in database
+              const res = await this.$axios.$post("/criteria/gradeEdit", {
+                data: this.gradeCriterias,
+              });
+              // If update grade criterias successfully, display success dialog
+              if (res.status === 200) {
+                // Close edit grade criteria modal
+                this.$swal.fire({
+                  title: "Grade updated",
+                  icon: "success",
+                });
+                this.editGradeDialog = false;
+                return;
+              } else {
+                throw new Error(
+                  "Failed to update grade criterias, please try again later"
+                );
+              }
+            } else {
+              return;
+            }
+          });
+      } catch (err) {
+        console.log(err);
+        return;
+      }
     },
     refresh() {
       console.log("refresh");
       this.$nuxt.refresh();
+    },
+    handleCheckValidScore(val) {
+      return val <= 0 ? "Invalid score" : true;
     },
   },
   mounted() {

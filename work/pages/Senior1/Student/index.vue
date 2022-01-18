@@ -27,9 +27,9 @@
       </div>
       <v-row class="stepperAnnounement text-center mt-5 mb-5">
         <v-col>
-          <h2>Please create group</h2>
+          <h2>{{ stepperMainText }}</h2>
 
-          <h4>Before August 20, 2021</h4>
+          <h4>{{ stepperSubText }}</h4>
         </v-col>
       </v-row>
     </v-card>
@@ -41,42 +41,17 @@
 <script>
 // import Announcement from "@/components/coordinator/homeAnnouncement";
 export default {
+  data: {
+    stepperMainText: "Please create group",
+    stepperSubText: "Before ...",
+  },
   computed: {
     // Computed current group progress for stepper
     currentProgress() {
       return this.$store.state.group.currentUserGroup?.Group_Progression;
     },
-    // // Computed steps that will be available
-    // availableSteps() {
-    //   const groupProposal = [
-    //     { progressPass: 0.7, progressName: "Group" },
-    //     { progressPass: 0.8, progressName: "Proposal" }
-    //   ];
-    //   // TODO: Right now it's based on senior, discuss this later
-    //   // Grap progress pass from id and progress name, where total is not = 0
-    //   const finalAllProgress = this.allProgress.reduce(
-    //     (arr, obj) =>
-    //       obj.Total !== 0
-    //         ? [
-    //             ...arr,
-    //             {
-    //               progressPass: obj.Progress_ID,
-    //               progressName: obj.Progress_Name
-    //             }
-    //           ]
-    //         : arr,
-    //     []
-    //   );
-
-    //   //! FIXME: This doesn't work anymore since we pulled 'senior' from 'users' table, fix this later
-    //   // // Merge groupProposal, if senior 1 else return all progress, fetched from the database
-    //   // return this.$store.state.auth.currentUser.senior === 1
-    //   //   ? [...groupProposal, ...finalAllProgress]
-    //   //   : finalAllProgress;
-
-    //   return [...groupProposal, ...finalAllProgress];
-    // }
   },
+
   async asyncData({ $axios, store }) {
     let announcements;
     try {
@@ -99,6 +74,15 @@ export default {
       ...store.state.group.availableProgress,
     ];
     console.log("availableSteps", availableSteps);
+
+    // // Fetch due dates
+    // const dueDates = await $axios.$post('', {})
+    // // Set stepper main text
+    // switch(this.$store.state.group.currentUserGroup.Group_Progression) {
+    //   default:
+    //     this.stepperMainText = "Please create group"
+    //     this.stepperSubText = `Before ${}`
+    // }
 
     return {
       announcements,

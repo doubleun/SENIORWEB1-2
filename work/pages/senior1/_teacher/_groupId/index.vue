@@ -69,7 +69,7 @@ export default {
         // Calculate total score
         fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
           (prev, current) =>
-            parseInt(prev) + (!current ? 0 : parseInt(current)),
+            parseFloat(prev) + (!current ? 0 : parseFloat(current)),
           0
         );
 
@@ -81,6 +81,10 @@ export default {
 
         // Add to fetchScoresRes
         fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
+
+        // Add normal grade to fetchScoreRes
+        console.log(res.groupInfo[0]);
+        fetchScoresRes.normalGrade = res.groupInfo[0].Grade;
       }
 
       return {

@@ -57,27 +57,35 @@
 
           <!-- Display grade and pass score section -->
           <section class="d-flex flex-column" style="gap: 0.6rem">
-            <div
-              class="grade-criteria-input-flex"
-              v-for="(grade, index) in criteriasTemplate"
-              :key="index"
-            >
-              <div style="width: 12%">
-                <v-subheader v-if="index === 0">Grade</v-subheader>
-                <p>{{ grade.Grade_Criteria_Name }}</p>
+            <v-form ref="form" v-model="valid">
+              <div
+                class="grade-criteria-input-flex"
+                v-for="(grade, index) in criteriasTemplate"
+                :key="index"
+              >
+                <div style="width: 12%">
+                  <v-subheader v-if="index === 0">Grade</v-subheader>
+                  <p>{{ grade.Grade_Criteria_Name }}</p>
+                </div>
+                <div style="width: 60%">
+                  <v-subheader v-if="index === 0">Pass Score</v-subheader>
+                  <p v-if="index === criteriasTemplate.length - 1"></p>
+                  <v-text-field
+                    v-model="grade.Grade_Criteria_Pass"
+                    :rules="[
+                      () =>
+                        grade.Grade_Criteria_Pass !== null ||
+                        'This field is required',
+                      handleCheckValidScore(grade.Grade_Criteria_Pass),
+                    ]"
+                    v-else
+                    outlined
+                    dense
+                    hide-details
+                  ></v-text-field>
+                </div>
               </div>
-              <div style="width: 60%">
-                <v-subheader v-if="index === 0">Pass Score</v-subheader>
-                <p v-if="index === criteriasTemplate.length - 1"></p>
-                <v-text-field
-                  v-else
-                  v-model="grade.Grade_Criteria_Pass"
-                  outlined
-                  dense
-                  hide-details
-                ></v-text-field>
-              </div>
-            </div>
+            </v-form>
           </section>
 
           <v-divider></v-divider>
@@ -110,9 +118,10 @@ export default {
     selectedGradeOption: "S/U",
     // Grade criteria option A and B
     criteriasOptionA: ["S", "U"],
-    criteriasOptionB: ["A", "B", "C", "D", "F"],
+    criteriasOptionB: ["A", "B+", "B", "C+", "C", "D+", "D", "F"],
     addGradeDialog: false,
     noGradeCriterias: false,
+    valid: true,
   }),
   computed: {
     // Return criterias option (S/U or A-F) based on the 'selectedGradeOption'
@@ -151,27 +160,60 @@ export default {
     async handleAddGradeCriterias() {
       // Check if there's a criterias template to send, and if the grade criterias have already been fetched
       if (!this.criteriasTemplate || this.noGradeCriterias === false) return;
+
+      console.log(this.valid);
+      // Validate form
+      this.$refs.form.validate();
+      if (!this.valid) return;
+
+      console.log(this.valid);
+
       try {
-        // Post new grade criterias
-        const addGradeCriteriaRes = await this.$axios.$post(
-          "/criteria/gradeAdd",
-          {
-            data: this.criteriasTemplate,
-          }
-        );
-        if (addGradeCriteriaRes.status !== 200)
-          throw new Error(
-            "Failed to add grade criterias, please try again later"
-          );
-        // Update UI
-        // Emit event for refresh
-        this.$emit("add-grade-criterias");
-        this.noGradeCriterias = false;
+        this.$swal
+          .fire({
+            title: "Please, confirm your choice.",
+            text: "You cannot change grade criterias template after save",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Confirm",
+          })
+          .then(async (result) => {
+            if (result.isConfirmed) {
+              // Post new grade criterias
+              const addGradeCriteriaRes = await this.$axios.$post(
+                "/criteria/gradeAdd",
+                {
+                  data: this.criteriasTemplate,
+                }
+              );
+              if (addGradeCriteriaRes.status !== 200)
+                throw new Error(
+                  "Failed to add grade criterias, please try again later"
+                );
+              // Update UI
+              // Emit event for refresh
+              this.$emit("add-grade-criterias");
+              this.noGradeCriterias = false;
+              this.$swal.fire(
+                "Grade criterias saved",
+                "You can edit the score of each grade criteria",
+                "success"
+              );
+              return;
+            } else {
+              return;
+            }
+          });
         return;
       } catch (err) {
         console.log(err);
         return;
       }
+    },
+    handleCheckValidScore(val) {
+      return val <= 0 ? "Invalid score" : true;
     },
   },
 };
