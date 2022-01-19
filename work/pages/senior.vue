@@ -50,7 +50,7 @@
             > -->
             <v-btn
               text
-              style="width:300px;height:100px"
+              style="width: 300px; height: 100px"
               class="buttonsenior1and2"
               @click="() => route(1)"
             >
@@ -66,7 +66,7 @@
             <!-- <div class="buttonsenior1and2"> -->
             <v-btn
               text
-              style="width:300px;height:100px"
+              style="width: 300px; height: 100px"
               class="buttonsenior1and2"
               @click="testAsync"
             >
@@ -89,7 +89,7 @@
 import itbackground from "../static/bg.png";
 export default {
   data: () => ({
-    image: itbackground
+    image: itbackground,
   }),
   methods: {
     test() {
@@ -102,35 +102,27 @@ export default {
       // console.log(res);
     },
     route(semester) {
-      this.$store.state.auth.currentUser.role === 1
-        ? this.$router.push(`/Senior${semester}/student/`)
-        : this.$router.push(`/Senior${semester}/coordinator/`);
-      // switch (this.$store.state.auth.currentUser.role) {
-      //   case 0: {
-      //     this.$router.push(`/Senior${semester}/coordinator/`);
-      //     break;
-      //   }
-      //   case 1: {
-      //     this.$router.push(`/Senior${semester}/advisor/`);
-      //     break;
-      //   }
-      //   case 2: {
-      //     this.$router.push(`/Senior${semester}/committee/`);
-      //     break;
-      //   }
-      //   case 3: {
-      //     this.$router.push(`/Senior${semester}/student/`);
-      //     break;
-      //   }
-      //   case 99: {
-      //     this.$router.push(`/Senior${semester}/admin/`);
-      //     break;
-      //   }
-      // }
-    }
+      // this.$store.state.auth.currentUser.role === 1
+      //   ? this.$router.push(`/Senior${semester}/student/`)
+      //   : this.$router.push(`/Senior${semester}/coordinator/`);
+      switch (this.$store.state.auth.currentUser.role) {
+        case 0: {
+          this.$router.push(`/Senior${semester}/teacher/`);
+          break;
+        }
+        case 1: {
+          this.$router.push(`/Senior${semester}/student/`);
+          break;
+        }
+        case 2: {
+          this.$router.push(`/Senior${semester}/coordinator/`);
+          break;
+        }
+      }
+    },
   },
   middleware: ["adminRedirect"],
-  layout: "empty"
+  layout: "empty",
 };
 </script>
 

@@ -1,0 +1,233 @@
+<template>
+  <v-data-table
+    :headers="headers"
+    :items="groupInfo"
+    :search="search"
+    sort-by="calories"
+    class="elevation-1"
+  >
+    <template v-slot:top>
+      <v-card-title>
+        <v-spacer></v-spacer>
+        <v-col md="3">
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+            outlined
+          ></v-text-field>
+        </v-col>
+      </v-card-title>
+      <v-dialog v-model="dialogDelete" max-width="500px">
+        <v-card>
+          <v-card-title class="text-h6"
+            >Are you sure you want to decline this group?</v-card-title
+          >
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="closeDelete"
+              >Cancel</v-btn
+            >
+            <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+              >OK</v-btn
+            >
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog v-model="dialog" max-width="290">
+        <v-card>
+          <v-card-title class="text-h5">
+            Confirmation of joining the group?
+          </v-card-title>
+
+          <v-card-text>
+            Once you have accepted to join the group, you cannot leave the
+            group, but you can only leave if the student requests to disband the
+            group.
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn color="green darken-1" text @click="dialog = false">
+              Disagree
+            </v-btn>
+
+            <v-btn color="green darken-1" text @click="save"> Agree </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </template>
+    <template v-slot:item.actions="{ item }">
+      <v-row class="mb-6 pa-5 justify-center" no-gutters>
+        <v-col md="3">
+          <v-btn color="success" small @click="editItem(item)">
+            <v-icon> mdi-check </v-icon>
+          </v-btn>
+        </v-col>
+        <v-col md="4" offset-md="2">
+          <v-btn color="error" small @click="deleteItem(item)">
+            <v-icon> mdi-close </v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </template>
+    <!-- <template v-slot:no-data>
+      <v-btn color="primary" @click="initialize"> Reset </v-btn>
+    </template> -->
+  </v-data-table>
+</template>
+
+<script>
+export default {
+  data: () => ({
+    search: "",
+    dialog: false,
+    dialogDelete: false,
+    headers: [
+      {
+        text: "GROUP ID",
+        align: "d-none",
+        value: "ID",
+      },
+      {
+        text: "GROUP NAME",
+        align: "center",
+        value: "groupName",
+      },
+      { text: "MEMBER", value: "member", align: "center" },
+      { text: "ADVISOR", value: "advisor", align: "center" },
+      { text: "COMMITTEE", value: "committee", align: "center" },
+      {
+        text: "Actions",
+        value: "actions",
+        sortable: false,
+        align: "center",
+        width: 200,
+      },
+    ],
+    idgroup: "",
+    groupInfo: [],
+    editedIndex: -1,
+    editedItem: {
+      name: "",
+      calories: 0,
+      fat: 0,
+      carbs: 0,
+      protein: 0,
+    },
+    defaultItem: {
+      name: "",
+      calories: 0,
+      fat: 0,
+      carbs: 0,
+      protein: 0,
+    },
+  }),
+  async fetch() {
+    const res = await this.$axios.$post("/group/listrequestGroup", {
+      User_Email: this.$store.state.auth.currentUser.email,
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+      Group_Role: 1,
+      Group_Role2: 0,
+      User_Status: 0,
+    });
+
+    for (let i = 0; i < res.length; i++) {
+      this.groupInfo.push({
+        groupName: res[i].Group_Name_Eng,
+        member: res[i].Students,
+        advisor: res[i].Advisor,
+        committee: res[i].Committees,
+        ID: res[i].Group_ID,
+      });
+    }
+    console.log("group info", this.groupInfo);
+  },
+  computed: {
+    formTitle() {
+      return this.editedIndex === -1 ? "New Item" : "Edit Item";
+    },
+  },
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
+  },
+  created() {
+    this.initialize();
+  },
+  methods: {
+    initialize() {
+      // this.groupInfo = [
+      //   {
+      //     groupName: "Mobile Application for Karen ",
+      //     member: "Anuthep Tayngam, Pipat Massri,",
+      //     advisor: "Surapong Uttama",
+      //     committee: "Khwunta Kirimasthong, Tossapon Boongeon",
+      //   },
+      //   {
+      //     groupName:
+      //       "Mobile Application for Karen Translator for Translator for Physiotherapy",
+      //     member:
+      //       "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
+      //     advisor: "Surapong Uttama",
+      //     committee: "Khwunta Kirimasthong, Tossapon Boongeon",
+      //   },
+      // ];
+    },
+    editItem(item) {
+      this.idgroup = item["ID"];
+      console.log("I'm hear" + item["ID"]);
+      this.dialog = true;
+    },
+    deleteItem(item) {
+      this.idgroup = item["ID"];
+      console.log(this.idgroup);
+    },
+    async deleteItemConfirm() {
+      const res = await this.$axios.$post("/group/updateMemberStatus", {
+        User_Email: this.$store.state.auth.currentUser.email,
+        Group_Id: this.idgroup,
+        Status: 2,
+      });
+
+      this.closeDelete();
+    },
+    close() {
+      this.dialog = false;
+    },
+    closeDelete() {
+      this.dialogDelete = false;
+    },
+    async save() {
+      try {
+        const res = await this.$axios.$post("/group/updateMemberStatus", {
+          User_Email: this.$store.state.auth.currentUser.email,
+          Group_Id: this.idgroup,
+          Status: 1,
+        });
+
+        // Update UI
+        this.groupInfo = this.groupInfo.filter(
+          (group) => group.id === this.idgroup
+        );
+        console.log(this.groupInfo);
+
+        // Close modal
+        this.close();
+        return;
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+    },
+  },
+};
+</script>

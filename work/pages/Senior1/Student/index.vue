@@ -9,112 +9,132 @@
       <div class="stepper">
         <v-stepper alt-labels class="elevation-0" v-model="currentProgress">
           <v-stepper-header>
-            <template v-for="(steps, index) in availableSteps">
+            <template v-for="(step, index) in availableSteps">
               <v-stepper-step
-                :step="index + 1"
-                :complete="currentProgress >= steps.progressPass"
-                :key="steps.progressPass + 1"
+                :step="step.Progress_ID"
+                :complete="currentProgress > step.Progress_ID"
+                :key="step.Score_criteria_ID"
               >
-                {{ steps.progressName }}
+                {{ step.Progress_Name }}
               </v-stepper-step>
               <v-divider
-                :key="steps.progressPass + 2"
+                :key="step.Score_criteria_ID"
                 v-if="index !== availableSteps.length - 1"
               ></v-divider>
             </template>
-
-            <!-- <v-stepper-step step="1"> Group </v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="2"> Proposal </v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="3"> Progress 1 </v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="4"> Progress 2 </v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="5"> Progress 3 </v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="6"> Progress 4 </v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="7"> Presentation </v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="8"> Documentation </v-stepper-step> -->
           </v-stepper-header>
         </v-stepper>
       </div>
       <v-row class="stepperAnnounement text-center mt-5 mb-5">
         <v-col>
-          <h2>Please create group</h2>
+          <h2>{{ dueProgressStrings[0] }}</h2>
 
-          <h4>Before August 20, 2021</h4>
+          <h4>{{ dueProgressStrings[1] }}</h4>
         </v-col>
       </v-row>
     </v-card>
 
-    <Announcement :announcements="announcements" />
+    <CoordinatorHomeAnnouncement :announcements="announcements" />
     <!-- </div> -->
   </div>
 </template>
 <script>
-import Announcement from "@/components/Coordinator/homeAnnouncement";
+// import Announcement from "@/components/coordinator/homeAnnouncement";
 export default {
-  components: { Announcement },
   computed: {
     // Computed current group progress for stepper
     currentProgress() {
-      const progress = this.$store.state.group.currentUserGroup
-        ?.Group_Progression;
-      return progress >= 7 ? progress / 10 : progress;
+      return this.$store.state.group.currentUserGroup?.Group_Progression;
     },
-    // Computed steps that will be available
-    availableSteps() {
-      const groupProposal = [
-        { progressPass: 0.7, progressName: "Group" },
-        { progressPass: 0.8, progressName: "Proposal" }
-      ];
-      // TODO: Right now it's based on senior, discuss this later
-      // Grap progress pass from id and progress name, where total is not = 0
-      const finalAllProgress = this.allProgress.reduce(
-        (arr, obj) =>
-          obj.Total !== 0
-            ? [
-                ...arr,
-                {
-                  progressPass: obj.Progress_ID,
-                  progressName: obj.Progress_Name
-                }
-              ]
-            : arr,
-        []
-      );
+    dueProgressStrings() {
+      console.log("this.dueProgress: ", this.dueProgress);
+      let str = [];
+      if (!!this.dueProgress) {
+        // Construct end date as string
+        const endDateString = new Date(
+          this.dueProgress.DueDate_End
+        ).toLocaleString("en-US", {
+          dateStyle: "full",
+        });
+        console.log("endDateString: ", endDateString);
 
-      //! FIXME: This doesn't work anymore since we pulled 'senior' from 'users' table, fix this later
-      // // Merge groupProposal, if senior 1 else return all progress, fetched from the database
-      // return this.$store.state.auth.currentUser.senior === 1
-      //   ? [...groupProposal, ...finalAllProgress]
-      //   : finalAllProgress;
-
-      return [...groupProposal, ...finalAllProgress];
-    }
+        // Construct the rest of the string
+        switch (this.dueProgress.Progress_ID) {
+          case 1:
+            str.push("Please, create a group");
+            str.push(`Before: ${endDateString}`);
+            break;
+          case 2:
+            str.push("Please, submit proposal");
+            str.push(`Before: ${endDateString}`);
+            break;
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+            str.push(
+              `Please, submit progress ${this.dueProgress.Progress_ID - 2}`
+            );
+            str.push(`Before: ${endDateString}`);
+            break;
+          case 7:
+            str.push(`Please, submit final presentation`);
+            str.push(`Before: ${endDateString}`);
+            break;
+          case 8:
+            str.push(`Please, submit final documentation`);
+            str.push(`Before: ${endDateString}`);
+            break;
+        }
+      }
+      return str;
+    },
   },
+
   async asyncData({ $axios, store }) {
-    let announcements, allProgress;
+    let announcements;
     try {
       // Fetch announcements in current user's major
       announcements = await $axios.$post("/announc/major", {
-        MajorID: store.state.auth.currentUser.major
+        MajorID: store.state.auth.currentUser.major,
       });
-
-      // Fetch all available progress(es) in this major
-      allProgress = await $axios.$post("/criteria/scoreMajor", {
-        Major_ID: store.state.auth.currentUser.major
-      });
-      // console.log("All progress: ", allProgress);
     } catch (err) {
       console.log(err);
     }
+
     // Dispatch event to store current user group info
     await store.dispatch("group/storeGroupInfo");
-    return { announcements, allProgress };
+
+    // Add group and proposal to the availableSteps if senior is 1
+    // TODO: This should be check from a flag in 'users' table (like showGroupProposal: true/false)
+    const availableSteps = [
+      { Progress_ID: 1, Progress_Name: "Group" },
+      { Progress_ID: 2, Progress_Name: "Proposal" },
+      ...store.state.group.availableProgress,
+    ];
+    console.log("availableSteps", availableSteps);
+
+    // Fetch due dates
+    const dueDates = await $axios.$post("/date/progression", {
+      Major_ID: store.state.auth.currentUser.major,
+      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+    });
+    // console.log("dueDates", dueDates.progressionDuedate);
+
+    // Get the progress due date of the current group progress from dueDates.progressionDuedate
+    const dueProgress = dueDates.progressionDuedate.find(
+      (progress) =>
+        progress.Progress_ID ===
+        store.state.group.currentUserGroup.Group_Progression
+    );
+
+    console.log(dueProgress);
+
+    return {
+      announcements,
+      availableSteps,
+      dueProgress,
+    };
   },
   mounted() {
     // TODO: Delete these (obviously...)
@@ -125,7 +145,7 @@ export default {
       this.$store.state.group.currentUserGroup
     );
     // console.log("All progress: ", this.allProgress);
-  }
+  },
 };
 </script>
 <style scoped>

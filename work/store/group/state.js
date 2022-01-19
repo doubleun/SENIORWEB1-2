@@ -1,3 +1,5 @@
 export default () => ({
-  currentUserGroup: null
+  currentUserGroup: null,
+  availableProgress: null,
+  currentUserGroupMembers: null,
 });
