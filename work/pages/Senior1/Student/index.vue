@@ -121,12 +121,19 @@ export default {
     });
     // console.log("dueDates", dueDates.progressionDuedate);
 
-    // Get the progress due date of the current group progress from dueDates.progressionDuedate
-    const dueProgress = dueDates.progressionDuedate.find(
-      (progress) =>
-        progress.Progress_ID ===
-        store.state.group.currentUserGroup.Group_Progression
-    );
+    // Check if user has a group
+    let dueProgress;
+    if (!!store.state.group?.currentUserGroup) {
+      // Get the progress due date of the current group progress from dueDates.progressionDuedate
+      dueProgress = dueDates.progressionDuedate.find(
+        (progress) =>
+          progress.Progress_ID ===
+          store.state.group.currentUserGroup?.Group_Progression
+      );
+    } else {
+      // If no group then assign the first dueProgress
+      dueProgress = dueDates.progressionDuedate[0];
+    }
 
     console.log(dueProgress);
 
