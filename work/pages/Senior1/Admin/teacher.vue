@@ -24,7 +24,7 @@
           <p class="white--text">Year</p>
           <v-select
             v-model="selectedYear"
-            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
+            :items="yearNSemsters.map(itm => itm.Academic_Year)"
             @change="handelchangeRenderTeachers"
             dense
             solo
@@ -35,7 +35,7 @@
           <p class="white--text">Semester</p>
           <v-select
             v-model="selectedSemester"
-            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
+            :items="yearNSemsters.map(itm => itm.Academic_Term)"
             @change="handelchangeRenderTeachers"
             dense
             solo
@@ -68,6 +68,23 @@
             accept=".xlsx"
             @change="handleBrowseFile"
           />
+          <v-btn
+            class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
+            align="right"
+            justify="right"
+            @click="handleFileImport"
+          >
+            <v-icon dark-blue>
+              mdi-application-import
+            </v-icon>
+            dowload templete
+          </v-btn>
+          <input
+            ref="uploader"
+            class="d-none"
+            id="fileBrowse"
+            @click="downloadtemplete"
+          />
         </div>
       </div>
 
@@ -85,14 +102,11 @@
 </template>
 
 <script>
-// import LongTableCard from "@/components/Admin/longTableCard";
-import AdminDataTable from "@/components/Admin/adminDataTable";
+// import LongTableCard from "@/components/admin/longTableCard";
+// import AdminDataTable from "@/components/admin/adminDataTable";
 
 export default {
   layout: "admin",
-  components: {
-    AdminDataTable,
-  },
   data: () => ({
     selectedMajor: {},
     selectedYear: null,
@@ -111,9 +125,9 @@ export default {
       { text: "EMAIL", align: "center", value: "User_Email" },
       // { text: "STUDY PROGRAM", align: "center", value: "Major_ID" },
       { text: "ROLE", align: "center", value: "User_Role_Name" },
-      { text: "Actions", align: "center", value: "actions", sortable: false },
+      { text: "Actions", align: "center", value: "actions", sortable: false }
       // { text: "SEM", align: "center", value: "Committee" },
-    ],
+    ]
   }),
 
   async asyncData({ $axios }) {
@@ -133,13 +147,13 @@ export default {
         Major_ID: majors[0].Major_ID,
         Academic_Year: yearNSemsters[0].Academic_Year,
         Academic_Term: yearNSemsters[0].Academic_Term,
-        User_Role: roles[0].Role_ID,
+        User_Role: roles[0].Role_ID
       });
 
       // Add user_role_name based on user_role (Should fetch role name from the database ?)
-      teachers = teachers.map((teacher) => ({
+      teachers = teachers.map(teacher => ({
         ...teacher,
-        User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator",
+        User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator"
       }));
     } catch (error) {
       console.log(error);
@@ -166,12 +180,12 @@ export default {
           Major_ID: this.selectedMajor.Major_ID,
           Academic_Year: this.selectedYear,
           Academic_Term: this.selectedSemester,
-          User_Role: this.selectedRole.Role_ID,
+          User_Role: this.selectedRole.Role_ID
         });
         // Add user_role_name based on user_role (Should fetch role name from the database ?)
-        this.teachers = this.teachers.map((teacher) => ({
+        this.teachers = this.teachers.map(teacher => ({
           ...teacher,
-          User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator",
+          User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator"
         }));
       } catch (error) {
         console.log(error);
@@ -179,6 +193,11 @@ export default {
 
       this.loading = false;
     },
+
+    downloadtemplete(){
+      window.location.href = "/api/public_senior/templete/teacherTemplete.xlsx"
+    },
+
     handleFileImport() {
       window.addEventListener(
         "focus",
@@ -190,33 +209,34 @@ export default {
       // Trigger click on the FileInput
       this.$refs.uploader.click();
     },
-     handleBrowseFile(e) {
+    handleBrowseFile(e) {
       if (e?.target.files[0]) {
         // Get date
         const d = new Date().toLocaleString();
         const formData = new FormData();
-        
+
         // Update the files array
         this.files = [...this.files, { file: e.target.files[0], date: d }];
-        this.files.map((file) => formData.append("files", file.file));
+        this.files.map(file => formData.append("files", file.file));
         console.log(formData);
         this.$swal
           .fire({
             title: "Are you sure to import this file ? ",
-            text: "Please make sure file is correct you can import once per semister!!!",
+            text:
+              "Please make sure file is correct you can import once per semister!!!",
             showDenyButton: true,
             // showCancelButton: true,
             confirmButtonText: "OK",
-            denyButtonText: `Cancel`,
+            denyButtonText: `Cancel`
           })
-          .then(async(result) => {
+          .then(async result => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
               const res = await this.$axios.$post(
                 "user/importteacher",
                 formData
-              )
-              console.log(res)
+              );
+              console.log(res);
               if (res === "success") {
                 this.$swal.fire("Saved!", "", "success");
               } else {
@@ -225,8 +245,8 @@ export default {
             }
           });
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

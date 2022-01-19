@@ -23,7 +23,7 @@
       </div>
 
       <!-- Score criteria card -->
-      <ScoreCriteriaCard :scoreCriterias="scoreCriterias" admin />
+      <CoordinatorScoreCriteriaCard :scoreCriterias="scoreCriterias" admin />
 
       <!-- Select grade study program -->
       <!-- <div class="admin-criteria-score-actions">
@@ -61,9 +61,7 @@
 
           <!-- Edit grade criteria pop up card -->
           <v-card class="grade-criteria-dialog-card">
-            <v-card-title class="text-h5">
-              Grade Criteria
-            </v-card-title>
+            <v-card-title class="text-h5"> Grade Criteria </v-card-title>
 
             <div
               class="grade-criteria-input-flex"
@@ -109,7 +107,7 @@
         </v-dialog>
       </div>
 
-      <GradeCriteriaCard
+      <CoordinatorGradeCriteriaCard
         class="admin-criteria-grade-card"
         :gradeCriterias="gradeCriterias"
       />
@@ -118,20 +116,16 @@
 </template>
 
 <script>
-import ScoreCriteriaCard from "@/components/Coordinator/scoreCriteriaCard";
-import GradeCriteriaCard from "@/components/Coordinator/gradeCriteriaCard";
+// import ScoreCriteriaCard from "@/components/coordinator/scoreCriteriaCard";
+// import GradeCriteriaCard from "@/components/coordinator/gradeCriteriaCard";
 
 export default {
   layout: "admin",
-  components: {
-    ScoreCriteriaCard,
-    GradeCriteriaCard
-  },
   data() {
     return {
       selectedMajor: null,
       editGradeDialog: false,
-      low: 0
+      low: 0,
     };
   },
   async asyncData({ $axios }) {
@@ -142,16 +136,16 @@ export default {
       majors = await $axios.$get("/user/getAllMajors");
       // Fetch score criterias
       scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
-        Major_ID: majors[0].Major_ID
+        Major_ID: majors[0].Major_ID,
       });
       // Fetch grade criterias
       gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
-        Major_ID: majors[0].Major_ID
+        Major_ID: majors[0].Major_ID,
       });
       // Pass in latest project on term which will be in the scoreCriterias
-      gradeCriterias = gradeCriterias.map(itm => ({
+      gradeCriterias = gradeCriterias.map((itm) => ({
         ...itm,
-        Project_on_term_ID: scoreCriterias[0].Project_on_term_ID
+        Project_on_term_ID: scoreCriterias[0].Project_on_term_ID,
       }));
     } catch (err) {
       console.log(err);
@@ -162,11 +156,8 @@ export default {
   methods: {
     // Update grade criterias function (score criteria has a function in the compunent for update)
     async handleUpdateGradeCriterias() {
-      // console.log(
-      //   this.gradeCriterias.slice(0, 2).map(obj => Object.values(obj))
-      // );
       const res = await this.$axios.$post("/criteria/gradeEdit", {
-        data: this.gradeCriterias.slice(0, 2)
+        data: this.gradeCriterias.slice(0, 2),
       });
       if (res.status === 200) this.editGradeDialog = false;
     },
@@ -174,24 +165,24 @@ export default {
     async handleFetchCriterias() {
       // Fetch score criterias
       this.scoreCriterias = await this.$axios.$post("/criteria/scoreMajor", {
-        Major_ID: this.selectedMajor.Major_ID
+        Major_ID: this.selectedMajor.Major_ID,
       });
       // Fetch grade criterias
       this.gradeCriterias = await this.$axios.$post("/criteria/gradeMajor", {
-        Major_ID: this.selectedMajor.Major_ID
+        Major_ID: this.selectedMajor.Major_ID,
       });
       // Pass in latest project_on_term from scorecriterias for when grade criterias get update
-      this.gradeCriterias = this.gradeCriterias.map(itm => ({
+      this.gradeCriterias = this.gradeCriterias.map((itm) => ({
         ...itm,
-        Project_on_term_ID: this.scoreCriterias[0].Project_on_term_ID
+        Project_on_term_ID: this.scoreCriterias[0].Project_on_term_ID,
       }));
-    }
+    },
   },
   mounted() {
     console.log("Scores: ", this.scoreCriterias);
     console.log("Grades: ", this.gradeCriterias);
     this.selectedMajor = this.majors[0];
-  }
+  },
 };
 </script>
 

@@ -5,7 +5,7 @@
         ><p style="font-size: 28px;font-weight: bold;">Group </p>
         <p class="year" style="font-size: 28px;font-weight: bold;">| 2021</p></v-row
       >
-
+      
       <!-- <button @click="test">test</button> -->
 
       <!-- Action buttons -->
@@ -29,7 +29,7 @@
           <p class="white--text">Year</p>
           <v-select
             v-model="selectedYear"
-            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
+            :items="yearNSemsters.map(itm => itm.Academic_Year)"
             @change="handleChangeRenderGroups"
             dense
             solo
@@ -40,7 +40,7 @@
           <p class="white--text">Semester</p>
           <v-select
             v-model="selectedSemester"
-            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
+            :items="yearNSemsters.map(itm => itm.Academic_Term)"
             @change="handleChangeRenderGroups"
             dense
             solo
@@ -109,14 +109,11 @@
 </template>
 
 <script>
-import LongTableCard from "@/components/Admin/longTableCard";
+// import LongTableCard from "@/components/admin/longTableCard";
 import exportXLSX from "@/mixins/exportXLSX";
 
 export default {
   layout: "admin",
-  components: {
-    LongTableCard,
-  },
   data() {
     return {
       searchGroup: "",
@@ -133,13 +130,13 @@ export default {
           text: "GROUP NAME",
           align: "center",
           sortable: false,
-          value: "Group_Name_Eng",
+          value: "Group_Name_Eng"
         },
         { text: "MEMBER", align: "center", value: "Students" },
         { text: "PROGRAM", align: "center", value: "Major" },
         { text: "ADVISOR", align: "center", value: "Advisor" },
-        { text: "COMMITTEE", align: "center", value: "Committee" },
-      ],
+        { text: "COMMITTEE", align: "center", value: "Committee" }
+      ]
     };
   },
   mounted() {
@@ -160,7 +157,7 @@ export default {
       allGroups = await $axios.$post("/group/getAllAdmin", {
         Major: majors[0].Major_ID,
         Year: yearNSemsters[0].Academic_Year,
-        Semester: yearNSemsters[0].Academic_Term,
+        Semester: yearNSemsters[0].Academic_Term
       });
     } catch (err) {
       console.log(err);
@@ -185,7 +182,7 @@ export default {
           // title: "Error!",
           text: "Please select at least one group",
           icon: "error",
-          confirmButtonText: "OK",
+          confirmButtonText: "OK"
         });
       } else {
         this.dialog1 = true;
@@ -197,20 +194,20 @@ export default {
       // this.selectedgroupid.push(this.selected[0]['Group_ID'])
       // Create new array with only 2 values that the api needs
 
-      const data = this.selected.map((itm) => ({
+      const data = this.selected.map(itm => ({
         Group_ID: itm.Group_ID,
-        Group_Status: 0,
+        Group_Status: 0
       }));
       // Fetch update API
       const res = await this.$axios.$put("/group/delete", {
-        data,
+        data
       });
 
       console.log(res);
       console.log("Before Update: ", this.allGroups);
       // Update UI
       this.allGroups = this.allGroups.filter(
-        (itm) => !res.result.includes(itm.Group_ID)
+        itm => !res.result.includes(itm.Group_ID)
       );
 
       console.log("UI update: ", this.allGroups);
@@ -226,12 +223,12 @@ export default {
       this.allGroups = await this.$axios.$post("group/getAllAdmin", {
         Major: this.selectedMajor.Major_ID,
         Year: this.selectedYear,
-        Semester: this.selectedSemester,
+        Semester: this.selectedSemester
       });
       this.loading = false;
-    },
+    }
   },
-  mixins: [exportXLSX],
+  mixins: [exportXLSX]
 };
 </script>
 

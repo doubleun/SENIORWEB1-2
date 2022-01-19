@@ -1,17 +1,17 @@
 <template>
   <div>
-    <CardStatus :info="info" />
-    <Announcement :announcements="announcements" :majors="majors" editable />
+    <CoordinatorHomeCardStatus :info="info" />
+    <CoordinatorHomeAnnouncementAdmin
+      :announcements="announcements"
+      :majors="majors"
+      editable
+    />
   </div>
 </template>
 <script>
-import CardStatus from "@/components/Coordinator/homeCardStatus";
-import Announcement from "@/components/Coordinator/homeAnnouncementAdmin";
+// import CardStatus from "@/components/coordinator/homeCardStatus";
+// import Announcement from "@/components/coordinator/homeAnnouncementAdmin";
 export default {
-  components: {
-    CardStatus,
-    Announcement
-  },
   data: () => ({}),
   async asyncData(context) {
     // Get announcements
