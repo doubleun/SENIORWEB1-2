@@ -27,9 +27,9 @@
       </div>
       <v-row class="stepperAnnounement text-center mt-5 mb-5">
         <v-col>
-          <h2>{{ stepperMainText }}</h2>
+          <h2>{{ dueProgressStrings[0] }}</h2>
 
-          <h4>{{ stepperSubText }}</h4>
+          <h4>{{ dueProgressStrings[1] }}</h4>
         </v-col>
       </v-row>
     </v-card>
@@ -41,14 +41,53 @@
 <script>
 // import Announcement from "@/components/coordinator/homeAnnouncement";
 export default {
-  data: {
-    stepperMainText: "Please create group",
-    stepperSubText: "Before ...",
-  },
   computed: {
     // Computed current group progress for stepper
     currentProgress() {
       return this.$store.state.group.currentUserGroup?.Group_Progression;
+    },
+    dueProgressStrings() {
+      console.log("this.dueProgress: ", this.dueProgress);
+      let str = [];
+      if (!!this.dueProgress) {
+        // Construct end date as string
+        const endDateString = new Date(
+          this.dueProgress.DueDate_End
+        ).toLocaleString("en-US", {
+          dateStyle: "full",
+        });
+        console.log("endDateString: ", endDateString);
+
+        // Construct the rest of the string
+        switch (this.dueProgress.Progress_ID) {
+          case 1:
+            str.push("Please, create a group");
+            str.push(`Before: ${endDateString}`);
+            break;
+          case 2:
+            str.push("Please, submit proposal");
+            str.push(`Before: ${endDateString}`);
+            break;
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+            str.push(
+              `Please, submit progress ${this.dueProgress.Progress_ID - 2}`
+            );
+            str.push(`Before: ${endDateString}`);
+            break;
+          case 7:
+            str.push(`Please, submit final presentation`);
+            str.push(`Before: ${endDateString}`);
+            break;
+          case 8:
+            str.push(`Please, submit final documentation`);
+            str.push(`Before: ${endDateString}`);
+            break;
+        }
+      }
+      return str;
     },
   },
 
@@ -75,18 +114,26 @@ export default {
     ];
     console.log("availableSteps", availableSteps);
 
-    // // Fetch due dates
-    // const dueDates = await $axios.$post('', {})
-    // // Set stepper main text
-    // switch(this.$store.state.group.currentUserGroup.Group_Progression) {
-    //   default:
-    //     this.stepperMainText = "Please create group"
-    //     this.stepperSubText = `Before ${}`
-    // }
+    // Fetch due dates
+    const dueDates = await $axios.$post("/date/progression", {
+      Major_ID: store.state.auth.currentUser.major,
+      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+    });
+    // console.log("dueDates", dueDates.progressionDuedate);
+
+    // Get the progress due date of the current group progress from dueDates.progressionDuedate
+    const dueProgress = dueDates.progressionDuedate.find(
+      (progress) =>
+        progress.Progress_ID ===
+        store.state.group.currentUserGroup.Group_Progression
+    );
+
+    console.log(dueProgress);
 
     return {
       announcements,
       availableSteps,
+      dueProgress,
     };
   },
   mounted() {
