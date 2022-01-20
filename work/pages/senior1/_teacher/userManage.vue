@@ -17,23 +17,25 @@
             </v-icon>
             Import
           </v-btn>
+          <input
+            ref="uploader"
+            class="d-none"
+            id="fileBrowse"
+            type="file"
+            accept=".xlsx"
+            @change="handleBrowseFile"
+          />
           <v-btn
             class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
             align="right"
             justify="right"
-            @click="handleFileImport"
+             @click="downloadtemplete"
           >
             <v-icon dark-blue>
               mdi-application-import
             </v-icon>
             dowload templete
           </v-btn>
-          <input
-            ref="uploader"
-            class="d-none"
-            id="fileBrowse"
-            @click="downloadtemplete"
-          />
           <!-- </v-row> -->
         </div>
         <!-- </v-col> -->
