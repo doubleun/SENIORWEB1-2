@@ -129,6 +129,7 @@
                       dense
                       class="mt-5"
                     >
+                    
                     </v-text-field> -->
                     <v-autocomplete
                       v-model="selectedStudent[index]"
@@ -195,6 +196,17 @@
                     dense
                   ></v-text-field>
                    -->
+                   <v-chip
+                    class="ma-2"
+                    color="green"
+                    text-color="white"
+                    v-if="((!!selectedAdvisor && groupCreated) || !headMember)&& selectedAdvisorstatus == 1"
+                  >
+                    Accepted
+                  </v-chip>
+                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedAdvisor && groupCreated) || !headMember)&& selectedAdvisorstatus == 0">
+                    Pendding
+                  </v-chip>
                   <v-autocomplete
                     v-model="selectedAdvisor"
                     :items="allTeachersInSchool"
@@ -272,6 +284,17 @@
                     outlined
                     dense
                   ></v-text-field> -->
+                  <v-chip
+                    class="ma-2"
+                    color="green"
+                    text-color="white"
+                    v-if="((!!selectedCommittee1 && groupCreated) || !headMember)&&selectedCommittee1status ==1"
+                  >
+                    Accepted
+                  </v-chip>
+                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedCommittee1 && groupCreated) || !headMember)&&selectedCommittee1status ==0">
+                    Pendding
+                  </v-chip>
                   <v-autocomplete
                     v-model="selectedCommittee1"
                     :items="allTeachersInSchool"
@@ -293,6 +316,17 @@
                     clearable
                     return-object
                   ></v-autocomplete>
+                  <v-chip
+                    class="ma-2"
+                    color="green"
+                    text-color="white"
+                    v-if="((!!selectedCommittee2 && groupCreated) || !headMember)&&selectedCommittee2status ==1"
+                  >
+                    Accepted
+                  </v-chip>
+                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedCommittee2 && groupCreated) || !headMember)&&selectedCommittee2status ==0">
+                    Pendding
+                  </v-chip>
                   <v-autocomplete
                     v-model="selectedCommittee2"
                     :items="allTeachersInSchool"
@@ -387,10 +421,13 @@ export default {
     filteredStudents: [],
     // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
     selectedAdvisor: null,
+    selectedAdvisorstatus: null,
     // selectedCoAdvisor: null,
     coadvisorName: "",
     selectedCommittee1: null,
     selectedCommittee2: null,
+    selectedCommittee1status: null,
+    selectedCommittee2status: null,
     valid: true,
     thaiName: "",
     engName: "",
@@ -679,12 +716,14 @@ export default {
         });
       // Sets advisor
       const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
+      console.log("this"+ advisor[0].User_Status)
       if (advisor.length !== 0)
         this.selectedAdvisor = {
           User_Email: advisor[0].User_Email,
           User_Name: advisor[0].User_Name,
           disabled: true,
         };
+        this.selectedAdvisorstatus = advisor[0].User_Status
       // console.log(this.$store.state.group.currentUserGroup);
       //Set co-advisor name
       if (this.$store.state.group.currentUserGroup.Co_Advisor !== "") {
@@ -702,6 +741,7 @@ export default {
             User_Name: member.User_Name,
             User_Email: member.User_Email,
           };
+          this["selectedCommittee" + (index + 1)+"status" ]= member.User_Status
         });
 
       // Sets group created to true
