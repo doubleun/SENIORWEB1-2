@@ -31,6 +31,29 @@ getTeacherRole = async (req, res) => {
   });
 };
 
+updateUserRole = (req, res) => {
+  const { User_Role, User_Email, Project_on_term_ID } = req.body;
+  const updateUserRoleSql =
+    "UPDATE users SET User_Role = ? WHERE User_Email = ? AND Project_on_term_ID = ?";
+  try {
+    con.query(
+      updateUserRoleSql,
+      [User_Role, User_Email, Project_on_term_ID],
+      (err, result) => {
+        if (err) throw err;
+        res
+          .status(200)
+          .json({ msg: "Update successfully", res: result, status: 200 });
+        return;
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Internal Server Error", status: 500 });
+    return;
+  }
+};
+
 getUser = async (req, res) => {
   // Each request has 'user' embeded in there, and the passport.js middleware on the backend node.js server 'deserialize' it
   // That's why this just respond back the req.user
@@ -286,5 +309,6 @@ module.exports = {
   countUser,
   getUser,
   getAllMajors,
+  updateUserRole,
   getTeacherRole,
 };

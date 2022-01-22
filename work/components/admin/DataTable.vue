@@ -38,7 +38,17 @@
               </div>
               <div>
                 <v-subheader>ROLE</v-subheader>
-                <v-select dense filled hide-details off />
+                <v-select
+                  :items="availableRoles"
+                  item-text="label"
+                  item-value="value"
+                  return-object
+                  v-model="selectedTeacher.User_Role"
+                  dense
+                  outlined
+                  hide-details
+                  off
+                />
               </div>
             </div>
 
@@ -47,7 +57,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="secondary" text @click="close"> Cancel </v-btn>
-              <v-btn color="primary"> Save </v-btn>
+              <v-btn color="primary" @click="save"> Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -80,22 +90,82 @@ export default {
   },
   data: () => ({
     dialog: false,
-    selectedTeacher: { User_Name: "", User_Email: "" },
+    selectedTeacher: {
+      User_Name: "",
+      User_Email: "",
+      User_Role: { label: "", value: 0 },
+      Project_on_term_ID: 0,
+    },
+    availableRoles: [
+      { label: "Teacher", value: 0 },
+      { label: "Coordinator", value: 2 },
+    ],
   }),
+  mounted() {
+    console.log(this.items);
+  },
   methods: {
     editItem(e) {
       console.log("New e: ", e);
       this.selectedTeacher.User_Name = e.User_Name;
       this.selectedTeacher.User_Email = e.User_Email;
+      this.selectedTeacher.User_Role = {
+        label: e.User_Role === 0 ? "Teacher" : "Coordinator",
+        value: e.User_Role,
+      };
+      this.selectedTeacher.Project_on_term_ID = e.Project_on_term_ID;
       this.dialog = true;
+      console.log("Selected teacher: ", this.selectedTeacher);
     },
     close() {
       this.selectedTeacherName = "";
       this.selectedTeacherEmail = "";
+      this.selectedTeacher.User_Role = { label: "", value: 0 };
       this.dialog = false;
     },
-    save() {
-      this.close();
+    async save() {
+      try {
+        this.$swal
+          .fire({
+            title: "Are you sure?",
+            text: `${this.selectedTeacher.User_Name} will becomes ${this.selectedTeacher.User_Role.label}`,
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Confirm",
+          })
+          .then(async (result) => {
+            try {
+              if (result.isConfirmed) {
+                const res = await this.$axios.$post("/user/updateUserRole", {
+                  User_Role: this.selectedTeacher.User_Role.value,
+                  User_Email: this.selectedTeacher.User_Email,
+                  Project_on_term_ID: this.selectedTeacher.Project_on_term_ID,
+                });
+                this.$swal.fire(
+                  "Success",
+                  `Update teacher role to ${this.selectedTeacher.User_Role.label}`,
+                  "success"
+                );
+                // Update UI
+                //FIXME: Can't use this because the dropdown role won't change, one way to change this is to emit an event to the parent, so the "selectedRole" can be change
+                //FIXME: this.$nuxt.refresh();
+                window.location.reload();
+                this.close();
+                return;
+              }
+            } catch (err) {
+              console.log(err);
+              this.close();
+              return;
+            }
+          });
+      } catch (err) {
+        console.log(err);
+        this.close();
+        return;
+      }
     },
     // handelTextRole(role) {
     //   console.log("handel text role");
