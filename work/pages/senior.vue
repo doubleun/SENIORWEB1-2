@@ -68,7 +68,7 @@
               text
               style="width: 300px; height: 100px"
               class="buttonsenior1and2"
-              @click="testAsync"
+              @click="route(2)"
             >
               <v-card-text class="text--primary">
                 <center>
@@ -107,15 +107,15 @@ export default {
       //   : this.$router.push(`/Senior${semester}/coordinator/`);
       switch (this.$store.state.auth.currentUser.role) {
         case 0: {
-          this.$router.push(`/Senior${semester}/teacher/`);
+          this.$router.push(`/senior${semester}/teacher/`);
           break;
         }
         case 1: {
-          this.$router.push(`/Senior${semester}/student/`);
+          this.$router.push(`/senior${semester}/student/`);
           break;
         }
         case 2: {
-          this.$router.push(`/Senior${semester}/coordinator/`);
+          this.$router.push(`/senior${semester}/coordinator/`);
           break;
         }
       }

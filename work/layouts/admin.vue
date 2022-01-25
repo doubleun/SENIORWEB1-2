@@ -23,32 +23,32 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/senior1/admin/",
+          to: "/senior/admin/",
         },
         {
           icon: "mdi-account-group",
           title: "Group",
-          to: "/senior1/admin/group",
+          to: "/senior/admin/group",
         },
         {
           icon: "mdi-account-cog",
           title: "Manage Student",
-          to: "/senior1/admin/student",
+          to: "/senior/admin/student",
         },
         {
           icon: "mdi-office-building-cog",
           title: "Manage Teacher",
-          to: "/senior1/admin/teacher",
+          to: "/senior/admin/teacher",
         },
         {
           icon: "mdi-clipboard-check-multiple",
           title: "Criteria",
-          to: "/senior1/admin/criteria",
+          to: "/senior/admin/criteria",
         },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Semester Date",
-          to: "/senior1/admin/semesterDate",
+          to: "/senior/admin/semesterDate",
         },
       ],
     };
