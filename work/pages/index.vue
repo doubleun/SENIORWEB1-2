@@ -19,8 +19,8 @@
                   />
                 </div>
                 <div id="element2" align="center" justify="center">
-                  <h2 style="font-size:26px;">SENIOR PROJECT</h2>
-                  <h3 style="font-size:12px;">
+                  <h2 style="font-size: 26px">SENIOR PROJECT</h2>
+                  <h3 style="font-size: 12px">
                     SCHOOL OF INFORMATION TECHNOLOGY
                   </h3>
                 </div>
@@ -40,29 +40,35 @@
           </v-row>
           <v-row>
             <v-card-text align="center" justify="center">
-              <div class="padding">
-                <h1 style="font-size:40px;">
-                  Welocme to Senior Project
-                </h1>
-                <br />
-                <v-card-text align="center" justify="center">
-                  <div class="myDiv2" align-center justify-center>
-                    <v-text-field
-                      clearable
-                      hide-details
-                      label="Search topic something"
-                      prepend-inner-icon="mdi-magnify"
-                      filled
-                      rounded
-                      dense
-                      class="search"
-                      color="#FFFFFF"
-                    ></v-text-field>
-                  </div>
-                </v-card-text>
-              </div>
-            </v-card-text> </v-row
-          ><br /><br />
+              <v-form ref="entryForm" @submit.prevent="handelSearch">
+                <div class="padding">
+                  <h1 style="font-size: 40px">Welocme to Senior Project</h1>
+                  <br />
+                  <v-card-text align="center" justify="center">
+                    <div class="myDiv2" align-center justify-center>
+                      <v-text-field
+                        v-model="search"
+                        label="Search topic something"
+                        prepend-inner-icon="mdi-magnify"
+                        hide-details
+                        filled
+                        rounded
+                        dense
+                        class="search"
+                        color="#000000"
+                        clearable
+                        @input="hancelChangeClearSearch"
+                        @click:clear="hancelClearSearch"
+                        :rules="textRule"
+                        required
+                      ></v-text-field>
+                    </div>
+                  </v-card-text>
+                </div>
+              </v-form>
+            </v-card-text>
+          </v-row>
+          <br /><br />
         </v-container>
       </div>
       <v-app class="background">
@@ -73,9 +79,30 @@
                 <v-row><h4>Categories</h4></v-row>
                 <v-row>
                   <div id="element1" align="center" justify="center">
-                    <v-btn align="center" justify="center">Normal</v-btn>
-                    <v-btn align="center" justify="center">Normal</v-btn>
-                    <v-btn align="center" justify="center">Normal</v-btn>
+                    <v-btn
+                      :color="filtterBtnActive[0] ? 'primary' : 'white'"
+                      type="submit"
+                      align="center"
+                      justify="center"
+                      @click="handelSearch('title')"
+                      >Title</v-btn
+                    >
+                    <v-btn
+                      :color="filtterBtnActive[1] ? 'primary' : 'white'"
+                      type="submit"
+                      align="center"
+                      justify="center"
+                      @click="handelSearch('authors')"
+                      >Authors</v-btn
+                    >
+                    <v-btn
+                      :color="filtterBtnActive[2] ? 'primary' : 'white'"
+                      type="submit"
+                      align="center"
+                      justify="center"
+                      @click="handelSearch('advisor')"
+                      >Advisor</v-btn
+                    >
                   </div>
                 </v-row>
               </v-col>
@@ -84,10 +111,15 @@
                   <v-row><h4>Study Programes</h4></v-row>
                   <v-row>
                     <v-select
-                      :items="items"
+                      v-model="selectedMajor"
+                      :items="majors"
+                      item-text="Major_Name"
+                      item-value="Major_ID"
+                      return-object
                       label="Solo field"
                       dense
                       solo
+                      @change="handelChangeMajor"
                     ></v-select>
                   </v-row>
                 </div>
@@ -96,7 +128,7 @@
           </v-card-title>
           <br />
           <v-card>
-            <v-card-title>
+            <!-- <v-card-title>
               <v-card-text>
                 <div>Word of the Day</div>
                 <p class="text-h4 text--primary">
@@ -108,7 +140,29 @@
                   "an eleemosynary educational institution."
                 </div>
               </v-card-text>
-            </v-card-title>
+            </v-card-title> -->
+
+            <v-data-table
+              :headers="headers"
+              :items="abstracts"
+              :hide-default-header="true"
+              class="elevation-1"
+            >
+              <template v-slot:item.content="{ item }">
+                <div class="pa-6">
+                  <h2 class="black--text">{{ item.Group_Name_Eng }}</h2>
+                  <span class="grey--text text--darken-1">{{
+                    item.Students
+                  }}</span>
+                  <div class="grey--text text--darken-1">
+                    <strong>Published:</strong>&nbsp;{{
+                      item.Submit_Date.substring(0, 10)
+                    }}
+                  </div>
+                  <!-- <div>{{ item.Advisor }}</div> -->
+                </div>
+              </template>
+            </v-data-table>
           </v-card>
         </v-container>
       </v-app>
@@ -121,16 +175,83 @@ import itbackground from "../static/bg.png";
 export default {
   data: () => ({
     image: itbackground,
-    items: [
-      "Computer Engineering",
-      "Computer Science and inovation",
-      "Digital Technology for Business Innovation",
-      "Information and Communication Engineering",
-      "Multimedia Technology and Animation",
-      "Software Engineering"
-    ]
+    selectedMajor: {},
+    textRule: [],
+    search: "",
+    isLoad: false,
+    filtterBtnActive: [false, false, false], // [0]=title button, [1]=authors button, [2]=advisor button,
+    valid: true,
+    headers: [
+      {
+        text: "FILE",
+        value: "Abstract_Name",
+        align: "center",
+        width: "20%",
+      },
+      { text: "CONTENT", value: "content", width: "80%" },
+    ],
   }),
-  layout: "empty"
+  async asyncData({ $axios }) {
+    // Get all major
+    var majors, abstracts;
+    try {
+      majors = await $axios.$get("/user/getAllMajors");
+      abstracts = await $axios.$get("/assignment/abstracts");
+    } catch (error) {
+      console.log(error);
+    }
+    majors.unshift({ Major_ID: 0, Major_Name: "All" });
+    const rawAbstracts = abstracts;
+    return { majors, abstracts, rawAbstracts };
+  },
+  mounted() {
+    this.selectedMajor = this.majors[0];
+  },
+  methods: {
+    hancelClearSearch() {
+      console.log("reset");
+      this.textRule = [];
+      this.$refs.entryForm.reset();
+    },
+    hancelChangeClearSearch() {
+      console.log("reset change", this.search == "", this.search == null);
+      if (this.search == "") {
+        this.textRule = [];
+        this.$refs.entryForm.reset();
+        return;
+      }
+    },
+    handelChangeMajor() {
+      this.$refs.entryForm.reset();
+      (this.filtterBtnActive = [false, false, false]),
+        console.log(this.selectedMajor.Major_ID);
+      if (this.selectedMajor.Major_ID == 0)
+        return (this.abstracts = this.rawAbstracts);
+      this.abstracts = this.rawAbstracts.filter(
+        (el) => el.Major == this.selectedMajor.Major_ID
+      );
+      console.log(this.rawAbstracts);
+    },
+    handelSearch() {
+      this.textRule = [(v) => !!v || "This field is required"];
+
+      let self = this;
+      setTimeout(function () {
+        // console.log("search", self.search);
+        if (self.$refs.entryForm.validate()) {
+          // auto fillter title
+          self.filtterBtnActive.every((el) => el === false)
+            ? (self.filtterBtnActive[0] = true)
+            : null;
+
+          self.abstracts = self.rawAbstracts.filter((el) =>
+            el.Group_Name_Eng.toLowerCase().includes(self.search.toLowerCase())
+          );
+        }
+      });
+    },
+  },
+  layout: "empty",
 };
 </script>
 
