@@ -80,27 +80,27 @@
                 <v-row>
                   <div id="element1" align="center" justify="center">
                     <v-btn
-                      :color="filtterBtnActive[0] ? 'primary' : 'white'"
+                      :color="filterBtnActive[0] ? 'primary' : 'white'"
                       type="submit"
                       align="center"
                       justify="center"
-                      @click="handelSearch('title')"
+                      @click="handelSearch(0)"
                       >Title</v-btn
                     >
                     <v-btn
-                      :color="filtterBtnActive[1] ? 'primary' : 'white'"
+                      :color="filterBtnActive[1] ? 'primary' : 'white'"
                       type="submit"
                       align="center"
                       justify="center"
-                      @click="handelSearch('authors')"
+                      @click="handelSearch(1)"
                       >Authors</v-btn
                     >
                     <v-btn
-                      :color="filtterBtnActive[2] ? 'primary' : 'white'"
+                      :color="filterBtnActive[2] ? 'primary' : 'white'"
                       type="submit"
                       align="center"
                       justify="center"
-                      @click="handelSearch('advisor')"
+                      @click="handelSearch(2)"
                       >Advisor</v-btn
                     >
                   </div>
@@ -179,7 +179,7 @@ export default {
     textRule: [],
     search: "",
     isLoad: false,
-    filtterBtnActive: [false, false, false], // [0]=title button, [1]=authors button, [2]=advisor button,
+    filterBtnActive: [false, false, false], // [0]=title button, [1]=authors button, [2]=advisor button,
     valid: true,
     headers: [
       {
@@ -221,9 +221,26 @@ export default {
         return;
       }
     },
+    handelClickFilterButton(index) {
+      console.log("click btn", index);
+      this.textRule = [(v) => !!v || "This field is required"];
+
+      let self = this;
+
+      setTimeout(function () {
+        // text valid
+        if (self.$refs.entryForm.validate()) {
+          self.filterBtnActive = self.filterBtnActive.map((el) => false);
+          self.filterBtnActive[index] = true;
+        }
+      });
+
+      console.log(this.filterBtnActive);
+    },
+
     handelChangeMajor() {
       this.$refs.entryForm.reset();
-      (this.filtterBtnActive = [false, false, false]),
+      (this.filterBtnActive = [false, false, false]),
         console.log(this.selectedMajor.Major_ID);
       if (this.selectedMajor.Major_ID == 0)
         return (this.abstracts = this.rawAbstracts);
@@ -232,21 +249,59 @@ export default {
       );
       console.log(this.rawAbstracts);
     },
-    handelSearch() {
+
+    handelSearch(event) {
       this.textRule = [(v) => !!v || "This field is required"];
-
       let self = this;
-      setTimeout(function () {
-        // console.log("search", self.search);
-        if (self.$refs.entryForm.validate()) {
-          // auto fillter title
-          self.filtterBtnActive.every((el) => el === false)
-            ? (self.filtterBtnActive[0] = true)
-            : null;
 
-          self.abstracts = self.rawAbstracts.filter((el) =>
-            el.Group_Name_Eng.toLowerCase().includes(self.search.toLowerCase())
-          );
+      setTimeout(function () {
+        if (self.$refs.entryForm.validate()) {
+          // reset selected major
+          self.selectedMajor = self.majors[0];
+
+          // some filter is active?
+          if (self.filterBtnActive.every((el) => el === false)) {
+            self.filterBtnActive[0] = true;
+            // auto filter title
+            self.abstracts = self.rawAbstracts.filter((el) =>
+              el.Group_Name_Eng.toLowerCase().includes(
+                self.search.toLowerCase()
+              )
+            );
+          } else {
+            // ==== filter when search
+
+            // filter by buton
+            if (typeof event == "number") {
+              self.filterBtnActive = self.filterBtnActive.map((el) => false);
+              self.filterBtnActive[event] = true;
+            }
+
+            const index = self.filterBtnActive.indexOf(true);
+
+            // filter title (group name)
+            if (index == 0) {
+              return (self.abstracts = self.rawAbstracts.filter((el) =>
+                el.Group_Name_Eng.toLowerCase().includes(
+                  self.search.toLowerCase()
+                )
+              ));
+            }
+
+            // filter student
+            if (index == 1) {
+              return (self.abstracts = self.rawAbstracts.filter((el) =>
+                el.Students.toLowerCase().includes(self.search.toLowerCase())
+              ));
+            }
+
+            // filter advisor
+            if (index == 2) {
+              return (self.abstracts = self.rawAbstracts.filter((el) =>
+                el.Advisor.toLowerCase().includes(self.search.toLowerCase())
+              ));
+            }
+          }
         }
       });
     },
