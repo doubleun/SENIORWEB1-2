@@ -148,6 +148,10 @@
               :hide-default-header="true"
               class="elevation-1"
             >
+              <template v-slot:item.Abstract_Name="{ item }">
+                <v-icon large color="blue darken-2"> mdi-file </v-icon>
+              </template>
+
               <template v-slot:item.content="{ item }">
                 <div class="pa-6">
                   <h2 class="black--text">{{ item.Group_Name_Eng }}</h2>
@@ -197,6 +201,7 @@ export default {
     try {
       majors = await $axios.$get("/user/getAllMajors");
       abstracts = await $axios.$get("/assignment/abstracts");
+      console.log("abstarct", abstracts);
     } catch (error) {
       console.log(error);
     }
@@ -260,48 +265,60 @@ export default {
           self.selectedMajor = self.majors[0];
 
           // some filter is active?
-          if (self.filterBtnActive.every((el) => el === false)) {
-            self.filterBtnActive[0] = true;
-            // auto filter title
-            self.abstracts = self.rawAbstracts.filter((el) =>
+          // if (self.filterBtnActive.every((el) => el === false)) {
+          //   // self.filterBtnActive[0] = true;
+          //   // auto filter title
+          //   self.abstracts = self.rawAbstracts.filter(
+          //     (el) =>
+          //       el.Group_Name_Eng.toLowerCase().includes(
+          //         self.search.toLowerCase()
+          //       ) ||
+          //       el.Students.toLowerCase().includes(self.search.toLowerCase()) ||
+          //       el.Advisor.toLowerCase().includes(self.search.toLowerCase())
+          //   );
+          // } else {
+          // ==== filter when search
+
+          // filter by buton
+          if (typeof event == "number") {
+            self.filterBtnActive = self.filterBtnActive.map((el) => false);
+            self.filterBtnActive[event] = true;
+          } else {
+            self.abstracts = self.rawAbstracts.filter(
+              (el) =>
+                el.Group_Name_Eng.toLowerCase().includes(
+                  self.search.toLowerCase()
+                ) ||
+                el.Students.toLowerCase().includes(self.search.toLowerCase()) ||
+                el.Advisor.toLowerCase().includes(self.search.toLowerCase())
+            );
+          }
+
+          const index = self.filterBtnActive.indexOf(true);
+
+          // filter title (group name)
+          if (index == 0) {
+            return (self.abstracts = self.rawAbstracts.filter((el) =>
               el.Group_Name_Eng.toLowerCase().includes(
                 self.search.toLowerCase()
               )
-            );
-          } else {
-            // ==== filter when search
-
-            // filter by buton
-            if (typeof event == "number") {
-              self.filterBtnActive = self.filterBtnActive.map((el) => false);
-              self.filterBtnActive[event] = true;
-            }
-
-            const index = self.filterBtnActive.indexOf(true);
-
-            // filter title (group name)
-            if (index == 0) {
-              return (self.abstracts = self.rawAbstracts.filter((el) =>
-                el.Group_Name_Eng.toLowerCase().includes(
-                  self.search.toLowerCase()
-                )
-              ));
-            }
-
-            // filter student
-            if (index == 1) {
-              return (self.abstracts = self.rawAbstracts.filter((el) =>
-                el.Students.toLowerCase().includes(self.search.toLowerCase())
-              ));
-            }
-
-            // filter advisor
-            if (index == 2) {
-              return (self.abstracts = self.rawAbstracts.filter((el) =>
-                el.Advisor.toLowerCase().includes(self.search.toLowerCase())
-              ));
-            }
+            ));
           }
+
+          // filter student
+          if (index == 1) {
+            return (self.abstracts = self.rawAbstracts.filter((el) =>
+              el.Students.toLowerCase().includes(self.search.toLowerCase())
+            ));
+          }
+
+          // filter advisor
+          if (index == 2) {
+            return (self.abstracts = self.rawAbstracts.filter((el) =>
+              el.Advisor.toLowerCase().includes(self.search.toLowerCase())
+            ));
+          }
+          // }
         }
       });
     },
