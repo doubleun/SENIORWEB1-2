@@ -123,6 +123,7 @@ export default {
     // console.log("Major: ", store.state.auth.currentUser.major);
 
     /// Initial fetch
+    // Test
     let scoreCriterias, gradeCriterias;
     try {
       // Fetch score criterias
