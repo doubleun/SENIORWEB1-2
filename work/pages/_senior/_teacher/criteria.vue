@@ -48,7 +48,7 @@
                       v-model="grade.Grade_Criteria_Pass"
                       :rules="[
                         () =>
-                          grade.Grade_Criteria_Pass !== null ||
+                          !!grade.Grade_Criteria_Pass ||
                           'This field is required',
                         handleCheckValidScore(grade.Grade_Criteria_Pass),
                       ]"
@@ -202,11 +202,10 @@ export default {
       }
     },
     refresh() {
-      console.log("refresh");
       this.$nuxt.refresh();
     },
     handleCheckValidScore(val) {
-      return val <= 0 ? "Invalid score" : true;
+      return val <= 0 || !/^[0-9]+$/.test(val) ? "Invalid score" : true;
     },
   },
   mounted() {

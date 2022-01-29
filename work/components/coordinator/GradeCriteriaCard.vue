@@ -14,7 +14,7 @@
       <!-- <h4>TOTAL</h4> -->
 
       <!-- Table records -->
-      <template v-for="(grade, index) in gradeCriterias">
+      <template v-for="(grade, index) in $options.staticData.gradeCriterias">
         <p :key="grade.Grade_Criteria_Name + 1">
           {{ grade.Grade_Criteria_Name }}
         </p>
@@ -74,8 +74,7 @@
                     v-model="grade.Grade_Criteria_Pass"
                     :rules="[
                       () =>
-                        grade.Grade_Criteria_Pass !== null ||
-                        'This field is required',
+                        !!grade.Grade_Criteria_Pass || 'This field is required',
                       handleCheckValidScore(grade.Grade_Criteria_Pass),
                     ]"
                     v-else
@@ -106,10 +105,17 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
 export default {
   props: {
-    gradeCriterias: Array,
-    noGradeCriteriasProp: Boolean,
+    gradeCriterias: {
+      type: Array,
+      default: [],
+    },
+    noGradeCriteriasProp: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     // Available option, used only for showing user in v-select
@@ -123,6 +129,9 @@ export default {
     noGradeCriterias: false,
     valid: true,
   }),
+  staticData: {
+    gradeCriterias: [],
+  },
   computed: {
     // Return criterias option (S/U or A-F) based on the 'selectedGradeOption'
     criteriasTemplate() {
@@ -133,7 +142,14 @@ export default {
       }
     },
   },
+  created() {
+    // Create deep clone of "gradeCriterias" (ie. makes it non-reactive or static) so that when gradeCriterias got edit the UI won't change
+    this.$options.staticData.gradeCriterias = this.handleCloneDeep(
+      this.gradeCriterias
+    );
+  },
   mounted() {
+    // ! This could be improve by using array of objects ([optionA, optionB]) and loop through when adding the template to each option object
     // Avoid overriding the prop value Vue suggest using data and assign prop value to the data instead
     // 'noGradeCriterias' is used for checking if coordinator has set the criteria yet
     this.noGradeCriterias = this.noGradeCriteriasProp;
@@ -155,6 +171,7 @@ export default {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
     }));
   },
+  mixins: [utils],
   methods: {
     // Handle adding grade criterias to the database
     async handleAddGradeCriterias() {
@@ -213,7 +230,7 @@ export default {
       }
     },
     handleCheckValidScore(val) {
-      return val <= 0 ? "Invalid score" : true;
+      return val <= 0 || !/^[0-9]+$/.test(val) ? "Invalid score" : true;
     },
   },
 };
