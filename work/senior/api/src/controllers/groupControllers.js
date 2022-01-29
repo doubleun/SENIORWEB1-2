@@ -881,9 +881,9 @@ addGroupToSeTwo = (req, res) => {
 
   console.log(req.body)
   const selectGroup = "SELECT  `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major` FROM `groups` WHERE Project_on_term_ID = (SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior = 1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))"
-  const addGroup = "INSERT INTO `groups`( `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Project_on_term_ID`) VALUES(?,?,?,?,15);"
+  const addGroup = "INSERT INTO `groups`( `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Project_on_term_ID`) VALUES(?,?,?,?,?);"
   const selectuser = "SELECT `User_Email`, `User_Phone`, `Group_Role`,(SELECT `Group_Name_Eng` FROM `groups` WHERE `Group_ID` = `groupmembers`.`Group_ID`) as groupname FROM `groupmembers` WHERE groupmembers.Project_on_term_ID =(SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior =1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))";
-  const adduser = "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES (?,?,?,(SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng =?),15)"
+  const adduser = "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES (?,?,?,(SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng =?),?)"
   con.query(selectGroup, (err1, resultGroup, fields1) => {
     if (err1) {
       console.log(err1)
@@ -897,7 +897,7 @@ addGroupToSeTwo = (req, res) => {
         major = resultGroup[i].Major
         
         // groupinfo.push([])
-        con.query(addGroup, [gThname, gEnname, gAdvi, major], (err, resultadd, fields) => {
+        con.query(addGroup, [gThname, gEnname, gAdvi, major, Project_on_term_ID], (err, resultadd, fields) => {
           if (err) {
             console.log(err)
             errors++
@@ -921,7 +921,7 @@ addGroupToSeTwo = (req, res) => {
     } else {
 
       for (let i = 0; i < resultUser.length; i++) {
-        con.query(adduser, [resultUser[i].User_Email, resultUser[i].User_Phone, resultUser[i].Group_Role, resultUser[i].groupname], (err, resultAdd, fields1) => {
+        con.query(adduser, [resultUser[i].User_Email, resultUser[i].User_Phone, resultUser[i].Group_Role, resultUser[i].groupname , Project_on_term_ID], (err, resultAdd, fields1) => {
           if (err1) {
             errors++
             console.log(err1)
