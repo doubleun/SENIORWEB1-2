@@ -895,7 +895,7 @@ addGroupToSeTwo = (req, res) => {
         gEnname = resultGroup[i].Group_Name_Eng
         gAdvi = resultGroup[i].Co_Advisor
         major = resultGroup[i].Major
-        console.log(gThname)
+        
         // groupinfo.push([])
         con.query(addGroup, [gThname, gEnname, gAdvi, major], (err, resultadd, fields) => {
           if (err) {
