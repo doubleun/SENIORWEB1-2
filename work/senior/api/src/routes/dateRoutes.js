@@ -1,6 +1,10 @@
 const dateRoutes = require("express").Router();
 const dateControllers = require("../controllers/dateControllers");
 
+dateRoutes.get(
+  "/getLatestProjectOnTerm",
+  dateControllers.getLatestProjectOnTerm
+);
 dateRoutes.post("/progression", dateControllers.getProgressionDuedate);
 dateRoutes.post(
   "/progression/update",

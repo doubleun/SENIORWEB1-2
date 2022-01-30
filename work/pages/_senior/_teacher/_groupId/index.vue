@@ -53,7 +53,7 @@ export default {
 
       // If grade criteria has not been set, redirect user back
       if (gradeCriterias.length === 0) {
-        return redirect("/Senior1/coordinator/");
+        return redirect("/senior1/coordinator/");
       }
 
       // Fetch evaluation scores

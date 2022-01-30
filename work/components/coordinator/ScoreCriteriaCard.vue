@@ -15,7 +15,7 @@
       <h4>ACTIONS</h4>
 
       <!-- Table records -->
-      <template v-for="(criteria, index) in scoreCriterias">
+      <template v-for="(criteria, index) in dataUI.scoreCriterias">
         <p :key="criteria.Progress_Name + 1">{{ criteria.Progress_Name }}</p>
         <p :key="criteria.Progress_Name + 2">
           {{ criteria.Advisor_Score || 0 }}
@@ -36,10 +36,12 @@
               color="blue darken-4"
               class="white--text"
               v-on="on"
+              @click="handleSetInitModalScore(criteria)"
               v-bind="attrs"
               :disabled="
                 admin ||
-                (index !== 0 && !scoreCriterias[index - 1].Score_criteria_ID)
+                (index !== 0 &&
+                  !dataUI.scoreCriterias[index - 1].Score_criteria_ID)
               "
               ><v-icon>mdi-pen</v-icon> Edit</v-btn
             >
@@ -49,17 +51,19 @@
           <v-card class="score-criteria-dialog-card">
             <v-card-title class="text-h5"> Score Criteria </v-card-title>
 
-            <div class="score-criteria-input-flex">
-              <div v-for="role in editScoreRoles" :key="role.id">
-                <v-subheader>{{ role.name }}</v-subheader>
-                <v-text-field
-                  v-model="criteria[role.value]"
-                  outlined
-                  dense
-                  hide-details
-                ></v-text-field>
+            <v-form ref="form">
+              <div class="score-criteria-input-flex">
+                <div v-for="role in editScoreRoles" :key="role.id">
+                  <v-subheader>{{ role.name }}</v-subheader>
+                  <v-text-field
+                    v-model="scoreCriterias[index][role.value]"
+                    :rules="[(val) => handleValidateScore(val)]"
+                    outlined
+                    dense
+                  ></v-text-field>
+                </div>
               </div>
-            </div>
+            </v-form>
 
             <v-divider></v-divider>
 
@@ -72,7 +76,10 @@
               >
                 Cancel
               </v-btn>
-              <v-btn color="primary" @click="updateScoreCriteria(criteria)">
+              <v-btn
+                color="primary"
+                @click="updateScoreCriteria(scoreCriterias[index])"
+              >
                 Save
               </v-btn>
             </v-card-actions>
@@ -86,8 +93,18 @@
 <script>
 export default {
   props: {
-    scoreCriterias: Array,
-    admin: Boolean,
+    scoreCriterias: {
+      type: Array,
+      default: [],
+    },
+    dataUI: {
+      type: Object,
+      default: { scoreCriterias: [] },
+    },
+    admin: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -101,32 +118,70 @@ export default {
           value: "Committee_Score",
         },
       ],
+      // Initial score on edit modal popup shows
+      initialEditTotalScore: 0,
     };
+  },
+  mounted() {
+    console.log(this.dataUI);
   },
   methods: {
     async updateScoreCriteria(criteriaItem) {
       try {
+        // console.log("criteria item: ", criteriaItem);
+        const newScoreTotal =
+          parseInt(criteriaItem.Advisor_Score) +
+          parseInt(criteriaItem.Committee_Score);
+        const isValid = this.$refs.form[0].validate();
+
+        // Check if the criteria has an id and entered values are valid
+        if (!isValid) return;
+
         // Check if total goes higher than 100, if it dose return
-        if (this.allScoresTotal > 100) return;
+        if (newScoreTotal + this.initialEditTotalScore > 100) {
+          this.$swal.fire("Total score must be less than 100", "", "warning");
+          return;
+        }
+
+        console.log("criteriaItem: ", criteriaItem);
         const res = await this.$axios.$post("/criteria/scoreEdit", {
           ...criteriaItem,
         });
         if (res.status !== 200)
           throw new Error("Score failed to update, please try again later");
 
-        criteriaItem.editDialog = false;
         // Update total
         criteriaItem.Total =
           parseInt(criteriaItem.Advisor_Score) +
           parseInt(criteriaItem.Committee_Score);
+
+        // Show success popup
+        this.$swal.fire(
+          "Success",
+          "Update score criterias successfully",
+          "success"
+        );
         // Refresh nuxt to re-fetch score criterias
         this.$emit("score-updated");
-        // this.$nuxt.refresh();
+
+        criteriaItem.editDialog = false;
         return;
       } catch (err) {
         console.log(err);
         return;
       }
+    },
+    handleSetInitModalScore(criteria) {
+      this.initialEditTotalScore = this.allScoresTotal - criteria.Total;
+      // console.log(
+      //   "Total score - this progress's total: ",
+      //   this.initialEditTotalScore
+      // );
+    },
+    handleValidateScore(val) {
+      return parseInt(val) < 0 || !/^[0-9]+$/.test(val)
+        ? "Invalid score"
+        : true;
     },
   },
   computed: {
