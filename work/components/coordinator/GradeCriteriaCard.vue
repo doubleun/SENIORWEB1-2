@@ -14,7 +14,7 @@
       <!-- <h4>TOTAL</h4> -->
 
       <!-- Table records -->
-      <template v-for="(grade, index) in $options.staticData.gradeCriterias">
+      <template v-for="(grade, index) in dataUI.gradeCriterias">
         <p :key="grade.Grade_Criteria_Name + 1">
           {{ grade.Grade_Criteria_Name }}
         </p>
@@ -22,7 +22,8 @@
           {{
             index === gradeCriterias.length - 1
               ? "0 - " +
-                (gradeCriterias[gradeCriterias.length - 2].Grade_Criteria_Pass -
+                (dataUI.gradeCriterias[dataUI.gradeCriterias.length - 2]
+                  .Grade_Criteria_Pass -
                   1)
               : grade.Grade_Criteria_Pass
           }}
@@ -73,9 +74,9 @@
                   <v-text-field
                     v-model="grade.Grade_Criteria_Pass"
                     :rules="[
-                      () =>
+                      (val) =>
                         !!grade.Grade_Criteria_Pass || 'This field is required',
-                      handleCheckValidScore(grade.Grade_Criteria_Pass),
+                      handleCheckValidScore(val),
                     ]"
                     v-else
                     outlined
@@ -105,9 +106,12 @@
 </template>
 
 <script>
-import utils from "@/mixins/utils";
 export default {
   props: {
+    dataUI: {
+      type: Object,
+      default: { gradeCriterias: [] },
+    },
     gradeCriterias: {
       type: Array,
       default: [],
@@ -129,9 +133,6 @@ export default {
     noGradeCriterias: false,
     valid: true,
   }),
-  staticData: {
-    gradeCriterias: [],
-  },
   computed: {
     // Return criterias option (S/U or A-F) based on the 'selectedGradeOption'
     criteriasTemplate() {
@@ -141,12 +142,6 @@ export default {
         return this.criteriasOptionB;
       }
     },
-  },
-  created() {
-    // Create deep clone of "gradeCriterias" (ie. makes it non-reactive or static) so that when gradeCriterias got edit the UI won't change
-    this.$options.staticData.gradeCriterias = this.handleCloneDeep(
-      this.gradeCriterias
-    );
   },
   mounted() {
     // ! This could be improve by using array of objects ([optionA, optionB]) and loop through when adding the template to each option object
@@ -171,19 +166,19 @@ export default {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
     }));
   },
-  mixins: [utils],
   methods: {
     // Handle adding grade criterias to the database
     async handleAddGradeCriterias() {
       // Check if there's a criterias template to send, and if the grade criterias have already been fetched
-      if (!this.criteriasTemplate || this.noGradeCriterias === false) return;
-
-      console.log(this.valid);
       // Validate form
-      this.$refs.form.validate();
-      if (!this.valid) return;
-
-      console.log(this.valid);
+      this.$refs.form[0].validate();
+      console.log("Valid form: ", this.valid);
+      if (
+        !this.criteriasTemplate ||
+        this.noGradeCriterias === false ||
+        !this.valid
+      )
+        return;
 
       try {
         this.$swal
@@ -197,29 +192,33 @@ export default {
             confirmButtonText: "Confirm",
           })
           .then(async (result) => {
-            if (result.isConfirmed) {
-              // Post new grade criterias
-              const addGradeCriteriaRes = await this.$axios.$post(
-                "/criteria/gradeAdd",
-                {
-                  data: this.criteriasTemplate,
-                }
-              );
-              if (addGradeCriteriaRes.status !== 200)
-                throw new Error(
-                  "Failed to add grade criterias, please try again later"
+            try {
+              if (result.isConfirmed) {
+                // Post new grade criterias
+                const addGradeCriteriaRes = await this.$axios.$post(
+                  "/criteria/gradeAdd",
+                  {
+                    data: this.criteriasTemplate,
+                  }
                 );
-              // Update UI
-              // Emit event for refresh
-              this.$emit("add-grade-criterias");
-              this.noGradeCriterias = false;
-              this.$swal.fire(
-                "Grade criterias saved",
-                "You can edit the score of each grade criteria",
-                "success"
-              );
+                if (addGradeCriteriaRes.status !== 200)
+                  throw new Error(
+                    "Failed to add grade criterias, please try again later"
+                  );
+                // Update UI
+                // Emit event for refresh and update UI
+                this.$emit("add-grade-criterias");
+                this.noGradeCriterias = false;
+                this.$swal.fire(
+                  "Grade criterias saved",
+                  "You can edit the score of each grade criteria",
+                  "success"
+                );
+                return;
+              }
               return;
-            } else {
+            } catch (err) {
+              console.log(err);
               return;
             }
           });
@@ -230,7 +229,9 @@ export default {
       }
     },
     handleCheckValidScore(val) {
-      return val <= 0 || !/^[0-9]+$/.test(val) ? "Invalid score" : true;
+      return parseInt(val) <= 0 || parseInt(val) > 100 || !/^[0-9]+$/.test(val)
+        ? "Invalid score"
+        : true;
     },
   },
 };
