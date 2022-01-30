@@ -50,7 +50,6 @@
                         v-model="search"
                         label="Search topic something"
                         prepend-inner-icon="mdi-magnify"
-                        hide-details
                         filled
                         rounded
                         dense
@@ -219,36 +218,21 @@ export default {
       this.$refs.entryForm.reset();
     },
     hancelChangeClearSearch() {
-      console.log("reset change", this.search == "", this.search == null);
+      // console.log("reset change", this.search == "", this.search == null);
       if (this.search == "") {
         this.textRule = [];
         this.$refs.entryForm.reset();
         return;
       }
     },
-    handelClickFilterButton(index) {
-      console.log("click btn", index);
-      this.textRule = [(v) => !!v || "This field is required"];
-
-      let self = this;
-
-      setTimeout(function () {
-        // text valid
-        if (self.$refs.entryForm.validate()) {
-          self.filterBtnActive = self.filterBtnActive.map((el) => false);
-          self.filterBtnActive[index] = true;
-        }
-      });
-
-      console.log(this.filterBtnActive);
-    },
 
     handelChangeMajor() {
-      this.$refs.entryForm.reset();
-      (this.filterBtnActive = [false, false, false]),
-        console.log(this.selectedMajor.Major_ID);
-      if (this.selectedMajor.Major_ID == 0)
+      // this.$refs.entryForm.reset();
+      // this.filterBtnActive = [false, false, false];
+      // console.log(this.selectedMajor.Major_ID);
+      if (this.selectedMajor.Major_ID == 0) {
         return (this.abstracts = this.rawAbstracts);
+      }
       this.abstracts = this.rawAbstracts.filter(
         (el) => el.Major == this.selectedMajor.Major_ID
       );
@@ -261,61 +245,92 @@ export default {
 
       setTimeout(function () {
         if (self.$refs.entryForm.validate()) {
-          // reset selected major
-          self.selectedMajor = self.majors[0];
-
-          // some filter is active?
-          // if (self.filterBtnActive.every((el) => el === false)) {
-          //   // self.filterBtnActive[0] = true;
-          //   // auto filter title
-          //   self.abstracts = self.rawAbstracts.filter(
-          //     (el) =>
-          //       el.Group_Name_Eng.toLowerCase().includes(
-          //         self.search.toLowerCase()
-          //       ) ||
-          //       el.Students.toLowerCase().includes(self.search.toLowerCase()) ||
-          //       el.Advisor.toLowerCase().includes(self.search.toLowerCase())
-          //   );
-          // } else {
-          // ==== filter when search
-
-          // filter by buton
+          // (event click)filter by click buton(Title, Authors, Advisor)
           if (typeof event == "number") {
             self.filterBtnActive = self.filterBtnActive.map((el) => false);
             self.filterBtnActive[event] = true;
           } else {
+            // (event press enter)filter by press Enter key
+
+            // whitout click button(Title, Authors, Advisor)
+            if (self.filterBtnActive.every((el) => !el)) {
+              return (self.abstracts = self.rawAbstracts.filter(
+                (el) =>
+                  (el.Group_Name_Eng.toLowerCase().includes(
+                    self.search.toLowerCase()
+                  ) ||
+                    el.Students.toLowerCase().includes(
+                      self.search.toLowerCase()
+                    ) ||
+                    el.Advisor.toLowerCase().includes(
+                      self.search.toLowerCase()
+                    )) &&
+                  (self.selectedMajor.Major_ID == 0
+                    ? true
+                    : el.Major == self.selectedMajor.Major_ID)
+              ));
+            }
+
+            // press Enter and cilck button before
             self.abstracts = self.rawAbstracts.filter(
               (el) =>
-                el.Group_Name_Eng.toLowerCase().includes(
-                  self.search.toLowerCase()
-                ) ||
-                el.Students.toLowerCase().includes(self.search.toLowerCase()) ||
-                el.Advisor.toLowerCase().includes(self.search.toLowerCase())
+                ((self.filterBtnActive[0]
+                  ? el.Group_Name_Eng.toLowerCase().includes(
+                      self.search.toLowerCase()
+                    )
+                  : false) ||
+                  (self.filterBtnActive[1]
+                    ? el.Students.toLowerCase().includes(
+                        self.search.toLowerCase()
+                      )
+                    : false) ||
+                  (self.filterBtnActive[2]
+                    ? el.Advisor.toLowerCase().includes(
+                        self.search.toLowerCase()
+                      )
+                    : false)) &&
+                (self.selectedMajor.Major_ID == 0
+                  ? true
+                  : el.Major == self.selectedMajor.Major_ID)
             );
+            return;
           }
 
+          // ==== (event click button)
           const index = self.filterBtnActive.indexOf(true);
 
           // filter title (group name)
           if (index == 0) {
-            return (self.abstracts = self.rawAbstracts.filter((el) =>
-              el.Group_Name_Eng.toLowerCase().includes(
-                self.search.toLowerCase()
-              )
+            return (self.abstracts = self.rawAbstracts.filter(
+              (el) =>
+                el.Group_Name_Eng.toLowerCase().includes(
+                  self.search.toLowerCase()
+                ) &&
+                (self.selectedMajor.Major_ID == 0
+                  ? true
+                  : el.Major == self.selectedMajor.Major_ID)
             ));
           }
 
           // filter student
           if (index == 1) {
-            return (self.abstracts = self.rawAbstracts.filter((el) =>
-              el.Students.toLowerCase().includes(self.search.toLowerCase())
+            return (self.abstracts = self.rawAbstracts.filter(
+              (el) =>
+                el.Students.toLowerCase().includes(self.search.toLowerCase()) &&
+                (self.selectedMajor.Major_ID == 0
+                  ? true
+                  : el.Major == self.selectedMajor.Major_ID)
             ));
           }
 
           // filter advisor
           if (index == 2) {
-            return (self.abstracts = self.rawAbstracts.filter((el) =>
-              el.Advisor.toLowerCase().includes(self.search.toLowerCase())
+            return (self.abstracts = self.rawAbstracts.filter(
+              (el) =>
+                el.Advisor.toLowerCase().includes(self.search.toLowerCase()) &&
+                (self.selectedMajor.Major_ID == 0
+                  ? true
+                  : el.Major == self.selectedMajor.Major_ID)
             ));
           }
           // }
