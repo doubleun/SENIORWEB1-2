@@ -28,7 +28,7 @@ assignmentRouter.post(
 // assignmentRouter.post("/edit", criteriaController.editCriteria); // admin
 assignmentRouter.post("/", assignmentController.getAssignment);
 assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
+assignmentRouter.get("/abstracts", assignmentController.getAbstracts);
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
-
 
 module.exports = assignmentRouter;
