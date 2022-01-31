@@ -388,7 +388,7 @@ getGroupWithID = async (req, res) => {
 
     // 2.) Select query for group info
     const sqlGroupInfo =
-      "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Final_Grade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
+      "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Is_Re_Eval, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
     // Group info result
     con.query(sqlGroupInfo, [Email, Group_ID], (err, groupInfo) => {
       if (err) throw err;
@@ -406,7 +406,7 @@ getGroupWithID = async (req, res) => {
 getGroupInfo = (req, res) => {
   const { User_Email, Project_on_term_ID } = req.body;
   const sql =
-    "SELECT gm.Group_Member_ID, gm.User_Phone, gm.Group_Role, gm.Group_ID, gm.User_Status, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Group_Status, g.Group_Progression, g.Grade, g.Final_Grade FROM `groupmembers` gm INNER JOIN `groups` g ON gm.Group_ID = g.Group_ID WHERE gm.User_Email = ? AND gm.Project_on_term_ID = ? AND NOT gm.User_Status = 2 AND NOT g.Group_Status = 0";
+    "SELECT gm.Group_Member_ID, gm.User_Phone, gm.Group_Role, gm.Group_ID, gm.User_Status, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Group_Status, g.Group_Progression, g.Grade, g.Is_Re_Eval FROM `groupmembers` gm INNER JOIN `groups` g ON gm.Group_ID = g.Group_ID WHERE gm.User_Email = ? AND gm.Project_on_term_ID = ? AND NOT gm.User_Status = 2 AND NOT g.Group_Status = 0";
   con.query(sql, [User_Email, Project_on_term_ID], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -494,7 +494,7 @@ getTeachersEval = (req, res) => {
         // This query includes 'Current_Member_Role' and 'Current_Member_ID'
         if (Group_Info) {
           const getGroupWithId =
-            "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Final_Grade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
+            "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Is_Re_Eval, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
           con.query(getGroupWithId, [Email, Group_ID], (err, groupResult) => {
             if (err) throw err;
             console.log("Group info result: ", groupResult);
@@ -638,7 +638,7 @@ getScoreCoor = (req, res) => {
   // const Projectonterm = req.body.Projectonterm;
 
   const sql =
-   "SELECT st.User_Identity_ID,st.User_Name AS student,tea.User_Name AS Advisor, (SELECT Grade FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS grade, (SELECT Final_Grade FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS finalgrade ,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=gm.Group_ID) AS progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gm.Group_ID) AS progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS Topic FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?"
+   "SELECT st.User_Identity_ID,st.User_Name AS student,tea.User_Name AS Advisor, (SELECT Grade FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS grade, (SELECT Is_Re_Eval FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS finalgrade ,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=gm.Group_ID) AS Progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gm.Group_ID) AS Progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS Progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS Progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS Topic FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?"
   con.query(
     sql,
     [Academic_Year, Academic_Term, Major],
@@ -737,7 +737,7 @@ listrequestGroup = (req, res) => {
 getMyGroup = (req, res) => {
   const groupId = req.body.Group_ID;
   const sql =
-    "SELECT gmb.Group_Member_ID, gp.Group_ID,gp.Major,gp.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gp.Grade,gp.Final_Grade,gp.Co_Advisor,usr.User_Name,gmb.Group_Role,usr.User_Email,usr.User_Identity_ID,gmb.User_Phone,gmb.User_Status FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email AND gmb.Project_on_term_ID=usr.Project_on_term_ID WHERE gmb.Group_ID=? AND gmb.User_Status=1 ORDER BY gmb.Group_Member_ID";
+    "SELECT gmb.Group_Member_ID, gp.Group_ID,gp.Major,gp.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gp.Grade,gp.Is_Re_Eval,gp.Co_Advisor,usr.User_Name,gmb.Group_Role,usr.User_Email,usr.User_Identity_ID,gmb.User_Phone,gmb.User_Status FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email AND gmb.Project_on_term_ID=usr.Project_on_term_ID WHERE gmb.Group_ID=? AND gmb.User_Status=1 ORDER BY gmb.Group_Member_ID";
   con.query(sql, [groupId], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -773,7 +773,7 @@ grading = async (req, res) => {
     // 2.) If is advisor, then update grade in 'groups' table
     if (isAdvisor && Grade) {
       const updateGrade = `UPDATE groups SET ${
-        event === 0 ? "Grade" : "Final_Grade"
+        event === 0 ? "Grade" : "Is_Re_Eval"
       } = ? WHERE groups.Group_ID = ?`;
       await conPromise.execute(updateGrade, [Grade, Group_ID], (err) => {
         if (err) throw err;
@@ -794,7 +794,7 @@ grading = async (req, res) => {
 
   // const grade = "UPDATE `groups` SET `Grade` = ? WHERE `groups`.`Group_ID` = ?";
   // const finalGrade =
-  //   "UPDATE `groups` SET `Final_Grade` = ? WHERE `groups`.`Group_ID` = ?";
+  //   "UPDATE `groups` SET `Is_Re_Eval` = ? WHERE `groups`.`Group_ID` = ?";
 
   // const commentGrade =
   //   "UPDATE `groups` SET `Comment_Grade` = ? WHERE `groups`.`Group_ID` = ?";

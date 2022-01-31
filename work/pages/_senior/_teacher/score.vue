@@ -69,7 +69,7 @@
           </div>
         </v-col>
       </v-row>
-      <CoordinatorScoreDataTable :items="filterGrade" />
+      <CoordinatorScoreDataTable :items="filterGrade" :headers="header" />
     </v-container>
   </div>
 </template>
@@ -99,17 +99,36 @@ export default {
         Academic_Term: yearNSemsters[0].Academic_Term,
       });
 
-      // handel final grade
-      var newGrade = [];
-      score.forEach((el) => {
-        el.newGrade =
-          el.finalgrade != "" && el.finalgrade != null
-            ? el.finalgrade
-            : el.grade;
-        newGrade.push(el);
-      });
+      console.log("score", score);
 
-      // Fetch grade criteria score
+      // header
+      var progression = store.state.group.availableProgress;
+      console.log("progression old", progression);
+      // mapping progression
+      var header = progression.map((el) => ({
+        text: el.Progress_Name.replace(/\s+/g, ""),
+        value: el.Progress_Name.replace(/\s+/g, ""),
+        align: "center",
+      }));
+
+      header.unshift(
+        {
+          text: "ID",
+          align: "center",
+          filterable: false,
+          value: "User_Identity_ID",
+        },
+        { text: "NAME", value: "student", align: "center" }
+      );
+
+      header.push(
+        { text: "TOTAL", value: "total", align: "center" },
+        { text: "GRADE", value: "grade", align: "center" }
+      );
+
+      console.log("header", header);
+
+      // Fetch grade criteria
       var gradeCriteria = await $axios.$post("/criteria/gradeMajor", {
         Major_ID: store.state.auth.currentUser.major,
       });
@@ -122,7 +141,7 @@ export default {
       // add filtter grade (All)
       gradeCriteria.unshift({ Grade_Criteria_Name: "All" });
 
-      return { yearNSemsters, grade: [...newGrade], gradeCriteria };
+      return { yearNSemsters, grade: score, gradeCriteria, header };
     } catch (error) {
       console.log(error);
     }
@@ -131,7 +150,7 @@ export default {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
     this.selectedGrade = this.gradeCriteria[0];
-    this.filterGrade = this.grade.filter((el) => el.newGrade != "All");
+    this.filterGrade = this.grade.filter((el) => el.grade != "All");
   },
   methods: {
     async handelFilterWithAcademic() {
@@ -148,20 +167,11 @@ export default {
           Academic_Term: this.selectedSemester,
         });
 
-        // handel final grade
-        let newGrade = [];
-        score.forEach((el) => {
-          el.newGrade =
-            el.finalgrade != "" && el.finalgrade != null
-              ? el.finalgrade
-              : el.grade;
-          newGrade.push(el);
-        });
-        this.grade = newGrade;
+        this.grade = score;
         this.filterGrade = this.grade.filter((el) =>
           this.selectedGrade.Grade_Criteria_Name == "All"
-            ? el.newGrade != "All"
-            : el.newGrade == this.selectedGrade.Grade_Criteria_Name
+            ? el.grade != "All"
+            : el.grade == this.selectedGrade.Grade_Criteria_Name
         );
         console.log("score", score);
         // console.log("filter grade", this.finalgrade);
@@ -178,8 +188,8 @@ export default {
       try {
         this.filterGrade = this.grade.filter((el) =>
           this.selectedGrade.Grade_Criteria_Name == "All"
-            ? el.newGrade != "All"
-            : el.newGrade == this.selectedGrade.Grade_Criteria_Name
+            ? el.grade != "All"
+            : el.grade == this.selectedGrade.Grade_Criteria_Name
         );
         console.log("filter grade", this.filterGrade);
       } catch (error) {
