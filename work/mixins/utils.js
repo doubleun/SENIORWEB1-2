@@ -12,10 +12,12 @@ export default {
     },
     // * Validations
     handleValidateTextField(
-      string = "",
-      option = "onlyNormalCharEng",
-      required = true,
-      errorMsg = "Invalid value",
+      {
+        string = "",
+        option = "onlyNormalCharEng",
+        required = true,
+        errorMsg = "Invalid value",
+      },
       ...customValidations
     ) {
       // Destructure custom validations (allow up to 3 conditions)
@@ -25,20 +27,29 @@ export default {
 
       switch (option) {
         case "onlyNormalCharEng":
-          return (required && !string) || cvAll || !/^[A-Za-z]+$/.test(string)
+          return (required && !string) ||
+            cvAll ||
+            !/^[A-Za-z][A-Za-z ]*$/.test(string)
+            ? errorMsg
+            : true;
+          break;
+        case "onlyNormalCharEngNoSpace":
+          return (required && !string) || cvAll || !/^[A-Za-z]*$/.test(string)
             ? errorMsg
             : true;
           break;
         case "onlyNormalCharTh":
-          return (required && !string) || cvAll || !/[\p{Thai} ]+/.test(string)
+          return (required && !string) ||
+            cvAll ||
+            !/^[\u0E00-\u0E7F]*$/.test(string)
             ? errorMsg
             : true;
         case "onlyNumber":
-          return (required && !string) || cvAll || !/^[0-9]+$/.test(string)
+          return (required && !string) || cvAll || !/^\d+$/.test(string)
             ? errorMsg
             : true;
           break;
       }
-    }
-  }
+    },
+  },
 };
