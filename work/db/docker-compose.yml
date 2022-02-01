@@ -1,0 +1,33 @@
+version: "3.1"
+
+services:
+  db:
+    image: mariadb
+    container_name: mariadb
+    restart: always
+    volumes:
+      - ./seniorproject.sql:/docker-entrypoint-initdb.d/seniorproject.sql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: seniorproject
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: db_user_pass
+    ports:
+      - "3308:3306"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    restart: always
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      # PMA_ARBITRARY: 1
+    ports:
+      - "8081:80"
+# volumes:
+#   container-volume:
