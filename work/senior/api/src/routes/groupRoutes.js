@@ -28,5 +28,6 @@ groupRouter.put("/updateGroup", groupController.updateGroup);
 groupRouter.put("/delete/one", groupController.deleteById);
 groupRouter.post("/countMyGroup", groupController.countTeachergroup);
 groupRouter.post("/getAllFilesMajor", groupController.getAllFilesMajor);
+groupRouter.post("/moveGroup", groupController.addGroupToSeTwo);
 
 module.exports = groupRouter;

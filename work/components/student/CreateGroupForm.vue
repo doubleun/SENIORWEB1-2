@@ -196,15 +196,26 @@
                     dense
                   ></v-text-field>
                    -->
-                   <v-chip
+                  <v-chip
                     class="ma-2"
                     color="green"
                     text-color="white"
-                    v-if="((!!selectedAdvisor && groupCreated) || !headMember)&& selectedAdvisorstatus == 1"
+                    v-if="
+                      ((!!selectedAdvisor && groupCreated) || !headMember) &&
+                      selectedAdvisorstatus == 1
+                    "
                   >
                     Accepted
                   </v-chip>
-                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedAdvisor && groupCreated) || !headMember)&& selectedAdvisorstatus == 0">
+                  <v-chip
+                    class="ma-2"
+                    color="orange"
+                    text-color="white"
+                    v-if="
+                      ((!!selectedAdvisor && groupCreated) || !headMember) &&
+                      selectedAdvisorstatus == 0
+                    "
+                  >
                     Pendding
                   </v-chip>
                   <v-autocomplete
@@ -288,11 +299,22 @@
                     class="ma-2"
                     color="green"
                     text-color="white"
-                    v-if="((!!selectedCommittee1 && groupCreated) || !headMember)&&selectedCommittee1status ==1"
+                    v-if="
+                      ((!!selectedCommittee1 && groupCreated) || !headMember) &&
+                      selectedCommittee1status == 1
+                    "
                   >
                     Accepted
                   </v-chip>
-                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedCommittee1 && groupCreated) || !headMember)&&selectedCommittee1status ==0">
+                  <v-chip
+                    class="ma-2"
+                    color="orange"
+                    text-color="white"
+                    v-if="
+                      ((!!selectedCommittee1 && groupCreated) || !headMember) &&
+                      selectedCommittee1status == 0
+                    "
+                  >
                     Pendding
                   </v-chip>
                   <v-autocomplete
@@ -320,11 +342,22 @@
                     class="ma-2"
                     color="green"
                     text-color="white"
-                    v-if="((!!selectedCommittee2 && groupCreated) || !headMember)&&selectedCommittee2status ==1"
+                    v-if="
+                      ((!!selectedCommittee2 && groupCreated) || !headMember) &&
+                      selectedCommittee2status == 1
+                    "
                   >
                     Accepted
                   </v-chip>
-                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedCommittee2 && groupCreated) || !headMember)&&selectedCommittee2status ==0">
+                  <v-chip
+                    class="ma-2"
+                    color="orange"
+                    text-color="white"
+                    v-if="
+                      ((!!selectedCommittee2 && groupCreated) || !headMember) &&
+                      selectedCommittee2status == 0
+                    "
+                  >
                     Pendding
                   </v-chip>
                   <v-autocomplete
@@ -716,14 +749,14 @@ export default {
         });
       // Sets advisor
       const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
-      console.log("this"+ advisor[0].User_Status)
+      console.log("this" + advisor[0].User_Status);
       if (advisor.length !== 0)
         this.selectedAdvisor = {
           User_Email: advisor[0].User_Email,
           User_Name: advisor[0].User_Name,
           disabled: true,
         };
-        this.selectedAdvisorstatus = advisor[0].User_Status
+      this.selectedAdvisorstatus = advisor[0].User_Status;
       // console.log(this.$store.state.group.currentUserGroup);
       //Set co-advisor name
       if (this.$store.state.group.currentUserGroup.Co_Advisor !== "") {
@@ -741,7 +774,8 @@ export default {
             User_Name: member.User_Name,
             User_Email: member.User_Email,
           };
-          this["selectedCommittee" + (index + 1)+"status" ]= member.User_Status
+          this["selectedCommittee" + (index + 1) + "status"] =
+            member.User_Status;
         });
 
       // Sets group created to true

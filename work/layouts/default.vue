@@ -22,14 +22,14 @@ export default {
           id: 0,
           icon: "mdi-home",
           title: "Home",
-          to: "/Senior1/student/",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/`,
           disabled: false,
         },
         {
           id: 0,
           icon: "people_alt",
           title: "Group",
-          to: "/Senior1/student/stuCreateGroup",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/stuCreateGroup`,
           disabled: false,
         },
         // {
@@ -43,14 +43,14 @@ export default {
           id: 0,
           icon: "forum",
           title: "Proposal",
-          to: "/Senior1/student/work/proposal",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/proposal`,
           disabled: !this.$store.state.group?.currentUserGroup,
         },
         {
           id: 3,
           icon: "mdi-numeric-1-circle",
           title: "Progress 1",
-          to: "/Senior1/student/work/progress-1",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/progress-1`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 3,
@@ -59,7 +59,7 @@ export default {
           id: 4,
           icon: "mdi-numeric-2-circle",
           title: "Progress 2",
-          to: "/Senior1/student/work/progress-2",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/progress-2`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 4,
@@ -68,7 +68,7 @@ export default {
           id: 5,
           icon: "mdi-numeric-3-circle",
           title: "Progress 3",
-          to: "/Senior1/student/work/progress-3",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/progress-3`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 5,
@@ -77,7 +77,7 @@ export default {
           id: 6,
           icon: "mdi-numeric-4-circle",
           title: "Progress 4",
-          to: "/Senior1/student/work/progress-4",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/progress-4`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 6,
@@ -86,7 +86,7 @@ export default {
           id: 7,
           icon: "co_present",
           title: "Final Presentation",
-          to: "/Senior1/student/work/final-presentation",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/final-presentation`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 7,
@@ -95,7 +95,7 @@ export default {
           id: 8,
           icon: "text_snippet",
           title: "Final Documentation",
-          to: "/Senior1/student/work/final-documentation",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/final-documentation`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 8,
@@ -104,7 +104,7 @@ export default {
           id: 0,
           icon: "stacked_bar_chart",
           title: "Evaluation Result",
-          to: "/Senior1/student/evaluation-results",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/evaluation-results`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 9,
@@ -113,7 +113,7 @@ export default {
           id: 9,
           icon: "mdi-restore",
           title: "Re - evaluation",
-          to: "/Senior1/student/stuReevaluationForm",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/stuReevaluationForm`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 10,

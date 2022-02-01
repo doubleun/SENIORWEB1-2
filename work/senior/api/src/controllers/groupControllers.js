@@ -94,7 +94,6 @@ createGroup = (req, res) => {
       error++;
     } else {
       for (let i = 0; i < user.length; i++) {
-        
 
         con.query(sql2, [user[i]], (err, result2, fields) => {
           // console.log("success", success);
@@ -105,18 +104,18 @@ createGroup = (req, res) => {
           } else {
             // console.log("hear")
             // console.log(success + " com " + user.length);
-            success ++
+            success++
             console.log(result2.affectedRows)
-            if(success == user.length){
+            if (success == user.length) {
               res.status(200).send("Success");
             }
-            
+
           }
         });
       }
     }
   });
-  
+
   // if (sucess == user.length) {
   //   res.status(200).json({ msg: "Create group Successed", status: 200 });
   // } else {
@@ -477,9 +476,8 @@ getTeachersEval = (req, res) => {
   const { Email, Group_ID, Single, Group_Info } = req.body;
   try {
     // Check if 'Single' is true, if it is then query for single teacher eval comment using email
-    const getTeachersEval = `SELECT ec.Comment, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
-      Single ? "gm.User_Email = ? AND" : ""
-    } ec.Group_ID = ?`;
+    const getTeachersEval = `SELECT ec.Comment, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${Single ? "gm.User_Email = ? AND" : ""
+      } ec.Group_ID = ?`;
     console.log("GetTeachersEvalSQL: ", getTeachersEval);
     // 1.) Select eval comment(s)
     // Here rest parameter syntax is used for conditionally spread element in the array
@@ -860,20 +858,91 @@ countTeachergroup = (req, res) => {
 getAllFilesMajor = (req, res) => {
   const { Project_on_term_ID, Major } = req.body;
   console.log(req.body);
-  
-    const sql =
-      "SELECT  `File_Name`, `Path`, `Type`,(SELECT `Submit_Date` FROM `assignments` WHERE `Assignment_ID` = files.Assignment_ID) AS time, (SELECT  `Group_Name_Eng` FROM `groups` WHERE `Group_ID` =(SELECT `Group_ID` FROM groupmembers WHERE Group_Member_ID = files.Group_Member_ID)) AS group_Name FROM `files` WHERE Assignment_ID IN (SELECT `Assignment_ID` FROM `assignments` WHERE Group_ID IN (SELECT DISTINCT Group_ID FROM groupmembers WHERE User_Email IN (SELECT `User_Email` FROM `users` WHERE Project_on_term_ID =? AND `Major_ID` = ?)))";
 
-    con.query(sql, [Project_on_term_ID, Major], (err, result, fields) => {
-      if(err){
-        res.status(422).json({ msg: "Query Error", staus: 422 });
-      }else{
-        res.status(200).json(result);
-      }
-      
-    });
-  
+  const sql =
+    "SELECT  `File_Name`, `Path`, `Type`,(SELECT `Submit_Date` FROM `assignments` WHERE `Assignment_ID` = files.Assignment_ID) AS time, (SELECT  `Group_Name_Eng` FROM `groups` WHERE `Group_ID` =(SELECT `Group_ID` FROM groupmembers WHERE Group_Member_ID = files.Group_Member_ID)) AS group_Name FROM `files` WHERE Assignment_ID IN (SELECT `Assignment_ID` FROM `assignments` WHERE Group_ID IN (SELECT DISTINCT Group_ID FROM groupmembers WHERE User_Email IN (SELECT `User_Email` FROM `users` WHERE Project_on_term_ID =? AND `Major_ID` = ?)))";
+
+  con.query(sql, [Project_on_term_ID, Major], (err, result, fields) => {
+    if (err) {
+      res.status(422).json({ msg: "Query Error", staus: 422 });
+    } else {
+      res.status(200).json(result);
+    }
+
+  });
+
 };
+addGroupToSeTwo = (req, res) => {
+  let gThname = ""
+  let gEnname = ""
+  let gAdvi = ""
+  let major = ""
+  let errors = 0;
+  const { Project_on_term_ID } = req.body;
+
+  console.log(req.body)
+  const selectGroup = "SELECT  `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major` FROM `groups` WHERE Project_on_term_ID = (SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior = 1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))"
+  const addGroup = "INSERT INTO `groups`( `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Project_on_term_ID`) VALUES(?,?,?,?,?);"
+  const selectuser = "SELECT `User_Email`, `User_Phone`, `Group_Role`,(SELECT `Group_Name_Eng` FROM `groups` WHERE `Group_ID` = `groupmembers`.`Group_ID`) as groupname FROM `groupmembers` WHERE groupmembers.Project_on_term_ID =(SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior =1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))";
+  const adduser = "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES (?,?,?,(SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng =?),?)"
+  con.query(selectGroup, (err1, resultGroup, fields1) => {
+    if (err1) {
+      console.log(err1)
+      errors++
+      res.status(422).json({ msg: "Query Error", staus: 422 });
+    } else {
+      for (let i = 0; i < resultGroup.length; i++) {
+        gThname = resultGroup[i].Group_Name_Thai
+        gEnname = resultGroup[i].Group_Name_Eng
+        gAdvi = resultGroup[i].Co_Advisor
+        major = resultGroup[i].Major
+        
+        // groupinfo.push([])
+        con.query(addGroup, [gThname, gEnname, gAdvi, major, Project_on_term_ID], (err, resultadd, fields) => {
+          if (err) {
+            console.log(err)
+            errors++
+            //   res.status(422).json({ msg: "Query Error", staus: 422 });
+            //   break;
+          } else {
+            //   console.log("ji")
+          }
+        });
+      }
+      // console.log(groupinfo)
+
+    }
+
+  });
+  // if (errors == 0) {
+  con.query(selectuser, (err1, resultUser, fields1) => {
+    if (err1) {
+      console.log(err1)
+      res.status(422).json({ msg: "Query Error", staus: 422 });
+    } else {
+
+      for (let i = 0; i < resultUser.length; i++) {
+        con.query(adduser, [resultUser[i].User_Email, resultUser[i].User_Phone, resultUser[i].Group_Role, resultUser[i].groupname , Project_on_term_ID], (err, resultAdd, fields1) => {
+          if (err1) {
+            errors++
+            console.log(err1)
+            // res.status(422).json({ msg: "Query Error", staus: 422 });
+            // break;
+          } else {
+
+          }
+        })
+      }
+
+    }
+  })
+  // }
+  if (errors > 0) {
+    res.status(422).json({ msg: "Query Error", staus: 422 });
+  } else {
+    res.status(200).json({ msg: "Success", staus: 200 });
+  }
+}
 
 module.exports = {
   getAll,
@@ -900,5 +969,6 @@ module.exports = {
   updateGroup,
   getOnlyGroupWithID,
   countTeachergroup,
-  getAllFilesMajor
+  getAllFilesMajor,
+  addGroupToSeTwo
 };

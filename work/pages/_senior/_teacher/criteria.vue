@@ -6,6 +6,7 @@
       <!-- Score criteria card -->
       <CoordinatorScoreCriteriaCard
         :scoreCriterias="scoreCriterias"
+        :dataUI="dataUI"
         :admin="false"
         @score-updated="refresh"
       />
@@ -48,7 +49,7 @@
                       v-model="grade.Grade_Criteria_Pass"
                       :rules="[
                         () =>
-                          grade.Grade_Criteria_Pass !== null ||
+                          !!grade.Grade_Criteria_Pass ||
                           'This field is required',
                         handleCheckValidScore(grade.Grade_Criteria_Pass),
                       ]"
@@ -99,6 +100,7 @@
       <CoordinatorGradeCriteriaCard
         :gradeCriterias="gradeCriterias"
         :noGradeCriteriasProp="noGradeCriterias"
+        :dataUI="dataUI"
         @add-grade-criterias="refresh"
         class="coordinator-criteria-grade-card"
       />
@@ -109,11 +111,14 @@
 <script>
 // import ScoreCriteriaCard from "@/components/coordinator/scoreCriteriaCard";
 // import GradeCriteriaCard from "@/components/coordinator/gradeCriteriaCard";
+import utils from "@/mixins/utils";
 
 export default {
+  mixins: [utils],
   layout: "coordinatorsidebar",
   data() {
     return {
+      dataUI: { gradeCriterias: [], scoreCriterias: [] },
       editGradeDialog: false,
       low: 0,
       valid: true,
@@ -139,7 +144,7 @@ export default {
       //   ...itm,
       //   Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       // }));
-      console.log(scoreCriterias, gradeCriterias);
+      // console.log(scoreCriterias, gradeCriterias);
 
       // Sets no grade criteria to true if grade criteria length is zero
       return {
@@ -155,8 +160,7 @@ export default {
   methods: {
     // Update grade criterias function (score criteria has a function in the compunent for update)
     async handleUpdateGradeCriterias() {
-      console.log(this.$refs);
-      console.log(this.$refs.form);
+      // console.log(this.$refs);
       // Validate form
       this.$refs.form.validate();
       if (!this.valid) return;
@@ -173,26 +177,32 @@ export default {
             confirmButtonText: "Confirm",
           })
           .then(async (result) => {
-            if (result.isConfirmed) {
-              // Post new grade criteria to update in database
-              const res = await this.$axios.$post("/criteria/gradeEdit", {
-                data: this.gradeCriterias,
-              });
-              // If update grade criterias successfully, display success dialog
-              if (res.status === 200) {
-                // Close edit grade criteria modal
-                this.$swal.fire({
-                  title: "Grade updated",
-                  icon: "success",
+            try {
+              if (result.isConfirmed) {
+                // Post new grade criteria to update in database
+                const res = await this.$axios.$post("/criteria/gradeEdit", {
+                  data: this.gradeCriterias,
                 });
-                this.editGradeDialog = false;
-                return;
-              } else {
-                throw new Error(
-                  "Failed to update grade criterias, please try again later"
-                );
+                // If update grade criterias successfully, display success dialog
+                if (res.status === 200) {
+                  // Close edit grade criteria modal
+                  this.$swal.fire({
+                    title: "Grade updated",
+                    icon: "success",
+                  });
+                  // Update UI
+                  this.handleSetUI();
+                  this.editGradeDialog = false;
+                  return;
+                } else {
+                  throw new Error(
+                    "Failed to update grade criterias, please try again later"
+                  );
+                }
               }
-            } else {
+              return;
+            } catch (err) {
+              console.log(err);
               return;
             }
           });
@@ -201,17 +211,47 @@ export default {
         return;
       }
     },
-    refresh() {
-      console.log("refresh");
-      this.$nuxt.refresh();
+    async refresh() {
+      // Fetch new data (foruce to run asyncData and fetch api)
+      await this.$nuxt.refresh();
+      // Update UI
+      this.handleSetUI();
     },
     handleCheckValidScore(val) {
-      return val <= 0 ? "Invalid score" : true;
+      return parseInt(val) <= 0 || parseInt(val) > 100 || !/^[0-9]+$/.test(val)
+        ? "Invalid score"
+        : true;
+    },
+    handleSetUI() {
+      console.log("dataUI: ", this.dataUI.gradeCriterias);
+      console.log("gradeCri: ", this.gradeCriterias);
+      // Since object property is not reactive in Vue, we need to use $set() method to update the object's property
+      // Create deep clone of "gradeCriterias" (ie. makes it non-reactive or static) so that when gradeCriterias got edit the UI won't change
+      // Update grade criterias UI
+      if (!!this.gradeCriterias && this.gradeCriterias.length !== 0) {
+        this.$set(
+          this.dataUI,
+          "gradeCriterias",
+          this.handleCloneDeep(this.gradeCriterias)
+        );
+      }
+
+      // Update score criterias UI
+      if (!!this.scoreCriterias && this.scoreCriterias.length !== 0) {
+        this.$set(
+          this.dataUI,
+          "scoreCriterias",
+          this.handleCloneDeep(this.scoreCriterias)
+        );
+      }
     },
   },
   mounted() {
     console.log("Scores: ", this.scoreCriterias);
     console.log("Grades: ", this.gradeCriterias);
+
+    // Set initial dataUI
+    this.handleSetUI();
   },
 };
 </script>
