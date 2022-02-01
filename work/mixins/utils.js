@@ -49,6 +49,11 @@ export default {
             ? errorMsg
             : true;
           break;
+        case "onlyNumberFloat":
+          return (required && !string) || cvAll || !/^\d*\.?\d+$/.test(string)
+            ? errorMsg
+            : true;
+          break;
       }
     },
   },
