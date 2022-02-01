@@ -19,7 +19,7 @@
     <!-- (Left-side)Preview file -->
     <v-card class="preview-work-card">
       <!-- Switch file preview tabs -->
-      <v-tabs show-arrows dark background-color="primary">
+      <v-tabs show-arrows light background-color="white">
         <v-tab
           v-for="(fileName, index) in shortFileNames"
           :key="index"
@@ -40,7 +40,7 @@
       <div class="task-work-card-content">
         <h5>File option</h5>
         <v-btn
-          color="primary"
+          color="#253B6E"
           style="margin: 0.2rem 0 1rem 0"
           @click="handleDownloadFile"
           :disabled="noWorkSubmitted"
@@ -114,7 +114,7 @@
         </v-form>
 
         <v-btn
-          color="primary"
+          color="#253B6E"
           :disabled="showSubmitted"
           @click="handleSubmitScore"
           >SUBMIT</v-btn
@@ -336,7 +336,7 @@ export default {
       URL.revokeObjectURL(link.href);
     },
     handleScoreInput() {
-      this.givenScore = this.givenScore
+      this.givenScore = this.givenScore;
       // Math.trunc(this.givenScore);
       // console.log('given score',this.givenScore)
     },
