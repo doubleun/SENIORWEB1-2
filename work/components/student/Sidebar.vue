@@ -17,7 +17,7 @@
       <v-row class="justify-center"
         ><h6>SCHOOL OF INFORMATION TECHNOLOGY</h6></v-row
       >
-      <v-row class="justify-center"><h5 style="margin-left:5px;color:#253B6E;">1/2022</h5></v-row>
+      <v-row class="justify-center"><h5 style="margin-left: 5px" :style="theme === 'default' ? '#253b6e' : 'white'">1/2022</h5></v-row>
     </v-col>
     <!-- Lists routes Home-Final Presentation -->
     <v-list shaped class="mt-3">
