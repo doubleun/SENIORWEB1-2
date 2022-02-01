@@ -56,7 +56,6 @@
                       v-else
                       outlined
                       dense
-                      hide-details
                     ></v-text-field>
                   </div>
                 </div>
@@ -218,9 +217,14 @@ export default {
       this.handleSetUI();
     },
     handleCheckValidScore(val) {
-      return parseInt(val) <= 0 || parseInt(val) > 100 || !/^[0-9]+$/.test(val)
-        ? "Invalid score"
-        : true;
+      return this.handleValidateTextField(
+        {
+          string: val,
+          option: "onlyNumber",
+          errorMsg: "Invalid score",
+        },
+        parseInt(val) > 100
+      );
     },
     handleSetUI() {
       console.log("dataUI: ", this.dataUI.gradeCriterias);
