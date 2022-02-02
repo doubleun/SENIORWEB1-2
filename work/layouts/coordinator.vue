@@ -129,7 +129,7 @@ export default {
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
-          }/progress`,
+          }/${this.$route.params.groupId}/re-evaluation`,
         },
       ],
     };
@@ -144,6 +144,15 @@ export default {
       "Current group info (logged from coordinator side bar):",
       this.$store.state.group.currentUserGroup
     );
+    // If no group redirect to index to fetch group
+    if (!this.$store.state.group.currentUserGroup)
+      return this.$router.push(
+        `/senior${this.$store.state.auth.currentUser.senior}/${
+          this.$store.state.auth.currentUser.role === 2
+            ? "coordinator"
+            : "teacher"
+        }/${this.$route.params.groupId}`
+      );
     const availableIds = this.$store.state.group.availableProgress.map(
       (progress) => progress.Progress_ID
     );
@@ -151,7 +160,11 @@ export default {
     // Filter to get only available progresses (which comes from score criterias where 'Total' not equal to 0)
     // Includes the ones with id = 0, which means they're not depending on score criterias
     this.items = this.items.filter(
-      (item) => item.id === 0 || availableIds.includes(item.id)
+      (item) =>
+        item.id === 0 ||
+        availableIds.includes(item.id) ||
+        // If Is_Re_Eval flag of the group is 1 it'll push item No.9 which is Re-eval menu into the array
+        (item.id === 9 && this.$store.state.group.currentUserGroup.Is_Re_Eval)
     );
   },
 };

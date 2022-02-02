@@ -1,7 +1,10 @@
 <template>
   <div class="display-work-container">
     <!-- Work submission alert -->
-    <div style="width: 100%">
+    <div
+      style="width: 100%"
+      v-if="this.$route.params.progress !== 're-evaluation'"
+    >
       <v-alert type="warning" style="width: fit-content" v-if="noWorkSubmitted"
         >No work submitted, student must submit file before:
         {{ submitDate }}</v-alert
