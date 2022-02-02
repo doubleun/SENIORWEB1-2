@@ -94,7 +94,6 @@ createGroup = (req, res) => {
       error++;
     } else {
       for (let i = 0; i < user.length; i++) {
-
         con.query(sql2, [user[i]], (err, result2, fields) => {
           // console.log("success", success);
           if (err) {
@@ -104,12 +103,11 @@ createGroup = (req, res) => {
           } else {
             // console.log("hear")
             // console.log(success + " com " + user.length);
-            success++
-            console.log(result2.affectedRows)
+            success++;
+            console.log(result2.affectedRows);
             if (success == user.length) {
               res.status(200).send("Success");
             }
-
           }
         });
       }
@@ -476,8 +474,9 @@ getTeachersEval = (req, res) => {
   const { Email, Group_ID, Single, Group_Info } = req.body;
   try {
     // Check if 'Single' is true, if it is then query for single teacher eval comment using email
-    const getTeachersEval = `SELECT ec.Comment, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${Single ? "gm.User_Email = ? AND" : ""
-      } ec.Group_ID = ?`;
+    const getTeachersEval = `SELECT ec.Comment, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
+      Single ? "gm.User_Email = ? AND" : ""
+    } ec.Group_ID = ?`;
     console.log("GetTeachersEvalSQL: ", getTeachersEval);
     // 1.) Select eval comment(s)
     // Here rest parameter syntax is used for conditionally spread element in the array
@@ -636,7 +635,7 @@ getScoreCoor = (req, res) => {
   // const Projectonterm = req.body.Projectonterm;
 
   const sql =
-   "SELECT st.User_Identity_ID,st.User_Name AS student,tea.User_Name AS Advisor, (SELECT Grade FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS grade, (SELECT Is_Re_Eval FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS finalgrade ,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=gm.Group_ID) AS Progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gm.Group_ID) AS Progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS Progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS Progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS Topic FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?"
+    "SELECT st.User_Identity_ID,st.User_Name AS student,tea.User_Name AS Advisor, (SELECT Grade FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS grade, (SELECT Is_Re_Eval FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS finalgrade ,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=1 AND ass.Group_ID=gm.Group_ID) AS Progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gm.Group_ID) AS Progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS Progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS Progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS Topic FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?";
   con.query(
     sql,
     [Academic_Year, Academic_Term, Major],
@@ -747,9 +746,7 @@ getMyGroup = (req, res) => {
 };
 
 grading = async (req, res) => {
-  // event 0 for update normal grade in group
-  // event 1 for update final grade in group
-  const { Group_ID, event, isAdvisor, Grade, Comment, Group_Member_ID } =
+  const { Group_ID, isAdvisor, Grade, isReEval, Comment, Group_Member_ID } =
     req.body;
 
   try {
@@ -770,9 +767,9 @@ grading = async (req, res) => {
 
     // 2.) If is advisor, then update grade in 'groups' table
     if (isAdvisor && Grade) {
-      const updateGrade = `UPDATE groups SET ${
-        event === 0 ? "Grade" : "Is_Re_Eval"
-      } = ? WHERE groups.Group_ID = ?`;
+      const updateGrade = `UPDATE groups SET Grade = ?, Is_Re_Eval = ${
+        isReEval ? 1 : 0
+      } WHERE groups.Group_ID = ?`;
       await conPromise.execute(updateGrade, [Grade, Group_ID], (err) => {
         if (err) throw err;
       });
@@ -868,81 +865,92 @@ getAllFilesMajor = (req, res) => {
     } else {
       res.status(200).json(result);
     }
-
   });
-
 };
 addGroupToSeTwo = (req, res) => {
-  let gThname = ""
-  let gEnname = ""
-  let gAdvi = ""
-  let major = ""
+  let gThname = "";
+  let gEnname = "";
+  let gAdvi = "";
+  let major = "";
   let errors = 0;
   const { Project_on_term_ID } = req.body;
 
-  console.log(req.body)
-  const selectGroup = "SELECT  `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major` FROM `groups` WHERE Project_on_term_ID = (SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior = 1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))"
-  const addGroup = "INSERT INTO `groups`( `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Project_on_term_ID`) VALUES(?,?,?,?,?);"
-  const selectuser = "SELECT `User_Email`, `User_Phone`, `Group_Role`,(SELECT `Group_Name_Eng` FROM `groups` WHERE `Group_ID` = `groupmembers`.`Group_ID`) as groupname FROM `groupmembers` WHERE groupmembers.Project_on_term_ID =(SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior =1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))";
-  const adduser = "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES (?,?,?,(SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng =?),?)"
+  console.log(req.body);
+  const selectGroup =
+    "SELECT  `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major` FROM `groups` WHERE Project_on_term_ID = (SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior = 1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))";
+  const addGroup =
+    "INSERT INTO `groups`( `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Project_on_term_ID`) VALUES(?,?,?,?,?);";
+  const selectuser =
+    "SELECT `User_Email`, `User_Phone`, `Group_Role`,(SELECT `Group_Name_Eng` FROM `groups` WHERE `Group_ID` = `groupmembers`.`Group_ID`) as groupname FROM `groupmembers` WHERE groupmembers.Project_on_term_ID =(SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior =1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))";
+  const adduser =
+    "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES (?,?,?,(SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng =?),?)";
   con.query(selectGroup, (err1, resultGroup, fields1) => {
     if (err1) {
-      console.log(err1)
-      errors++
+      console.log(err1);
+      errors++;
       res.status(422).json({ msg: "Query Error", staus: 422 });
     } else {
       for (let i = 0; i < resultGroup.length; i++) {
-        gThname = resultGroup[i].Group_Name_Thai
-        gEnname = resultGroup[i].Group_Name_Eng
-        gAdvi = resultGroup[i].Co_Advisor
-        major = resultGroup[i].Major
-        
+        gThname = resultGroup[i].Group_Name_Thai;
+        gEnname = resultGroup[i].Group_Name_Eng;
+        gAdvi = resultGroup[i].Co_Advisor;
+        major = resultGroup[i].Major;
+
         // groupinfo.push([])
-        con.query(addGroup, [gThname, gEnname, gAdvi, major, Project_on_term_ID], (err, resultadd, fields) => {
-          if (err) {
-            console.log(err)
-            errors++
-            //   res.status(422).json({ msg: "Query Error", staus: 422 });
-            //   break;
-          } else {
-            //   console.log("ji")
+        con.query(
+          addGroup,
+          [gThname, gEnname, gAdvi, major, Project_on_term_ID],
+          (err, resultadd, fields) => {
+            if (err) {
+              console.log(err);
+              errors++;
+              //   res.status(422).json({ msg: "Query Error", staus: 422 });
+              //   break;
+            } else {
+              //   console.log("ji")
+            }
           }
-        });
+        );
       }
       // console.log(groupinfo)
-
     }
-
   });
   // if (errors == 0) {
   con.query(selectuser, (err1, resultUser, fields1) => {
     if (err1) {
-      console.log(err1)
+      console.log(err1);
       res.status(422).json({ msg: "Query Error", staus: 422 });
     } else {
-
       for (let i = 0; i < resultUser.length; i++) {
-        con.query(adduser, [resultUser[i].User_Email, resultUser[i].User_Phone, resultUser[i].Group_Role, resultUser[i].groupname , Project_on_term_ID], (err, resultAdd, fields1) => {
-          if (err1) {
-            errors++
-            console.log(err1)
-            // res.status(422).json({ msg: "Query Error", staus: 422 });
-            // break;
-          } else {
-
+        con.query(
+          adduser,
+          [
+            resultUser[i].User_Email,
+            resultUser[i].User_Phone,
+            resultUser[i].Group_Role,
+            resultUser[i].groupname,
+            Project_on_term_ID,
+          ],
+          (err, resultAdd, fields1) => {
+            if (err1) {
+              errors++;
+              console.log(err1);
+              // res.status(422).json({ msg: "Query Error", staus: 422 });
+              // break;
+            } else {
+            }
           }
-        })
+        );
       }
-
     }
-  })
+  });
   // }
   if (errors > 0) {
     res.status(422).json({ msg: "Query Error", staus: 422 });
   } else {
     res.status(200).json({ msg: "Success", staus: 200 });
   }
-}
+};
 
 module.exports = {
   getAll,
@@ -970,5 +978,5 @@ module.exports = {
   getOnlyGroupWithID,
   countTeachergroup,
   getAllFilesMajor,
-  addGroupToSeTwo
+  addGroupToSeTwo,
 };

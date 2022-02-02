@@ -56,6 +56,7 @@
                       v-else
                       outlined
                       dense
+                      hide-details
                     ></v-text-field>
                   </div>
                 </div>
@@ -220,10 +221,12 @@ export default {
       return this.handleValidateTextField(
         {
           string: val,
-          option: "onlyNumber",
+          option: "onlyNumberFloat",
           errorMsg: "Invalid score",
         },
-        parseInt(val) > 100
+        parseFloat(val) > 100,
+        parseFloat(val) < 1,
+        val?.length > 4
       );
     },
     handleSetUI() {

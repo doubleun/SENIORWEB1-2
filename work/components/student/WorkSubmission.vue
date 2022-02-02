@@ -4,7 +4,11 @@
     <h1>{{ title }}</h1>
 
     <!-- Work submission alert -->
-    <div class="my-2 ml-auto" style="width: fit-content">
+    <div
+      class="my-2 ml-auto"
+      style="width: fit-content"
+      v-if="progressId !== 10"
+    >
       <v-alert type="warning" v-if="showSubmission"
         >No work submitted, please submit before: {{ submitDate }}
       </v-alert>
@@ -17,7 +21,6 @@
           >Work submitted late ({{ submitDate }})</v-alert
         >
       </div>
-      <!-- <v-alert type="success" v-else>Work submitted</v-alert> -->
     </div>
 
     <!-- Progress card -->

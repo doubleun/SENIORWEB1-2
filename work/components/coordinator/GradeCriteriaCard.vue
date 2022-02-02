@@ -106,7 +106,10 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
+  mixins: [utils],
   props: {
     dataUI: {
       type: Object,
@@ -229,9 +232,16 @@ export default {
       }
     },
     handleCheckValidScore(val) {
-      return parseInt(val) <= 0 || parseInt(val) > 100 || !/^[0-9]+$/.test(val)
-        ? "Invalid score"
-        : true;
+      return this.handleValidateTextField(
+        {
+          string: val,
+          option: "onlyNumberFloat",
+          errorMsg: "Invalid score",
+        },
+        parseFloat(val) > 100,
+        parseFloat(val) < 1,
+        val?.length > 4
+      );
     },
   },
 };

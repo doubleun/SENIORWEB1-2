@@ -3,17 +3,18 @@ const router = require("express").Router();
 const passport = require("passport");
 
 login = passport.authenticate("google", {
-  scope: ["email", "profile"]
+  scope: ["email", "profile"],
 });
 
 redirect = passport.authenticate("google", {
   successRedirect: "/senior",
-  failureRedirect: "/"
+  failureRedirect: "/",
 });
 
 //log out
 logout = (req, res) => {
   req.logOut();
+  req.session = null;
   res.status(200).json({ msg: "logged out" });
 };
 
@@ -26,5 +27,5 @@ module.exports = {
   login,
   redirect,
   logout,
-  test
+  test,
 };

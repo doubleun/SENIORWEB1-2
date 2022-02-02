@@ -45,6 +45,7 @@ export default {
       "progress-4",
       "final-presentation",
       "final-documentation",
+      "evaluation",
       "re-evaluation",
     ];
     // If params is not available in the allowed params, redirect back to the home page

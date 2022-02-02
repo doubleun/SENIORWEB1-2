@@ -19,7 +19,7 @@
           <h3 style="margin-inline-end: 1rem">
             {{ userName }}
           </h3>
-          <v-avatar><img :src="userImage" :alt="userImage"/></v-avatar>
+          <v-avatar><img :src="userImage" :alt="userImage" /></v-avatar>
           <v-icon right>mdi-chevron-down</v-icon>
         </v-btn>
       </template>
@@ -39,7 +39,7 @@ export default {
   data: () => ({
     items: [{ icon: "mdi-logout", title: "Logout" }],
     userName: "",
-    userImage: null
+    userImage: null,
   }),
   created() {
     this.userName = this.$store.getters["auth/currentUser"].name;
@@ -55,9 +55,10 @@ export default {
     },
     async logout() {
       await this.$store.dispatch("auth/logout");
-      this.$router.push("/");
-    }
-  }
+      console.log("re routing back");
+      window.location.reload();
+    },
+  },
 };
 </script>
 

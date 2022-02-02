@@ -91,6 +91,13 @@ export default {
   data: () => ({
     image: itbackground,
   }),
+  async asyncData({ store, redirect }) {
+    console.log(store.getters["auth/currentUser"]);
+    console.log(store.getters["auth/isAuth"]);
+    if (!store.getters["auth/isAuth"]) {
+      redirect("/");
+    }
+  },
   methods: {
     test() {
       console.log(this.$store.state.auth);
@@ -121,7 +128,7 @@ export default {
       }
     },
   },
-  middleware: ["adminRedirect"],
+  middleware: ["adminRedirect", "authenticated"],
   layout: "empty",
 };
 </script>

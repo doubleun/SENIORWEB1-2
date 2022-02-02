@@ -91,7 +91,10 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
+  mixins: [utils],
   props: {
     scoreCriterias: {
       type: Array,
@@ -179,9 +182,15 @@ export default {
       // );
     },
     handleValidateScore(val) {
-      return parseInt(val) < 0 || !/^[0-9]+$/.test(val)
-        ? "Invalid score"
-        : true;
+      return this.handleValidateTextField(
+        {
+          string: val,
+          option: "onlyNumber",
+          errorMsg: "Invalid score",
+        },
+        parseInt(val) > 100,
+        parseInt(val) < 1
+      );
     },
   },
   computed: {
