@@ -29,7 +29,8 @@ export default {
         case "onlyNormalCharEng":
           return (required && !string) ||
             cvAll ||
-            !/^[A-Za-z][A-Za-z ]*$/.test(string)
+            // ANCHOR old: !/^[A-Za-z][A-Za-z ]*$/.test(string)
+            !/^[a-z|A-Z]+(?: [a-z|A-Z]+)*$/.test(string)
             ? errorMsg
             : true;
           break;
