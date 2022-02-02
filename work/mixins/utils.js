@@ -30,12 +30,19 @@ export default {
           return (required && !string) ||
             cvAll ||
             // ANCHOR old: !/^[A-Za-z][A-Za-z ]*$/.test(string)
-            !/^[a-z|A-Z]+(?: [a-z|A-Z]+)*$/.test(string)
+            !/^([a-zA-Z]+\s)*[a-zA-Z]+$/.test(string)
             ? errorMsg
             : true;
           break;
         case "onlyNormalCharEngNoSpace":
           return (required && !string) || cvAll || !/^[A-Za-z]*$/.test(string)
+            ? errorMsg
+            : true;
+          break;
+        case "onlyNormalCharEngAndNumber":
+          return (required && !string) ||
+            cvAll ||
+            !/^([a-zA-Z0-9]+\s)*[a-zA-Z0-9]+$/.test(string)
             ? errorMsg
             : true;
           break;
