@@ -3,11 +3,11 @@ const con = require("../config/db");
 // For admin announcement use major id 99, (see major id in major table)
 
 // get announcment by major id
-getById = async (req, res) => {
+getById =  (req, res) => {
   const MajorID = req.body.MajorID;
   console.log(MajorID);
-  const sql = "SELECT * FROM `announcements` WHERE Major_ID=?";
-  await con.query(sql, MajorID, (err, result, fields) => {
+  const sql = "SELECT * FROM `announcements` WHERE Major_ID=? OR Major_ID = 99";
+   con.query(sql, MajorID, (err, result, fields) => {
     if (err) {
       console.log(err);
       res
