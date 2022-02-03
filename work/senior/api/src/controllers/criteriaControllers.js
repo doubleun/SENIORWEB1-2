@@ -1,3 +1,4 @@
+const { json } = require("express");
 const con = require("../config/db");
 
 //* === Score criteria === *//
@@ -256,15 +257,23 @@ getProgressMaxScore = (req, res) => {
       [Progress_ID, Progress_ID, Project_on_term_ID],
       (err, result, fields) => {
         if (err) throw err;
+        // If no result res right away
+        if (!result || result.length === 0) {
+          res.status(500).json({ msg: "No max score found", status: 500 });
+          return;
+        }
+
         // Basically, get the first result (which will be an object) then convert it into an array of 2 results,
         // Which are score (index 0) follwed by assignment_id (index 1)
         const arr = Object.values(result[0]);
         res.status(200).json({ score: arr[0], Assignment_ID: arr[1] });
+        return;
       }
     );
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal Server Error");
+    return;
   }
 };
 

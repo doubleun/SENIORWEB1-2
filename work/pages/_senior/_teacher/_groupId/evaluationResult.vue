@@ -254,7 +254,6 @@ export default {
             return;
           }
         });
-      // console.log("selected grade ", this.selectedGrade);
     },
   },
 };

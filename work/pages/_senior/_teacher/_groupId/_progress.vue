@@ -13,7 +13,7 @@
       >
         <v-card-title>EVALUATION RESULT</v-card-title>
         <EvaluationResultGrid
-          :Group_ID="this.$store.state.group.currentUserGroup.Group_ID"
+          :Group_ID="GroupDetail.GroupInfo.Group_ID"
           :evalScores="fetchScoresRes"
         />
       </v-card>
@@ -27,6 +27,7 @@
         :Assignment_ID="Assignment_ID"
         :scoreInfo="scoreInfo"
         :progressionDueDate="progressionDueDate"
+        :gradeNameArr="gradeNameArr"
       />
     </main>
   </section>
@@ -109,18 +110,24 @@ export default {
           title: params.progress.replace(dashRegex, " "),
           Assignment_ID: null,
           progressId: null,
+          fetchScoresRes: {},
+          gradeCriterias: [],
           maxScore: null,
           scoreInfo: null,
-          progressionDueDate,
+          gradeNameArr: [],
+          progressionDueDate: !!progressionDueDate ? progressionDueDate : {},
         };
       }
 
       let maxScore = { score: 0, Assignment_ID: 0 };
-      let fetchScoresRes, gradeCriterias;
-      // If re-eval, don't fetch max score
-      if (progressId === 10) {
+      let fetchScoresRes, gradeCriterias, gradeNameArr;
+      console.log(progressId);
+
+      // If progress id = 8 then it's re-eval, so we'll need grade criterias and scores
+      if (progressId === 8) {
         // Fetch available grade criterias
         // Fetch grade from grade criterias
+        console.log("Fetching for re-eval");
         try {
           gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
             Major_ID: store.state.auth.currentUser.major,
@@ -152,30 +159,42 @@ export default {
             // Add to fetchScoresRes
             fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
           }
+
+          // Create grade name array using all available grade criterias
+          gradeNameArr = gradeCriterias.map(
+            (criteria) => criteria.Grade_Criteria_Name
+          );
+          // Add 'as system suggested' as the first element in the array
+          gradeNameArr = ["As system suggested", ...gradeNameArr];
+
+          // If there's a given grade assign it to fetchScoreRes for showing in the EvalResultGrid data-table
+          groupRes.groupInfo[0].Grade
+            ? (fetchScoresRes.normalGrade = groupRes.groupInfo[0].Grade)
+            : (fetchScoresRes.normalGrade = "");
         } catch (err) {
           console.log(err);
           return;
         }
-      } else {
-        // If progress id is 0 then we can't get max score (since progress id 2 is proposal)
-        // Then instead of fetching max score, we fetch only assignment id
-        if (progressId === 0) {
-          console.log("getting assignment id for proposal");
-          maxScore.Assignment_ID = await $axios.$post(
-            "/criteria/getAssignmentId",
-            {
-              Progress_ID: progressId + 2,
-              Group_ID: groupId,
-            }
-          );
-        } else {
-          // Fetch score criteria for setting the max score this user can give
-          maxScore = await $axios.$post("/criteria/getProgressMaxScore", {
-            Group_Role: groupRes.groupInfo[0].Current_Member_Role,
+      }
+
+      // If progress id is 0 then we can't get max score (since progress id 2 is proposal)
+      // Then instead of fetching max score, we fetch only assignment id
+      if (progressId === 0 || progressId === 8) {
+        console.log("getting assignment id for proposal");
+        maxScore.Assignment_ID = await $axios.$post(
+          "/criteria/getAssignmentId",
+          {
             Progress_ID: progressId + 2,
-            Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-          });
-        }
+            Group_ID: groupId,
+          }
+        );
+      } else {
+        // Fetch score criteria for setting the max score this user can give
+        maxScore = await $axios.$post("/criteria/getProgressMaxScore", {
+          Group_Role: groupRes.groupInfo[0].Current_Member_Role,
+          Progress_ID: progressId + 2,
+          Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+        });
       }
 
       // FIXME: There should be a check before fetching group, not after fetched it
@@ -215,6 +234,7 @@ export default {
         gradeCriterias: !!gradeCriterias ? gradeCriterias : [],
         scoreInfo,
         noWorkSubmitted: false,
+        gradeNameArr: !!gradeNameArr ? gradeNameArr : [],
         progressionDueDate,
       };
     } catch (error) {
