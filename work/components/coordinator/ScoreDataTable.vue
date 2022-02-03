@@ -7,7 +7,7 @@
         v-model="search"
         clearable
         hide-details
-        label="Search "
+        label="Search"
         prepend-inner-icon="mdi-magnify"
         filled
         rounded
