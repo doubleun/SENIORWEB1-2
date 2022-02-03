@@ -65,34 +65,36 @@
 
         <!-- Enter score field -->
         <v-form ref="form" v-model="valid">
-          <div v-if="maxScore !== 0 || progressId !== 10">
-            <h5>Score</h5>
-            <v-row>
-              <v-col cols="8">
-                <v-text-field
-                  v-model="givenScore"
-                  :disabled="showSubmitted"
-                  :rules="[
-                    () => givenScore !== null || 'This field is required',
-                    handleCheckValidScore,
-                  ]"
-                  placeholder="Score:"
-                  outlined
-                  dense
-                  type="number"
-                  min="0"
-                  step="1"
-                  @keyup="handleScoreInput"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="4">
-                <p style="margin: 0; padding-top: 10px">/ {{ maxScore }}</p>
-              </v-col>
-            </v-row>
+          <div v-if="progressId !== 0">
+            <div v-if="maxScore !== 0">
+              <h5>Score</h5>
+              <v-row>
+                <v-col cols="8">
+                  <v-text-field
+                    v-model="givenScore"
+                    :disabled="showSubmitted"
+                    :rules="[
+                      () => givenScore !== null || 'This field is required',
+                      handleCheckValidScore,
+                    ]"
+                    placeholder="Score:"
+                    outlined
+                    dense
+                    type="number"
+                    min="0"
+                    step="1"
+                    @keyup="handleScoreInput"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <p style="margin: 0; padding-top: 10px">/ {{ maxScore }}</p>
+                </v-col>
+              </v-row>
+            </div>
           </div>
 
           <!-- If re-eval it's grade selection instead -->
-          <div v-if="progressId === 10">
+          <div v-if="progressId === 10 && groupAdvisor">
             <h5>Grade</h5>
             <v-row>
               <v-col cols="12">
@@ -112,7 +114,7 @@
           <h5>Comment</h5>
           <v-textarea
             v-model="comment"
-            :disabled="showSubmitted"
+            :disabled="showSubmitted || haveGrade"
             :rules="[() => !!comment || 'This field is required']"
             placeholder="Comment:"
             outlined
@@ -124,7 +126,7 @@
           <h5>Upload File</h5>
           <v-file-input
             :clearable="false"
-            :disabled="showSubmitted"
+            :disabled="showSubmitted || haveGrade"
             outlined
             hide-details
             dense
@@ -136,7 +138,16 @@
 
         <v-btn
           color="primary"
-          :disabled="showSubmitted"
+          :disabled="showSubmitted || haveGrade"
+          v-if="progressId === 10"
+          @click="handleSubmitGrade"
+          >SUBMIT</v-btn
+        >
+
+        <v-btn
+          color="primary"
+          :disabled="showSubmitted || haveGrade"
+          v-else
           @click="handleSubmitScore"
           >SUBMIT</v-btn
         >
@@ -176,9 +187,19 @@ export default {
       type: Object,
       default: () => {},
     },
+    groupAdvisor: {
+      type: Boolean,
+      default: () => false,
+    },
     gradeNameArr: {
       type: Array,
       default: () => [],
+    },
+    fetchScoresRes: {
+      type: Object,
+      default: () => {
+        suggestGrade: null;
+      },
     },
   },
   data() {
@@ -230,12 +251,8 @@ export default {
     // If there is score to display or score is zero (in case of 0 score or proposal which score will always be zero)
     // Then set the UI of submitted score
     if (!!this.scoreInfo?.Score || this.scoreInfo?.Score === 0) {
-      // console.log("score info:", this.scoreInfo);
+      console.log("score info:", this.scoreInfo);
       this.showSubmitted = true;
-
-      // * ANCHOR: FOR RE-EVAL
-      // If there's given score on the assignment then that means this group already got the new grade
-      this.haveGrade = true;
 
       // Sets score
       this.givenScore = this.scoreInfo.Score;
@@ -289,6 +306,7 @@ export default {
         timeStyle: "medium",
       });
 
+      // Create File object for "Download" button on the right (use for downloading student's work)
       // Get all submitted files as file object
       let files = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file (role 2 and 3 are for students)
@@ -336,6 +354,53 @@ export default {
 
     // Set links array
     this.links = this.submittedFiles.filter((file) => file.Type === "Link");
+
+    // * ANCHOR: FOR RE-EVAL
+    // If there's given score on the assignment then that means this group already got the new grade
+    if (
+      this.progressId === 10 &&
+      !!this.$store.state.group.currentUserGroup?.Received_New_Grade
+    ) {
+      // Fetch given evaluation grade and comment
+      const evalInfo = await this.$axios.$post("/group/getTeachersEval", {
+        Email: this.$store.state.auth.currentUser.email,
+        Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
+        Single: true,
+      });
+      console.log("Eval Info: ", evalInfo);
+
+      // Check if this teacher given grade and comment yet
+      if (!!evalInfo?.eval && evalInfo?.eval.length !== 0) {
+        this.haveGrade = true;
+
+        this.comment = evalInfo.eval[0].Comment;
+        this.selectedGrade = this.$store.state.group.currentUserGroup.Grade;
+
+        // If there's file teacher submitted in this progress, then create a blob
+        if (
+          !!evalInfo.eval[0]?.File_Name &&
+          evalInfo.eval[0]?.File_Name !== ""
+        ) {
+          // Sets file
+          const blob = await this.$axios.$get(
+            "/public_senior/uploads/assignments/" + evalInfo.eval[0].File_Name,
+            {
+              responseType: "blob",
+            }
+          );
+          this.teacherFile = new File(
+            [blob],
+            // Remove time stamp in front of each file name
+            evalInfo.eval[0].File_Name.replace(/(^\d+-)/, ""),
+            {
+              type: blob.type,
+            }
+          );
+        } else {
+          this.teacherFile = null;
+        }
+      }
+    }
   },
   beforeDestroy() {
     // Clean up
@@ -379,6 +444,7 @@ export default {
     },
     async handleSubmitScore() {
       // console.log(this.showSubmitted)
+      console.log("Submitting score...");
       try {
         // If already submitted score or no work has been submitted this function won't run
         if (this.showSubmitted || this.noWorkSubmitted) return;
@@ -483,73 +549,100 @@ export default {
         return;
       }
     },
-    // async submitGrade() {
-    //   // If group alrady has a grade, teacher can't give them again
-    //   // If no current group member id also return
-    //   if (this.haveGrade || !this.currentMemberId) return;
+    async handleSubmitGrade() {
+      try {
+        // Get current member id
+        const currentMemberId =
+          this.$store.state.group.currentUserGroup?.Current_Member_ID;
+        // If group alrady has a grade, teacher can't give them again
+        // If no current group member id also return
+        if (this.haveGrade || !currentMemberId) return;
 
-    //   console.log(this.selectedGrade);
-    //   // If no grade has been selected, warn the user
-    //   if (this.groupAdvisor && this.selectedGrade === null) {
-    //     this.$swal.fire(
-    //       "Missing data",
-    //       "Please select Grade before submit.",
-    //       "info"
-    //     );
-    //     return;
-    //   }
+        console.log(this.selectedGrade);
+        // If no grade has been selected, warn the user
+        if (this.groupAdvisor && this.selectedGrade === null) {
+          this.$swal.fire(
+            "Missing data",
+            "Please select Grade before submit.",
+            "info"
+          );
+          return;
+        }
 
-    //   const submitGrade =
-    //     this.selectedGrade === "As system suggested"
-    //       ? this.fetchScoresRes.suggestGrade
-    //       : this.selectedGrade;
+        // If no suggest grade throw error
+        if (!this.fetchScoresRes?.suggestGrade)
+          throw new Error("No suggestion grade error");
 
-    //   this.$swal
-    //     .fire({
-    //       icon: "info",
-    //       title: "Submit Evaluation",
-    //       text: "You can submit evaluation only once.",
-    //       showCancelButton: true,
-    //       confirmButtonColor: "#3085d6",
-    //       cancelButtonColor: "#d33",
-    //       confirmButtonText: "Yes",
-    //     })
-    //     .then(async (result) => {
-    //       try {
-    //         if (result.isConfirmed) {
-    //           const res = await this.$axios.$post("/group/grading", {
-    //             Group_ID: this.Group_ID,
-    //             // Input grade based on selected option
-    //             Grade: submitGrade,
-    //             isReEval: submitGrade === "I" ? true : false,
-    //             isAdvisor: this.groupAdvisor,
-    //             Comment: this.comment,
-    //             Group_Member_ID: this.currentMemberId,
-    //           });
+        const submitGrade =
+          this.selectedGrade === "As system suggested"
+            ? this.fetchScoresRes.suggestGrade
+            : this.selectedGrade;
 
-    //           if (res.status == 200) {
-    //             this.$swal.fire(
-    //               "Successed",
-    //               "Grade has been saved.",
-    //               "success"
-    //             );
-    //             // Update UI
-    //             this.fetchScoresRes.normalGrade = submitGrade;
-    //             this.haveGrade = true;
+        // Create form data
+        const formData = new FormData();
 
-    //             return;
-    //           } else {
-    //             this.$swal.fire("Error", res.msg, "error");
-    //             return;
-    //           }
-    //         }
-    //       } catch (err) {
-    //         console.log(err);
-    //         this.$swal.fire("Error", err.message, "error");
-    //         return;
-    //       }
-    //     });
-    // },
+        // Append all data
+        formData.append(
+          "Group_ID",
+          this.$store.state.group.currentUserGroup.Group_ID
+        );
+        formData.append("Grade", submitGrade);
+        formData.append("isReEval", submitGrade === "I" ? true : false);
+        formData.append("isAdvisor", this.groupAdvisor);
+        formData.append("Comment", this.comment);
+        formData.append("Assignment_ID", this.Assignment_ID);
+        formData.append("Group_Member_ID", currentMemberId);
+
+        // If re-eval create form data
+        if (this.progressId === 10) {
+          // Append form data with file
+          formData.append("file", this.teacherFile);
+          formData.append("newEvalScore", true);
+        }
+
+        this.$swal
+          .fire({
+            icon: "info",
+            title: "Submit Evaluation",
+            text: "You can submit evaluation only once.",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes",
+          })
+          .then(async (result) => {
+            try {
+              if (result.isConfirmed) {
+                const res = await this.$axios.$post("/group/grading", formData);
+
+                if (res.status == 200) {
+                  this.$swal.fire(
+                    "Successed",
+                    "Grade has been saved.",
+                    "success"
+                  );
+                  // Update UI
+                  this.fetchScoresRes.normalGrade = submitGrade;
+                  this.haveGrade = true;
+
+                  return;
+                } else {
+                  this.$swal.fire("Error", res.msg, "error");
+                  return;
+                }
+              }
+            } catch (err) {
+              console.log(err);
+              this.$swal.fire("Error", err.message, "error");
+              return;
+            }
+          });
+      } catch (err) {
+        console.log(err);
+        this.$swal.fire("Error", err.message, "error");
+        return;
+      }
+    },
   },
 };
 </script>

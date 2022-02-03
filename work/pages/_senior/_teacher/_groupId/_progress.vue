@@ -28,6 +28,8 @@
         :scoreInfo="scoreInfo"
         :progressionDueDate="progressionDueDate"
         :gradeNameArr="gradeNameArr"
+        :groupAdvisor="groupAdvisor"
+        :fetchScoresRes="fetchScoresRes"
       />
     </main>
   </section>
@@ -76,6 +78,11 @@ export default {
         Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
 
+      // Sets group advisor to true if the current user is the advisor of the group (Member_Role of 0 is advisor)
+      let groupAdvisor;
+      if (groupRes.groupInfo[0].Current_Member_Role === 0) groupAdvisor = true;
+      console.log("Is group advisor: ", groupAdvisor);
+
       // Fetch submitted file(s)
       const submittedFiles = await $axios.$post(
         "/assignment/getAssignmentFiles",
@@ -115,6 +122,7 @@ export default {
           maxScore: null,
           scoreInfo: null,
           gradeNameArr: [],
+          groupAdvisor,
           progressionDueDate: !!progressionDueDate ? progressionDueDate : {},
         };
       }
@@ -235,6 +243,7 @@ export default {
         scoreInfo,
         noWorkSubmitted: false,
         gradeNameArr: !!gradeNameArr ? gradeNameArr : [],
+        groupAdvisor,
         progressionDueDate,
       };
     } catch (error) {

@@ -265,12 +265,16 @@ getTeacherProgressScore = (req, res) => {
   const { Group_Member_ID, Assignment_ID } = req.body;
   console.log(Group_Member_ID, Assignment_ID);
   const sql =
-    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc LEFT JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ?";
+    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc LEFT JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ? AND f.Assignment_ID = ?";
   try {
-    con.query(sql, [Group_Member_ID, Assignment_ID], (err, result, fields) => {
-      if (err) throw err;
-      res.status(200).json(result[0]);
-    });
+    con.query(
+      sql,
+      [Group_Member_ID, Assignment_ID, Assignment_ID],
+      (err, result, fields) => {
+        if (err) throw err;
+        res.status(200).json(result[0]);
+      }
+    );
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal Server Error");
