@@ -60,7 +60,7 @@
               <v-btn
                 :loading="loading3"
                 :disabled="loading3"
-                @click="handleExports(items)"
+                @click="handleExports(filterGrade)"
                 class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
               >
                 Export to Excel
@@ -99,14 +99,16 @@ export default {
         Academic_Term: yearNSemsters[0].Academic_Term,
       });
 
-      console.log("score", score);
+
+
+      // console.log("score", score);
 
       // header
       var progression = store.state.group.availableProgress;
-      console.log("progression old", progression);
+      // console.log("progression", progression);
       // mapping progression
       var header = progression.map((el) => ({
-        text: el.Progress_Name.replace(/\s+/g, ""),
+        text: el.Progress_Name.toUpperCase(),
         value: el.Progress_Name.replace(/\s+/g, ""),
         align: "center",
       }));
@@ -116,17 +118,17 @@ export default {
           text: "ID",
           align: "center",
           filterable: false,
-          value: "User_Identity_ID",
+          value: "Id",
         },
-        { text: "NAME", value: "student", align: "center" }
+        { text: "NAME", value: "Name", align: "center" }
       );
 
       header.push(
-        { text: "TOTAL", value: "total", align: "center" },
-        { text: "GRADE", value: "grade", align: "center" }
+        { text: "TOTAL", value: "Total", align: "center" },
+        { text: "GRADE", value: "Grade", align: "center" }
       );
 
-      console.log("header", header);
+      // console.log("header", header);
 
       // Fetch grade criteria
       var gradeCriteria = await $axios.$post("/criteria/gradeMajor", {
@@ -151,12 +153,14 @@ export default {
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
     this.selectedGrade = this.gradeCriteria[0];
     this.filterGrade = this.grade.filter((el) => el.grade != "All");
+
+    // console.log("filterGrade", this.filterGrade);
   },
   methods: {
     async handelFilterWithAcademic() {
-      console.log("major", this.$store.state.auth.currentUser.major);
-      console.log("year", this.selectedYear);
-      console.log("sem", this.selectedSemester);
+      // console.log("major", this.$store.state.auth.currentUser.major);
+      // console.log("year", this.selectedYear);
+      // console.log("sem", this.selectedSemester);
 
       this.loading3 = true;
       try {
@@ -173,7 +177,7 @@ export default {
             ? el.grade != "All"
             : el.grade == this.selectedGrade.Grade_Criteria_Name
         );
-        console.log("score", score);
+        // console.log("score", score);
         // console.log("filter grade", this.finalgrade);
       } catch (error) {
         console.log(error);
@@ -182,7 +186,7 @@ export default {
     },
     async handelFilterWithGrade() {
       // console.log("filter", this.selectedGrade.Grade_Criteria_Name == "All");
-      console.log(" grade", this.grade);
+      // console.log(" grade", this.grade);
       // let grade = this.selectedGrade.Grade_Criteria_Name;
       this.loading3 = true;
       try {
@@ -191,7 +195,7 @@ export default {
             ? el.grade != "All"
             : el.grade == this.selectedGrade.Grade_Criteria_Name
         );
-        console.log("filter grade", this.filterGrade);
+        // console.log("filter grade", this.filterGrade);
       } catch (error) {
         console.log(error);
       }
