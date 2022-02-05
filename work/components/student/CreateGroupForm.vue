@@ -143,11 +143,12 @@
                     <v-autocomplete
                       v-model="selectedStudent[index]"
                       :loading="studentLoading"
-                      :items="allStudentsInSchool"
+                      :items="tempAllStudentsInSchool"
                       :filter="customStudentFilter"
                       :disabled="
                         index == 0 || !headMember || memberStatus[index] === 1
                       "
+                      @click="handelNoDuplicateMember('student', index)"
                       class="mt-5"
                       outlined
                       dense
@@ -219,8 +220,9 @@
                   </v-chip>
                   <v-autocomplete
                     v-model="selectedAdvisor"
-                    :items="allTeachersInSchool"
+                    :items="tempAllTeachersInSchool"
                     :filter="customTeacherFilter"
+                    @click="handelNoDuplicateMember('teacher', index)"
                     :disabled="
                       (!!selectedAdvisor && groupCreated) || !headMember
                     "
@@ -304,8 +306,9 @@
                   </v-chip>
                   <v-autocomplete
                     v-model="selectedCommittee1"
-                    :items="allTeachersInSchool"
+                    :items="tempAllTeachersInSchool"
                     :filter="customTeacherFilter"
+                    @click="handelNoDuplicateMember('teacher', index)"
                     :disabled="
                       (!!selectedCommittee1 && groupCreated) || !headMember
                     "
@@ -347,8 +350,9 @@
                   </v-chip>
                   <v-autocomplete
                     v-model="selectedCommittee2"
-                    :items="allTeachersInSchool"
+                    :items="tempAllTeachersInSchool"
                     :filter="customTeacherFilter"
+                    @click="handelNoDuplicateMember('teacher', index)"
                     :disabled="
                       (!!selectedCommittee2 && groupCreated) || !headMember
                     "
@@ -436,6 +440,9 @@ export default {
     // All students and teachers in major fecthed from database (see 'async fetch' down below)
     allStudentsInSchool: [],
     allTeachersInSchool: [],
+    // for filter data
+    tempAllStudentsInSchool: [],
+    tempAllTeachersInSchool: [],
     // Filterd list of students from all users in the major
     filteredStudents: [],
     // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
@@ -481,8 +488,10 @@ export default {
     });
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
+    this.tempAllStudentsInSchool = res.students;
     // console.log("Students: ", res.students);
     this.allTeachersInSchool = res.teachers;
+    this.tempAllTeachersInSchool = res.teachers;
     // console.log("Teachers: ", res.teachers);
   },
   watch: {
@@ -494,6 +503,60 @@ export default {
     },
   },
   methods: {
+    // filter * without select duplicate member
+    // role (teacher,student)
+    handelNoDuplicateMember(role, index) {
+      var item, selectedItem;
+      if (role == "student") {
+        // use clone deep method because data like related
+        item = this.handleCloneDeep(this.allStudentsInSchool);
+        selectedItem = this.handleCloneDeep(this.selectedStudent);
+      } else {
+        // use clone deep method because data like related
+        item = this.handleCloneDeep(this.allTeachersInSchool);
+        selectedItem = this.handleCloneDeep(this.selectedAdvisor);
+      }
+
+      // delete data from delected array
+      // selectedItem.splice(index, 1);
+
+      // console.log("index", index);
+      // console.log("item", item);
+      // console.log("all", this.allStudentsInSchool);
+
+      for (let i = 0; i < selectedItem.length; i++) {
+        if (selectedItem[i] == null) continue;
+
+        // find index of selected user to make filter data
+        const pos = item.findIndex((item) => {
+          return item.User_Identity_ID == selectedItem[i].User_Identity_ID;
+        });
+
+        // make filtered data
+        if (pos != -1) {
+          item.splice(pos, 1);
+          console.log("item1", item);
+          this.tempAllStudentsInSchool = item;
+          continue;
+        }
+      }
+
+      // item.forEach((el) => {
+      //   if (el == null) return;
+
+      //   const index = item.findIndex((it) => {
+      //     console.log("el", el.User_Identity_ID);
+      //     console.log("it", it.User_Identity_ID);
+      //     return el.User_Identity_ID == it.User_Identity_ID;
+      //   });
+      //   if (index != -1) {
+      //     console.log(index);
+      //     item.splice(index, 1);
+      //     return item;
+      //   }
+      // });
+    },
+
     // Add member fields
     addMemberFields() {
       this.projectMembers = [
