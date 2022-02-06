@@ -143,12 +143,14 @@
                     <v-autocomplete
                       v-model="selectedStudent[index]"
                       :loading="studentLoading"
-                      :items="tempAllStudentsInSchool"
+                      :items="allStudentsInSchool"
                       :filter="customStudentFilter"
                       :disabled="
                         index == 0 || !headMember || memberStatus[index] === 1
                       "
-                      @click="handelNoDuplicateMember('student', index)"
+                      :rules="[
+                        (val) => selectMemberRules('student', index, val),
+                      ]"
                       class="mt-5"
                       outlined
                       dense
@@ -220,11 +222,12 @@
                   </v-chip>
                   <v-autocomplete
                     v-model="selectedAdvisor"
-                    :items="tempAllTeachersInSchool"
+                    :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
                       (!!selectedAdvisor && groupCreated) || !headMember
                     "
+                    :rules="[(val) => selectMemberRules('advisor', 0, val)]"
                     outlined
                     dense
                     color="blue"
@@ -233,9 +236,6 @@
                     item-text="User_Name"
                     item-value="User_Name"
                     placeholder="Search advisor name"
-                    :rules="[
-                      () => !!selectedAdvisor || 'This field is required',
-                    ]"
                     clearable
                     return-object
                   ></v-autocomplete>
@@ -305,11 +305,12 @@
                   </v-chip>
                   <v-autocomplete
                     v-model="selectedCommittee1"
-                    :items="tempAllTeachersInSchool"
+                    :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
                       (!!selectedCommittee1 && groupCreated) || !headMember
                     "
+                    :rules="[(val) => selectMemberRules('advisor', 1, val)]"
                     outlined
                     dense
                     color="blue"
@@ -318,9 +319,6 @@
                     item-text="User_Name"
                     item-value="User_Name"
                     placeholder="Search committee 1"
-                    :rules="[
-                      () => !!selectedCommittee1 || 'This field is required',
-                    ]"
                     clearable
                     return-object
                   ></v-autocomplete>
@@ -348,11 +346,12 @@
                   </v-chip>
                   <v-autocomplete
                     v-model="selectedCommittee2"
-                    :items="tempAllTeachersInSchool"
+                    :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
                       (!!selectedCommittee2 && groupCreated) || !headMember
                     "
+                    :rules="[(val) => selectMemberRules('advisor', 2, val)]"
                     outlined
                     dense
                     color="blue"
@@ -363,9 +362,6 @@
                     placeholder="Search committee 2"
                     clearable
                     return-object
-                    :rules="[
-                      () => !!selectedCommittee2 || 'This field is required',
-                    ]"
                   ></v-autocomplete>
                 </v-col>
               </v-row>
@@ -437,9 +433,6 @@ export default {
     // All students and teachers in major fecthed from database (see 'async fetch' down below)
     allStudentsInSchool: [],
     allTeachersInSchool: [],
-    // for filter data
-    tempAllStudentsInSchool: [],
-    tempAllTeachersInSchool: [],
     // Filterd list of students from all users in the major
     filteredStudents: [],
     // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
@@ -485,10 +478,8 @@ export default {
     });
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
-    this.tempAllStudentsInSchool = res.students;
     // console.log("Students: ", res.students);
     this.allTeachersInSchool = res.teachers;
-    this.tempAllTeachersInSchool = res.teachers;
     // console.log("Teachers: ", res.teachers);
   },
   watch: {
@@ -500,88 +491,52 @@ export default {
     },
   },
   methods: {
-    // filter * without select duplicate member
-    // role (teacher,student)
-    handelNoDuplicateMember(role, index = 0) {
-      var item;
-      var selectedItem;
-      if (role == "student") {
-        // use clone deep method because data like related
-        item = this.handleCloneDeep(this.allStudentsInSchool);
-        selectedItem = this.handleCloneDeep(this.selectedStudent);
-
-        // loop for check selectedStudent then delete for filter
-        for (let i = 0; i < selectedItem.length; i++) {
-          if (selectedItem[i] == null) continue;
-
-          // find index of selected user to make filter data
-          const pos = item.findIndex((item) => {
-            return item.User_Identity_ID == selectedItem[i].User_Identity_ID;
-          });
-
-          // make filtered data
-          if (pos != -1) {
-            item.splice(pos, 1);
-            console.log("item1", item);
-            this.tempAllStudentsInSchool = item;
-            continue;
-          }
-        }
-        return this.tempAllStudentsInSchool;
-      } else {
-        // use clone deep method because data like related
-        item = this.handleCloneDeep(this.allTeachersInSchool);
-        // selectedAdvisor = this.selectedAdvisor;
-        // selectedCommittee1 = this.selectedCommittee1;
-        // selectedCommittee2 = this.selectedCommittee2;
-
-        console.log("teacher temp", this.tempAllTeachersInSchool);
-        console.log("item", item);
-
-        this.tempAllTeachersInSchool = item.filter(
-          (el) =>
-            // console.log("email", el.User_Email);
-            el.User_Email !=
-              (this.selectedAdvisor == null
-                ? " "
-                : this.selectedAdvisor.User_Email) &&
-            el.User_Email !=
-              (this.selectedCommittee1 == null
-                ? " "
-                : this.selectedCommittee1.User_Email) &&
-            el.User_Email !=
-              (this.selectedCommittee2 == null
-                ? " "
-                : this.selectedCommittee2.User_Email)
-        );
-
-        console.log("teacher temp 1", this.tempAllTeachersInSchool);
-        return this.tempAllTeachersInSchool;
+    // student selected rules
+    selectMemberRules(role, index, val) {
+      // console.log("index", index);
+      console.log("select advisro", this.selectedAdvisor);
+      console.log("val", val);
+      let errorMsg = true;
+      if (!val) {
+        return "This field is required";
       }
 
-      // delete data from delected array
-      // selectedItem.splice(index, 1);
+      switch (role) {
+        case "student":
+          for (let i = 0; i < this.selectedStudent.length; i++) {
+            if (this.selectedStudent[i] == null || i == index) continue;
+            if (
+              this.selectedStudent[i].User_Identity_ID == val.User_Identity_ID
+            ) {
+              errorMsg = "Student has been in group";
+              break;
+            } else {
+              errorMsg = true;
+            }
+          }
+        case "advisor":
+          console.log("advisor");
 
-      // console.log("index", index);
-      // console.log("item", item);
-      // console.log("all", this.allStudentsInSchool);
+          let selectedTeacher = [
+            this.selectedAdvisor,
+            this.selectedCommittee1,
+            this.selectedCommittee2,
+          ];
 
-      // item.forEach((el) => {
-      //   if (el == null) return;
+          for (let i = 0; i < selectedTeacher.length; i++) {
+            if (selectedTeacher[i] == null || i == index) continue;
+            if (selectedTeacher[i].User_Email == val.User_Email) {
+              errorMsg = "Teacher has been in group";
+              break;
+            } else {
+              errorMsg = true;
+            }
+          }
+          break;
+      }
 
-      //   const index = item.findIndex((it) => {
-      //     console.log("el", el.User_Identity_ID);
-      //     console.log("it", it.User_Identity_ID);
-      //     return el.User_Identity_ID == it.User_Identity_ID;
-      //   });
-      //   if (index != -1) {
-      //     console.log(index);
-      //     item.splice(index, 1);
-      //     return item;
-      //   }
-      // });
+      return errorMsg;
     },
-
     // Add member fields
     addMemberFields() {
       this.projectMembers = [
@@ -602,14 +557,12 @@ export default {
     },
     // Advisor, co-advisor, committee autocomplete filter (ie. Teacher filter)
     customTeacherFilter(item, queryText, itemText) {
-      let itemA = this.handelNoDuplicateMember("teacher");
-
       return (
-        itemA.User_Role !== 1 &&
+        item.User_Role !== 1 &&
         queryText !== this.selectedAdvisor &&
         // queryText !== this.selectedCoAdvisor &&
         queryText !== this.selectedCommittee1 &&
-        itemA.User_Name.indexOf(queryText) > -1
+        item.User_Name.indexOf(queryText) > -1
       );
     },
     async submitInfo() {
