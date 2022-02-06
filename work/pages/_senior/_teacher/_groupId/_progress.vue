@@ -6,6 +6,18 @@
       <!-- Card (Evaluation result) -->
       <ProjectDetailCard :GroupDetail="GroupDetail" />
 
+      <!-- Evaluation result -->
+      <v-card
+        class="co-evaluation-result-card my-12"
+        v-if="this.$route.params.progress === 're-evaluation'"
+      >
+        <v-card-title>EVALUATION RESULT</v-card-title>
+        <EvaluationResultGrid
+          :Group_ID="GroupDetail.GroupInfo.Group_ID"
+          :evalScores="fetchScoresRes"
+        />
+      </v-card>
+
       <!-- Display work -->
       <DisplayWorkSection
         :noWorkSubmitted="noWorkSubmitted"
@@ -15,6 +27,9 @@
         :Assignment_ID="Assignment_ID"
         :scoreInfo="scoreInfo"
         :progressionDueDate="progressionDueDate"
+        :gradeNameArr="gradeNameArr"
+        :groupAdvisor="groupAdvisor"
+        :fetchScoresRes="fetchScoresRes"
       />
     </main>
   </section>
@@ -38,6 +53,7 @@ export default {
         "progress-4",
         "final-presentation",
         "final-documentation",
+        "evaluation",
         "re-evaluation",
       ];
       !allProgresses.includes(params.progress) &&
@@ -61,6 +77,11 @@ export default {
         Email: store.state.auth.currentUser.email,
         Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
+
+      // Sets group advisor to true if the current user is the advisor of the group (Member_Role of 0 is advisor)
+      let groupAdvisor;
+      if (groupRes.groupInfo[0].Current_Member_Role === 0) groupAdvisor = true;
+      console.log("Is group advisor: ", groupAdvisor);
 
       // Fetch submitted file(s)
       const submittedFiles = await $axios.$post(
@@ -96,16 +117,77 @@ export default {
           title: params.progress.replace(dashRegex, " "),
           Assignment_ID: null,
           progressId: null,
+          fetchScoresRes: {},
+          gradeCriterias: [],
           maxScore: null,
           scoreInfo: null,
-          progressionDueDate,
+          gradeNameArr: [],
+          groupAdvisor,
+          progressionDueDate: !!progressionDueDate ? progressionDueDate : {},
         };
       }
 
       let maxScore = { score: 0, Assignment_ID: 0 };
+      let fetchScoresRes, gradeCriterias, gradeNameArr;
+      console.log(progressId);
+
+      // If progress id = 8 then it's re-eval, so we'll need grade criterias and scores
+      if (progressId === 8) {
+        // Fetch available grade criterias
+        // Fetch grade from grade criterias
+        console.log("Fetching for re-eval");
+        try {
+          gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
+            Major_ID: store.state.auth.currentUser.major,
+          });
+
+          // Fetch evaluation scores
+          fetchScoresRes = await $axios.$post(
+            "/assignment/getEvaluationScores",
+            {
+              Group_ID: groupId,
+            }
+          );
+
+          // If there are score (in any progress from 1 - final) then calculate the total score, and suggested grade
+          if (!!fetchScoresRes && fetchScoresRes.length !== 0) {
+            // Calculate total score
+            fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
+              (prev, current) =>
+                parseFloat(prev) + (!current ? 0 : parseFloat(current)),
+              0
+            );
+
+            // Calculate sugesstion grade
+            const suggestGrade = gradeCriterias.find(
+              (criteria) => fetchScoresRes.total >= criteria.Grade_Criteria_Pass
+            );
+            console.log("Suggest grade: ", suggestGrade);
+
+            // Add to fetchScoresRes
+            fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
+          }
+
+          // Create grade name array using all available grade criterias
+          gradeNameArr = gradeCriterias.map(
+            (criteria) => criteria.Grade_Criteria_Name
+          );
+          // Add 'as system suggested' as the first element in the array
+          gradeNameArr = ["As system suggested", ...gradeNameArr];
+
+          // If there's a given grade assign it to fetchScoreRes for showing in the EvalResultGrid data-table
+          groupRes.groupInfo[0].Grade
+            ? (fetchScoresRes.normalGrade = groupRes.groupInfo[0].Grade)
+            : (fetchScoresRes.normalGrade = "");
+        } catch (err) {
+          console.log(err);
+          return;
+        }
+      }
+
       // If progress id is 0 then we can't get max score (since progress id 2 is proposal)
       // Then instead of fetching max score, we fetch only assignment id
-      if (progressId === 0) {
+      if (progressId === 0 || progressId === 8) {
         console.log("getting assignment id for proposal");
         maxScore.Assignment_ID = await $axios.$post(
           "/criteria/getAssignmentId",
@@ -156,8 +238,12 @@ export default {
           GroupInfo: groupRes.groupInfo[0],
           GroupMembers: groupRes.groupMembers,
         },
+        fetchScoresRes: !!fetchScoresRes ? fetchScoresRes : {},
+        gradeCriterias: !!gradeCriterias ? gradeCriterias : [],
         scoreInfo,
         noWorkSubmitted: false,
+        gradeNameArr: !!gradeNameArr ? gradeNameArr : [],
+        groupAdvisor,
         progressionDueDate,
       };
     } catch (error) {

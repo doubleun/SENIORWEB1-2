@@ -113,7 +113,7 @@ export default {
           id: 9,
           icon: "mdi-restore",
           title: "Re - evaluation",
-          to: `/senior${this.$store.state.auth.currentUser.senior}/student/stuReevaluationForm`,
+          to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/re-evaluation`,
           disabled:
             !this.$store.state.group?.currentUserGroup ||
             this.$store.state.group?.currentUserGroup?.Group_Progression < 10,
@@ -135,10 +135,19 @@ export default {
       (progress) => progress.Progress_ID
     );
 
+    // Check if this student has a group
+    const userGroup = this.$store.state.group.currentUserGroup;
+
     // Filter to get only available progresses (which comes from score criterias where 'Total' not equal to 0)
     // Includes the ones with id = 0, which means they're not depending on score criterias
     this.items = this.items.filter(
-      (item) => item.id === 0 || availableIds.includes(item.id)
+      (item) =>
+        item.id === 0 ||
+        availableIds.includes(item.id) ||
+        // If Is_Re_Eval flag of the group is 1 it'll push item No.9 which is Re-eval menu into the array
+        (item.id === 9 && userGroup
+          ? this.$store.state.group.currentUserGroup.Is_Re_Eval
+          : 0)
     );
   },
 };

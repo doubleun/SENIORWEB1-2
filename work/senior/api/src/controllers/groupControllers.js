@@ -385,7 +385,7 @@ getGroupWithID = async (req, res) => {
 
     // 2.) Select query for group info
     const sqlGroupInfo =
-      "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Is_Re_Eval, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
+      "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Is_Re_Eval, g.Received_New_Grade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
     // Group info result
     con.query(sqlGroupInfo, [Email, Group_ID], (err, groupInfo) => {
       if (err) throw err;
@@ -403,7 +403,7 @@ getGroupWithID = async (req, res) => {
 getGroupInfo = (req, res) => {
   const { User_Email, Project_on_term_ID } = req.body;
   const sql =
-    "SELECT gm.Group_Member_ID, gm.User_Phone, gm.Group_Role, gm.Group_ID, gm.User_Status, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Group_Status, g.Group_Progression, g.Grade, g.Is_Re_Eval FROM `groupmembers` gm INNER JOIN `groups` g ON gm.Group_ID = g.Group_ID WHERE gm.User_Email = ? AND gm.Project_on_term_ID = ? AND NOT gm.User_Status = 2 AND NOT g.Group_Status = 0";
+    "SELECT gm.Group_Member_ID, gm.User_Phone, gm.Group_Role, gm.Group_ID, gm.User_Status, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Group_Status, g.Group_Progression, g.Grade, g.Is_Re_Eval, g.Received_New_Grade FROM `groupmembers` gm INNER JOIN `groups` g ON gm.Group_ID = g.Group_ID WHERE gm.User_Email = ? AND gm.Project_on_term_ID = ? AND NOT gm.User_Status = 2 AND NOT g.Group_Status = 0";
   con.query(sql, [User_Email, Project_on_term_ID], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -474,10 +474,11 @@ getTeachersEval = (req, res) => {
   const { Email, Group_ID, Single, Group_Info } = req.body;
   try {
     // Check if 'Single' is true, if it is then query for single teacher eval comment using email
-    const getTeachersEval = `SELECT ec.Comment, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
+    const getTeachersEval = `SELECT ec.Comment, ec.File_Name, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
       Single ? "gm.User_Email = ? AND" : ""
     } ec.Group_ID = ?`;
-    console.log("GetTeachersEvalSQL: ", getTeachersEval);
+    // console.log("GetTeachersEvalSQL: ", getTeachersEval);
+
     // 1.) Select eval comment(s)
     // Here rest parameter syntax is used for conditionally spread element in the array
     con.query(
@@ -491,7 +492,7 @@ getTeachersEval = (req, res) => {
         // This query includes 'Current_Member_Role' and 'Current_Member_ID'
         if (Group_Info) {
           const getGroupWithId =
-            "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Is_Re_Eval, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
+            "SELECT g.Group_ID, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Major, g.Group_Status, g.Group_Progression, g.Project_on_term_ID, g.Grade, g.Is_Re_Eval, g.Received_New_Grade, gm.Group_Role AS `Current_Member_Role`, gm.Group_Member_ID AS `Current_Member_ID` FROM `groups` g INNER JOIN `groupmembers` gm ON g.Group_ID = gm.Group_ID WHERE gm.User_Email = ? AND g.Group_ID = ?";
           con.query(getGroupWithId, [Email, Group_ID], (err, groupResult) => {
             if (err) throw err;
             console.log("Group info result: ", groupResult);
@@ -765,10 +766,23 @@ getMyGroup = (req, res) => {
 };
 
 grading = async (req, res) => {
-  // event 0 for update normal grade in group
-  // event 1 for update final grade in group
-  const { Group_ID, event, isAdvisor, Grade, Comment, Group_Member_ID } =
-    req.body;
+  const {
+    Group_ID,
+    isAdvisor,
+    Grade,
+    isReEval,
+    newEvalScore,
+    Comment,
+    Group_Member_ID,
+    Assignment_ID,
+  } = req.body;
+
+  // If there is a file (re-eval grading) then create variable of the file name
+  let fileName = "";
+  if (!!req.file) {
+    fileName = req.file.filename;
+  }
+  // console.log("=========== DEBUG ==============");
 
   try {
     // Begin transaction
@@ -777,10 +791,10 @@ grading = async (req, res) => {
     });
     // 1.) Insert comment in 'evalcomment' table
     const insertEvalComment =
-      "INSERT INTO `evalcomment`(`Comment`, `Group_Member_ID`, `Group_ID`) VALUES (?, ?, ?)";
+      "INSERT INTO `evalcomment`(`Comment`, `File_Name`, `Group_Member_ID`, `Group_ID`) VALUES (?, ?, ?, ?)";
     await conPromise.execute(
       insertEvalComment,
-      [Comment, Group_Member_ID, Group_ID],
+      [Comment, fileName, Group_Member_ID, Group_ID],
       (err) => {
         if (err) throw err;
       }
@@ -788,13 +802,37 @@ grading = async (req, res) => {
 
     // 2.) If is advisor, then update grade in 'groups' table
     if (isAdvisor && Grade) {
-      const updateGrade = `UPDATE groups SET ${
-        event === 0 ? "Grade" : "Is_Re_Eval"
-      } = ? WHERE groups.Group_ID = ?`;
+      const updateGrade = `UPDATE groups SET Grade = ?, Is_Re_Eval = ${
+        isReEval ? 1 : 0
+      }, Received_New_Grade = ${
+        newEvalScore ? 1 : 0
+      } WHERE groups.Group_ID = ?`;
       await conPromise.execute(updateGrade, [Grade, Group_ID], (err) => {
         if (err) throw err;
       });
     }
+
+    // If there is a file
+    // TODO: Also check if this is re -eval grading ?
+    if (!!req.file && !!Assignment_ID) {
+      // 3.) Insert files into database
+      const filesSql =
+        "INSERT INTO files(File_Name, Path, Type, Assignment_ID, Group_Member_ID) VALUES (?, ?, ?, ?, ?)";
+      await conPromise.execute(
+        filesSql,
+        [
+          req.file.filename,
+          req.file.path,
+          "File",
+          Assignment_ID,
+          Group_Member_ID,
+        ],
+        (err, result) => {
+          if (err) throw err;
+        }
+      );
+    }
+
     // Commit
     await conPromise.commit();
     res.status(200).json({ msg: "Insert successfully", status: 200 });

@@ -1,7 +1,10 @@
 <template>
   <div class="display-work-container">
     <!-- Work submission alert -->
-    <div style="width: 100%">
+    <div
+      style="width: 100%"
+      v-if="this.$route.params.progress !== 're-evaluation'"
+    >
       <v-alert type="warning" style="width: fit-content" v-if="noWorkSubmitted"
         >No work submitted, student must submit file before:
         {{ submitDate }}</v-alert
@@ -40,7 +43,7 @@
       <div class="task-work-card-content">
         <h5>File option</h5>
         <v-btn
-          color="#253B6E"
+          color="primary"
           style="margin: 0.2rem 0 1rem 0"
           @click="handleDownloadFile"
           :disabled="noWorkSubmitted"
@@ -60,38 +63,58 @@
           </div>
         </div>
 
+        <!-- Enter score field -->
         <v-form ref="form" v-model="valid">
-          <div v-if="maxScore !== 0">
-            <h5>Score</h5>
+          <div v-if="progressId !== 0">
+            <div v-if="maxScore !== 0">
+              <h5>Score</h5>
+              <v-row>
+                <v-col cols="8">
+                  <v-text-field
+                    v-model="givenScore"
+                    :disabled="showSubmitted"
+                    :rules="[
+                      () => givenScore !== null || 'This field is required',
+                      handleCheckValidScore,
+                    ]"
+                    placeholder="Score:"
+                    outlined
+                    dense
+                    type="number"
+                    min="0"
+                    step="1"
+                    @keyup="handleScoreInput"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <p style="margin: 0; padding-top: 10px">/ {{ maxScore }}</p>
+                </v-col>
+              </v-row>
+            </div>
+          </div>
+
+          <!-- If re-eval it's grade selection instead -->
+          <div v-if="progressId === 10 && groupAdvisor">
+            <h5>Grade</h5>
             <v-row>
-              <v-col cols="8">
-                <v-text-field
-                  v-model="givenScore"
-                  :disabled="showSubmitted"
-                  :rules="[
-                    () => givenScore !== null || 'This field is required',
-                    handleCheckValidScore,
-                  ]"
-                  placeholder="Score:"
-                  outlined
+              <v-col cols="12">
+                <v-select
+                  v-model="selectedGrade"
+                  :items="gradeNameArr"
+                  :disabled="haveGrade"
                   dense
-                  type="number"
-                  min="0"
-                  step="1"
-                  @keyup="handleScoreInput"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="4">
-                <p style="margin: 0; padding-top: 10px">/ {{ maxScore }}</p>
+                  outlined
+                ></v-select>
               </v-col>
             </v-row>
           </div>
+
           <!-- <v-select :items="selectScores" dense outlined></v-select> -->
 
           <h5>Comment</h5>
           <v-textarea
             v-model="comment"
-            :disabled="showSubmitted"
+            :disabled="showSubmitted || haveGrade"
             :rules="[() => !!comment || 'This field is required']"
             placeholder="Comment:"
             outlined
@@ -103,7 +126,7 @@
           <h5>Upload File</h5>
           <v-file-input
             :clearable="false"
-            :disabled="showSubmitted"
+            :disabled="showSubmitted || haveGrade"
             outlined
             hide-details
             dense
@@ -114,8 +137,17 @@
         </v-form>
 
         <v-btn
-          color="#253B6E"
-          :disabled="showSubmitted"
+          color="primary"
+          :disabled="showSubmitted || haveGrade"
+          v-if="progressId === 10"
+          @click="handleSubmitGrade"
+          >SUBMIT</v-btn
+        >
+
+        <v-btn
+          color="primary"
+          :disabled="showSubmitted || haveGrade"
+          v-else
           @click="handleSubmitScore"
           >SUBMIT</v-btn
         >
@@ -129,31 +161,45 @@ export default {
   props: {
     noWorkSubmitted: {
       type: Boolean,
-      default: false,
+      default: () => false,
     },
     progressId: {
       type: Number,
-      default: 1,
+      default: () => 1,
     },
     submittedFiles: {
       type: Array,
-      default: [],
+      default: () => [],
     },
     maxScore: {
       type: Number,
-      default: 0,
+      default: () => 0,
     },
     Assignment_ID: {
       type: Number,
-      default: 0,
+      default: () => 0,
     },
     scoreInfo: {
       type: null,
-      default: null,
+      default: () => null,
     },
     progressionDueDate: {
       type: Object,
-      default: {},
+      default: () => {},
+    },
+    groupAdvisor: {
+      type: Boolean,
+      default: () => false,
+    },
+    gradeNameArr: {
+      type: Array,
+      default: () => [],
+    },
+    fetchScoresRes: {
+      type: Object,
+      default: () => {
+        suggestGrade: null;
+      },
     },
   },
   data() {
@@ -170,6 +216,8 @@ export default {
       files: [],
       links: [],
       selectedFile: { src: "" },
+      selectedGrade: "",
+      haveGrade: false,
     };
   },
   computed: {
@@ -203,8 +251,9 @@ export default {
     // If there is score to display or score is zero (in case of 0 score or proposal which score will always be zero)
     // Then set the UI of submitted score
     if (!!this.scoreInfo?.Score || this.scoreInfo?.Score === 0) {
-      // console.log("score info:", this.scoreInfo);
+      console.log("score info:", this.scoreInfo);
       this.showSubmitted = true;
+
       // Sets score
       this.givenScore = this.scoreInfo.Score;
 
@@ -234,7 +283,7 @@ export default {
     }
 
     // Create new date object from progress due date, set by coordinator
-    const assignmentDueDate = new Date(this.progressionDueDate.DueDate_End);
+    const assignmentDueDate = new Date(this.progressionDueDate?.DueDate_End);
 
     // * === Render student's files === * //
     // If there are submitted files get them from static folder
@@ -257,6 +306,7 @@ export default {
         timeStyle: "medium",
       });
 
+      // Create File object for "Download" button on the right (use for downloading student's work)
       // Get all submitted files as file object
       let files = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file (role 2 and 3 are for students)
@@ -304,6 +354,53 @@ export default {
 
     // Set links array
     this.links = this.submittedFiles.filter((file) => file.Type === "Link");
+
+    // * ANCHOR: FOR RE-EVAL
+    // If there's given score on the assignment then that means this group already got the new grade
+    if (
+      this.progressId === 10 &&
+      !!this.$store.state.group.currentUserGroup?.Received_New_Grade
+    ) {
+      // Fetch given evaluation grade and comment
+      const evalInfo = await this.$axios.$post("/group/getTeachersEval", {
+        Email: this.$store.state.auth.currentUser.email,
+        Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
+        Single: true,
+      });
+      console.log("Eval Info: ", evalInfo);
+
+      // Check if this teacher given grade and comment yet
+      if (!!evalInfo?.eval && evalInfo?.eval.length !== 0) {
+        this.haveGrade = true;
+
+        this.comment = evalInfo.eval[0].Comment;
+        this.selectedGrade = this.$store.state.group.currentUserGroup.Grade;
+
+        // If there's file teacher submitted in this progress, then create a blob
+        if (
+          !!evalInfo.eval[0]?.File_Name &&
+          evalInfo.eval[0]?.File_Name !== ""
+        ) {
+          // Sets file
+          const blob = await this.$axios.$get(
+            "/public_senior/uploads/assignments/" + evalInfo.eval[0].File_Name,
+            {
+              responseType: "blob",
+            }
+          );
+          this.teacherFile = new File(
+            [blob],
+            // Remove time stamp in front of each file name
+            evalInfo.eval[0].File_Name.replace(/(^\d+-)/, ""),
+            {
+              type: blob.type,
+            }
+          );
+        } else {
+          this.teacherFile = null;
+        }
+      }
+    }
   },
   beforeDestroy() {
     // Clean up
@@ -347,6 +444,7 @@ export default {
     },
     async handleSubmitScore() {
       // console.log(this.showSubmitted)
+      console.log("Submitting score...");
       try {
         // If already submitted score or no work has been submitted this function won't run
         if (this.showSubmitted || this.noWorkSubmitted) return;
@@ -448,6 +546,100 @@ export default {
           });
       } catch (err) {
         console.log(err);
+        return;
+      }
+    },
+    async handleSubmitGrade() {
+      try {
+        // Get current member id
+        const currentMemberId =
+          this.$store.state.group.currentUserGroup?.Current_Member_ID;
+        // If group alrady has a grade, teacher can't give them again
+        // If no current group member id also return
+        if (this.haveGrade || !currentMemberId) return;
+
+        console.log(this.selectedGrade);
+        // If no grade has been selected, warn the user
+        if (this.groupAdvisor && this.selectedGrade === null) {
+          this.$swal.fire(
+            "Missing data",
+            "Please select Grade before submit.",
+            "info"
+          );
+          return;
+        }
+
+        // If no suggest grade throw error
+        if (!this.fetchScoresRes?.suggestGrade)
+          throw new Error("No suggestion grade error");
+
+        const submitGrade =
+          this.selectedGrade === "As system suggested"
+            ? this.fetchScoresRes.suggestGrade
+            : this.selectedGrade;
+
+        // Create form data
+        const formData = new FormData();
+
+        // Append all data
+        formData.append(
+          "Group_ID",
+          this.$store.state.group.currentUserGroup.Group_ID
+        );
+        formData.append("Grade", submitGrade);
+        formData.append("isReEval", submitGrade === "I" ? true : false);
+        formData.append("isAdvisor", this.groupAdvisor);
+        formData.append("Comment", this.comment);
+        formData.append("Assignment_ID", this.Assignment_ID);
+        formData.append("Group_Member_ID", currentMemberId);
+
+        // If re-eval create form data
+        if (this.progressId === 10) {
+          // Append form data with file
+          formData.append("file", this.teacherFile);
+          formData.append("newEvalScore", true);
+        }
+
+        this.$swal
+          .fire({
+            icon: "info",
+            title: "Submit Evaluation",
+            text: "You can submit evaluation only once.",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes",
+          })
+          .then(async (result) => {
+            try {
+              if (result.isConfirmed) {
+                const res = await this.$axios.$post("/group/grading", formData);
+
+                if (res.status == 200) {
+                  this.$swal.fire(
+                    "Successed",
+                    "Grade has been saved.",
+                    "success"
+                  );
+                  // Update UI
+                  this.fetchScoresRes.normalGrade = submitGrade;
+                  this.haveGrade = true;
+
+                  return;
+                } else {
+                  this.$swal.fire("Error", res.msg, "error");
+                  return;
+                }
+              }
+            } catch (err) {
+              console.log(err);
+              this.$swal.fire("Error", err.message, "error");
+              return;
+            }
+          });
+      } catch (err) {
+        console.log(err);
+        this.$swal.fire("Error", err.message, "error");
         return;
       }
     },

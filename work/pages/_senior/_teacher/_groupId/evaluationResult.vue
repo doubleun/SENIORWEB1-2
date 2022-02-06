@@ -190,6 +190,10 @@ export default {
       // If no current group member id also return
       if (this.haveGrade || !this.currentMemberId) return;
 
+      // If re-eval is checked (graded I) assign grade I to the 'selectedGrade'
+      if (this.gradeI) this.selectedGrade = "I";
+
+      console.log(this.selectedGrade);
       // If no grade has been selected, warn the user
       if (this.groupAdvisor && this.selectedGrade === null) {
         this.$swal.fire(
@@ -199,9 +203,6 @@ export default {
         );
         return;
       }
-
-      // If re-eval is checked (graded I) assign grade I to the 'selectedGrade'
-      if (this.gradeI) this.selectedGrade = "I";
 
       const submitGrade =
         this.selectedGrade === "As system suggested"
@@ -223,10 +224,9 @@ export default {
             if (result.isConfirmed) {
               const res = await this.$axios.$post("/group/grading", {
                 Group_ID: this.Group_ID,
-                // Event 0 is for normal grade and 1 is for final grade
-                event: 0,
                 // Input grade based on selected option
                 Grade: submitGrade,
+                isReEval: submitGrade === "I" ? true : false,
                 isAdvisor: this.groupAdvisor,
                 Comment: this.comment,
                 Group_Member_ID: this.currentMemberId,
@@ -254,7 +254,6 @@ export default {
             return;
           }
         });
-      // console.log("selected grade ", this.selectedGrade);
     },
   },
 };
