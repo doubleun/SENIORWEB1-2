@@ -222,7 +222,6 @@
                     v-model="selectedAdvisor"
                     :items="tempAllTeachersInSchool"
                     :filter="customTeacherFilter"
-                    @click="handelNoDuplicateMember('teacher', index)"
                     :disabled="
                       (!!selectedAdvisor && groupCreated) || !headMember
                     "
@@ -308,7 +307,6 @@
                     v-model="selectedCommittee1"
                     :items="tempAllTeachersInSchool"
                     :filter="customTeacherFilter"
-                    @click="handelNoDuplicateMember('teacher', index)"
                     :disabled="
                       (!!selectedCommittee1 && groupCreated) || !headMember
                     "
@@ -352,7 +350,6 @@
                     v-model="selectedCommittee2"
                     :items="tempAllTeachersInSchool"
                     :filter="customTeacherFilter"
-                    @click="handelNoDuplicateMember('teacher', index)"
                     :disabled="
                       (!!selectedCommittee2 && groupCreated) || !headMember
                     "
@@ -505,16 +502,61 @@ export default {
   methods: {
     // filter * without select duplicate member
     // role (teacher,student)
-    handelNoDuplicateMember(role, index) {
-      var item, selectedItem;
+    handelNoDuplicateMember(role, index = 0) {
+      var item;
+      var selectedItem;
       if (role == "student") {
         // use clone deep method because data like related
         item = this.handleCloneDeep(this.allStudentsInSchool);
         selectedItem = this.handleCloneDeep(this.selectedStudent);
+
+        // loop for check selectedStudent then delete for filter
+        for (let i = 0; i < selectedItem.length; i++) {
+          if (selectedItem[i] == null) continue;
+
+          // find index of selected user to make filter data
+          const pos = item.findIndex((item) => {
+            return item.User_Identity_ID == selectedItem[i].User_Identity_ID;
+          });
+
+          // make filtered data
+          if (pos != -1) {
+            item.splice(pos, 1);
+            console.log("item1", item);
+            this.tempAllStudentsInSchool = item;
+            continue;
+          }
+        }
+        return this.tempAllStudentsInSchool;
       } else {
         // use clone deep method because data like related
         item = this.handleCloneDeep(this.allTeachersInSchool);
-        selectedItem = this.handleCloneDeep(this.selectedAdvisor);
+        // selectedAdvisor = this.selectedAdvisor;
+        // selectedCommittee1 = this.selectedCommittee1;
+        // selectedCommittee2 = this.selectedCommittee2;
+
+        console.log("teacher temp", this.tempAllTeachersInSchool);
+        console.log("item", item);
+
+        this.tempAllTeachersInSchool = item.filter(
+          (el) =>
+            // console.log("email", el.User_Email);
+            el.User_Email !=
+              (this.selectedAdvisor == null
+                ? " "
+                : this.selectedAdvisor.User_Email) &&
+            el.User_Email !=
+              (this.selectedCommittee1 == null
+                ? " "
+                : this.selectedCommittee1.User_Email) &&
+            el.User_Email !=
+              (this.selectedCommittee2 == null
+                ? " "
+                : this.selectedCommittee2.User_Email)
+        );
+
+        console.log("teacher temp 1", this.tempAllTeachersInSchool);
+        return this.tempAllTeachersInSchool;
       }
 
       // delete data from delected array
@@ -523,23 +565,6 @@ export default {
       // console.log("index", index);
       // console.log("item", item);
       // console.log("all", this.allStudentsInSchool);
-
-      for (let i = 0; i < selectedItem.length; i++) {
-        if (selectedItem[i] == null) continue;
-
-        // find index of selected user to make filter data
-        const pos = item.findIndex((item) => {
-          return item.User_Identity_ID == selectedItem[i].User_Identity_ID;
-        });
-
-        // make filtered data
-        if (pos != -1) {
-          item.splice(pos, 1);
-          console.log("item1", item);
-          this.tempAllStudentsInSchool = item;
-          continue;
-        }
-      }
 
       // item.forEach((el) => {
       //   if (el == null) return;
@@ -577,12 +602,14 @@ export default {
     },
     // Advisor, co-advisor, committee autocomplete filter (ie. Teacher filter)
     customTeacherFilter(item, queryText, itemText) {
+      let itemA = this.handelNoDuplicateMember("teacher");
+
       return (
-        item.User_Role !== 1 &&
+        itemA.User_Role !== 1 &&
         queryText !== this.selectedAdvisor &&
         // queryText !== this.selectedCoAdvisor &&
         queryText !== this.selectedCommittee1 &&
-        item.User_Name.indexOf(queryText) > -1
+        itemA.User_Name.indexOf(queryText) > -1
       );
     },
     async submitInfo() {
