@@ -45,9 +45,10 @@
             <input
               type="file"
               id="fileBrowse"
-              accept="*"
+              accept=".docx,.pdf"
               style="display: none"
               @change="handleBrowseFile"
+              :rules="[(val) => handelValidateInputFile((file = val))]"
             />
           </p>
           <p>ONLY PDF,DOC,PPT, FILEMAX UPLOAD FILE SIZE 5 MB</p>
@@ -167,6 +168,8 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
   data() {
     return {
@@ -182,6 +185,7 @@ export default {
       submitOnTime: false,
     };
   },
+  mixins: [utils],
   props: {
     finalDocument: {
       type: Boolean,
@@ -324,12 +328,27 @@ export default {
         if (e.target.files[0].size + this.totalUploadSize.byte > this.maxSize)
           return;
 
-        // Upload using "browse"
-        // Get date
-        const d = new Date().toLocaleString();
+        // validate file type
+        let validateResult = this.handelValidateInputFile({
+          fileName: e.target.files[0].name,
+        });
 
-        // Update the files array
-        this.files = [...this.files, { file: e.target.files[0], date: d }];
+        // console.log("validate type", validateResult);
+
+        if (validateResult === true) {
+          // Upload using "browse"
+          // Get date
+          const d = new Date().toLocaleString();
+
+          // Update the files array
+          this.files = [...this.files, { file: e.target.files[0], date: d }];
+        } else {
+          this.$swal.fire({
+            icon: "error",
+            title: "Wrong file type",
+            text: validateResult,
+          });
+        }
       }
     },
     handleDropFile(e) {

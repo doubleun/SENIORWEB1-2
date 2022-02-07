@@ -493,9 +493,6 @@ export default {
   methods: {
     // student selected rules
     selectMemberRules(role, index, val) {
-      // console.log("index", index);
-      console.log("select advisro", this.selectedAdvisor);
-      console.log("val", val);
       let errorMsg = true;
       if (!val) {
         return "This field is required";
@@ -515,8 +512,6 @@ export default {
             }
           }
         case "advisor":
-          console.log("advisor");
-
           let selectedTeacher = [
             this.selectedAdvisor,
             this.selectedCommittee1,
