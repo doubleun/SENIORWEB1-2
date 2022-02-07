@@ -328,27 +328,12 @@ export default {
         if (e.target.files[0].size + this.totalUploadSize.byte > this.maxSize)
           return;
 
-        // validate file type
-        let validateResult = this.handelValidateInputFile({
-          fileName: e.target.files[0].name,
-        });
+        // Upload using "browse"
+        // Get date
+        const d = new Date().toLocaleString();
 
-        // console.log("validate type", validateResult);
-
-        if (validateResult === true) {
-          // Upload using "browse"
-          // Get date
-          const d = new Date().toLocaleString();
-
-          // Update the files array
-          this.files = [...this.files, { file: e.target.files[0], date: d }];
-        } else {
-          this.$swal.fire({
-            icon: "error",
-            title: "Wrong file type",
-            text: validateResult,
-          });
-        }
+        // Update the files array
+        this.files = [...this.files, { file: e.target.files[0], date: d }];
       }
     },
     handleDropFile(e) {
