@@ -22,7 +22,7 @@
 // import WorkSubmission from "@/components/student/workSubmission";
 
 export default {
-  async asyncData({ $axios, params, redirect, store }) {
+  async asyncData({ $swal, $axios, params, redirect, store }) {
     // If currentUserGroup is missing, fetch it first
     if (!store.state.group.currentUserGroup)
       // Dispatch event to store current user group info
@@ -74,6 +74,7 @@ export default {
     // If there are, show alert, redirect, and return the function
     if (notAccpetMembers.length > 0) {
       // If notAcceptMembers is return from the asyncData, then we show alert and redirect
+
       alert("Please wait until all members accept the group invite");
       // Redirect to create group page so they can see all members status
       redirect("/Senior1/student/stuCreateGroup");

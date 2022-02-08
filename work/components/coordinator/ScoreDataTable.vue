@@ -8,7 +8,7 @@
         :rules="[(val) => handleValidateScore(val)]"
         clearable
         hide-details
-        label="Search "
+        label="Search"
         prepend-inner-icon="mdi-magnify"
         filled
         rounded

@@ -64,5 +64,21 @@ export default {
           break;
       }
     },
+
+    // check file type
+    handelValidateInputFile({
+      fileName,
+      type = ["docx", "pdf"],
+      errorMsg = "Can uploup only docx and pdf type",
+    }) {
+      let fileType = fileName.split(".");
+      // console.log("fileType", fileType);
+      // console.log("fileType1", fileType[fileType.length - 1].toLowerCase());
+
+      if (type.includes(fileType[fileType.length - 1].toLowerCase())) {
+        return true;
+      }
+      return errorMsg;
+    },
   },
 };
