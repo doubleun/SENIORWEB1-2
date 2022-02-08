@@ -13,7 +13,7 @@
           }}</span>
 
           <!-- Advisor score -->
-          <span v-if="progressId !== 2"
+          <span v-if="!hideScore"
             >Score: {{ teacher.Score }} / {{ teacher.Max_Score }}</span
           >
           <!-- <v-spacer></v-spacer>
@@ -71,6 +71,10 @@ export default {
       type: Number,
       default: () => 2,
     },
+    hideScore: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   mounted() {
     if (this.advisor) {
@@ -78,6 +82,12 @@ export default {
     } else {
       this.teachers = this.committees;
     }
+
+    // If progress is proposal or re-eval hide score is true
+    if (parseInt(this.progressId) === 2 || parseInt(this.progressId) === 10) {
+      this.hideScore = true;
+    }
+
     console.log("All Teachers: ", this.teachers);
   },
 };

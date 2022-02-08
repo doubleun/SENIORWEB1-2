@@ -471,12 +471,21 @@ getTeachersWithGroupID = (req, res) => {
 // Get eval comment of advisor and 2 committees (for eval page)
 // This could be all teachers(use in student side) or only one(use in teacher side)
 getTeachersEval = (req, res) => {
-  const { Email, Group_ID, Single, Group_Info } = req.body;
+  const {
+    Email,
+    Group_ID,
+    Single,
+    Group_Info,
+    reEvalComment,
+    filterTeachersRole = false,
+  } = req.body;
   try {
     // Check if 'Single' is true, if it is then query for single teacher eval comment using email
     const getTeachersEval = `SELECT ec.Comment, ec.File_Name, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
       Single ? "gm.User_Email = ? AND" : ""
-    } ec.Group_ID = ?`;
+    } ec.Group_ID = ? ${
+      reEvalComment ? "AND ec.Re_Eval = 1" : "AND ec.Re_Eval = 0"
+    }`;
     // console.log("GetTeachersEvalSQL: ", getTeachersEval);
 
     // 1.) Select eval comment(s)
@@ -499,8 +508,19 @@ getTeachersEval = (req, res) => {
             res.status(200).json({ eval: evalResult, group: groupResult[0] });
           });
         } else {
+          // If the filterTeachersRole flag is true, then filter teachers based on their role
+          const data = filterTeachersRole
+            ? {
+                advisor: evalResult.filter(
+                  (teacher) => teacher.Group_Role === 0
+                )[0],
+                committees: evalResult.filter(
+                  (teacher) => teacher.Group_Role === 1
+                ),
+              }
+            : { eval: evalResult };
           // If no request for group info then only response with evalResult
-          res.status(200).json({ eval: evalResult });
+          res.status(200).json(data);
           return;
         }
       }
@@ -779,8 +799,10 @@ grading = async (req, res) => {
 
   // If there is a file (re-eval grading) then create variable of the file name
   let fileName = "";
+  let reEvalComment = false;
   if (!!req.file) {
     fileName = req.file.filename;
+    reEvalComment = true;
   }
   // console.log("=========== DEBUG ==============");
 
@@ -790,8 +812,9 @@ grading = async (req, res) => {
       if (err) throw err;
     });
     // 1.) Insert comment in 'evalcomment' table
-    const insertEvalComment =
-      "INSERT INTO `evalcomment`(`Comment`, `File_Name`, `Group_Member_ID`, `Group_ID`) VALUES (?, ?, ?, ?)";
+    const insertEvalComment = `INSERT INTO evalcomment(Comment, File_Name, Group_Member_ID, Group_ID${
+      reEvalComment ? ", Re_Eval" : ""
+    }) VALUES (?, ?, ?, ?${reEvalComment ? ", 1" : ""})`;
     await conPromise.execute(
       insertEvalComment,
       [Comment, fileName, Group_Member_ID, Group_ID],
@@ -804,8 +827,8 @@ grading = async (req, res) => {
     if (isAdvisor && Grade) {
       const updateGrade = `UPDATE groups SET Grade = ?, Is_Re_Eval = ${
         isReEval ? 1 : 0
-      }, Received_New_Grade = ${
-        newEvalScore ? 1 : 0
+      }, Received_New_Grade = ${newEvalScore ? 1 : 0} ${
+        isReEval ? ", Group_Progression = 10" : ""
       } WHERE groups.Group_ID = ?`;
       await conPromise.execute(updateGrade, [Grade, Group_ID], (err) => {
         if (err) throw err;

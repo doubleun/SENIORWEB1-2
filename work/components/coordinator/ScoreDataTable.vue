@@ -5,6 +5,7 @@
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
+        :rules="[(val) => handleValidateScore(val)]"
         clearable
         hide-details
         label="Search "
@@ -62,12 +63,27 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
+  mixins: [utils],
   props: { items: Array, headers: Array },
   data() {
     return {
       search: "",
     };
+  },
+  methods: {
+    handleValidateScore(val) {
+      return this.handleValidateTextField({
+        string: val,
+        option: "onlyNormalCharEng",
+        errorMsg: "Invalid search",
+      });
+    },
+  },
+  mounted() {
+    console.log("item", this.items);
   },
 };
 </script>

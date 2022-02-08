@@ -12,6 +12,7 @@
         <v-col md="3">
           <v-text-field
             v-model="search"
+            :rules="[(val) => handleValidateScore(val)]"
             append-icon="mdi-magnify"
             label="Search"
             single-line
@@ -75,14 +76,14 @@
         </v-col>
       </v-row>
     </template>
-    <!-- <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize"> Reset </v-btn>
-    </template> -->
   </v-data-table>
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
+  mixins: [utils],
   data: () => ({
     search: "",
     dialog: false,
@@ -160,27 +161,13 @@ export default {
       val || this.closeDelete();
     },
   },
-  created() {
-    this.initialize();
-  },
   methods: {
-    initialize() {
-      // this.groupInfo = [
-      //   {
-      //     groupName: "Mobile Application for Karen ",
-      //     member: "Anuthep Tayngam, Pipat Massri,",
-      //     advisor: "Surapong Uttama",
-      //     committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-      //   },
-      //   {
-      //     groupName:
-      //       "Mobile Application for Karen Translator for Translator for Physiotherapy",
-      //     member:
-      //       "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-      //     advisor: "Surapong Uttama",
-      //     committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-      //   },
-      // ];
+    handleValidateScore(val) {
+      return this.handleValidateTextField({
+        string: val,
+        option: "onlyNormalCharEng",
+        errorMsg: "Invalid search",
+      });
     },
     editItem(item) {
       this.idgroup = item["ID"];

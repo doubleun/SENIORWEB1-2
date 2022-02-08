@@ -93,12 +93,26 @@ export default {
       }
     );
 
-    // Fetch teachers and given scores
-    let teachers = await $axios.$post("/group/getTeachersWithGroupID", {
-      Group_ID: store.state.group.currentUserGroup.Group_ID,
-      Progress_ID: progressId + 2,
-      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-    });
+    // Fetch score or eval comment based on if this is a re-eval
+    let teachers = {};
+
+    if (progressId === 8) {
+      // If progress id is 8, then it's re-eval
+      teachers = await $axios.$post("/group/getTeachersEval", {
+        Group_ID: store.state.group.currentUserGroup.Group_ID,
+        reEvalComment: true,
+        filterTeachersRole: true,
+      });
+      console.log("Teachers: ", teachers);
+    } else {
+      // Else fetch teachers and given scores
+      teachers = await $axios.$post("/group/getTeachersWithGroupID", {
+        Group_ID: store.state.group.currentUserGroup.Group_ID,
+        Progress_ID: progressId + 2,
+        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+      });
+    }
+
     // console.log("submittedFiles: ", submittedFiles);
     // console.log("Teachers in progress (line: 126): ", teachers);
 
