@@ -48,6 +48,7 @@ export default {
       Group_ID: groupId,
       Single: false,
       Group_Info: false,
+      reEvalComment: false,
     });
     console.log("Student eval comments: ", evalComments);
     return {

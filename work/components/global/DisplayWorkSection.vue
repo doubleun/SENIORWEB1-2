@@ -355,6 +355,9 @@ export default {
     // Set links array
     this.links = this.submittedFiles.filter((file) => file.Type === "Link");
 
+    console.log(this.progressId);
+    console.log(this.$store.state.group.currentUserGroup.Received_New_Grade);
+
     // * ANCHOR: FOR RE-EVAL
     // If there's given score on the assignment then that means this group already got the new grade
     if (
@@ -366,6 +369,7 @@ export default {
         Email: this.$store.state.auth.currentUser.email,
         Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
         Single: true,
+        reEvalComment: true,
       });
       console.log("Eval Info: ", evalInfo);
 
