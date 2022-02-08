@@ -45,10 +45,9 @@
             <input
               type="file"
               id="fileBrowse"
-              accept=".docx,.pdf"
+              accept="*"
               style="display: none"
               @change="handleBrowseFile"
-              :rules="[(val) => handelValidateInputFile((file = val))]"
             />
           </p>
           <p>ONLY PDF,DOC,PPT, FILEMAX UPLOAD FILE SIZE 5 MB</p>
@@ -325,8 +324,14 @@ export default {
     handleBrowseFile(e) {
       if (e?.target.files[0]) {
         //Check if total size (in byte) is exceeded
-        if (e.target.files[0].size + this.totalUploadSize.byte > this.maxSize)
+        if (e.target.files[0].size + this.totalUploadSize.byte > this.maxSize) {
+          this.$swal.fire({
+            icon: "error",
+            title: "Large file size",
+            text: "A file size more than total file size 5 MB",
+          });
           return;
+        }
 
         // Upload using "browse"
         // Get date
@@ -337,7 +342,7 @@ export default {
       }
     },
     handleDropFile(e) {
-      console.log(this.totalUploadSize);
+      // console.log(this.totalUploadSize);
       // Toggling the drop effect back to normal
       this.toggleDropActive();
 
@@ -346,8 +351,14 @@ export default {
         if (
           e.dataTransfer.files[0].size + this.totalUploadSize.byte >
           this.maxSize
-        )
+        ) {
+          this.$swal.fire({
+            icon: "error",
+            title: "Large file size",
+            text: "A file size more than total file size 5 MB",
+          });
           return;
+        }
 
         // Upload using drag and drop file
         // Get date

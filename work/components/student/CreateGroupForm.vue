@@ -250,6 +250,7 @@
                       handleValidateTextField({
                         string: coadvisorName,
                         option: 'onlyNormalCharEng',
+                        required: false,
                         errorMsg:
                           'This field is required / Not allow start and end with space /Not allow special character and only English characters.',
                       }),
