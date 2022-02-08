@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.1.2
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Feb 01, 2022 at 12:56 PM
--- Server version: 10.4.21-MariaDB
--- PHP Version: 8.0.12
+-- Host: db:3306
+-- Generation Time: Feb 08, 2022 at 03:10 AM
+-- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
+-- PHP Version: 8.0.15
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -33,7 +33,7 @@ CREATE TABLE `abstracts` (
   `Submit_Date` timestamp NOT NULL DEFAULT current_timestamp(),
   `Group_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -44,7 +44,7 @@ CREATE TABLE `abstracts` (
 CREATE TABLE `academicyear` (
   `Academic_Year` int(4) NOT NULL,
   `Created_Date` date NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `academicyear`
@@ -84,7 +84,10 @@ CREATE TABLE `assignments` (
 --
 
 INSERT INTO `assignments` (`Assignment_ID`, `Submit_Date`, `Progress_ID`, `Group_ID`) VALUES
-(19, '2022-01-30 16:42:09', 2, 10);
+(19, '2022-01-30 16:42:09', 2, 10),
+(20, '2022-02-02 15:06:22', 10, 10),
+(21, '2022-02-02 15:42:45', 3, 10),
+(22, '2022-02-02 15:42:55', 4, 10);
 
 -- --------------------------------------------------------
 
@@ -95,9 +98,19 @@ INSERT INTO `assignments` (`Assignment_ID`, `Submit_Date`, `Progress_ID`, `Group
 CREATE TABLE `evalcomment` (
   `Eval_Comment_ID` int(11) NOT NULL,
   `Comment` text NOT NULL,
+  `File_Name` text DEFAULT NULL,
+  `Re_Eval` int(1) NOT NULL DEFAULT 0,
   `Group_Member_ID` int(11) NOT NULL,
   `Group_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+--
+-- Dumping data for table `evalcomment`
+--
+
+INSERT INTO `evalcomment` (`Eval_Comment_ID`, `Comment`, `File_Name`, `Re_Eval`, `Group_Member_ID`, `Group_ID`) VALUES
+(24, 'bad', '', 0, 53, 10),
+(25, 'better', '1643984623056-keyboard-shortcuts-windows (2).pdf', 1, 53, 10);
 
 -- --------------------------------------------------------
 
@@ -121,7 +134,13 @@ CREATE TABLE `files` (
 INSERT INTO `files` (`File_ID`, `File_Name`, `Path`, `Type`, `Assignment_ID`, `Group_Member_ID`) VALUES
 (37, '1643560929862-keyboard-shortcuts-windows.pdf', 'public_senior\\uploads\\assignments\\1643560929862-keyboard-shortcuts-windows.pdf', 'File', 19, 51),
 (38, '1643560929871-Screenshot 2021-09-11 200954.png', 'public_senior\\uploads\\assignments\\1643560929871-Screenshot 2021-09-11 200954.png', 'File', 19, 51),
-(39, '1643561335307-keyboard-shortcuts-windows (2).pdf', 'public_senior\\uploads\\assignments\\1643561335307-keyboard-shortcuts-windows (2).pdf', 'File', 19, 53);
+(39, '1643561335307-keyboard-shortcuts-windows (2).pdf', 'public_senior\\uploads\\assignments\\1643561335307-keyboard-shortcuts-windows (2).pdf', 'File', 19, 53),
+(40, '1643814382934-keyboard-shortcuts-windows.pdf', 'public_senior\\uploads\\assignments\\1643814382934-keyboard-shortcuts-windows.pdf', 'File', 20, 51),
+(41, '1643814382941-Screenshot 2021-09-11 200954.png', 'public_senior\\uploads\\assignments\\1643814382941-Screenshot 2021-09-11 200954.png', 'File', 20, 51),
+(42, '1643816565804-keyboard-shortcuts-windows.pdf', 'public_senior\\uploads\\assignments\\1643816565804-keyboard-shortcuts-windows.pdf', 'File', 21, 51),
+(43, '1643816575301-6131501052.pdf', 'public_senior\\uploads\\assignments\\1643816575301-6131501052.pdf', 'File', 22, 51),
+(44, '1643983324546-keyboard-shortcuts-windows (2).pdf', 'public_senior\\uploads\\assignments\\1643983324546-keyboard-shortcuts-windows (2).pdf', 'File', 20, 53),
+(45, '1643984623056-keyboard-shortcuts-windows (2).pdf', 'public_senior\\uploads\\assignments\\1643984623056-keyboard-shortcuts-windows (2).pdf', 'File', 20, 53);
 
 -- --------------------------------------------------------
 
@@ -181,7 +200,7 @@ INSERT INTO `groupmembers` (`Group_Member_ID`, `User_Email`, `User_Status`, `Use
 CREATE TABLE `groupmemberstatus` (
   `Member_Status_ID` int(1) NOT NULL,
   `Member_Status_Name` varchar(40) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `groupmemberstatus`
@@ -208,15 +227,16 @@ CREATE TABLE `groups` (
   `Group_Progression` int(11) NOT NULL DEFAULT 2,
   `Project_on_term_ID` int(11) NOT NULL,
   `Grade` varchar(2) NOT NULL,
-  `Is_Re_Eval` int(1) NOT NULL
+  `Is_Re_Eval` int(1) NOT NULL DEFAULT 0,
+  `Received_New_Grade` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `groups`
 --
 
-INSERT INTO `groups` (`Group_ID`, `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Group_Status`, `Group_Progression`, `Project_on_term_ID`, `Grade`, `Is_Re_Eval`) VALUES
-(10, 'ASDASD', 'asdasdasd', '', 1, 1, 2, 15, '', 0);
+INSERT INTO `groups` (`Group_ID`, `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Group_Status`, `Group_Progression`, `Project_on_term_ID`, `Grade`, `Is_Re_Eval`, `Received_New_Grade`) VALUES
+(10, 'ASDASD', 'asdasdasd', '', 1, 1, 10, 15, 'S', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -329,7 +349,7 @@ INSERT INTO `projectonterm` (`Project_on_term_ID`, `Academic_Year`, `Academic_Te
 CREATE TABLE `roles` (
   `Role_ID` int(11) NOT NULL,
   `Role_Name` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `roles`
@@ -382,14 +402,16 @@ CREATE TABLE `scores` (
   `Comment` text NOT NULL,
   `Group_Member_ID` int(11) NOT NULL,
   `Assignment_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `scores`
 --
 
 INSERT INTO `scores` (`Score_ID`, `Score`, `Max_Score`, `Comment`, `Group_Member_ID`, `Assignment_ID`) VALUES
-(33, 0, 0, 'jjjj', 53, 19);
+(33, 0, 0, 'jjjj', 53, 19),
+(34, 50, 10, 'k', 53, 21),
+(35, 30, 10, 'kk', 53, 22);
 
 -- --------------------------------------------------------
 
@@ -413,7 +435,7 @@ CREATE TABLE `subprogressions` (
 CREATE TABLE `subroles` (
   `Sub_Role_ID` int(11) NOT NULL,
   `Sub_Role_Name` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `subroles`
@@ -641,19 +663,19 @@ ALTER TABLE `announcements`
 -- AUTO_INCREMENT for table `assignments`
 --
 ALTER TABLE `assignments`
-  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `evalcomment`
 --
 ALTER TABLE `evalcomment`
-  MODIFY `Eval_Comment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `Eval_Comment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `files`
 --
 ALTER TABLE `files`
-  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `gradecriterias`
@@ -713,7 +735,7 @@ ALTER TABLE `scorecriterias`
 -- AUTO_INCREMENT for table `scores`
 --
 ALTER TABLE `scores`
-  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `subprogressions`
