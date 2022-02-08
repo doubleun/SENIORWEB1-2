@@ -370,6 +370,7 @@ export default {
         Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
         Single: true,
         reEvalComment: true,
+        filterTeachersRole: false,
       });
       console.log("Eval Info: ", evalInfo);
 

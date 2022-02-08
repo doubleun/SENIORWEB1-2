@@ -471,7 +471,14 @@ getTeachersWithGroupID = (req, res) => {
 // Get eval comment of advisor and 2 committees (for eval page)
 // This could be all teachers(use in student side) or only one(use in teacher side)
 getTeachersEval = (req, res) => {
-  const { Email, Group_ID, Single, Group_Info, reEvalComment } = req.body;
+  const {
+    Email,
+    Group_ID,
+    Single,
+    Group_Info,
+    reEvalComment,
+    filterTeachersRole = false,
+  } = req.body;
   try {
     // Check if 'Single' is true, if it is then query for single teacher eval comment using email
     const getTeachersEval = `SELECT ec.Comment, ec.File_Name, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
@@ -501,8 +508,19 @@ getTeachersEval = (req, res) => {
             res.status(200).json({ eval: evalResult, group: groupResult[0] });
           });
         } else {
+          // If the filterTeachersRole flag is true, then filter teachers based on their role
+          const data = filterTeachersRole
+            ? {
+                advisor: evalResult.filter(
+                  (teacher) => teacher.Group_Role === 0
+                )[0],
+                committees: evalResult.filter(
+                  (teacher) => teacher.Group_Role === 1
+                ),
+              }
+            : { eval: evalResult };
           // If no request for group info then only response with evalResult
-          res.status(200).json({ eval: evalResult });
+          res.status(200).json(data);
           return;
         }
       }

@@ -89,6 +89,7 @@ export default {
       Group_ID: groupId,
       Single: true,
       Group_Info: true,
+      filterTeachersRole: false,
     });
 
     // Check if the group has a grade, if not then committe cannot give comment

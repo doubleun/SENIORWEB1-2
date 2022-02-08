@@ -49,6 +49,7 @@ export default {
       Single: false,
       Group_Info: false,
       reEvalComment: false,
+      filterTeachersRole: false,
     });
     console.log("Student eval comments: ", evalComments);
     return {
