@@ -2,8 +2,7 @@
   <section>
     <main class="admin-group-manage-main">
       <v-row class="col-6 pb-12" style="color:#fff"
-        ><p style="font-size: 28px;font-weight: bold;">Group </p>
-        <p class="year" style="font-size: 28px;font-weight: bold;">| 2021</p></v-row
+        ><p style="font-size: 28px;font-weight: bold;">Group </p></v-row
       >
       
       <!-- <button @click="test">test</button> -->

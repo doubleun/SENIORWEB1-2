@@ -18,7 +18,7 @@
       ></v-text-field>
     </v-card-title>
     <v-data-table :headers="headers" :items="items" :search="search">
-      <template v-slot:item.total="{ item }">
+      <!-- <template v-slot:item.total="{ item }">
         {{
           parseInt(
             +item.Progress1 +
@@ -29,7 +29,7 @@
               +item.FinalDocumentation
           )
         }}
-      </template>
+      </template> -->
 
       <template v-slot:item.Progress1="{ item }">
         {{ +item.Progress1 }}
