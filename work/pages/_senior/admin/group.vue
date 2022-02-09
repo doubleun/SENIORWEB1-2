@@ -1,10 +1,10 @@
 <template>
   <section>
     <main class="admin-group-manage-main">
-      <v-row class="col-6 pb-12" style="color:#fff"
-        ><p style="font-size: 28px;font-weight: bold;">Group </p></v-row
+      <v-row class="col-6 pb-12" style="color: #fff"
+        ><p style="font-size: 28px; font-weight: bold">Group</p></v-row
       >
-      
+
       <!-- <button @click="test">test</button> -->
 
       <!-- Action buttons -->
@@ -28,7 +28,7 @@
           <p class="white--text">Year</p>
           <v-select
             v-model="selectedYear"
-            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
             @change="handleChangeRenderGroups"
             dense
             solo
@@ -39,7 +39,7 @@
           <p class="white--text">Semester</p>
           <v-select
             v-model="selectedSemester"
-            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
             @change="handleChangeRenderGroups"
             dense
             solo
@@ -50,12 +50,12 @@
           <v-btn color="success" @click="handleExports(selected, allGroups)"
             ><v-icon>mdi-microsoft-excel</v-icon> Export to Excel</v-btn
           >
-          <v-btn color="error" @click="checkdia"
+          <!-- <v-btn color="error" @click="checkdia"
             ><v-icon>mdi-trash-can</v-icon> Delete</v-btn
-          >
+          > -->
         </div>
       </div>
-      <v-dialog v-model="dialog1" max-width="500px">
+      <!-- <v-dialog v-model="dialog1" max-width="500px">
         <v-card>
           <v-card-title>
             <span>Delete this?</span>
@@ -69,7 +69,7 @@
             <v-btn color="primary" right @click="deletegroup"> Yes </v-btn>
           </v-card-actions>
         </v-card>
-      </v-dialog>
+      </v-dialog> -->
       <v-card>
         <v-card-title>
           Group List
@@ -88,11 +88,9 @@
         <v-data-table
           v-model="selected"
           :headers="headers"
-          :single-select="singleSelect"
           item-key="Group_ID"
           :items="allGroups"
           :search="searchGroup"
-          show-select
         >
           <template v-slot:item.Group_Name_Eng="props">
             <v-row class="pa-2 justify-space-around" no-gutters>
@@ -129,13 +127,13 @@ export default {
           text: "GROUP NAME",
           align: "center",
           sortable: false,
-          value: "Group_Name_Eng"
+          value: "Group_Name_Eng",
         },
         { text: "MEMBER", align: "center", value: "Students" },
         { text: "PROGRAM", align: "center", value: "Major" },
         { text: "ADVISOR", align: "center", value: "Advisor" },
-        { text: "COMMITTEE", align: "center", value: "Committee" }
-      ]
+        { text: "COMMITTEE", align: "center", value: "Committee" },
+      ],
     };
   },
   mounted() {
@@ -156,7 +154,7 @@ export default {
       allGroups = await $axios.$post("/group/getAllAdmin", {
         Major: majors[0].Major_ID,
         Year: yearNSemsters[0].Academic_Year,
-        Semester: yearNSemsters[0].Academic_Term
+        Semester: yearNSemsters[0].Academic_Term,
       });
     } catch (err) {
       console.log(err);
@@ -181,40 +179,40 @@ export default {
           // title: "Error!",
           text: "Please select at least one group",
           icon: "error",
-          confirmButtonText: "OK"
+          confirmButtonText: "OK",
         });
       } else {
         this.dialog1 = true;
       }
     },
-    async deletegroup() {
-      this.loading = true;
-      this.dialog1 = false;
-      // this.selectedgroupid.push(this.selected[0]['Group_ID'])
-      // Create new array with only 2 values that the api needs
+    // async deletegroup() {
+    //   this.loading = true;
+    //   this.dialog1 = false;
+    //   // this.selectedgroupid.push(this.selected[0]['Group_ID'])
+    //   // Create new array with only 2 values that the api needs
 
-      const data = this.selected.map(itm => ({
-        Group_ID: itm.Group_ID,
-        Group_Status: 0
-      }));
-      // Fetch update API
-      const res = await this.$axios.$put("/group/delete", {
-        data
-      });
+    //   const data = this.selected.map((itm) => ({
+    //     Group_ID: itm.Group_ID,
+    //     Group_Status: 0,
+    //   }));
+    //   // Fetch update API
+    //   const res = await this.$axios.$put("/group/delete", {
+    //     data,
+    //   });
 
-      console.log(res);
-      console.log("Before Update: ", this.allGroups);
-      // Update UI
-      this.allGroups = this.allGroups.filter(
-        itm => !res.result.includes(itm.Group_ID)
-      );
+    //   console.log(res);
+    //   console.log("Before Update: ", this.allGroups);
+    //   // Update UI
+    //   this.allGroups = this.allGroups.filter(
+    //     (itm) => !res.result.includes(itm.Group_ID)
+    //   );
 
-      console.log("UI update: ", this.allGroups);
+    //   console.log("UI update: ", this.allGroups);
 
-      console.log(this.selectedgroupid);
+    //   console.log(this.selectedgroupid);
 
-      this.loading = false;
-    },
+    //   this.loading = false;
+    // },
     async handleChangeRenderGroups() {
       this.loading = true;
       // Clear selected group from the past filter
@@ -222,12 +220,12 @@ export default {
       this.allGroups = await this.$axios.$post("group/getAllAdmin", {
         Major: this.selectedMajor.Major_ID,
         Year: this.selectedYear,
-        Semester: this.selectedSemester
+        Semester: this.selectedSemester,
       });
       this.loading = false;
-    }
+    },
   },
-  mixins: [exportXLSX]
+  mixins: [exportXLSX],
 };
 </script>
 
