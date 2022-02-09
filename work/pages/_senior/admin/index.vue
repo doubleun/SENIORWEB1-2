@@ -24,11 +24,13 @@ export default {
 
     // TODO: Add modal(true, false) and allMajor(true, false) in the database. OR just checked and set major id to 99 (think about it)
     // Add modal (true, false to the object announcements)
-    const data = announcements.map(itm => ({
+    const data = announcements.map((itm) => ({
       ...itm,
       modal: false,
-      allMajor: itm.Major_ID == 99 ? true : false
+      allMajor: itm.Major_ID == 99 ? true : false,
     }));
+
+    console.log(data);
 
     // Get home info for the statistic cards
     const adminUserAmount = await context.$axios.$post(
@@ -39,21 +41,21 @@ export default {
       {
         title: "Students",
         amount: adminUserAmount.students,
-        icon: "mdi-account-supervisor"
+        icon: "mdi-account-supervisor",
       },
       {
         title: "Teachers",
         amount: adminUserAmount.teachers,
-        icon: "mdi-account-multiple"
+        icon: "mdi-account-multiple",
       },
       {
         title: "Groups",
         amount: adminUserAmount.groups,
-        icon: "mdi-account-multiple-plus"
-      }
+        icon: "mdi-account-multiple-plus",
+      },
     ];
     return { announcements: data, info: adminInfo, majors: majors };
   },
-  layout: "admin"
+  layout: "admin",
 };
 </script>

@@ -43,7 +43,7 @@
                       label="Text"
                       name="textAdd"
                       ref="textAdd"
-                      :rules="[v => !!v || 'Text is required']"
+                      :rules="[(v) => !!v || 'Text is required']"
                       required
                       outlined
                     ></v-textarea>
@@ -54,10 +54,7 @@
                       name="selectAdd"
                       ref="selectAdd"
                       :items="majors"
-                      :rules="[
-                        v => !!v || 'Item is required',
-                        v => null || 'Item is required'
-                      ]"
+                      :rules="[(v) => !!v || 'Item is required', testq]"
                       item-text="Major_Name"
                       item-value="Major_ID"
                       return-object
@@ -70,7 +67,7 @@
                       name="checkAdd"
                       ref="checkAdd"
                       @change="handleCheckboxAdd"
-                      :rules="[v => !!v || 'Item is required']"
+                      :rules="[(v) => !!v || 'Item is required']"
                     ></v-checkbox>
                   </v-col>
                 </v-container>
@@ -106,7 +103,22 @@
                       {{ announcement.Text }}
                     </h3>
 
-                    announced on : {{ announcement.Publish_Date }}
+                    <div>
+                      Announced on :
+                      {{
+                        Number.isInteger(parseInt(announcement.Publish_Date[0]))
+                          ? offsetDate(announcement.Publish_Date)
+                          : announcement.Publish_Date
+                      }}
+                    </div>
+                    <div>
+                      Major :
+                      {{
+                        announcement.Major_ID == 99
+                          ? "All"
+                          : announcement.Major_Name
+                      }}
+                    </div>
                   </div>
 
                   <!-- Edit and delete announcement buttons -->
@@ -128,11 +140,11 @@
                           <v-container>
                             <v-col>
                               <v-textarea
-                                :value="announcement.Text"
+                                v-model="announcement.Text"
                                 label="Text"
                                 name="textEdit"
                                 ref="textEdit"
-                                :rules="[v => !!v || 'Text is required']"
+                                :rules="[(v) => !!v || 'Text is required']"
                                 required
                                 outlined
                               ></v-textarea>
@@ -146,10 +158,7 @@
                                   handleSelectMajorEdit(index, announcement)
                                 "
                                 :items="majors"
-                                :rules="[
-                                  v => !!v || 'Item is required',
-                                  v => null || 'Item is required'
-                                ]"
+                                :rules="[(v) => !!v || 'Item is required']"
                                 item-text="Major_Name"
                                 item-value="Major_ID"
                                 outlined
@@ -166,7 +175,7 @@
                                     announcement.Major_ID
                                   )
                                 "
-                                :rules="[v => !!v || 'Item is required']"
+                                :rules="[(v) => !!v || 'Item is required']"
                               ></v-checkbox>
                             </v-col>
                           </v-container>
@@ -204,7 +213,7 @@
                       large
                       color="red darken-2"
                       :id="announcement.Announcement_ID"
-                      @click="e => handleDeleteAnnouncement(e.target.id)"
+                      @click="(e) => handleDeleteAnnouncement(e.target.id)"
                     >
                       mdi-delete-forever-outline
                     </v-icon>
@@ -245,7 +254,7 @@ export default {
     selectedMajorAdd: {},
     selectedMajorEdit: {},
     Text: "",
-    availableMajors: [1, 2, 3, 4, 5, 6, 7, 99]
+    editedText: "",
   }),
   computed: {
     displayAnnounce() {
@@ -257,14 +266,35 @@ export default {
     },
     pageLength() {
       return Math.ceil(this.announcements.length / 4);
-    }
+    },
   },
   props: ["announcements", "majors"],
   methods: {
-    test() {
-      // console.log(this.$store.state.auth);
-      console.log(this.announcements);
+    testq() {
+      // console.log("selectedMajorAdd", this.selectedMajorAdd);
+      // console.log("selectedMajorAdd", this.selectedMajorAdd=={});
+      // console.log("allMajorAdd", this.allMajorAdd);
+      if (this.selectedMajorAdd.Major_ID == null && this.allMajorAdd == false) {
+        console.log("testq");
+        return "A hamm";
+      }
+      return true;
     },
+    // offset date
+    offsetDate(date) {
+      // console.log("offsetdate", date);
+      let offsetDate = new Date(
+        new Date(date).getTime() - new Date(date).getTimezoneOffset() * 60000
+      ).toISOString();
+
+      return (
+        offsetDate.split("T")[0] + "\t" + offsetDate.split("T")[1].split(".")[0]
+      );
+    },
+    // test() {
+    //   // console.log(this.$store.state.auth);
+    //   console.log(this.announcements);
+    // },
     // === Handle add new announcement === //
     async handleAddNewAnnounce() {
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
@@ -276,7 +306,7 @@ export default {
       if (selectedMajor == null || !this.$refs.textAdd.validate("textAdd")) {
         this.$refs.textAdd.validate("textAdd");
         if (selectedMajor == null) {
-          this.$refs.selectAdd.validate("selectAdd");
+          this.$refs.selectAdd.validate();
         }
         return;
       }
@@ -285,28 +315,39 @@ export default {
       const res = await this.$axios.$post(
         "http://localhost:3000/api/announc/add",
         {
-          Text: this.Text,
-          MajorID: selectedMajor
+          Text: this.Text.trim(),
+          MajorID: selectedMajor,
         }
       );
       if (res.status === 200) {
-        this.snackbarText = "Add new announcement successfully";
-        this.submitSnackbar = true;
+        // this.snackbarText = "Add new announcement successfully";
+        // this.submitSnackbar = true;
         this.dialog = false;
+
+        this.$swal.fire(
+          "Successed!",
+          "A announcement has been added.",
+          "success"
+        );
 
         // Update UI
         this.announcements = [
           ...this.announcements,
           {
-            Text: this.Text,
+            Text: this.Text.trim(),
             Major_ID: selectedMajor,
-            Publish_Date: "please refresh"
-          }
+            Publish_Date: "please refresh",
+            Major_Name:
+              selectedMajor == 99 ? "All" : this.selectedMajorAdd.Major_Name,
+          },
         ];
 
         // Clear text
         this.Text = "";
         this.MajorID = 0;
+        this.$refs.textAdd.reset();
+        this.$refs.selectAdd.reset();
+        this.$refs.checkAdd.reset();
       } else {
         this.snackbarText =
           "Failed to add new announcement, please try again later";
@@ -316,29 +357,65 @@ export default {
     },
     // === Handle delete announcement from database === //
     async handleDeleteAnnouncement(id) {
-      if (confirm("Are you sure you want to delete this announcement?")) {
-        const res = await this.$axios.$delete(
-          "http://localhost:3000/api/announc/delete",
-          {
-            data: {
-              Announcement_ID: id
+      this.$swal
+        .fire({
+          title: "Are you sure?",
+          text: "Are you sure to delete this announcement.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes",
+        })
+        .then(async (result) => {
+          if (result.isConfirmed) {
+            const res = await this.$axios.$delete(
+              "http://localhost:3000/api/announc/delete",
+              {
+                data: {
+                  Announcement_ID: id,
+                },
+              }
+            );
+            if (res.status === 200) {
+              this.$swal.fire(
+                "Deleted!",
+                "A announcement has been deleted.",
+                "success"
+              );
+              // Update UI items
+              this.announcements = this.announcements.filter(
+                (itm) => itm.Announcement_ID !== parseInt(id)
+              );
+            } else {
+              this.$swal.fire("Something wrong", res, "error");
             }
           }
-        );
-        if (res.status === 200) {
-          this.snackbarText = "An announcement has been deleted";
-          this.submitSnackbar = true;
+        });
 
-          // Update UI items
-          this.announcements = this.announcements.filter(
-            itm => itm.Announcement_ID !== parseInt(id)
-          );
-        } else {
-          this.snackbarText =
-            "Failed to add new announcement, please try again later";
-          this.submitSnackbar = true;
-        }
-      }
+      // if (confirm("Are you sure you want to delete this announcement?")) {
+      //   const res = await this.$axios.$delete(
+      //     "http://localhost:3000/api/announc/delete",
+      //     {
+      //       data: {
+      //         Announcement_ID: id,
+      //       },
+      //     }
+      //   );
+      //   if (res.status === 200) {
+      //     this.snackbarText = "An announcement has been deleted";
+      //     this.submitSnackbar = true;
+
+      //     // Update UI items
+      //     this.announcements = this.announcements.filter(
+      //       (itm) => itm.Announcement_ID !== parseInt(id)
+      //     );
+      //   } else {
+      //     this.snackbarText =
+      //       "Failed to add new announcement, please try again later";
+      //     this.submitSnackbar = true;
+      //   }
+      // }
     },
     // === Handle update announcement === //
     async handleUpdateAnnouncement(
@@ -379,8 +456,8 @@ export default {
         "http://localhost:3000/api/announc/edit",
         {
           AnnouncementID: announcementId,
-          Text: text,
-          MajorID: selectedMajor
+          Text: text.trim(),
+          MajorID: selectedMajor,
         }
       );
 
@@ -423,8 +500,8 @@ export default {
         return;
       }
       this.$refs.selectEdit[index].resetValidation();
-    }
-  }
+    },
+  },
 };
 </script>
 <style>
