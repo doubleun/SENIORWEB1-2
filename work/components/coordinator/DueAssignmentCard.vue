@@ -11,48 +11,31 @@
       >
         <!-- set start/end date -->
         <template v-slot:item.DueDate_Start="{ item }">
-          <span v-if="item.selectedDate[0] < item.selectedDate[1]">
-            <!-- <span v-if="item.selectedDate[0] == offsetDate(access_Date_Start)">
-              -
-            </span>
-            <span v-else>
+          <div v-if="item.selectedDate[0] < item.selectedDate[1]">
+            <span>
               {{ item.selectedDate[0] }}
-            </span> -->
-            {{ item.selectedDate[0] }}
-          </span>
-
-          <span v-else>
-            <!-- <span v-if="item.selectedDate[1] == offsetDate(access_Date_End)">
-              -
             </span>
-            <span v-else>
+          </div>
+
+          <div v-else>
+            <span>
               {{ item.selectedDate[1] }}
-            </span> -->
-            {{ item.selectedDate[1] }}
-          </span>
+            </span>
+          </div>
         </template>
 
         <template v-slot:item.DueDate_End="{ item }">
-          <span v-if="item.selectedDate[0] > item.selectedDate[1]">
-            <!-- <span v-if="item.selectedDate[0] == offsetDate(access_Date_Start)">
-              -
-            </span>
-            <span v-else>
+          <div v-if="item.selectedDate[0] > item.selectedDate[1]">
+            <span>
               {{ item.selectedDate[0] }}
-            </span> -->
-            {{ item.selectedDate[0] }}
-          </span>
-
-          <span v-else>
-            <!-- <span v-if="item.selectedDate[1] == offsetDate(access_Date_End)">
-              -
             </span>
+          </div>
 
-            <span v-else>
+          <div v-else>
+            <span>
               {{ item.selectedDate[1] }}
-            </span> -->
-            {{ item.selectedDate[1] }}
-          </span>
+            </span>
+          </div>
         </template>
 
         <!--edit button -->
@@ -88,34 +71,60 @@
                       <span v-else>Edit</span>
                     </v-btn>
                   </template>
-                  <v-date-picker
-                    v-model="item.selectedDate"
-                    color=""
-                    no-title
-                    scrollable
-                    range
-                    :max="item.endDate"
-                    :min="item.startDate"
+
+                  <v-dialog
+                    ref="dialog"
+                    v-model="item.dateMenu"
+                    :return-value.sync="date"
+                    persistent
+                    width="290px"
                   >
-                    <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="item.dateMenu = false">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="
-                        (item.dateMenu = false),
-                          dateMenuSave(
-                            item.selectedDate,
-                            item.Progress_ID,
-                            item.Progression_Info_ID
-                          )
-                      "
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
+                    <v-card>
+                      <v-date-picker
+                        v-model="item.selectedDate"
+                        color=""
+                        no-title
+                        scrollable
+                        range
+                        :max="item.endDate"
+                        :min="plusOneDay(item.startDate)"
+                      >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="item.dateMenu = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="
+                            dateMenuSave(
+                              item.selectedDate,
+                              item.Progress_ID,
+                              item.Progression_Info_ID,
+                              item
+                            )
+                          "
+                        >
+                          OK
+                        </v-btn>
+                      </v-date-picker>
+                      <div v-if="selectDateErrorMsg" class="pa-5">
+                        <span class="red--text text--lighten-1"
+                          >Please completely to select assign date and
+                          duedate</span
+                        >
+                      </div>
+                      <!-- <v-alert dense outlined type="error">
+                        I'm a dense alert with the
+                        <strong>outlined</strong> prop and a
+                        <strong>type</strong> of error
+                      </v-alert> -->
+                    </v-card>
+                  </v-dialog>
                 </v-menu>
               </v-row>
             </v-col>
@@ -135,6 +144,7 @@ export default {
       access_Date_Start: null,
       access_Date_End: null,
       totalFile: [],
+      selectDateErrorMsg: false,
       headers: [
         {
           text: "TOPIC",
@@ -150,6 +160,7 @@ export default {
   },
   async fetch() {
     try {
+      // fect duedate
       var duedate = await this.$axios.$post("/date/progression", {
         Senior: this.$store.state.auth.currentUser.senior,
         Major_ID: this.$store.state.auth.currentUser.major,
@@ -157,6 +168,7 @@ export default {
       });
       console.log("progression Duedate", duedate);
 
+      //
       var criteria = await this.$axios.$post("/criteria/scoreMajor", {
         Major_ID: this.$store.state.auth.currentUser.major,
         Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
@@ -187,28 +199,6 @@ export default {
       this.access_Date_Start = duedate.projectOnTerm[0].Access_Date_Start;
       this.access_Date_End = duedate.projectOnTerm[0].Access_Date_End;
 
-      // move topic to first
-      // const indexArr = criteria.findIndex((el) => el.Progress_ID === 7);
-      // const topic = criteria.splice(indexArr, 1);
-
-      // criteria = [...topic, ...criteria];
-      // console.log("criteria old", criteria);
-
-      // // delete progress that don't have score (Total = 0)
-      // criteria.forEach(async (el, index) => {
-      //   if (
-      //     el.Total === 0 &&
-      //     (el.Progress_ID === 1 ||
-      //       el.Progress_ID === 2 ||
-      //       el.Progress_ID === 3 ||
-      //       el.Progress_ID === 4)
-      //   ) {
-      //     criteria.splice(index, 1);
-      //     // return;
-      //     // console.log("delete pg id", el.Progress_ID);
-      //   }
-      // });
-
       // get count file
       for (let index = 0; index < criteria.length; index++) {
         let total = await this.$axios.$post("/assignment/countFile", {
@@ -237,17 +227,13 @@ export default {
           endDate: this.offsetDate(this.access_Date_End),
         }));
       } else {
-        console.log("have some due date");
+        // console.log("have some due date");
         // if have due date in this semester
 
         for (let i = 0; i < criteria.length; i++) {
           for (let j = 0; j < duedate.progressionDuedate.length; j++) {
             // have some due date in this semster
-            // console.log(
-            //   duedate.progressionDuedate[j].Progress_ID,
-            //   "==",
-            //   criteria[i].Progress_ID
-            // );
+
             if (
               duedate.progressionDuedate[j].Progress_ID ==
               criteria[i].Progress_ID
@@ -273,14 +259,10 @@ export default {
                 criteria[i].startDate = this.offsetDate(this.access_Date_Start);
               } else {
                 criteria[i].startDate = criteria[i - 1].selectedDate[1];
-                // this.offsetDate(
-                //   criteria[i - 1].selectedDate[1]
-                //   // new Date(criteria[i - 1].selectedDate[1]).getDate - 1
-                // );
               }
               criteria[i].endDate = this.offsetDate(this.access_Date_End);
 
-              console.log("index", i);
+              // console.log("index", i);
               break;
             }
 
@@ -288,8 +270,6 @@ export default {
             criteria[i].selectedDate = [
               this.offsetDate(Date.now()),
               this.offsetDate(Date.now()),
-              // this.offsetDate(duedate.progressionDuedate[j-1].DueDate_End),
-              // this.offsetDate(Date.now()),
             ];
             criteria[i].Progression_Info_ID = 0;
 
@@ -320,12 +300,26 @@ export default {
     } catch (error) {}
   },
 
+  computed: {},
+
   methods: {
     allowedDates(val) {
       return (
         val >= this.offsetDate(this.access_Date_Start) &&
         val <= this.offsetDate(this.access_Date_End)
       );
+    },
+
+    plusOneDay(date) {
+      let offsetDate = new Date(
+        new Date(date).setDate(new Date(date).getDate() + 1)
+      )
+        .toISOString()
+        .substring(0, 10);
+
+      // console.log("off set ", offsetDate);
+      // console.log("ori ", date);
+      return offsetDate;
     },
 
     // offset date
@@ -338,9 +332,20 @@ export default {
         .substring(0, 10);
     },
 
-    async dateMenuSave(date, progressId, progressInfoId) {
+    async dateMenuSave(date, progressId, progressInfoId, item) {
       var newDate = date.sort();
-      console.log("sort date", newDate);
+      // console.log("sort date", newDate);
+      const progressionDuedateIndex = this.progressionDuedate.indexOf(item);
+
+      // let self = this;
+      if (newDate.length < 2) {
+        this.selectDateErrorMsg = true;
+        return (this.progressionDuedate[
+          progressionDuedateIndex
+        ].dateMenu = true);
+      }
+
+      this.selectDateErrorMsg = false;
 
       let res = await this.$axios.$post("date/progression/update", {
         DueDate_Start: newDate[0],
@@ -354,10 +359,13 @@ export default {
 
       if (res.status == 200) {
         console.log("success", res);
+
         this.$nuxt.refresh();
         this.$swal.fire("Successed", "", "success");
         // console.log("ref", this.$refs["dateMenu" + progressId]);
         // this.$refs["dateMenu" + progressId] = false;
+      } else {
+        this.$swal.fire("Something wrong", res.msg, "error");
       }
     },
   },
