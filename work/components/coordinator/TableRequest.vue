@@ -2,7 +2,7 @@
   <v-data-table
     :headers="headers"
     :items="groupInfo"
-    :search="search"
+    :search="searchGroup"
     sort-by="calories"
     class="elevation-1"
   >
@@ -11,7 +11,7 @@
         <v-spacer></v-spacer>
         <v-col md="3">
           <v-text-field
-            v-model="search"
+            v-model="searchGroup"
             :rules="[(val) => handleValidateScore(val)]"
             append-icon="mdi-magnify"
             label="Search"
@@ -85,7 +85,7 @@ import utils from "@/mixins/utils";
 export default {
   mixins: [utils],
   data: () => ({
-    search: "",
+    searchGroup: "",
     dialog: false,
     dialogDelete: false,
     headers: [
