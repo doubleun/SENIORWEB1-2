@@ -54,7 +54,7 @@
                       name="selectAdd"
                       ref="selectAdd"
                       :items="majors"
-                      :rules="[(v) => !!v || 'Item is required', testq]"
+                      :rules="[(val) => isSelectMajorAdd(val, allMajorAdd)]"
                       item-text="Major_Name"
                       item-value="Major_ID"
                       return-object
@@ -67,7 +67,6 @@
                       name="checkAdd"
                       ref="checkAdd"
                       @change="handleCheckboxAdd"
-                      :rules="[(v) => !!v || 'Item is required']"
                     ></v-checkbox>
                   </v-col>
                 </v-container>
@@ -114,9 +113,9 @@
                     <div>
                       Major :
                       {{
-                        announcement.Major_ID == 99
+                        announcement.allMajor == true
                           ? "All"
-                          : announcement.Major_Name
+                          : announcement.major.Major_Name
                       }}
                     </div>
                   </div>
@@ -140,7 +139,7 @@
                           <v-container>
                             <v-col>
                               <v-textarea
-                                v-model="announcement.Text"
+                                v-model="bindAnnouncement[index].Text"
                                 label="Text"
                                 name="textEdit"
                                 ref="textEdit"
@@ -150,32 +149,36 @@
                               ></v-textarea>
                               <h3>Major</h3>
                               <v-select
-                                v-model="announcement.Major_ID"
+                                v-model="bindAnnouncement[index].major"
                                 label="Select Major"
                                 name="selectEdit"
                                 ref="selectEdit"
-                                @change="
-                                  handleSelectMajorEdit(index, announcement)
-                                "
                                 :items="majors"
-                                :rules="[(v) => !!v || 'Item is required']"
+                                :rules="[
+                                  (val) =>
+                                    isSelectMajorEdit(
+                                      val,
+                                      bindAnnouncement[index].allMajor
+                                    ),
+                                ]"
+                                @change="handleSelectMajorEdit(index)"
                                 item-text="Major_Name"
                                 item-value="Major_ID"
+                                return-object
                                 outlined
                               >
                               </v-select>
                               <v-checkbox
-                                v-model="announcement.allMajor"
+                                v-model="bindAnnouncement[index].allMajor"
                                 label="All major"
                                 name="checkEdit"
                                 ref="checkEdit"
                                 @change="
                                   handleCheckboxEdit(
                                     index,
-                                    announcement.Major_ID
+                                    bindAnnouncement[index].major
                                   )
                                 "
-                                :rules="[(v) => !!v || 'Item is required']"
                               ></v-checkbox>
                             </v-col>
                           </v-container>
@@ -194,10 +197,10 @@
                             text
                             @click="
                               handleUpdateAnnouncement(
-                                announcement.Announcement_ID,
-                                announcement.Text,
-                                announcement.Major_ID,
-                                announcement.allMajor,
+                                bindAnnouncement[index].Announcement_ID,
+                                bindAnnouncement[index].Text,
+                                bindAnnouncement[index].major,
+                                bindAnnouncement[index].allMajor,
                                 index
                               )
                             "
@@ -238,6 +241,8 @@
   </div>
 </template>
 <script>
+import utils from "@/mixins/utils";
+
 export default {
   data: () => ({
     date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
@@ -256,28 +261,63 @@ export default {
     Text: "",
     editedText: "",
   }),
+  props: ["dataUi", "majors", "bindAnnouncement"],
+  mixins: [utils],
+
   computed: {
     displayAnnounce() {
-      console.log(this.announcements);
+      console.log("data ui", this.dataUi.announcements);
+      // console.log("bindAnnouncement", this.bindAnnouncement);
+      // console.log("data ui 0", this.dataUi.announcements[0]);
       // 4 is the maximum rows
       const startIndex = 4 * (this.page - 1);
       const endIndex = startIndex + 4;
-      return this.announcements.slice(startIndex, endIndex);
+      // console.log("start", startIndex);
+      // console.log("end", endIndex);
+      // console.log(
+      //   "slice",
+      //   this.dataUi.announcements.slice(startIndex, endIndex)
+      // );
+      return this.dataUi.announcements.slice(startIndex, endIndex);
     },
     pageLength() {
-      return Math.ceil(this.announcements.length / 4);
+      return Math.ceil(this.dataUi.announcements.length / 4);
     },
   },
-  props: ["announcements", "majors"],
+
   methods: {
-    testq() {
-      // console.log("selectedMajorAdd", this.selectedMajorAdd);
-      // console.log("selectedMajorAdd", this.selectedMajorAdd=={});
-      // console.log("allMajorAdd", this.allMajorAdd);
-      if (this.selectedMajorAdd.Major_ID == null && this.allMajorAdd == false) {
-        console.log("testq");
-        return "A hamm";
+    // rule of selected major add
+    isSelectMajorAdd(selectedMajor, allmajor) {
+      // console.log("selectedMajor id", !selectedMajor.Major_ID);
+      console.log("selectedMajor ", selectedMajor);
+      console.log("allmajor", allmajor);
+      console.log("========================");
+
+      if (
+        (selectedMajor == null || selectedMajor.Major_ID == null) &&
+        allmajor == false
+      ) {
+        console.log("add");
+        return "Please select Major";
       }
+
+      console.log("have selected major");
+      return true;
+    },
+    isSelectMajorEdit(selectedMajor, allmajor) {
+      // console.log("selectedMajor id", !selectedMajor.Major_ID);
+      console.log("selectedMajor ", selectedMajor);
+      console.log("allmajor", allmajor);
+      console.log("========================");
+
+      if (
+        (selectedMajor == null || selectedMajor.Major_ID == 99) &&
+        allmajor == false
+      ) {
+        return "Please select Major";
+      }
+
+      // console.log("have selected major");
       return true;
     },
     // offset date
@@ -291,34 +331,34 @@ export default {
         offsetDate.split("T")[0] + "\t" + offsetDate.split("T")[1].split(".")[0]
       );
     },
-    // test() {
-    //   // console.log(this.$store.state.auth);
-    //   console.log(this.announcements);
-    // },
+
     // === Handle add new announcement === //
     async handleAddNewAnnounce() {
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
+
+      let validateText = this.$refs.textAdd.validate("textAdd");
+      let validateSelectMajor = this.$refs.selectAdd.validate("selectAdd");
+      let validateCheckAllMajor = this.allMajorAdd;
+
+      // console.log("text add", textAdd);
+      // console.log("select add", selectAdd);
+      // console.log("check add", checkAdd);
+      // console.log("========================");
+
+      // If there is no text or the selected major ID is not in the available ones stop the function
+      if (!validateText || (!validateSelectMajor && !validateCheckAllMajor)) {
+        return;
+      }
+
       const selectedMajor = this.allMajorAdd
         ? 99
         : this.selectedMajorAdd.Major_ID;
 
-      // If there is no text or the selected major ID is not in the available ones stop the function
-      if (selectedMajor == null || !this.$refs.textAdd.validate("textAdd")) {
-        this.$refs.textAdd.validate("textAdd");
-        if (selectedMajor == null) {
-          this.$refs.selectAdd.validate();
-        }
-        return;
-      }
-
       // Send axios request to add new announcement
-      const res = await this.$axios.$post(
-        "http://localhost:3000/api/announc/add",
-        {
-          Text: this.Text.trim(),
-          MajorID: selectedMajor,
-        }
-      );
+      const res = await this.$axios.$post("/announc/add", {
+        Text: this.Text.trim(),
+        MajorID: selectedMajor,
+      });
       if (res.status === 200) {
         // this.snackbarText = "Add new announcement successfully";
         // this.submitSnackbar = true;
@@ -331,16 +371,32 @@ export default {
         );
 
         // Update UI
-        this.announcements = [
-          ...this.announcements,
-          {
-            Text: this.Text.trim(),
-            Major_ID: selectedMajor,
-            Publish_Date: "please refresh",
-            Major_Name:
-              selectedMajor == 99 ? "All" : this.selectedMajorAdd.Major_Name,
-          },
-        ];
+        this.$emit("on-update-announcements");
+        // this.dataUi.announcements = [
+        //   {
+        //     Publish_Date: "please refresh",
+        //     Text: this.Text.trim(),
+        //     Major_ID: selectedMajor,
+        //     allMajor: selectedMajor == 99 ? true : false,
+        //     major: this.selectedMajorAdd,
+        //     modal: false,
+        //   },
+        //   ...this.dataUi.announcements,
+        // ];
+
+        //  this.bindAnnouncement = [
+        //   {
+        //     Publish_Date: "please refresh",
+        //     Text: this.Text.trim(),
+        //     Major_ID: selectedMajor,
+        //     allMajor: selectedMajor == 99 ? true : false,
+        //     major: this.selectedMajorAdd,
+        //     modal: false,
+        //   },
+        //   ...this.dataUi.announcements,
+        // ];
+
+        console.log(this.dataUi.announcements);
 
         // Clear text
         this.Text = "";
@@ -369,14 +425,11 @@ export default {
         })
         .then(async (result) => {
           if (result.isConfirmed) {
-            const res = await this.$axios.$delete(
-              "http://localhost:3000/api/announc/delete",
-              {
-                data: {
-                  Announcement_ID: id,
-                },
-              }
-            );
+            const res = await this.$axios.$delete("/announc/delete", {
+              data: {
+                Announcement_ID: id,
+              },
+            });
             if (res.status === 200) {
               this.$swal.fire(
                 "Deleted!",
@@ -384,7 +437,7 @@ export default {
                 "success"
               );
               // Update UI items
-              this.announcements = this.announcements.filter(
+              this.dataUi.announcements = this.dataUi.announcements.filter(
                 (itm) => itm.Announcement_ID !== parseInt(id)
               );
             } else {
@@ -392,30 +445,6 @@ export default {
             }
           }
         });
-
-      // if (confirm("Are you sure you want to delete this announcement?")) {
-      //   const res = await this.$axios.$delete(
-      //     "http://localhost:3000/api/announc/delete",
-      //     {
-      //       data: {
-      //         Announcement_ID: id,
-      //       },
-      //     }
-      //   );
-      //   if (res.status === 200) {
-      //     this.snackbarText = "An announcement has been deleted";
-      //     this.submitSnackbar = true;
-
-      //     // Update UI items
-      //     this.announcements = this.announcements.filter(
-      //       (itm) => itm.Announcement_ID !== parseInt(id)
-      //     );
-      //   } else {
-      //     this.snackbarText =
-      //       "Failed to add new announcement, please try again later";
-      //     this.submitSnackbar = true;
-      //   }
-      // }
     },
     // === Handle update announcement === //
     async handleUpdateAnnouncement(
@@ -428,48 +457,60 @@ export default {
       // console.log(id, text, majorId, allMajor);
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
 
-      const selectedMajor = allMajor ? 99 : majorId;
-      // console.log("annID", announcementId);
-      // console.log("text", text);
-      // console.log("major id", majorId);
-      // console.log("all", allMajor);
-      // console.log("index", index);
+      // console.log("text ", text);
+      // console.log("majorId ", majorId);
+      // console.log("allMajor ", allMajor);
+      // console.log("text ", validateText);
 
-      // this.$refs.textEdit[0].validate()
+      let validateText = this.$refs.textEdit[index].validate("textEdit");
+      let validateSelectMajor =
+        this.$refs.selectEdit[index].validate("selectEdit");
+
+      // console.log("text ", validateText);
+      // console.log("select ", validateSelectMajor);
+      // console.log("check ", allMajor);
+      // console.log("========================");
 
       // If there is no text or the selected major ID is not in the available ones stop the function
-      if (
-        selectedMajor == null ||
-        !this.$refs.textEdit[index].validate("textEdit")
-      ) {
-        this.$refs.textEdit[index].validate("textEdit");
-        console.log("selectMajor1", selectedMajor);
-        if (selectedMajor == null) {
-          this.$refs.selectEdit[index].validate("selectEdit");
-          console.log("selectMajor", selectedMajor);
-        }
+
+      if (!validateText || (!validateSelectMajor && !allMajor)) {
         return;
       }
 
+      // console.log("pass");
+
+      // if (selectedMajor == null || text == null || text == "") {
+      //   this.$refs.textEdit[index].validate("textEdit");
+      //   this.$refs.selectEdit[index].validate("selectEdit");
+
+      // return;
+      // }
+
+      const selectedMajor = allMajor ? 99 : majorId.Major_ID;
+      // console.log(selectedMajor);
+      // return;
+
       // // Send axios request to edit an announcement
-      const res = await this.$axios.$post(
-        "http://localhost:3000/api/announc/edit",
-        {
-          AnnouncementID: announcementId,
-          Text: text.trim(),
-          MajorID: selectedMajor,
-        }
-      );
+      const res = await this.$axios.$post("announc/edit", {
+        AnnouncementID: announcementId,
+        Text: text.trim(),
+        MajorID: selectedMajor,
+      });
 
       if (res.status === 200) {
-        this.snackbarText = "Announcement has been updated successfully";
-        this.submitSnackbar = true;
-        this.announcements[index].modal = false;
+        this.dataUi.announcements[index].modal = false;
+        this.$emit("on-update-announcements");
+
+        this.$swal.fire(
+          "Successed!",
+          "A announcement has been added.",
+          "success"
+        );
       } else {
         this.snackbarText =
           "Failed to update an announcement, please try again later";
         this.submitSnackbar = true;
-        this.announcements[index].modal = false;
+        this.dataUi.announcements[index].modal = false;
       }
     },
     handleSelectMajorAdd() {
@@ -486,16 +527,17 @@ export default {
     },
     handleSelectMajorEdit(index) {
       // this.$refs.selectAdd.reset();
-      // console.log("index", this.announcements);
+      // console.log("index", this.announcements[index]);
 
       this.$refs.selectEdit[index].resetValidation();
       this.$refs.checkEdit[index].resetValidation();
-      this.announcements[index].allMajor = false;
+      this.bindAnnouncement[index].allMajor = false;
     },
     handleCheckboxEdit(index, major) {
-      console.log("index", index);
+      // console.log("index", index);
 
       if (major != null) {
+        // this.announcements[index].major = null;
         this.$refs.selectEdit[index].reset();
         return;
       }

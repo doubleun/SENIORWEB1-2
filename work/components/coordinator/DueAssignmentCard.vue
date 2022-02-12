@@ -39,10 +39,11 @@
         </template>
 
         <!--edit button -->
-        <template v-slot:item.action="{ item }">
+        <template v-slot:item.action="{ item, index }">
           <v-row class="justify-center" no-gutters>
             <v-col md="3">
               <v-row align="center" justify="space-around">
+                <!-- index{{ index }} -->
                 <!-- <v-btn
                   color="blue darken-4"
                   class="white--text"
@@ -81,7 +82,7 @@
                   >
                     <v-card>
                       <v-date-picker
-                        v-model="item.selectedDate"
+                        v-model="bindProgressionDuedate[index].selectedDate"
                         color=""
                         no-title
                         scrollable
@@ -101,18 +102,19 @@
                           text
                           color="primary"
                           @click="
-                            dateMenuSave(
-                              item.selectedDate,
-                              item.Progress_ID,
-                              item.Progression_Info_ID,
-                              item
-                            )
+                            (item.isSelectDate = false),
+                              dateMenuSave(
+                                bindProgressionDuedate[index].selectedDate,
+                                item.Progress_ID,
+                                item.Progression_Info_ID,
+                                item
+                              )
                           "
                         >
                           OK
                         </v-btn>
                       </v-date-picker>
-                      <div v-if="selectDateErrorMsg" class="pa-5">
+                      <div v-if="!item.isSelectDate" class="pa-5">
                         <span class="red--text text--lighten-1"
                           >Please completely to select assign date and
                           duedate</span
@@ -136,15 +138,17 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
 export default {
   data() {
     return {
       date: null,
       progressionDuedate: [],
+      bindProgressionDuedate: [],
+      // selectedDate: [],
       access_Date_Start: null,
       access_Date_End: null,
       totalFile: [],
-      selectDateErrorMsg: false,
       headers: [
         {
           text: "TOPIC",
@@ -158,6 +162,7 @@ export default {
       ],
     };
   },
+  mixins: [utils],
   async fetch() {
     try {
       // fect duedate
@@ -225,6 +230,7 @@ export default {
           assignable: true,
           startDate: this.offsetDate(this.access_Date_Start),
           endDate: this.offsetDate(this.access_Date_End),
+          isSelectDate: true,
         }));
       } else {
         // console.log("have some due date");
@@ -261,6 +267,7 @@ export default {
                 criteria[i].startDate = criteria[i - 1].selectedDate[1];
               }
               criteria[i].endDate = this.offsetDate(this.access_Date_End);
+              criteria[i].isSelectDate = true;
 
               // console.log("index", i);
               break;
@@ -296,7 +303,11 @@ export default {
         a.Progress_ID > b.Progress_ID ? 1 : -1
       );
 
-      console.log("progression Duedate22", this.progressionDuedate);
+      this.bindProgressionDuedate = this.handleCloneDeep(
+        this.progressionDuedate
+      );
+
+      // console.log("progression Duedate22", this.progressionDuedate);
     } catch (error) {}
   },
 
@@ -339,13 +350,13 @@ export default {
 
       // let self = this;
       if (newDate.length < 2) {
-        this.selectDateErrorMsg = true;
+        this.isSelectDate = false;
         return (this.progressionDuedate[
           progressionDuedateIndex
         ].dateMenu = true);
       }
 
-      this.selectDateErrorMsg = false;
+      this.isSelectDate = true;
 
       let res = await this.$axios.$post("date/progression/update", {
         DueDate_Start: newDate[0],
@@ -360,7 +371,7 @@ export default {
       if (res.status == 200) {
         console.log("success", res);
 
-        this.$nuxt.refresh();
+        await this.$nuxt.refresh();
         this.$swal.fire("Successed", "", "success");
         // console.log("ref", this.$refs["dateMenu" + progressId]);
         // this.$refs["dateMenu" + progressId] = false;

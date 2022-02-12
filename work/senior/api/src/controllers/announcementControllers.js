@@ -22,7 +22,7 @@ getAll = async (req, res) => {
   const MajorID = req.body.MajorID;
   console.log(MajorID);
   const sql =
-    "SELECT ann.Announcement_ID,ann.Text,ann.Publish_Date,ann.Major_ID,mj.Major_Name FROM announcements ann INNER JOIN majors mj ON ann.Major_ID=mj.Major_ID";
+    "SELECT ann.Announcement_ID,ann.Text,ann.Publish_Date,ann.Major_ID,mj.Major_Name FROM announcements ann INNER JOIN majors mj ON ann.Major_ID=mj.Major_ID ORDER BY ann.Announcement_ID DESC";
   await con.query(sql, MajorID, (err, result, fields) => {
     if (err) {
       console.log(err);
