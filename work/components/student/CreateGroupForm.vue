@@ -569,6 +569,7 @@ export default {
       if (
         this.selectedAdvisor === null ||
         this.selectedCommittee1 === null ||
+        this.selectedCommittee2 === null ||
         this.valid === false
       )
         return;
