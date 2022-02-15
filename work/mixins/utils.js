@@ -30,35 +30,39 @@ export default {
           return (required && !string) ||
             cvAll ||
             // ANCHOR old: !/^[A-Za-z][A-Za-z ]*$/.test(string)
-            !/^([a-zA-Z]+\s)*[a-zA-Z]+$/.test(string)
+            !/^$|^([a-zA-Z]+\s)*[a-zA-Z]+$/.test(string)
             ? errorMsg
             : true;
           break;
         case "onlyNormalCharEngNoSpace":
-          return (required && !string) || cvAll || !/^[A-Za-z]*$/.test(string)
+          return (required && !string) ||
+            cvAll ||
+            !/^$|^[A-Za-z]*$/.test(string)
             ? errorMsg
             : true;
           break;
         case "onlyNormalCharEngAndNumber":
           return (required && !string) ||
             cvAll ||
-            !/^([a-zA-Z0-9]+\s)*[a-zA-Z0-9]+$/.test(string)
+            !/^$|^([a-zA-Z0-9]+\s)*[a-zA-Z0-9]+$/.test(string)
             ? errorMsg
             : true;
           break;
         case "onlyNormalCharTh":
           return (required && !string) ||
             cvAll ||
-            !/^[\u0E00-\u0E7F]*$/.test(string)
+            !/^$|^[\u0E00-\u0E7F]*$/.test(string)
             ? errorMsg
             : true;
         case "onlyNumber":
-          return (required && !string) || cvAll || !/^\d+$/.test(string)
+          return (required && !string) || cvAll || !/^$|^\d+$/.test(string)
             ? errorMsg
             : true;
           break;
         case "onlyNumberFloat":
-          return (required && !string) || cvAll || !/^\d*\.?\d+$/.test(string)
+          return (required && !string) ||
+            cvAll ||
+            !/^$|^\d*\.?\d+$/.test(string)
             ? errorMsg
             : true;
           break;

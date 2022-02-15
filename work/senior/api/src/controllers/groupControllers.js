@@ -825,6 +825,7 @@ grading = async (req, res) => {
 
     // 2.) If is advisor, then update grade in 'groups' table
     if (isAdvisor && Grade) {
+      // isReEval indicate that advisor gave an "I"
       const updateGrade = `UPDATE groups SET Grade = ?, Is_Re_Eval = ${
         isReEval ? 1 : 0
       }, Received_New_Grade = ${newEvalScore ? 1 : 0} ${
