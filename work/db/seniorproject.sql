@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Feb 08, 2022 at 03:10 AM
+-- Generation Time: Feb 18, 2022 at 10:59 AM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -189,7 +189,11 @@ INSERT INTO `groupmembers` (`Group_Member_ID`, `User_Email`, `User_Status`, `Use
 (52, '6131302001@lamduan.mfu.ac.th', 1, '222222', 2, 10, 15),
 (53, 'kiwlom093@gmail.com', 1, '', 0, 10, 15),
 (54, 'sootarin@gmail.com', 1, '', 1, 10, 15),
-(55, 'surapol_mfu@gmail.com', 1, '', 1, 10, 15);
+(55, 'surapol_mfu@gmail.com', 1, '', 1, 10, 15),
+(56, '6131302005@lamduan.mfu.ac.th', 1, '0805630800', 3, 11, 15),
+(57, 'cickpoo0121@gmail.com', 0, '', 0, 11, 15),
+(58, 'kiwlom093@gmail.com', 0, '', 1, 11, 15),
+(59, 'nilubon_mfu@gmail.com', 0, '', 1, 11, 15);
 
 -- --------------------------------------------------------
 
@@ -221,12 +225,12 @@ CREATE TABLE `groups` (
   `Group_ID` int(11) NOT NULL,
   `Group_Name_Thai` text NOT NULL,
   `Group_Name_Eng` text NOT NULL,
-  `Co_Advisor` varchar(30) NOT NULL,
+  `Co_Advisor` varchar(30) DEFAULT NULL,
   `Major` int(11) DEFAULT NULL,
   `Group_Status` int(11) NOT NULL DEFAULT 1,
   `Group_Progression` int(11) NOT NULL DEFAULT 2,
   `Project_on_term_ID` int(11) NOT NULL,
-  `Grade` varchar(2) NOT NULL,
+  `Grade` varchar(2) DEFAULT NULL,
   `Is_Re_Eval` int(1) NOT NULL DEFAULT 0,
   `Received_New_Grade` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -236,7 +240,8 @@ CREATE TABLE `groups` (
 --
 
 INSERT INTO `groups` (`Group_ID`, `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Group_Status`, `Group_Progression`, `Project_on_term_ID`, `Grade`, `Is_Re_Eval`, `Received_New_Grade`) VALUES
-(10, 'ASDASD', 'asdasdasd', '', 1, 1, 10, 15, 'S', 1, 1);
+(10, 'ASDASD', 'asdasdasd', '', 1, 1, 10, 15, 'S', 1, 1),
+(11, 'กา', 'ga', '', 1, 1, 2, 15, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -470,6 +475,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES
 ('6131302001@lamduan.mfu.ac.th', '6131302001', 'Chumphon Aekwarodom', 1, NULL, 1, 15),
 ('6131302002@lamduan.mfu.ac.th', '6131302002', 'Tee Benjamin', 1, NULL, 1, 15),
+('6131302005@lamduan.mfu.ac.th', '6131302005', 'Pipat Massri', 1, NULL, 1, 15),
 ('6131501026@lamduan.mfu.ac.th', '6131501026', 'Nuttapong Samipak', 1, NULL, 6, 15),
 ('6131501037@lamduan.mfu.ac.th', '6131501037', 'Pronpom Kumthong', 1, NULL, 6, 15),
 ('6131501042@lamduan.mfu.ac.th', '6131501042', 'Pornsupa Sombatsiri', 1, NULL, 6, 15),
@@ -687,13 +693,13 @@ ALTER TABLE `gradecriterias`
 -- AUTO_INCREMENT for table `groupmembers`
 --
 ALTER TABLE `groupmembers`
-  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `majors`
