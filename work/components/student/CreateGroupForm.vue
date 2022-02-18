@@ -246,15 +246,7 @@
                     color="blue"
                     outlined
                     dense
-                    :rules="[
-                      handleValidateTextField({
-                        string: coadvisorName,
-                        option: 'onlyNormalCharEng',
-                        required: false,
-                        errorMsg:
-                          'This field is required / Not allow start and end with space /Not allow special character and only English characters.',
-                      }),
-                    ]"
+                    
                   ></v-text-field>
                   <!-- <v-autocomplete
                     v-model="selectedCoAdvisor"
@@ -795,7 +787,7 @@ export default {
       }
       // Set committes
       this.groupMembers
-        .filter((member) => member.Group_Role === 1)
+        .filter((member) => member.Group_Role === 1&& member.Project_on_term_ID == 15)
         .map((member, index) => {
           this["selectedCommittee" + (index + 1)] = {
             User_Name: member.User_Name,
