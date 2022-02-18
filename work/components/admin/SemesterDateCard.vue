@@ -10,7 +10,7 @@
       <h4>ACTIONS</h4>
 
       <!-- Table records -->
-      <template v-for="data in dateData">
+      <template v-for="(data, index) in dateData">
         <p :key="data.Academic_Term + 9">
           {{ data.Academic_Term + "/" + academicYear }}
         </p>
@@ -35,28 +35,40 @@
                 <v-icon>mdi-calendar-month</v-icon> EDIT
               </v-btn>
             </template>
-            <v-date-picker
-              v-model="data.selectedDate"
-              :allowed-dates="allowedDates"
-              color=""
-              no-title
-              scrollable
-              range
+            <v-dialog
+              ref="dialog"
+              v-model="data.dateMenu"
+              :return-value.sync="date"
+              persistent
+              width="290px"
             >
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="data.dateMenu = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                text
-                color="primary"
-                @click="
-                  dateMenuSave(data.Project_on_term_ID, data.selectedDate)
-                "
+              <v-date-picker
+                v-model="bindDate[index].selectedDate"
+                :allowed-dates="allowedDates"
+                color=""
+                no-title
+                scrollable
+                range
               >
-                OK
-              </v-btn>
-            </v-date-picker>
+                <v-spacer></v-spacer>
+                <v-btn text color="primary" @click="data.dateMenu = false">
+                  Cancel
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="
+                    dateMenuSave(
+                      data.Project_on_term_ID,
+                      bindDate[index].selectedDate,
+                      index
+                    )
+                  "
+                >
+                  OK
+                </v-btn>
+              </v-date-picker>
+            </v-dialog>
           </v-menu>
         </div>
       </template>
@@ -129,6 +141,7 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
 export default {
   //asd
   props: { academicYear: Number },
@@ -159,8 +172,10 @@ export default {
           dateMenu: false,
         },
       ],
+      bindDate: [],
     };
   },
+  mixins: [utils],
   async fetch() {
     try {
       // Fetch latest project on term
@@ -197,6 +212,9 @@ export default {
         this.availableSemesters = this.availableSemesters.slice(
           this.dateData.length
         );
+
+        // data bind
+        this.bindDate = this.handleCloneDeep(this.dateData);
       }
       console.log("Fetched, Date data: ", this.dateData);
     } catch (err) {
@@ -211,13 +229,16 @@ export default {
     },
   },
   methods: {
-    async dateMenuSave(id, date) {
+    async dateMenuSave(id, date, index) {
+      var sortDate = date.sort();
       const res = await this.$axios.$post("/date/semester/update", {
         data: [...date, id],
       });
       if (res.status === 200) {
         // Update date picker UI
+        this.$swal.fire("Successed!", "", "success");
         this.$refs["dateMenu" + id][0].save(date);
+        this.dateData[index] = this.bindDate[index];
         // console.log(this.$refs["dateMenu" + id][0]);
       }
     },
@@ -239,7 +260,7 @@ export default {
         // Close add new semester dialog
         this.newSemesterDateDialog = false;
         // Re-fetch new data
-        this.$fetch();
+        await this.$fetch();
       } catch (err) {
         console.log(err);
       }
