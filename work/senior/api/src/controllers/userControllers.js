@@ -155,7 +155,7 @@ uploadfile = async (req, res) => {
       let name = req.files[0]["filename"];
       const { Major } = req.body;
       var sql =
-        "INSERT INTO users ( User_Email , User_Identity_ID , User_Name , User_Role , Course_code , Major_ID ,  Project_on_term_ID ) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
+        "INSERT IGNORE INTO users ( User_Email , User_Identity_ID , User_Name , User_Role , Course_code , Major_ID ,  Project_on_term_ID ) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
       var obj = readXlsxFile(req.files[0]["path"]).then((rows) => {
         let semiter;
@@ -231,7 +231,7 @@ uploadfileteacher = async (req, res) => {
       // avatar.mv("uploads/excel/" + name);
       // console.log(req.files[0]['filename'])
       var sql =
-        "REPLACE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
+        "INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
       var obj = readXlsxFile(req.files[0]["path"]).then((rows) => {
         let semiter;
