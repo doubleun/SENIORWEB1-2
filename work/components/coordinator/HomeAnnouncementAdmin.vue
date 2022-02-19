@@ -100,6 +100,7 @@
                     <h3 class="font-weight-bold">
                       <v-icon small>mdi-checkbox-blank-circle</v-icon>
                       {{ announcement.Text }}
+                      {{ index }}
                     </h3>
 
                     <div>
@@ -244,6 +245,7 @@
 import utils from "@/mixins/utils";
 
 export default {
+  props: ["dataUi", "majors", "bindingData"],
   data: () => ({
     date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
@@ -261,55 +263,41 @@ export default {
     Text: "",
     editedText: "",
   }),
-  props: ["dataUi", "majors", "bindAnnouncement"],
   mixins: [utils],
 
   computed: {
     displayAnnounce() {
-      console.log("data ui", this.dataUi.announcements);
-      // console.log("bindAnnouncement", this.bindAnnouncement);
-      // console.log("data ui 0", this.dataUi.announcements[0]);
       // 4 is the maximum rows
       const startIndex = 4 * (this.page - 1);
       const endIndex = startIndex + 4;
-      // console.log("start", startIndex);
-      // console.log("end", endIndex);
-      // console.log(
-      //   "slice",
-      //   this.dataUi.announcements.slice(startIndex, endIndex)
-      // );
+
       return this.dataUi.announcements.slice(startIndex, endIndex);
     },
     pageLength() {
       return Math.ceil(this.dataUi.announcements.length / 4);
+    },
+    bindAnnouncement() {
+      const startIndex = 4 * (this.page - 1);
+      const endIndex = startIndex + 4;
+      return this.bindingData.slice(startIndex, endIndex);
     },
   },
 
   methods: {
     // rule of selected major add
     isSelectMajorAdd(selectedMajor, allmajor) {
-      // console.log("selectedMajor id", !selectedMajor.Major_ID);
-      console.log("selectedMajor ", selectedMajor);
-      console.log("allmajor", allmajor);
-      console.log("========================");
-
       if (
         (selectedMajor == null || selectedMajor.Major_ID == null) &&
         allmajor == false
       ) {
-        console.log("add");
+        // console.log("add");
         return "Please select Major";
       }
 
-      console.log("have selected major");
+      // console.log("have selected major");
       return true;
     },
     isSelectMajorEdit(selectedMajor, allmajor) {
-      // console.log("selectedMajor id", !selectedMajor.Major_ID);
-      console.log("selectedMajor ", selectedMajor);
-      console.log("allmajor", allmajor);
-      console.log("========================");
-
       if (
         (selectedMajor == null || selectedMajor.Major_ID == 99) &&
         allmajor == false
@@ -340,11 +328,6 @@ export default {
       let validateSelectMajor = this.$refs.selectAdd.validate("selectAdd");
       let validateCheckAllMajor = this.allMajorAdd;
 
-      // console.log("text add", textAdd);
-      // console.log("select add", selectAdd);
-      // console.log("check add", checkAdd);
-      // console.log("========================");
-
       // If there is no text or the selected major ID is not in the available ones stop the function
       if (!validateText || (!validateSelectMajor && !validateCheckAllMajor)) {
         return;
@@ -360,8 +343,6 @@ export default {
         MajorID: selectedMajor,
       });
       if (res.status === 200) {
-        // this.snackbarText = "Add new announcement successfully";
-        // this.submitSnackbar = true;
         this.dialog = false;
 
         this.$swal.fire(
@@ -372,31 +353,6 @@ export default {
 
         // Update UI
         this.$emit("on-update-announcements");
-        // this.dataUi.announcements = [
-        //   {
-        //     Publish_Date: "please refresh",
-        //     Text: this.Text.trim(),
-        //     Major_ID: selectedMajor,
-        //     allMajor: selectedMajor == 99 ? true : false,
-        //     major: this.selectedMajorAdd,
-        //     modal: false,
-        //   },
-        //   ...this.dataUi.announcements,
-        // ];
-
-        //  this.bindAnnouncement = [
-        //   {
-        //     Publish_Date: "please refresh",
-        //     Text: this.Text.trim(),
-        //     Major_ID: selectedMajor,
-        //     allMajor: selectedMajor == 99 ? true : false,
-        //     major: this.selectedMajorAdd,
-        //     modal: false,
-        //   },
-        //   ...this.dataUi.announcements,
-        // ];
-
-        console.log(this.dataUi.announcements);
 
         // Clear text
         this.Text = "";
@@ -457,34 +413,15 @@ export default {
       // console.log(id, text, majorId, allMajor);
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
 
-      // console.log("text ", text);
-      // console.log("majorId ", majorId);
-      // console.log("allMajor ", allMajor);
-      // console.log("text ", validateText);
-
       let validateText = this.$refs.textEdit[index].validate("textEdit");
       let validateSelectMajor =
         this.$refs.selectEdit[index].validate("selectEdit");
-
-      // console.log("text ", validateText);
-      // console.log("select ", validateSelectMajor);
-      // console.log("check ", allMajor);
-      // console.log("========================");
 
       // If there is no text or the selected major ID is not in the available ones stop the function
 
       if (!validateText || (!validateSelectMajor && !allMajor)) {
         return;
       }
-
-      // console.log("pass");
-
-      // if (selectedMajor == null || text == null || text == "") {
-      //   this.$refs.textEdit[index].validate("textEdit");
-      //   this.$refs.selectEdit[index].validate("selectEdit");
-
-      // return;
-      // }
 
       const selectedMajor = allMajor ? 99 : majorId.Major_ID;
       // console.log(selectedMajor);

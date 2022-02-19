@@ -4,7 +4,7 @@
     <CoordinatorHomeAnnouncementAdmin
       :dataUi="dataUi"
       :majors="majors"
-      :bindAnnouncement="bindAnnouncement"
+      :bindingData="bindAnnouncement"
       @on-update-announcements="refresh"
       editable
     />

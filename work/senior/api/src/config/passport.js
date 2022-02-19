@@ -45,6 +45,7 @@ passport.serializeUser((user, done) => {
         done(null, data);
         console.log("Cant find user in database");
       } else {
+        user.name = result[0].User_Name;
         user.role = result[0].User_Role;
         user.major = result[0].Major_ID;
         user.projectOnTerm = result[0].Project_on_term_ID;
