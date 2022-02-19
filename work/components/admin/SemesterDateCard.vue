@@ -172,7 +172,26 @@ export default {
           dateMenu: false,
         },
       ],
-      bindDate: [],
+      bindDate: [
+        {
+          Project_on_term_ID: 1,
+          Academic_Term: "1",
+          selectedDate: [
+            new Date().toISOString().substr(0, 10),
+            new Date().toISOString().substr(0, 10),
+          ],
+          dateMenu: false,
+        },
+        {
+          Project_on_term_ID: 2,
+          Academic_Term: "2",
+          selectedDate: [
+            new Date().toISOString().substr(0, 10),
+            new Date().toISOString().substr(0, 10),
+          ],
+          dateMenu: false,
+        },
+      ],
     };
   },
   mixins: [utils],

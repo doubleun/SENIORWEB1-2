@@ -138,7 +138,7 @@ export default {
         console.log("Fetching for re-eval");
         try {
           gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
-            Major_ID: store.state.auth.currentUser.major,
+            Major_ID: groupRes.groupInfo[0].Major,
           });
 
           // Fetch evaluation scores

@@ -9,7 +9,11 @@
             <v-row>
               <v-select
                 v-model="selectedYear"
-                :items="yearNSemsters.map((itm) => itm.Academic_Year)"
+                :items="
+                  !!yearNSemsters
+                    ? yearNSemsters.map((itm) => itm.Academic_Year)
+                    : []
+                "
                 @change="handelFilterWithAcademic"
                 dense
                 solo
@@ -25,7 +29,11 @@
             <v-row>
               <v-select
                 v-model="selectedSemester"
-                :items="yearNSemsters.map((itm) => itm.Academic_Term)"
+                :items="
+                  !!yearNSemsters
+                    ? yearNSemsters.map((itm) => itm.Academic_Term)
+                    : []
+                "
                 @change="handelFilterWithAcademic"
                 dense
                 solo
@@ -90,7 +98,9 @@ export default {
   async asyncData({ $axios, store }) {
     try {
       // Fetch all years and semesters
-      const yearNSemsters = await $axios.$get("/date/allYearsSemester");
+      let yearNSemsters = [];
+      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+      console.log("year and semester", yearNSemsters);
 
       // Fetch student score
       let score = await $axios.$post("/group/getScoreCoor", {
@@ -99,13 +109,11 @@ export default {
         Academic_Term: yearNSemsters[0].Academic_Term,
       });
 
-
-
       // console.log("score", score);
 
       // header
       var progression = store.state.group.availableProgress;
-      // console.log("progression", progression);
+      console.log("progression", progression);
       // mapping progression
       var header = progression.map((el) => ({
         text: el.Progress_Name.toUpperCase(),

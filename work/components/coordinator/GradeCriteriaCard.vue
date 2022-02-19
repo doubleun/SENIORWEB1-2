@@ -74,9 +74,8 @@
                   <v-text-field
                     v-model="grade.Grade_Criteria_Pass"
                     :rules="[
-                      (val) =>
-                        !!grade.Grade_Criteria_Pass || 'This field is required',
-                      handleCheckValidScore(val),
+                      !!grade.Grade_Criteria_Pass || 'This field is required',
+                      (val) => handleCheckValidScore(val),
                     ]"
                     v-else
                     outlined
@@ -174,7 +173,7 @@ export default {
     async handleAddGradeCriterias() {
       // Check if there's a criterias template to send, and if the grade criterias have already been fetched
       // Validate form
-      this.$refs.form[0].validate();
+      this.$refs.form.validate();
       console.log("Valid form: ", this.valid);
       if (
         !this.criteriasTemplate ||

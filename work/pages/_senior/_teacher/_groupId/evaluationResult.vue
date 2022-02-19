@@ -92,6 +92,8 @@ export default {
       filterTeachersRole: false,
     });
 
+    console.log("group info", groupInfo);
+
     // Check if the group has a grade, if not then committe cannot give comment
     if (!groupInfo.group.Grade && groupInfo.group.Current_Member_Role === 1) {
       alert("Please wait until advisor give a grade");
@@ -101,7 +103,7 @@ export default {
     // Fetch available grade criterias
     // Fetch grade from grade criterias
     const gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
-      Major_ID: store.state.auth.currentUser.major,
+      Major_ID: groupInfo.group.Major,
     });
     console.log("Eval grade criterias: ", gradeCriterias);
 

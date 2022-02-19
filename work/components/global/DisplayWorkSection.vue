@@ -479,7 +479,7 @@ export default {
 
         // If this progress is proposal, skip finding the next progress id and simply use the current one
         if (this.progressId === 2) {
-          formData.append("Next_Progress_ID", 2);
+          formData.append("Next_Progress_ID", 3);
         } else {
           // Else get current progress index from all avaialble progresses
           const currentProgressIndex =

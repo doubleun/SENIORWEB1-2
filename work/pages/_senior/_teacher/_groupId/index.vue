@@ -50,7 +50,7 @@ export default {
       // Fetch available grade criterias
       // Fetch grade from grade criterias
       const gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
-        Major_ID: store.state.auth.currentUser.major,
+        Major_ID: res.groupInfo[0].Major,
       });
       console.log("Eval grade criterias: ", gradeCriterias);
 

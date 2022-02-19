@@ -124,7 +124,14 @@ giveProgressScore = async (req, res) => {
     Assignment_ID,
     Next_Progress_ID,
   } = req.body;
-  console.log(Score, Max_Score, Comment, Group_Member_ID, Assignment_ID);
+  console.log(
+    Score,
+    Max_Score,
+    Comment,
+    Group_Member_ID,
+    Assignment_ID,
+    Group_ID
+  );
   console.log("File: ", req.file);
   console.log("Next_Progress_ID: ", Next_Progress_ID);
   try {
@@ -167,17 +174,20 @@ giveProgressScore = async (req, res) => {
     // 3.) Update group progression to the next one
     // Query will count number or scores given based on the assignemnt ID if it's 3, then the group progression will go up to the next available progress
     // TODO: Add group id as condition in subquery
+    // const groupProgressSql =
+    //   "UPDATE `groups` SET `Group_Progression` = IF((SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?) = 2, ?, `Group_Progression`) WHERE `Group_ID` = ?";
     const groupProgressSql =
-      "UPDATE `groups` SET `Group_Progression` = IF((SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ? AND `Group_ID` = ?) = 3, ?, `Group_Progression`) WHERE `Group_ID` = ?";
-    await promisePool.execute(
+      "UPDATE `groups` SET `Group_Progression` = CASE WHEN (SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?)=2 THEN ? ELSE Group_Progression END WHERE `Group_ID` = ?";
+    const result = await promisePool.execute(
       groupProgressSql,
-      [Assignment_ID, Group_ID, Next_Progress_ID, Group_ID],
+      [Assignment_ID, Next_Progress_ID, Group_ID],
       (err, result) => {
         if (err) throw err;
       }
     );
     // Commit transaction
     await promisePool.commit();
+    console.log("res check assigment", result);
     res.status(200).json({ msg: "success", status: 200 });
     return;
   } catch (err) {

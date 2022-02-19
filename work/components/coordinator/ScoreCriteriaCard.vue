@@ -135,7 +135,7 @@ export default {
         const newScoreTotal =
           parseInt(criteriaItem.Advisor_Score) +
           parseInt(criteriaItem.Committee_Score);
-        const isValid = this.$refs.form[0].validate();
+        const isValid = this.$refs.form.validate();
 
         // Check if the criteria has an id and entered values are valid
         if (!isValid) return;
