@@ -211,6 +211,9 @@ export default {
       if (!store.state.group.currentUserGroup)
         store.commit("group/SET_GROUP", groupRes.groupInfo[0]);
 
+      // Set available group progressions based on group major
+      store.dispatch("group/storeAvailableProgressions");
+
       // Fetch score to check if this user alrady given a score
       const scoreInfo = await $axios.$post(
         "/assignment/getTeacherProgressScore",
