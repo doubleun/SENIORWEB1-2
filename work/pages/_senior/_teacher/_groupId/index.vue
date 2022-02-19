@@ -44,6 +44,9 @@ export default {
       // TODO: Not needed anymore ??
       store.commit("group/SET_GROUP", res.groupInfo[0]);
 
+      // Set available group progressions based on group major
+      store.dispatch("group/storeAvailableProgressions");
+
       // Fetch available grade criterias
       // Fetch grade from grade criterias
       const gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
