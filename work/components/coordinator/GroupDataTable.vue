@@ -66,6 +66,7 @@
                 </v-col>
                 <v-col>
                   <v-btn
+                    v-if="showDelete"
                     color="error"
                     @click="deleteGroup(item.Group_ID, item.Group_Name_Eng)"
                   >
@@ -96,6 +97,10 @@
 export default {
   props: {
     Group_Role: Number,
+    showDelete: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   data() {
     return {
