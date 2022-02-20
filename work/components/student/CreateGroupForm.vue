@@ -23,7 +23,7 @@
     </v-row>
     <v-divider></v-divider>
     <!-- Create group form -->
-    <v-form ref="form" v-model="valid">
+    <v-form ref="form" lazy-validation v-model="valid">
       <v-card class="content mt-5">
         <v-row>
           <v-col cols="12" sm="3"
@@ -37,12 +37,13 @@
                 ref=""
                 v-model="thaiName"
                 :rules="[
-                  handleValidateTextField({
-                    string: thaiName,
-                    option: 'onlyNormalCharTh',
-                    errorMsg:
-                      'This field is required / Not allow start and end with space / Not allow space, special character and only Thai characters.',
-                  }),
+                  () =>
+                    handleValidateTextField({
+                      string: thaiName,
+                      option: 'onlyNormalCharTh',
+                      errorMsg:
+                        'This field is required / Not allow start and end with space / Not allow space, special character and only Thai characters.',
+                    }),
                 ]"
                 :disabled="!headMember"
                 required
@@ -55,12 +56,13 @@
                 ref="engName"
                 v-model="engName"
                 :rules="[
-                  handleValidateTextField({
-                    string: engName,
-                    option: 'onlyNormalCharEngAndNumber',
-                    errorMsg:
-                      'This field is required / Not allow start and end with space / Not allow special character and only English characters.',
-                  }),
+                  () =>
+                    handleValidateTextField({
+                      string: engName,
+                      option: 'onlyNormalCharEngAndNumber',
+                      errorMsg:
+                        'This field is required / Not allow start and end with space / Not allow special character and only English characters.',
+                    }),
                 ]"
                 :disabled="!headMember"
                 required
