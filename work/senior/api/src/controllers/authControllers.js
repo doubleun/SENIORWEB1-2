@@ -15,7 +15,7 @@ redirect = passport.authenticate("google", {
 logout = (req, res) => {
   req.logOut();
   req.session = null;
-  res.status(200).json({ msg: "logged out" });
+  res.status(200).json({ msg: "logged out", status: 200 });
 };
 
 // test
