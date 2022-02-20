@@ -68,7 +68,7 @@
               text
               style="width: 300px; height: 100px"
               class="buttonsenior1and2"
-              @click="testAsync"
+              @click="route(2)"
             >
               <v-card-text class="text--primary">
                 <center>
@@ -91,6 +91,13 @@ export default {
   data: () => ({
     image: itbackground,
   }),
+  async asyncData({ store, redirect }) {
+    console.log(store.getters["auth/currentUser"]);
+    console.log(store.getters["auth/isAuth"]);
+    if (!store.getters["auth/isAuth"]) {
+      redirect("/");
+    }
+  },
   methods: {
     test() {
       console.log(this.$store.state.auth);
@@ -107,21 +114,26 @@ export default {
       //   : this.$router.push(`/Senior${semester}/coordinator/`);
       switch (this.$store.state.auth.currentUser.role) {
         case 0: {
-          this.$router.push(`/Senior${semester}/teacher/`);
+          window.location.replace(`/senior${semester}/teacher/`);
+          // this.$router.push(`/senior${semester}/teacher/`);
           break;
         }
         case 1: {
-          this.$router.push(`/Senior${semester}/student/`);
+          window.location.replace(`/senior${semester}/student/`);
+
+          // this.$router.push(`/senior${semester}/student/`);
           break;
         }
         case 2: {
-          this.$router.push(`/Senior${semester}/coordinator/`);
+          window.location.replace(`/senior${semester}/coordinator/`);
+
+          // this.$router.push(`/senior${semester}/coordinator/`);
           break;
         }
       }
     },
   },
-  middleware: ["adminRedirect"],
+  middleware: ["adminRedirect", "authenticated"],
   layout: "empty",
 };
 </script>

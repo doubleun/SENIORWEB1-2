@@ -14,7 +14,7 @@
       <!-- <h4>TOTAL</h4> -->
 
       <!-- Table records -->
-      <template v-for="(grade, index) in gradeCriterias">
+      <template v-for="(grade, index) in dataUI.gradeCriterias">
         <p :key="grade.Grade_Criteria_Name + 1">
           {{ grade.Grade_Criteria_Name }}
         </p>
@@ -22,7 +22,8 @@
           {{
             index === gradeCriterias.length - 1
               ? "0 - " +
-                (gradeCriterias[gradeCriterias.length - 2].Grade_Criteria_Pass -
+                (dataUI.gradeCriterias[dataUI.gradeCriterias.length - 2]
+                  .Grade_Criteria_Pass -
                   1)
               : grade.Grade_Criteria_Pass
           }}
@@ -73,10 +74,8 @@
                   <v-text-field
                     v-model="grade.Grade_Criteria_Pass"
                     :rules="[
-                      () =>
-                        grade.Grade_Criteria_Pass !== null ||
-                        'This field is required',
-                      handleCheckValidScore(grade.Grade_Criteria_Pass),
+                      !!grade.Grade_Criteria_Pass || 'This field is required',
+                      (val) => handleCheckValidScore(val),
                     ]"
                     v-else
                     outlined
@@ -106,10 +105,23 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
+  mixins: [utils],
   props: {
-    gradeCriterias: Array,
-    noGradeCriteriasProp: Boolean,
+    dataUI: {
+      type: Object,
+      default: { gradeCriterias: [] },
+    },
+    gradeCriterias: {
+      type: Array,
+      default: [],
+    },
+    noGradeCriteriasProp: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     // Available option, used only for showing user in v-select
@@ -134,6 +146,7 @@ export default {
     },
   },
   mounted() {
+    // ! This could be improve by using array of objects ([optionA, optionB]) and loop through when adding the template to each option object
     // Avoid overriding the prop value Vue suggest using data and assign prop value to the data instead
     // 'noGradeCriterias' is used for checking if coordinator has set the criteria yet
     this.noGradeCriterias = this.noGradeCriteriasProp;
@@ -159,14 +172,15 @@ export default {
     // Handle adding grade criterias to the database
     async handleAddGradeCriterias() {
       // Check if there's a criterias template to send, and if the grade criterias have already been fetched
-      if (!this.criteriasTemplate || this.noGradeCriterias === false) return;
-
-      console.log(this.valid);
       // Validate form
       this.$refs.form.validate();
-      if (!this.valid) return;
-
-      console.log(this.valid);
+      console.log("Valid form: ", this.valid);
+      if (
+        !this.criteriasTemplate ||
+        this.noGradeCriterias === false ||
+        !this.valid
+      )
+        return;
 
       try {
         this.$swal
@@ -180,29 +194,33 @@ export default {
             confirmButtonText: "Confirm",
           })
           .then(async (result) => {
-            if (result.isConfirmed) {
-              // Post new grade criterias
-              const addGradeCriteriaRes = await this.$axios.$post(
-                "/criteria/gradeAdd",
-                {
-                  data: this.criteriasTemplate,
-                }
-              );
-              if (addGradeCriteriaRes.status !== 200)
-                throw new Error(
-                  "Failed to add grade criterias, please try again later"
+            try {
+              if (result.isConfirmed) {
+                // Post new grade criterias
+                const addGradeCriteriaRes = await this.$axios.$post(
+                  "/criteria/gradeAdd",
+                  {
+                    data: this.criteriasTemplate,
+                  }
                 );
-              // Update UI
-              // Emit event for refresh
-              this.$emit("add-grade-criterias");
-              this.noGradeCriterias = false;
-              this.$swal.fire(
-                "Grade criterias saved",
-                "You can edit the score of each grade criteria",
-                "success"
-              );
+                if (addGradeCriteriaRes.status !== 200)
+                  throw new Error(
+                    "Failed to add grade criterias, please try again later"
+                  );
+                // Update UI
+                // Emit event for refresh and update UI
+                this.$emit("add-grade-criterias");
+                this.noGradeCriterias = false;
+                this.$swal.fire(
+                  "Grade criterias saved",
+                  "You can edit the score of each grade criteria",
+                  "success"
+                );
+                return;
+              }
               return;
-            } else {
+            } catch (err) {
+              console.log(err);
               return;
             }
           });
@@ -213,7 +231,16 @@ export default {
       }
     },
     handleCheckValidScore(val) {
-      return val <= 0 ? "Invalid score" : true;
+      return this.handleValidateTextField(
+        {
+          string: val,
+          option: "onlyNumberFloat",
+          errorMsg: "Invalid score",
+        },
+        parseFloat(val) > 100,
+        parseFloat(val) < 1,
+        val?.length > 4
+      );
     },
   },
 };

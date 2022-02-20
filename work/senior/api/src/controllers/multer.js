@@ -22,4 +22,15 @@ storage = multer.diskStorage({
 
 const uploadUser = multer({ storage });
 
-module.exports = { upload, uploadUser };
+storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public_senior/uploads/abstract");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const uploadAbstract = multer({ storage });
+
+module.exports = { upload, uploadUser, uploadAbstract };

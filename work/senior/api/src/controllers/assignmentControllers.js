@@ -124,7 +124,14 @@ giveProgressScore = async (req, res) => {
     Assignment_ID,
     Next_Progress_ID,
   } = req.body;
-  console.log(Score, Max_Score, Comment, Group_Member_ID, Assignment_ID);
+  console.log(
+    Score,
+    Max_Score,
+    Comment,
+    Group_Member_ID,
+    Assignment_ID,
+    Group_ID
+  );
   console.log("File: ", req.file);
   console.log("Next_Progress_ID: ", Next_Progress_ID);
   try {
@@ -139,7 +146,7 @@ giveProgressScore = async (req, res) => {
     await promisePool.execute(
       insertScore,
       [Score, Max_Score, Comment, Group_Member_ID, Assignment_ID],
-      (err, result) => {
+      (err) => {
         if (err) throw err;
       }
     );
@@ -158,25 +165,30 @@ giveProgressScore = async (req, res) => {
           Assignment_ID,
           Group_Member_ID,
         ],
-        (err, result) => {
+        (err) => {
           if (err) throw err;
         }
       );
     }
 
+    // Commit transaction
+    await promisePool.commit();
+    // console.log("res check assigment", result);
+
     // 3.) Update group progression to the next one
     // Query will count number or scores given based on the assignemnt ID if it's 3, then the group progression will go up to the next available progress
+    // TODO: Add group id as condition in subquery
     const groupProgressSql =
       "UPDATE `groups` SET `Group_Progression` = IF((SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?) = 3, ?, `Group_Progression`) WHERE `Group_ID` = ?";
-    await promisePool.execute(
+    // const groupProgressSql =
+    //   "UPDATE `groups` SET `Group_Progression` = CASE WHEN (SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?)=2 THEN ? ELSE Group_Progression END WHERE `Group_ID` = ?";
+    con.query(
       groupProgressSql,
       [Assignment_ID, Next_Progress_ID, Group_ID],
-      (err, result) => {
+      (err) => {
         if (err) throw err;
       }
     );
-    // Commit transaction
-    await promisePool.commit();
     res.status(200).json({ msg: "success", status: 200 });
     return;
   } catch (err) {
@@ -265,7 +277,7 @@ getTeacherProgressScore = (req, res) => {
   const { Group_Member_ID, Assignment_ID } = req.body;
   console.log(Group_Member_ID, Assignment_ID);
   const sql =
-    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc LEFT JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ?";
+    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc LEFT JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID AND sc.Assignment_ID = f.Assignment_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ?";
   try {
     con.query(sql, [Group_Member_ID, Assignment_ID], (err, result, fields) => {
       if (err) throw err;
@@ -423,12 +435,12 @@ getAllAssignment = async (req, res) => {
 };
 
 // view all assigment by progress id (admin)
-countAssigment = async (req, res) => {
+countAssigment = (req, res) => {
   const { Project_on_term_ID } = req.body;
   // const Project_on_term_ID = req.params.Project_on_term_ID
   const sql =
     "SELECT (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=1) AS progress1, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=2) AS progress2, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=3) AS progress3, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=4) AS progress4, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=5) AS FinalPresentation, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=6) AS FinalDocumentation, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=7) AS Topic, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=8) AS Groups";
-  await con.query(
+  con.query(
     sql,
     [
       Project_on_term_ID,
@@ -506,6 +518,19 @@ getEvaluationScores = (req, res) => {
   }
 };
 
+getAbstracts = (req, res) => {
+  const abstracts =
+    "SELECT subquery.Abstract_ID, subquery.Abstract_Name,subquery.Submit_Date,subquery.Group_ID,subquery.Major, subquery.Project_on_term_ID,subquery.Group_Name_Thai,subquery.Group_Name_Eng,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT abs.Abstract_ID,abs.Abstract_Name,abs.Submit_Date,abs.Group_ID, abs.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gmb.Group_Member_ID,gmb.User_Email, gmb.Group_Role,gp.Major FROM abstracts abs INNER JOIN groups gp ON abs.Group_ID=gp.Group_ID INNER JOIN groupmembers gmb  ON gp.Group_ID=gmb.Group_ID  WHERE gmb.User_Status=1 AND gmb.Group_Role!=1) AS subquery GROUP BY subquery.Group_ID";
+  con.query(abstracts, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
 module.exports = {
   uploadAssignments,
   giveProgressScore,
@@ -514,4 +539,5 @@ module.exports = {
   getAssignment,
   countFileByMajor,
   getEvaluationScores,
+  getAbstracts,
 };

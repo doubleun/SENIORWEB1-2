@@ -1,5 +1,22 @@
 const con = require("../config/db");
 
+// Get latest project on term id
+getLatestProjectOnTerm = (req, res) => {
+  const getLatestProjectOnTermSql =
+    "SELECT * FROM `projectonterm` ORDER BY `Project_on_term_ID` DESC LIMIT 1";
+  try {
+    con.query(getLatestProjectOnTermSql, (err, projectOnTerm) => {
+      if (err) throw err;
+      res.status(200).json(projectOnTerm[0]);
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
+  }
+};
+
 // get progression of dua date by major
 getProgressionDuedate = async (req, res) => {
   const { Major_ID, Project_on_term_ID } = req.body;
@@ -228,6 +245,7 @@ getProgressDueDate = async (req, res) => {
 };
 
 module.exports = {
+  getLatestProjectOnTerm,
   getProgressionDuedate,
   updateProgressionDuedate,
   getAcademicYear,

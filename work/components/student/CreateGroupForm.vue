@@ -36,7 +36,14 @@
               <v-text-field
                 ref=""
                 v-model="thaiName"
-                :rules="[() => !!thaiName || 'This field is required']"
+                :rules="[
+                  handleValidateTextField({
+                    string: thaiName,
+                    option: 'onlyNormalCharTh',
+                    errorMsg:
+                      'This field is required / Not allow start and end with space / Not allow space, special character and only Thai characters.',
+                  }),
+                ]"
                 :disabled="!headMember"
                 required
                 class="mt-5"
@@ -47,7 +54,14 @@
               <v-text-field
                 ref="engName"
                 v-model="engName"
-                :rules="[() => !!engName || 'This field is required']"
+                :rules="[
+                  handleValidateTextField({
+                    string: engName,
+                    option: 'onlyNormalCharEngAndNumber',
+                    errorMsg:
+                      'This field is required / Not allow start and end with space / Not allow special character and only English characters.',
+                  }),
+                ]"
                 :disabled="!headMember"
                 required
                 label="English Name"
@@ -106,7 +120,16 @@
                       ref="stuPhoneNumber"
                       v-model="phone[index]"
                       :rules="[
-                        () => !!phone[index] || 'This field is required',
+                        handleValidateTextField(
+                          {
+                            string: phone[index],
+                            option: 'onlyNumber',
+                            errorMsg:
+                              'This field is required / Not allow start and end with space / Start with 0 / Only 10 digit of number',
+                          },
+                          phone[index].length != 10,
+                          phone[index][0] != 0
+                        ),
                       ]"
                       :disabled="!headMember"
                       required
@@ -117,20 +140,6 @@
                     </v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
-                    <!-- <v-text-field
-                      ref="stuID"
-                      v-model="idstu[member - 1]"
-                      :rules="[
-                        () => !!idstu[member - 1] || 'This field is required'
-                      ]"
-                      required
-                      label="Student ID"
-                      outlined
-                      dense
-                      class="mt-5"
-                    >
-                    
-                    </v-text-field> -->
                     <v-autocomplete
                       v-model="selectedStudent[index]"
                       :loading="studentLoading"
@@ -139,6 +148,9 @@
                       :disabled="
                         index == 0 || !headMember || memberStatus[index] === 1
                       "
+                      :rules="[
+                        (val) => selectMemberRules('student', index, val),
+                      ]"
                       class="mt-5"
                       outlined
                       dense
@@ -186,25 +198,26 @@
               <h4 class="font-weight-bold">Project Advisor</h4>
               <v-row>
                 <v-col class="mt-5">
-                  <!-- <v-text-field
-                    ref="advisorName"
-                    v-model="advisorName"
-                    :rules="[() => !!advisorName || 'This field is required']"
-                    required
-                    label="Advisor Name"
-                    outlined
-                    dense
-                  ></v-text-field>
-                   -->
-                   <v-chip
+                  <v-chip
                     class="ma-2"
                     color="green"
                     text-color="white"
-                    v-if="((!!selectedAdvisor && groupCreated) || !headMember)&& selectedAdvisorstatus == 1"
+                    v-if="
+                      ((!!selectedAdvisor && groupCreated) || !headMember) &&
+                      selectedAdvisorstatus == 1
+                    "
                   >
                     Accepted
                   </v-chip>
-                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedAdvisor && groupCreated) || !headMember)&& selectedAdvisorstatus == 0">
+                  <v-chip
+                    class="ma-2"
+                    color="orange"
+                    text-color="white"
+                    v-if="
+                      ((!!selectedAdvisor && groupCreated) || !headMember) &&
+                      selectedAdvisorstatus == 0
+                    "
+                  >
                     Pendding
                   </v-chip>
                   <v-autocomplete
@@ -214,6 +227,7 @@
                     :disabled="
                       (!!selectedAdvisor && groupCreated) || !headMember
                     "
+                    :rules="[(val) => selectMemberRules('advisor', 0, val)]"
                     outlined
                     dense
                     color="blue"
@@ -222,9 +236,6 @@
                     item-text="User_Name"
                     item-value="User_Name"
                     placeholder="Search advisor name"
-                    :rules="[
-                      () => !!selectedAdvisor || 'This field is required',
-                    ]"
                     clearable
                     return-object
                   ></v-autocomplete>
@@ -262,37 +273,26 @@
               <h4 class="font-weight-bold">Project Committee</h4>
               <v-row>
                 <v-col class="mt-5">
-                  <!-- <v-text-field
-                    ref="committee1Name"
-                    v-model="committee1Name"
-                    :rules="[
-                      () => !!committee1Name || 'This field is required'
-                    ]"
-                    required
-                    label="Committee One Name"
-                    outlined
-                    dense
-                  ></v-text-field>
-                  <v-text-field
-                    ref="committee2Name"
-                    v-model="committee2Name"
-                    :rules="[
-                      () => !!committee2Name || 'This field is required'
-                    ]"
-                    required
-                    label="Committee Two Name"
-                    outlined
-                    dense
-                  ></v-text-field> -->
                   <v-chip
                     class="ma-2"
                     color="green"
                     text-color="white"
-                    v-if="((!!selectedCommittee1 && groupCreated) || !headMember)&&selectedCommittee1status ==1"
+                    v-if="
+                      ((!!selectedCommittee1 && groupCreated) || !headMember) &&
+                      selectedCommittee1status == 1
+                    "
                   >
                     Accepted
                   </v-chip>
-                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedCommittee1 && groupCreated) || !headMember)&&selectedCommittee1status ==0">
+                  <v-chip
+                    class="ma-2"
+                    color="orange"
+                    text-color="white"
+                    v-if="
+                      ((!!selectedCommittee1 && groupCreated) || !headMember) &&
+                      selectedCommittee1status == 0
+                    "
+                  >
                     Pendding
                   </v-chip>
                   <v-autocomplete
@@ -302,6 +302,7 @@
                     :disabled="
                       (!!selectedCommittee1 && groupCreated) || !headMember
                     "
+                    :rules="[(val) => selectMemberRules('advisor', 1, val)]"
                     outlined
                     dense
                     color="blue"
@@ -310,9 +311,6 @@
                     item-text="User_Name"
                     item-value="User_Name"
                     placeholder="Search committee 1"
-                    :rules="[
-                      () => !!selectedCommittee1 || 'This field is required',
-                    ]"
                     clearable
                     return-object
                   ></v-autocomplete>
@@ -320,11 +318,22 @@
                     class="ma-2"
                     color="green"
                     text-color="white"
-                    v-if="((!!selectedCommittee2 && groupCreated) || !headMember)&&selectedCommittee2status ==1"
+                    v-if="
+                      ((!!selectedCommittee2 && groupCreated) || !headMember) &&
+                      selectedCommittee2status == 1
+                    "
                   >
                     Accepted
                   </v-chip>
-                  <v-chip class="ma-2" color="orange" text-color="white" v-if="((!!selectedCommittee2 && groupCreated) || !headMember)&&selectedCommittee2status ==0">
+                  <v-chip
+                    class="ma-2"
+                    color="orange"
+                    text-color="white"
+                    v-if="
+                      ((!!selectedCommittee2 && groupCreated) || !headMember) &&
+                      selectedCommittee2status == 0
+                    "
+                  >
                     Pendding
                   </v-chip>
                   <v-autocomplete
@@ -334,6 +343,7 @@
                     :disabled="
                       (!!selectedCommittee2 && groupCreated) || !headMember
                     "
+                    :rules="[(val) => selectMemberRules('advisor', 2, val)]"
                     outlined
                     dense
                     color="blue"
@@ -344,9 +354,6 @@
                     placeholder="Search committee 2"
                     clearable
                     return-object
-                    :rules="[
-                      () => !!selectedCommittee2 || 'This field is required',
-                    ]"
                   ></v-autocomplete>
                 </v-col>
               </v-row>
@@ -401,6 +408,7 @@
   </div>
 </template>
 <script>
+import utils from "@/mixins/utils";
 export default {
   data: () => ({
     // Flag for setting disabled field, this is for when group is created (some field can't be change if this is ture)
@@ -451,6 +459,8 @@ export default {
     major: "1",
     showResposeBtn: false,
   }),
+  mixins: [utils],
+
   props: { groupMembers: Array },
   async fetch() {
     // TODO: This is big fetch, put this in a state and check if exists before fetch it
@@ -473,6 +483,47 @@ export default {
     },
   },
   methods: {
+    // student selected rules
+    selectMemberRules(role, index, val) {
+      let errorMsg = true;
+      if (!val) {
+        return "This field is required";
+      }
+
+      switch (role) {
+        case "student":
+          for (let i = 0; i < this.selectedStudent.length; i++) {
+            if (this.selectedStudent[i] == null || i == index) continue;
+            if (
+              this.selectedStudent[i].User_Identity_ID == val.User_Identity_ID
+            ) {
+              errorMsg = "Student has been in group";
+              break;
+            } else {
+              errorMsg = true;
+            }
+          }
+        case "advisor":
+          let selectedTeacher = [
+            this.selectedAdvisor,
+            this.selectedCommittee1,
+            this.selectedCommittee2,
+          ];
+
+          for (let i = 0; i < selectedTeacher.length; i++) {
+            if (selectedTeacher[i] == null || i == index) continue;
+            if (selectedTeacher[i].User_Email == val.User_Email) {
+              errorMsg = "Teacher has been in group";
+              break;
+            } else {
+              errorMsg = true;
+            }
+          }
+          break;
+      }
+
+      return errorMsg;
+    },
     // Add member fields
     addMemberFields() {
       this.projectMembers = [
@@ -509,6 +560,7 @@ export default {
       if (
         this.selectedAdvisor === null ||
         this.selectedCommittee1 === null ||
+        this.selectedCommittee2 === null ||
         this.valid === false
       )
         return;
@@ -716,14 +768,14 @@ export default {
         });
       // Sets advisor
       const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
-      console.log("this"+ advisor[0].User_Status)
+      console.log("this" + advisor[0].User_Status);
       if (advisor.length !== 0)
         this.selectedAdvisor = {
           User_Email: advisor[0].User_Email,
           User_Name: advisor[0].User_Name,
           disabled: true,
         };
-        this.selectedAdvisorstatus = advisor[0].User_Status
+      this.selectedAdvisorstatus = advisor[0].User_Status;
       // console.log(this.$store.state.group.currentUserGroup);
       //Set co-advisor name
       if (this.$store.state.group.currentUserGroup.Co_Advisor !== "") {
@@ -741,7 +793,8 @@ export default {
             User_Name: member.User_Name,
             User_Email: member.User_Email,
           };
-          this["selectedCommittee" + (index + 1)+"status" ]= member.User_Status
+          this["selectedCommittee" + (index + 1) + "status"] =
+            member.User_Status;
         });
 
       // Sets group created to true

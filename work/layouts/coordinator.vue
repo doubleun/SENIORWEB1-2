@@ -25,7 +25,7 @@ export default {
           id: 0,
           icon: "mdi-arrow-left",
           title: "Back",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -35,7 +35,7 @@ export default {
           id: 0,
           icon: "people_alt",
           title: "Group Info",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -45,7 +45,7 @@ export default {
           id: 0,
           icon: "mdi-file-send",
           title: "Proposal",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -55,7 +55,7 @@ export default {
           id: 3,
           icon: "mdi-numeric-1-circle",
           title: "Progress 1",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -65,7 +65,7 @@ export default {
           id: 4,
           icon: "mdi-numeric-2-circle",
           title: "Progress 2",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -75,7 +75,7 @@ export default {
           id: 5,
           icon: "mdi-numeric-3-circle",
           title: "Progress 3",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -85,7 +85,7 @@ export default {
           id: 6,
           icon: "mdi-numeric-4-circle",
           title: "Progress 4",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -95,7 +95,7 @@ export default {
           id: 7,
           icon: "co_present",
           title: "Final Presentation",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -105,7 +105,7 @@ export default {
           id: 8,
           icon: "text_snippet",
           title: "Final Documentation",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -115,7 +115,7 @@ export default {
           id: 0,
           icon: "stacked_bar_chart",
           title: "Evaluation Result",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -125,11 +125,11 @@ export default {
           id: 9,
           icon: "mdi-restore",
           title: "Re - evaluation",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
-          }/progress`,
+          }/${this.$route.params.groupId}/re-evaluation`,
         },
       ],
     };
@@ -144,6 +144,15 @@ export default {
       "Current group info (logged from coordinator side bar):",
       this.$store.state.group.currentUserGroup
     );
+    // If no group redirect to index to fetch group
+    if (!this.$store.state.group.currentUserGroup)
+      return this.$router.push(
+        `/senior${this.$store.state.auth.currentUser.senior}/${
+          this.$store.state.auth.currentUser.role === 2
+            ? "coordinator"
+            : "teacher"
+        }/${this.$route.params.groupId}`
+      );
     const availableIds = this.$store.state.group.availableProgress.map(
       (progress) => progress.Progress_ID
     );
@@ -151,7 +160,11 @@ export default {
     // Filter to get only available progresses (which comes from score criterias where 'Total' not equal to 0)
     // Includes the ones with id = 0, which means they're not depending on score criterias
     this.items = this.items.filter(
-      (item) => item.id === 0 || availableIds.includes(item.id)
+      (item) =>
+        item.id === 0 ||
+        availableIds.includes(item.id) ||
+        // If Is_Re_Eval flag of the group is 1 it'll push item No.9 which is Re-eval menu into the array
+        (item.id === 9 && this.$store.state.group.currentUserGroup.Is_Re_Eval)
     );
   },
 };

@@ -24,7 +24,7 @@ export default {
         {
           icon: "mdi-home",
           title: "Home",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -34,31 +34,31 @@ export default {
         {
           icon: "mdi-account-cog",
           title: "User Manage",
-          to: "/Senior1/coordinator/userManage",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/userManage`,
           role: 0,
         },
         {
           icon: "mdi-calendar-month",
           title: "Due Date",
-          to: "/Senior1/coordinator/dueDate",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/dueDate`,
           role: 0,
         },
         {
           icon: "mdi-file-document",
           title: "Criteria",
-          to: "/Senior1/coordinator/criteria",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/criteria`,
           role: 0,
         },
         {
           icon: "mdi-alpha-p-circle",
           title: "Score",
-          to: "/Senior1/coordinator/score",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/score`,
           role: 0,
         },
         {
           icon: "mdi-account-multiple-plus",
           title: "Group Request",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -68,7 +68,7 @@ export default {
         {
           icon: "mdi-account-group",
           title: "My Advisee",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -78,7 +78,7 @@ export default {
         {
           icon: "mdi-account-multiple",
           title: "Committee",
-          to: `/Senior1/${
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"
               : "teacher"
@@ -88,7 +88,7 @@ export default {
         {
           icon: "mdi-clipboard-text",
           title: "Doucment",
-          to: "/Senior1/coordinator/viewAssignment",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/viewAssignment`,
           role: 0,
         },
       ],
@@ -96,6 +96,7 @@ export default {
   },
   beforeMount() {
     // User role of 2 is coordinator and 0 is teacher
+    console.log(this.$store.state);
     if (this.$store.state.auth.currentUser.role === 0) {
       // console.log("teacher");
       // If current user is teacher, the sidebar will only shows teacher's menus

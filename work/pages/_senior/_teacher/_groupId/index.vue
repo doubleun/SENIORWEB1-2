@@ -44,16 +44,19 @@ export default {
       // TODO: Not needed anymore ??
       store.commit("group/SET_GROUP", res.groupInfo[0]);
 
+      // Set available group progressions based on group major
+      store.dispatch("group/storeAvailableProgressions");
+
       // Fetch available grade criterias
       // Fetch grade from grade criterias
       const gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
-        Major_ID: store.state.auth.currentUser.major,
+        Major_ID: res.groupInfo[0].Major,
       });
       console.log("Eval grade criterias: ", gradeCriterias);
 
       // If grade criteria has not been set, redirect user back
       if (gradeCriterias.length === 0) {
-        return redirect("/Senior1/coordinator/");
+        return redirect("/senior1/coordinator/");
       }
 
       // Fetch evaluation scores

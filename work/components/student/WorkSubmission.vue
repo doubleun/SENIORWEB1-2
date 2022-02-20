@@ -4,7 +4,11 @@
     <h1>{{ title }}</h1>
 
     <!-- Work submission alert -->
-    <div class="my-2 ml-auto" style="width: fit-content">
+    <div
+      class="my-2 ml-auto"
+      style="width: fit-content"
+      v-if="progressId !== 10"
+    >
       <v-alert type="warning" v-if="showSubmission"
         >No work submitted, please submit before: {{ submitDate }}
       </v-alert>
@@ -17,7 +21,6 @@
           >Work submitted late ({{ submitDate }})</v-alert
         >
       </div>
-      <!-- <v-alert type="success" v-else>Work submitted</v-alert> -->
     </div>
 
     <!-- Progress card -->
@@ -167,6 +170,8 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
   data() {
     return {
@@ -182,6 +187,7 @@ export default {
       submitOnTime: false,
     };
   },
+  mixins: [utils],
   props: {
     finalDocument: {
       type: Boolean,
@@ -321,8 +327,14 @@ export default {
     handleBrowseFile(e) {
       if (e?.target.files[0]) {
         //Check if total size (in byte) is exceeded
-        if (e.target.files[0].size + this.totalUploadSize.byte > this.maxSize)
+        if (e.target.files[0].size + this.totalUploadSize.byte > this.maxSize) {
+          this.$swal.fire({
+            icon: "error",
+            title: "Large file size",
+            text: "A file size more than total file size 5 MB",
+          });
           return;
+        }
 
         // Upload using "browse"
         // Get date
@@ -333,7 +345,7 @@ export default {
       }
     },
     handleDropFile(e) {
-      console.log(this.totalUploadSize);
+      // console.log(this.totalUploadSize);
       // Toggling the drop effect back to normal
       this.toggleDropActive();
 
@@ -342,8 +354,14 @@ export default {
         if (
           e.dataTransfer.files[0].size + this.totalUploadSize.byte >
           this.maxSize
-        )
+        ) {
+          this.$swal.fire({
+            icon: "error",
+            title: "Large file size",
+            text: "A file size more than total file size 5 MB",
+          });
           return;
+        }
 
         // Upload using drag and drop file
         // Get date

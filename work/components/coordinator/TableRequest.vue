@@ -2,7 +2,7 @@
   <v-data-table
     :headers="headers"
     :items="groupInfo"
-    :search="search"
+    :search="searchGroup"
     sort-by="calories"
     class="elevation-1"
   >
@@ -11,7 +11,8 @@
         <v-spacer></v-spacer>
         <v-col md="3">
           <v-text-field
-            v-model="search"
+            v-model="searchGroup"
+            :rules="[(val) => handleValidateScore(val)]"
             append-icon="mdi-magnify"
             label="Search"
             single-line
@@ -20,7 +21,7 @@
           ></v-text-field>
         </v-col>
       </v-card-title>
-      <v-dialog v-model="dialogDelete" max-width="500px">
+      <!-- <v-dialog v-model="dialogDelete" max-width="500px">
         <v-card>
           <v-card-title class="text-h6"
             >Are you sure you want to decline this group?</v-card-title
@@ -59,7 +60,7 @@
             <v-btn color="green darken-1" text @click="save"> Agree </v-btn>
           </v-card-actions>
         </v-card>
-      </v-dialog>
+      </v-dialog> -->
     </template>
     <template v-slot:item.actions="{ item }">
       <v-row class="mb-6 pa-5 justify-center" no-gutters>
@@ -75,24 +76,19 @@
         </v-col>
       </v-row>
     </template>
-    <!-- <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize"> Reset </v-btn>
-    </template> -->
   </v-data-table>
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
+  mixins: [utils],
   data: () => ({
-    search: "",
+    searchGroup: "",
     dialog: false,
     dialogDelete: false,
     headers: [
-      {
-        text: "GROUP ID",
-        align: "d-none",
-        value: "ID",
-      },
       {
         text: "GROUP NAME",
         align: "center",
@@ -136,16 +132,19 @@ export default {
       User_Status: 0,
     });
 
+    // set groupInfo to empty because nuxt.refect() does not reset variable
+    this.groupInfo = [];
+
     for (let i = 0; i < res.length; i++) {
       this.groupInfo.push({
         groupName: res[i].Group_Name_Eng,
         member: res[i].Students,
         advisor: res[i].Advisor,
         committee: res[i].Committees,
-        ID: res[i].Group_ID,
+        id: res[i].Group_ID,
       });
     }
-    console.log("group info", this.groupInfo);
+    // console.log("group info", this.groupInfo);
   },
   computed: {
     formTitle() {
@@ -160,52 +159,94 @@ export default {
       val || this.closeDelete();
     },
   },
-  created() {
-    this.initialize();
-  },
   methods: {
-    initialize() {
-      // this.groupInfo = [
-      //   {
-      //     groupName: "Mobile Application for Karen ",
-      //     member: "Anuthep Tayngam, Pipat Massri,",
-      //     advisor: "Surapong Uttama",
-      //     committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-      //   },
-      //   {
-      //     groupName:
-      //       "Mobile Application for Karen Translator for Translator for Physiotherapy",
-      //     member:
-      //       "Anuthep Tayngam, Pipat Massri, Maneeya Soungpho, Surathat Chinarat, Sasreen Abdunsomad",
-      //     advisor: "Surapong Uttama",
-      //     committee: "Khwunta Kirimasthong, Tossapon Boongeon",
-      //   },
-      // ];
+    handleValidateScore(val) {
+      return this.handleValidateTextField({
+        string: val,
+        option: "onlyNormalCharEng",
+        errorMsg: "Invalid search",
+      });
     },
     editItem(item) {
-      this.idgroup = item["ID"];
-      console.log("I'm hear" + item["ID"]);
-      this.dialog = true;
+      this.idgroup = item["id"];
+
+      this.$swal
+        .fire({
+          title: `Accept ${item.groupName} group?`,
+          text: " Once you have accepted to join the group, you cannot leave the group, but you can only leave if the student requests to disband the group.",
+          icon: "info",
+          showCancelButton: true,
+          // confirmButtonColor: "#3085d6",
+          // cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        })
+        .then(async (result) => {
+          if (result.isConfirmed) {
+            const res = await this.save();
+            if (res) {
+              this.$nuxt.refresh();
+
+              this.$swal.fire(
+                "Accepted",
+                `Your has been joined <b>${item.groupName}</b> group.`,
+                "success"
+              );
+            } else {
+              this.$swal.fire({
+                icon: "error",
+                title: "Join group Failed",
+                text: "Something went wrong!",
+              });
+            }
+          }
+        });
     },
     deleteItem(item) {
-      this.idgroup = item["ID"];
-      console.log(this.idgroup);
+      this.idgroup = item["id"];
+      this.$swal
+        .fire({
+          title: `Decline ${item.groupName} group?`,
+          text: "Confirmation of decline a group",
+          icon: "info",
+          showCancelButton: true,
+          // confirmButtonColor: "#3085d6",
+          // cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        })
+        .then(async (result) => {
+          if (result.isConfirmed) {
+            const res = await this.deleteItemConfirm();
+            if (res) {
+              this.$nuxt.refresh();
+              this.$swal.fire(
+                "Declined",
+                `Your has been decline <b>${item.groupName}</b> group.`,
+                "success"
+              );
+            } else {
+              this.$swal.fire({
+                icon: "error",
+                title: "Decline group Failed",
+                text: "Something went wrong!",
+              });
+            }
+          }
+        });
     },
     async deleteItemConfirm() {
-      const res = await this.$axios.$post("/group/updateMemberStatus", {
-        User_Email: this.$store.state.auth.currentUser.email,
-        Group_Id: this.idgroup,
-        Status: 2,
-      });
+      try {
+        const res = await this.$axios.$post("/group/updateMemberStatus", {
+          User_Email: this.$store.state.auth.currentUser.email,
+          Group_Id: this.idgroup,
+          Status: 2,
+        });
+        return true;
+      } catch (err) {
+        console.log(err);
+        return false;
+      }
+    },
 
-      this.closeDelete();
-    },
-    close() {
-      this.dialog = false;
-    },
-    closeDelete() {
-      this.dialogDelete = false;
-    },
     async save() {
       try {
         const res = await this.$axios.$post("/group/updateMemberStatus", {
@@ -213,19 +254,10 @@ export default {
           Group_Id: this.idgroup,
           Status: 1,
         });
-
-        // Update UI
-        this.groupInfo = this.groupInfo.filter(
-          (group) => group.id === this.idgroup
-        );
-        console.log(this.groupInfo);
-
-        // Close modal
-        this.close();
-        return;
+        return true;
       } catch (err) {
         console.log(err);
-        return;
+        return false;
       }
     },
   },

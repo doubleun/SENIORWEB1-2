@@ -4,9 +4,11 @@
       <h3>Score Student</h3>
       <v-spacer></v-spacer>
       <v-text-field
+        v-model="search"
+        :rules="[(val) => handleValidateScore(val)]"
         clearable
         hide-details
-        label="Search "
+        label="Search"
         prepend-inner-icon="mdi-magnify"
         filled
         rounded
@@ -16,33 +18,33 @@
       ></v-text-field>
     </v-card-title>
     <v-data-table :headers="headers" :items="items" :search="search">
-      <template v-slot:item.total="{ item }">
+      <!-- <template v-slot:item.total="{ item }">
         {{
           parseInt(
-            +item.progress1 +
-              +item.progress2 +
-              +item.progress3 +
-              +item.progress4 +
+            +item.Progress1 +
+              +item.Progress2 +
+              +item.Progress3 +
+              +item.Progress4 +
               +item.FinalPresentation +
               +item.FinalDocumentation
           )
         }}
+      </template> -->
+
+      <template v-slot:item.Progress1="{ item }">
+        {{ +item.Progress1 }}
       </template>
 
-      <template v-slot:item.progress1="{ item }">
-        {{ +item.progress1 }}
+      <template v-slot:item.Progress2="{ item }">
+        {{ +item.Progress2 }}
       </template>
 
-      <template v-slot:item.progress2="{ item }">
-        {{ +item.progress2 }}
+      <template v-slot:item.Progress3="{ item }">
+        {{ +item.Progress3 }}
       </template>
 
-      <template v-slot:item.progress3="{ item }">
-        {{ +item.progress3 }}
-      </template>
-
-      <template v-slot:item.progress4="{ item }">
-        {{ +item.progress4 }}
+      <template v-slot:item.Progress4="{ item }">
+        {{ +item.Progress4 }}
       </template>
 
       <template v-slot:item.FinalPresentation="{ item }">
@@ -61,52 +63,28 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
+
 export default {
-  props: { items: Array },
+  mixins: [utils],
+  props: { items: Array, headers: Array },
   data() {
     return {
       search: "",
-      // gradeCriteria: [],
-      headers: [
-        {
-          text: "ID",
-          align: "center",
-          filterable: false,
-          value: "User_Identity_ID",
-        },
-        { text: "NAME", value: "student", align: "center" },
-        { text: "ADVISOR", value: "Advisor" },
-        { text: "Progress1", value: "progress1", align: "center" },
-        { text: "Progress2", value: "progress2", align: "center" },
-        { text: "Progress3", value: "progress3", align: "center" },
-        { text: "Progress4", value: "progress4", align: "center" },
-        { text: "FINAL PRESENT", value: "FinalPresentation", align: "center" },
-        {
-          text: "FINAL DOCUMENT",
-          value: "FinalDocumentation",
-          align: "center",
-        },
-        { text: "TOTAL", value: "total", align: "center" },
-        { text: "GRADE", value: "newGrade", align: "center" },
-      ],
     };
   },
-  // async fetch() {
-  //   try {
-  //     const gradeCriteria = await this.$axios.$post("/criteria/gradeMajor", {
-  //       Major_ID: this.$store.state.auth.currentUser.major,
-  //     });
-  //     this.gradeCriteria.sort((a, b) =>
-  //       a.Grade_Criteria_Pass > b.Grade_Criteria_Pass ? 1 : -1
-  //     );
-  //     console.log("criteria", this.gradeCriteria);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // },
-  // methods: {
-  //   grede
-  // },
+  methods: {
+    handleValidateScore(val) {
+      return this.handleValidateTextField({
+        string: val,
+        option: "onlyNormalCharEng",
+        errorMsg: "Invalid search",
+      });
+    },
+  },
+  mounted() {
+    console.log("item", this.items);
+  },
 };
 </script>
 

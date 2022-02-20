@@ -22,7 +22,7 @@
 // import WorkSubmission from "@/components/student/workSubmission";
 
 export default {
-  async asyncData({ $axios, params, redirect, store }) {
+  async asyncData({ $swal, $axios, params, redirect, store }) {
     // If currentUserGroup is missing, fetch it first
     if (!store.state.group.currentUserGroup)
       // Dispatch event to store current user group info
@@ -45,6 +45,7 @@ export default {
       "progress-4",
       "final-presentation",
       "final-documentation",
+      "evaluation",
       "re-evaluation",
     ];
     // If params is not available in the allowed params, redirect back to the home page
@@ -73,6 +74,7 @@ export default {
     // If there are, show alert, redirect, and return the function
     if (notAccpetMembers.length > 0) {
       // If notAcceptMembers is return from the asyncData, then we show alert and redirect
+
       alert("Please wait until all members accept the group invite");
       // Redirect to create group page so they can see all members status
       redirect("/Senior1/student/stuCreateGroup");
@@ -92,12 +94,26 @@ export default {
       }
     );
 
-    // Fetch teachers and given scores
-    let teachers = await $axios.$post("/group/getTeachersWithGroupID", {
-      Group_ID: store.state.group.currentUserGroup.Group_ID,
-      Progress_ID: progressId + 2,
-      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-    });
+    // Fetch score or eval comment based on if this is a re-eval
+    let teachers = {};
+
+    if (progressId === 8) {
+      // If progress id is 8, then it's re-eval
+      teachers = await $axios.$post("/group/getTeachersEval", {
+        Group_ID: store.state.group.currentUserGroup.Group_ID,
+        reEvalComment: true,
+        filterTeachersRole: true,
+      });
+      console.log("Teachers: ", teachers);
+    } else {
+      // Else fetch teachers and given scores
+      teachers = await $axios.$post("/group/getTeachersWithGroupID", {
+        Group_ID: store.state.group.currentUserGroup.Group_ID,
+        Progress_ID: progressId + 2,
+        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+      });
+    }
+
     // console.log("submittedFiles: ", submittedFiles);
     // console.log("Teachers in progress (line: 126): ", teachers);
 
