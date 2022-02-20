@@ -146,7 +146,7 @@ giveProgressScore = async (req, res) => {
     await promisePool.execute(
       insertScore,
       [Score, Max_Score, Comment, Group_Member_ID, Assignment_ID],
-      (err, result) => {
+      (err) => {
         if (err) throw err;
       }
     );
@@ -165,29 +165,30 @@ giveProgressScore = async (req, res) => {
           Assignment_ID,
           Group_Member_ID,
         ],
-        (err, result) => {
+        (err) => {
           if (err) throw err;
         }
       );
     }
 
+    // Commit transaction
+    await promisePool.commit();
+    // console.log("res check assigment", result);
+
     // 3.) Update group progression to the next one
     // Query will count number or scores given based on the assignemnt ID if it's 3, then the group progression will go up to the next available progress
     // TODO: Add group id as condition in subquery
-    // const groupProgressSql =
-    //   "UPDATE `groups` SET `Group_Progression` = IF((SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?) = 2, ?, `Group_Progression`) WHERE `Group_ID` = ?";
     const groupProgressSql =
-      "UPDATE `groups` SET `Group_Progression` = CASE WHEN (SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?)=2 THEN ? ELSE Group_Progression END WHERE `Group_ID` = ?";
-    const result = await promisePool.execute(
+      "UPDATE `groups` SET `Group_Progression` = IF((SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?) = 3, ?, `Group_Progression`) WHERE `Group_ID` = ?";
+    // const groupProgressSql =
+    //   "UPDATE `groups` SET `Group_Progression` = CASE WHEN (SELECT COUNT(`Score_ID`) FROM `scores` WHERE `Assignment_ID` = ?)=2 THEN ? ELSE Group_Progression END WHERE `Group_ID` = ?";
+    con.query(
       groupProgressSql,
       [Assignment_ID, Next_Progress_ID, Group_ID],
-      (err, result) => {
+      (err) => {
         if (err) throw err;
       }
     );
-    // Commit transaction
-    await promisePool.commit();
-    console.log("res check assigment", result);
     res.status(200).json({ msg: "success", status: 200 });
     return;
   } catch (err) {
@@ -276,16 +277,12 @@ getTeacherProgressScore = (req, res) => {
   const { Group_Member_ID, Assignment_ID } = req.body;
   console.log(Group_Member_ID, Assignment_ID);
   const sql =
-    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc LEFT JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ? AND f.Assignment_ID = ?";
+    "SELECT sc.Score, sc.Comment, f.File_Name, f.Type FROM `scores` sc LEFT JOIN `files` f ON sc.Group_Member_ID = f.Group_Member_ID AND sc.Assignment_ID = f.Assignment_ID WHERE sc.Group_Member_ID = ? AND sc.Assignment_ID = ?";
   try {
-    con.query(
-      sql,
-      [Group_Member_ID, Assignment_ID, Assignment_ID],
-      (err, result, fields) => {
-        if (err) throw err;
-        res.status(200).json(result[0]);
-      }
-    );
+    con.query(sql, [Group_Member_ID, Assignment_ID], (err, result, fields) => {
+      if (err) throw err;
+      res.status(200).json(result[0]);
+    });
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal Server Error");

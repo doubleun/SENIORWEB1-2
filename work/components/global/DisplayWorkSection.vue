@@ -250,6 +250,7 @@ export default {
     // * === Sets teacher submitted score and file if exists === * //
     // If there is score to display or score is zero (in case of 0 score or proposal which score will always be zero)
     // Then set the UI of submitted score
+    console.log("Score info: ", this.scoreInfo);
     if (!!this.scoreInfo?.Score || this.scoreInfo?.Score === 0) {
       console.log("score info:", this.scoreInfo);
       this.showSubmitted = true;

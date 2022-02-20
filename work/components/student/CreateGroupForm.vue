@@ -246,7 +246,6 @@
                     color="blue"
                     outlined
                     dense
-                    
                   ></v-text-field>
                   <!-- <v-autocomplete
                     v-model="selectedCoAdvisor"
@@ -788,7 +787,7 @@ export default {
       }
       // Set committes
       this.groupMembers
-        .filter((member) => member.Group_Role === 1&& member.Project_on_term_ID == 15)
+        .filter((member) => member.Group_Role === 1)
         .map((member, index) => {
           this["selectedCommittee" + (index + 1)] = {
             User_Name: member.User_Name,
