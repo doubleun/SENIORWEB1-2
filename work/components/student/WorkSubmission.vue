@@ -175,8 +175,8 @@ export default {
     return {
       availableLinks: [],
       files: [],
-      // 5000000 byte => 5 Mb
-      maxSize: 5000000,
+      // 5242880 byte => 5 Mb
+      maxSize: 5242880,
       showSubmission: true,
       uploadSrc: null,
       dropActive: false,
