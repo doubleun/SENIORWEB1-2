@@ -38,15 +38,15 @@ export default {
           role: 0,
         },
         {
-          icon: "mdi-calendar-month",
-          title: "Due Date",
-          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/dueDate`,
-          role: 0,
-        },
-        {
           icon: "mdi-file-document",
           title: "Criteria",
           to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/criteria`,
+          role: 0,
+        },
+        {
+          icon: "mdi-calendar-month",
+          title: "Due Date",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/dueDate`,
           role: 0,
         },
         {
