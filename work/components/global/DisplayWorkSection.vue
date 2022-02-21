@@ -312,7 +312,9 @@ export default {
       let files = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file (role 2 and 3 are for students)
         .filter(
-          (file) => file.Type === "File" && [2, 3].includes(file.Group_Role)
+          (file) =>
+            (file.Type === "File" || file.Type === "Abstract") &&
+            [2, 3].includes(file.Group_Role)
         )
         // Then, map each file and send axios get request to fetch the file from static folder in server
         .map(async (file) => {
