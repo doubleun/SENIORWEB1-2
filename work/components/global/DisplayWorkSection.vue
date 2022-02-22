@@ -33,7 +33,22 @@
       <div :style="selectedFile ? 'display: unset' : 'display: none'">
         <!-- <embed :src="selectedFile.src" class="preview-work-card-content" /> -->
         <!-- <iframe :src="selectedFile.src" width="100%" height="100%"> </iframe> -->
-        <object :data="selectedFile.src" width="100%" height="100%"></object>
+
+        <object
+          v-if="
+            !selectedFile.fileName
+              ? false
+              : handelCheckInputFile({
+                  fileName: selectedFile.fileName,
+                }) != true
+          "
+          :data="selectedFile.src"
+          width="100%"
+          height="100%"
+        ></object>
+        <p v-else>
+          {{ !selectedFile.fileName ? "" : "This file can not preview" }}
+        </p>
       </div>
     </v-card>
 
@@ -157,6 +172,7 @@
 </template>
 
 <script>
+import utils from "@/mixins/utils";
 export default {
   props: {
     noWorkSubmitted: {
@@ -220,6 +236,7 @@ export default {
       haveGrade: false,
     };
   },
+  mixins: [utils],
   computed: {
     // This will replace the middle of the string with '...' thus shorten each file name
     shortFileNames() {
@@ -351,7 +368,12 @@ export default {
     });
 
     // Sets initial selected src
-    this.selectedFile = { src: this.uploadSrcs[0], index: 0 };
+    this.selectedFile = {
+      src: this.uploadSrcs[0],
+      index: 0,
+      fileName: this.files[0]?.file.name,
+    };
+    console.log("uploadSrcs", this.selectedFile);
 
     // Set links array
     this.links = this.submittedFiles.filter((file) => file.Type === "Link");
@@ -414,7 +436,12 @@ export default {
   },
   methods: {
     handleChangeFilePreview(fileIndex) {
-      this.selectedFile = { src: this.uploadSrcs[fileIndex], index: fileIndex };
+      this.selectedFile = {
+        src: this.uploadSrcs[fileIndex],
+        index: fileIndex,
+        fileName: this.files[fileIndex].file.name,
+      };
+      // console.log("uploadSrcs", this.selectedFile);
     },
     handleDownloadFile() {
       // If no files, return

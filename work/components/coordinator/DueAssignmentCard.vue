@@ -87,8 +87,8 @@
                         no-title
                         scrollable
                         range
-                        :max="item.endDate"
-                        :min="plusOneDay(item.startDate)"
+                        :max="bindProgressionDuedate[index].endDate"
+                        :min="bindProgressionDuedate[index].startDate"
                       >
                         <v-spacer></v-spacer>
                         <v-btn
@@ -102,13 +102,13 @@
                           text
                           color="primary"
                           @click="
-                            (item.isSelectDate = false),
-                              dateMenuSave(
-                                bindProgressionDuedate[index].selectedDate,
-                                item.Progress_ID,
-                                item.Progression_Info_ID,
-                                item
-                              )
+                            // (item.isSelectDate = false),
+                            dateMenuSave(
+                              bindProgressionDuedate[index].selectedDate,
+                              item.Progress_ID,
+                              item.Progression_Info_ID,
+                              index
+                            )
                           "
                         >
                           OK
@@ -238,7 +238,7 @@ export default {
 
         for (let i = 0; i < criteria.length; i++) {
           for (let j = 0; j < duedate.progressionDuedate.length; j++) {
-            // have some due date in this semster
+            // have due date
 
             if (
               duedate.progressionDuedate[j].Progress_ID ==
@@ -264,7 +264,9 @@ export default {
               if (i == 0) {
                 criteria[i].startDate = this.offsetDate(this.access_Date_Start);
               } else {
-                criteria[i].startDate = criteria[i - 1].selectedDate[1];
+                criteria[i].startDate = this.plusOneDay(
+                  criteria[i - 1].selectedDate[1]
+                );
               }
               criteria[i].endDate = this.offsetDate(this.access_Date_End);
               criteria[i].isSelectDate = true;
@@ -287,14 +289,17 @@ export default {
             criteria[i].assignable = true;
 
             //
-            var IncreaseDay = new Date(
-              new Date(criteria[i - 1].selectedDate[1]).getTime()
-            );
-            IncreaseDay.setDate(IncreaseDay.getDate() + 1);
+            // let IncreaseDay = new Date(
+            //   new Date(criteria[i - 1].selectedDate[1]).getTime()
+            // );
+            // IncreaseDay.setDate(IncreaseDay.getDate() + 1);
 
-            criteria[i].startDate = this.offsetDate(IncreaseDay);
+            criteria[i].startDate = this.plusOneDay(
+              criteria[i - 1].selectedDate[1]
+            );
 
             criteria[i].endDate = this.offsetDate(this.access_Date_End);
+            criteria[i].isSelectDate = true;
           }
         }
       }
@@ -307,7 +312,11 @@ export default {
         this.progressionDuedate
       );
 
-      // console.log("progression Duedate22", this.progressionDuedate);
+      console.log("progression Duedate22", this.progressionDuedate);
+      console.log(
+        "bindProgressionDuedate Duedate22",
+        this.bindProgressionDuedate
+      );
     } catch (error) {}
   },
 
@@ -343,20 +352,20 @@ export default {
         .substring(0, 10);
     },
 
-    async dateMenuSave(date, progressId, progressInfoId, item) {
+    async dateMenuSave(date, progressId, progressInfoId, index) {
       var newDate = date.sort();
-      // console.log("sort date", newDate);
-      const progressionDuedateIndex = this.progressionDuedate.indexOf(item);
+      console.log("sort date", newDate);
+      // const progressionDuedateIndex = this.progressionDuedate.indexOf(item);
 
       // let self = this;
       if (newDate.length < 2) {
-        this.isSelectDate = false;
-        return (this.progressionDuedate[
-          progressionDuedateIndex
-        ].dateMenu = true);
+        this.progressionDuedate[index].isSelectDate = false;
+        return (this.progressionDuedate[index].dateMenu = true);
       }
 
-      this.isSelectDate = true;
+      // return;
+
+      this.progressionDuedate[index].isSelectDate = true;
 
       let res = await this.$axios.$post("date/progression/update", {
         DueDate_Start: newDate[0],
