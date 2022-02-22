@@ -73,7 +73,7 @@ export default {
     handelCheckInputFile({
       fileName,
       type = ["docx", "pptx", "xlsx"],
-      errorMsg = "Invalid file type",
+      errorMsg = "Microsoft office files cannot be preview",
     }) {
       // console.log("fileNameAA", fileName);
       // return true;
