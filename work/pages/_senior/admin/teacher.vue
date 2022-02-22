@@ -231,18 +231,37 @@ export default {
           })
           .then(async (result) => {
             /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
+            try {
+              if (result.isConfirmed) {
               const res = await this.$axios.$post(
                 "user/importteacher",
                 formData
               );
-              console.log(res);
-              if (res === "success") {
-                this.$swal.fire("Saved!", "", "success");
-              } else {
+              console.log(res)
+              if (!res) {
                 this.$swal.fire("Error! some thing went wrong", "", "warning");
+              } else {
+                if (res === "success") {
+                  this.$swal.fire("Saved!", "", "success");
+                } else if (res === "someproblem") {
+                  this.$swal.fire("Success", "Success with condition some field are not inserted", "success");
+                } else {
+                  this.$swal.fire(
+                    "Error! some thing went wrong",
+                    "",
+                    "warning"
+                  );
+                }
               }
             }
+            } catch (error) {
+              this.$swal.fire(
+                    "Error! some thing went wrong",
+                    "",
+                    "warning"
+                  );
+            }
+            
           });
       }
     },
