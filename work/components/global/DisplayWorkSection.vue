@@ -46,7 +46,9 @@
           width="100%"
           height="100%"
         ></object>
-        <p v-else>This file can not preview</p>
+        <p v-else>
+          {{ !selectedFile.fileName ? "" : "This file can not preview" }}
+        </p>
       </div>
     </v-card>
 
@@ -369,7 +371,7 @@ export default {
     this.selectedFile = {
       src: this.uploadSrcs[0],
       index: 0,
-      fileName: this.files[0].file.name,
+      fileName: this.files[0]?.file.name,
     };
     console.log("uploadSrcs", this.selectedFile);
 
