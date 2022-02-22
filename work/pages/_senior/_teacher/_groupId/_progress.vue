@@ -1,7 +1,7 @@
 <template>
   <section>
     <main class="coordinator-progress-main">
-      <h1>{{ title }} (My Advisee)</h1>
+      <h1>{{ title }} ({{ groupAdvisor ? "My Advisee" : "Committee" }})</h1>
 
       <!-- Card (Evaluation result) -->
       <ProjectDetailCard :GroupDetail="GroupDetail" />
@@ -77,7 +77,7 @@ export default {
         Email: store.state.auth.currentUser.email,
         Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
-
+      console.log("groupRes", groupRes);
       // Sets group advisor to true if the current user is the advisor of the group (Member_Role of 0 is advisor)
       let groupAdvisor;
       if (groupRes.groupInfo[0].Current_Member_Role === 0) groupAdvisor = true;

@@ -1,7 +1,7 @@
 <template>
   <section>
     <main class="coordinator-group-main">
-      <h1>Group Info (My Advisee)</h1>
+      <h1>Group Info ({{ groupAdvisor ? "My Advisee" : "Committee" }})</h1>
 
       <!-- First card (Evaluation result) -->
       <v-card class="co-group-eval-card">
@@ -90,12 +90,17 @@ export default {
         fetchScoresRes.normalGrade = res.groupInfo[0].Grade;
       }
 
+      let groupAdvisor =
+        res.groupInfo[0].Current_Member_Role === 0 ? true : false;
+      console.log("Is group advisor: ", groupAdvisor);
+
       return {
         Group_ID: groupId,
         GroupDetail: {
           GroupInfo: res.groupInfo[0],
           GroupMembers: res.groupMembers,
         },
+        groupAdvisor,
         // If there are no score yet, fetchScoreRes will be undefined, so this'll return an empty object instead
         fetchScoresRes: !!fetchScoresRes ? fetchScoresRes : {},
       };
