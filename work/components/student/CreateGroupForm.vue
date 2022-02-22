@@ -460,6 +460,7 @@ export default {
     email: ["", "", "", ""],
     major: "1",
     showResposeBtn: false,
+    majorPro:[]
   }),
   mixins: [utils],
 
@@ -474,6 +475,8 @@ export default {
     this.allStudentsInSchool = res.students;
     // console.log("Students: ", res.students);
     this.allTeachersInSchool = res.teachers;
+   
+    
     // console.log("Teachers: ", res.teachers);
   },
   watch: {
@@ -557,7 +560,7 @@ export default {
     async submitInfo() {
       // Validate form to make sure that everything is filled
       this.$refs.form.validate();
-
+    // console.log(this.selectedStudent)
       // Make sure that atleast one advisor and one committee is selected
       if (
         this.selectedAdvisor === null ||
@@ -578,7 +581,7 @@ export default {
           confirmButtonText: "Yes",
         })
         .then(async (result) => {
-          console.log(this.projectMembers.length);
+          // 
           if (result.isConfirmed) {
             const res = await this.$axios.$post("group/createGroup", {
               Project_NameTh: this.thaiName,
@@ -755,13 +758,14 @@ export default {
           index >= 1 &&
             // Add more project member fields
             this.addMemberFields();
-
+console.log("hearrrr"+itm)
           // Pass value into all project member fields
           this.selectedStudent[index] = {
             User_Email: itm.User_Email,
             User_Identity_ID: itm.User_Identity_ID,
             User_Name: itm.User_Name,
             User_Role: itm.User_Role,
+            User_Major: itm.Major_ID
           };
           this.name[index] = itm.User_Name;
           this.email[index] = itm.User_Email;
@@ -770,7 +774,7 @@ export default {
         });
       // Sets advisor
       const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
-      console.log("this" + advisor[0].User_Status);
+      // console.log("this" + advisor[0].User_Status);""
       if (advisor.length !== 0)
         this.selectedAdvisor = {
           User_Email: advisor[0].User_Email,
@@ -804,7 +808,6 @@ export default {
     } else {
       // If no groups, set group created to false
       this.groupCreated = false;
-
       // And insert the current user as head of the group (ie. first member)
       this.email[0] = this.$store.state.auth.currentUser.email;
       this.name[0] = this.$store.state.auth.currentUser.name;
@@ -813,6 +816,7 @@ export default {
         User_Identity_ID: this.$store.state.auth.currentUser.userId,
         User_Name: this.$store.state.auth.currentUser.name,
         User_Role: this.$store.state.auth.currentUser.role,
+        User_Major: this.$store.state.auth.currentUser.major
       };
       this.memberStatus[0] = 1;
     }
