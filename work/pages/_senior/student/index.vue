@@ -7,12 +7,17 @@
         <h3 class="font-weight-bold">Your Progress</h3>
       </v-alert>
       <div class="stepper">
-        <v-stepper alt-labels class="elevation-0" v-model="currentProgress">
+        <v-stepper
+          alt-labels
+          class="elevation-0"
+          non-linear
+          v-model="currentProgress"
+        >
           <v-stepper-header>
             <template v-for="(step, index) in availableSteps">
               <v-stepper-step
-                :step="step.Progress_ID"
-                :complete="currentProgress > step.Progress_ID"
+                :step="index + 1"
+                :complete="normalCurrentProgress > step.Progress_ID"
                 :key="step.Score_criteria_ID"
               >
                 {{ step.Progress_Name }}
@@ -42,9 +47,17 @@
 // import Announcement from "@/components/coordinator/homeAnnouncement";
 export default {
   computed: {
+    normalCurrentProgress() {
+      return this.$store.state.group.currentUserGroup?.Group_Progression;
+    },
     // Computed current group progress for stepper
     currentProgress() {
-      return this.$store.state.group.currentUserGroup?.Group_Progression;
+      const currentProgressIndex = this.availableSteps.findIndex(
+        (step) =>
+          step.Progress_ID ===
+          this.$store.state.group.currentUserGroup?.Group_Progression
+      );
+      return currentProgressIndex + 1;
     },
     dueProgressStrings() {
       console.log("this.dueProgress: ", this.dueProgress);
