@@ -197,10 +197,17 @@ uploadfile = async (req, res) => {
                   res.status(500).send("Internal Server Error");
                 }
               } else {
-                if (i == rows.length - 1) {
-                  res.status(200).send("success");
+                if(result.affectedRows ==0){
+                  errorcou ++
                 }
-                //
+                if (i == rows.length - 1) {
+                  if(errorcou==0){
+                    res.status(200).send("success");
+                  }else{
+                    res.status(200).send("someproblem");
+                  }
+                  
+                }
               }
             }
           );
@@ -231,7 +238,7 @@ uploadfileteacher = async (req, res) => {
       // avatar.mv("uploads/excel/" + name);
       // console.log(req.files[0]['filename'])
       var sql =
-        "INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
+      "INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,(SELECT Major_ID FROM majors WHERE Major_Name = ?),(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
       var obj = readXlsxFile(req.files[0]["path"]).then((rows) => {
         let semiter;
@@ -249,21 +256,7 @@ uploadfileteacher = async (req, res) => {
           } else if (term == "SECOND") {
             term = 2;
           }
-          if (rows[i][4] == "IT") {
-            rows[i][4] = 1;
-          } else if (rows[i][4] == "CSI") {
-            rows[i][4] = 2;
-          } else if (rows[i][4] == "MTA") {
-            rows[i][4] = 3;
-          } else if (rows[i][4] == "SE") {
-            rows[i][4] = 4;
-          } else if (rows[i][4] == "ICE") {
-            rows[i][4] = 5;
-          } else if (rows[i][4] == "CE") {
-            rows[i][4] = 6;
-          } else if (rows[i][4] == "DTBI") {
-            rows[i][4] = 7;
-          }
+         
           con.query(
             sql,
             [
@@ -286,8 +279,17 @@ uploadfileteacher = async (req, res) => {
                   res.status(500).send("Internal Server Error");
                 }
               } else {
+                console.log(result.affectedRows)
+                if(result.affectedRows ==0){
+                  errorcou ++
+                }
                 if (i == rows.length - 1) {
-                  res.status(200).send("success");
+                  if(errorcou==0){
+                    res.status(200).send("success");
+                  }else{
+                    res.status(200).send("someproblem");
+                  }
+                  
                 }
               }
             }

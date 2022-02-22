@@ -935,6 +935,27 @@ countTeachergroup = (req, res) => {
   );
 };
 
+countProgressGroup = (req, res) => {
+  // count amount of my group and group request
+  const { Project_on_term_ID } = req.body;
+  const sql =
+    "SELECT COUNT(Major_ID)as numberPro , Major_ID FROM `progressionsinfo` WHERE Project_on_term_ID = ? GROUP BY Major_ID ORDER BY numberPro DESC";
+  con.query(
+    sql,
+    [
+      Project_on_term_ID,
+    ],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        res.status(200).json(result);
+      }
+    }
+  );
+};
+
 getAllFilesMajor = (req, res) => {
   const { Project_on_term_ID, Major } = req.body;
   console.log(req.body);
@@ -1062,4 +1083,5 @@ module.exports = {
   countTeachergroup,
   getAllFilesMajor,
   addGroupToSeTwo,
+  countProgressGroup
 };
