@@ -248,7 +248,7 @@ export default {
                 } else {
                   this.$swal.fire(
                     "Error! some thing went wrong",
-                    "",
+                    "User will not inserted",
                     "warning"
                   );
                 }

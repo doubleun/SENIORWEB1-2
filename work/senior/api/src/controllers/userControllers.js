@@ -192,7 +192,7 @@ uploadfile = async (req, res) => {
               if (err) {
                 console.log(err.code);
                 if (err.code == "ER_DUP_ENTRY") {
-                  res.status(500).send("Duplicate data");
+                  res.status(500).send("Duplicate data");-
                 } else {
                   res.status(500).send("Internal Server Error");
                 }
@@ -203,7 +203,10 @@ uploadfile = async (req, res) => {
                 if (i == rows.length - 1) {
                   if(errorcou==0){
                     res.status(200).send("success");
-                  }else{
+                  }else if(errorcou==rows.length - 1){
+                    res.status(200).send("noeffect");
+                  }
+                  else{
                     res.status(200).send("someproblem");
                   }
                   
@@ -286,7 +289,10 @@ uploadfileteacher = async (req, res) => {
                 if (i == rows.length - 1) {
                   if(errorcou==0){
                     res.status(200).send("success");
-                  }else{
+                  }else if(errorcou==rows.length - 1){
+                    res.status(200).send("noeffect");
+                  }
+                  else{
                     res.status(200).send("someproblem");
                   }
                   
