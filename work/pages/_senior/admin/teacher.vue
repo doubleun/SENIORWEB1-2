@@ -244,7 +244,7 @@ export default {
                 if (res === "success") {
                   this.$swal.fire("Saved!", "", "success");
                 } else if (res === "someproblem") {
-                  this.$swal.fire("Success", "Success with condition some field are not inserted", "success");
+                  this.$swal.fire("Success", "Success with condition some field are not inserted", "warning");
                 } else {
                   this.$swal.fire(
                     "Error! some thing went wrong",
