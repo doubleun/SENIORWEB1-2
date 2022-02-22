@@ -26,14 +26,9 @@ export default {
           to: "/senior/admin/",
         },
         {
-          icon: "mdi-account-group",
-          title: "Group",
-          to: "/senior/admin/group",
-        },
-        {
-          icon: "mdi-account-cog",
-          title: "Manage Student",
-          to: "/senior/admin/student",
+          icon: "mdi-clipboard-text-clock",
+          title: "Semester Date",
+          to: "/senior/admin/semesterDate",
         },
         {
           icon: "mdi-office-building-cog",
@@ -41,14 +36,19 @@ export default {
           to: "/senior/admin/teacher",
         },
         {
+          icon: "mdi-account-cog",
+          title: "Manage Student",
+          to: "/senior/admin/student",
+        },
+        {
+          icon: "mdi-account-group",
+          title: "Group",
+          to: "/senior/admin/group",
+        },
+        {
           icon: "mdi-clipboard-check-multiple",
           title: "Criteria",
           to: "/senior/admin/criteria",
-        },
-        {
-          icon: "mdi-clipboard-text-clock",
-          title: "Semester Date",
-          to: "/senior/admin/semesterDate",
         },
       ],
     };

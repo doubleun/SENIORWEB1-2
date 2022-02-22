@@ -110,52 +110,50 @@
           class="progress-file-display-container"
           v-show="files.length !== 0"
         >
-          <div class="progress-file-display attributes">
-            <!-- Table attributes -->
-            <p>Name</p>
-            <p>Date</p>
-            <p>Status</p>
-          </div>
-
-          <!-- Table instance(s) -->
-          <div
-            class="progress-file-display"
-            v-for="(file, index) in files"
-            :key="index"
-          >
-            <div class="progress-file-input-container">
-              <v-icon
-                @click="handleRemoveFile"
-                :data-date="file.date"
-                v-if="showSubmission"
-                >mdi-close</v-icon
-              >
-              <v-file-input
-                :clearable="false"
-                outlined
-                dense
-                :show-size="showSubmission"
-                prepend-icon=""
-                class="progress-file-input"
-                @click.prevent="handleDownloadSubmittedFile(index)"
-                :value="file.file"
-              ></v-file-input>
+          <v-radio-group v-model="selectedAbstractIndex">
+            <div class="progress-file-display attributes">
+              <!-- Table attributes -->
+              <p>Name</p>
+              <p>Date</p>
+              <p v-if="finalDocument">Abstract</p>
+              <p v-else>Status</p>
             </div>
-            <p>
-              {{ file.date }}
-            </p>
 
-            <!-- If type is needed it'll be display here, otherwise it's a status -->
-            <!-- <div class="progress-file-type" v-if="finalDocument">
-              <v-combobox
-                :items="submitTypes"
-                outlined
-                dense
-                disable-lookup
-              ></v-combobox>
-            </div> -->
-            <p>{{ showSubmission ? "Not Submitted" : "Submitted" }}</p>
-          </div>
+            <!-- Table instance(s) -->
+            <div
+              class="progress-file-display"
+              v-for="(file, index) in files"
+              :key="index"
+            >
+              <div class="progress-file-input-container">
+                <v-icon
+                  @click="handleRemoveFile"
+                  :data-date="file.date"
+                  v-if="showSubmission"
+                  >mdi-close</v-icon
+                >
+                <v-file-input
+                  :clearable="false"
+                  outlined
+                  dense
+                  :show-size="showSubmission"
+                  prepend-icon=""
+                  class="progress-file-input"
+                  @click.prevent="handleDownloadSubmittedFile(index)"
+                  :value="file.file"
+                ></v-file-input>
+              </div>
+              <p>
+                {{ file.date }}
+              </p>
+
+              <!-- If type is needed it'll be display here, otherwise it's a status -->
+              <div class="progress-file-type" v-if="finalDocument">
+                <v-radio :value="index" :disabled="!showSubmission"></v-radio>
+              </div>
+              <p v-else>{{ showSubmission ? "Not Submitted" : "Submitted" }}</p>
+            </div>
+          </v-radio-group>
         </div>
 
         <!-- Upload size progress bar -->
@@ -177,14 +175,15 @@ export default {
     return {
       availableLinks: [],
       files: [],
-      // 5000000 byte => 5 Mb
-      maxSize: 5000000,
+      // 5242880 byte => 5 Mb
+      maxSize: 5242880,
       showSubmission: true,
       uploadSrc: null,
       dropActive: false,
       submitTypes: ["Abstract", "Document"],
       submitDate: "",
       submitOnTime: false,
+      selectedAbstractIndex: 0,
     };
   },
   mixins: [utils],
@@ -274,10 +273,21 @@ export default {
       // Hide submission buttons
       this.showSubmission = false;
 
+      // TODO: Too many loops ??
+      // Set abbstract index to the right one
+      console.log(
+        this.submittedFiles.findIndex((file) => file.Type === "Abstract")
+      );
+      this.selectedAbstractIndex = this.submittedFiles.findIndex(
+        (file) => file.Type === "Abstract"
+      );
+
       let files = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file
         .filter(
-          (file) => file.Type === "File" && [2, 3].includes(file.Group_Role)
+          (file) =>
+            (file.Type === "File" || file.Type === "Abstract") &&
+            [2, 3].includes(file.Group_Role)
         )
         // Then, map each file and send axios get request to fetch the file from static folder in server
         .map(async (file) => {
@@ -393,8 +403,6 @@ export default {
       this.availableLinks.pop();
     },
     async handleUploadAssignment() {
-      //TODO: Validate file input (file type, file size)
-      //TODO: Limit link's text length
       // TODO: Show total files size ??
       try {
         // Check if user input a link into the form
@@ -420,6 +428,39 @@ export default {
           "Group_Member_ID",
           this.$store.state.group.currentUserGroup.Group_Member_ID
         );
+        formData.append(
+          "Project_on_term_ID",
+          this.$store.state.auth.currentUser.projectOnTerm
+        );
+
+        // If it is final document there must be abstract files
+        if (this.finalDocument) {
+          // If no abstract file is selected, show error and return
+          if (!this.selectedAbstractIndex && this.selectedAbstractIndex !== 0) {
+            this.$swal.fire({
+              title: "Please, select one file as abstract file",
+              text: "",
+              icon: "warning",
+            });
+            return;
+          }
+          // console.log("Selected abstract index: ", this.selectedAbstractIndex);
+
+          // If abstract file's file type is not pdf, shows error and return
+          if (
+            this.files[this.selectedAbstractIndex].file.type !==
+            "application/pdf"
+          ) {
+            this.$swal.fire({
+              title: "Selected abstract file's extension must be pdf",
+              text: "",
+              icon: "warning",
+            });
+            return;
+          }
+
+          formData.append("abstractIndex", this.selectedAbstractIndex);
+        }
 
         // Append form data with links, if there are any
         this.availableLinks.length !== 0 &&
@@ -561,6 +602,10 @@ export default {
 .progress-drop-zone label {
   color: blue;
   cursor: pointer;
+}
+.progress-file-type div.v-radio {
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
 /* Dropzone active */

@@ -14,12 +14,22 @@ const fs = require("fs");
 // };
 
 // Upload assignments
+// TODO: Implement transaction
 uploadAssignments = async (req, res) => {
-  let { Progress_ID, Group_ID, links, Group_Member_ID } = req.body;
-  // // If no link then assign empty array
+  let {
+    Progress_ID,
+    Group_ID,
+    links,
+    Group_Member_ID,
+    abstractIndex,
+    Project_on_term_ID,
+  } = req.body;
+  // If no link then assign empty array
   if (!links) links = [];
   // If there's only one link put it in an array
   if (typeof links === "string") links = [links];
+
+  console.log("Abstract index: ", abstractIndex);
 
   // Database queries
   const assignmentSql =
@@ -51,22 +61,46 @@ uploadAssignments = async (req, res) => {
           []
         );
         const allFiles = req.files.reduce(
-          (prev, current) => [
+          (prev, current, index) => [
             ...prev,
             [
               current.filename,
               current.path,
-              "File",
+              index === parseInt(abstractIndex) ? "Abstract" : "File",
               assignmentResult.insertId,
               Group_Member_ID,
             ],
           ],
           []
         );
+
+        // If there's abstract, then take it out of the files array
+        // And make another insert query to abstract table
+        if (!!abstractIndex && !!Project_on_term_ID && allFiles.length > 0) {
+          // get the file using abstract index
+          const abstractFile = allFiles[abstractIndex];
+          // // remove file from allFiles (because we will insert abstract in another table)
+          // allFiles.splice(abstractIndex, 1);
+
+          // how abstract file name is saved is a bit wierd, just take a look at the console
+          console.log("Abstract File: ", abstractFile);
+
+          // 2.1) Query to insert abstract file into database
+          const abstractSql =
+            "INSERT INTO `abstracts`(`Abstract_Name`, `Group_ID`, `Project_on_term_ID`) VALUES (?, ?, ?)";
+          con.query(
+            abstractSql,
+            [abstractFile[0][0], Group_ID, Project_on_term_ID],
+            (err) => {
+              if (err) throw err;
+            }
+          );
+        }
+
         // Combine links and files array, before insert into the database
         const combinedFiles = [...links, ...allFiles];
 
-        // Insert into database
+        // 2.2) Insert all files into database
         con.query(filesSql, [combinedFiles], (err, filesResult, fields) => {
           if (err) throw err;
         });
@@ -75,9 +109,11 @@ uploadAssignments = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(422).json({ msg: "Query Error", staus: 422 });
+    return;
   }
 
   res.status(200).json({ msg: "success", status: 200 });
+  return;
 };
 
 // Get assignment files

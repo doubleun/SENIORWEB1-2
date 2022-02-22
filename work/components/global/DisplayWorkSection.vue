@@ -142,8 +142,11 @@
           <v-file-input
             :clearable="false"
             :disabled="showSubmitted || haveGrade"
+            :rules="[
+              (file) => !file || !(file.size > maxSize) || 'File is too large',
+            ]"
+            @change="handleValidateFile"
             outlined
-            hide-details
             dense
             :show-size="!showSubmitted"
             prepend-icon=""
@@ -226,6 +229,8 @@ export default {
       submitDate: "",
       selectScores: [1, 2, 3, 4, 5],
       teacherFile: null,
+      // 5242880 byte => 5 Mb
+      maxSize: 5242880,
       givenScore: null,
       comment: null,
       uploadSrcs: [],
@@ -329,7 +334,9 @@ export default {
       let files = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file (role 2 and 3 are for students)
         .filter(
-          (file) => file.Type === "File" && [2, 3].includes(file.Group_Role)
+          (file) =>
+            (file.Type === "File" || file.Type === "Abstract") &&
+            [2, 3].includes(file.Group_Role)
         )
         // Then, map each file and send axios get request to fetch the file from static folder in server
         .map(async (file) => {
@@ -474,6 +481,22 @@ export default {
       return this.givenScore > this.maxScore || this.givenScore < 0
         ? "Invalid score"
         : true;
+    },
+    handleValidateFile() {
+      // Validate when teacher upload a file
+      if (!!this.teacherFile && this.teacherFile?.size > this.maxSize) {
+        // If the file teacher is uploading is larger than 5MB (maximum size) Then fire an alert
+        this.$swal.fire(
+          "File size is larger than 5MB",
+          "Please re-upload the file",
+          "warning"
+        );
+
+        // // Also reset the teacherFile back to null
+        // this.teacherFile = null;
+        return;
+      }
+      return;
     },
     async handleSubmitScore() {
       // console.log(this.showSubmitted)
