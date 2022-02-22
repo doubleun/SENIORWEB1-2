@@ -57,7 +57,10 @@
                   <v-subheader>{{ role.name }}</v-subheader>
                   <v-text-field
                     v-model="scoreCriterias[index][role.value]"
-                    :rules="[(val) => handleValidateScore(val)]"
+                    :rules="[
+                      () =>
+                        handleValidateScore(scoreCriterias[index][role.value]),
+                    ]"
                     outlined
                     dense
                   ></v-text-field>
@@ -190,7 +193,7 @@ export default {
           errorMsg: "Invalid score",
         },
         parseInt(val) > 100,
-        parseInt(val) < 1
+        parseInt(val) < 0
       );
     },
   },

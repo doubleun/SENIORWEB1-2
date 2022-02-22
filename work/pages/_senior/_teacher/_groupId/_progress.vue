@@ -11,11 +11,13 @@
         class="co-evaluation-result-card my-12"
         v-if="this.$route.params.progress === 're-evaluation'"
       >
-        <v-card-title>EVALUATION RESULT</v-card-title>
-        <EvaluationResultGrid
-          :Group_ID="GroupDetail.GroupInfo.Group_ID"
-          :evalScores="fetchScoresRes"
-        />
+        <div v-if="!noWorkSubmitted">
+          <v-card-title>EVALUATION RESULT</v-card-title>
+          <EvaluationResultGrid
+            :Group_ID="GroupDetail.GroupInfo.Group_ID"
+            :evalScores="fetchScoresRes"
+          />
+        </div>
       </v-card>
 
       <!-- Display work -->
@@ -57,7 +59,7 @@ export default {
         "re-evaluation",
       ];
       !allProgresses.includes(params.progress) &&
-        redirect(`/Senior1/coordinator/${params.groupId}`);
+        redirect(`/senior1/coordinator/${params.groupId}`);
 
       // Find progress id using index
       const progressId = allProgresses.findIndex(
@@ -251,7 +253,7 @@ export default {
       };
     } catch (error) {
       console.log(error);
-      return redirect("/Senior1/coordinator/");
+      return redirect("/senior1/coordinator/");
     }
   },
 };

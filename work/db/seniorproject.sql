@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Feb 22, 2022 at 02:43 PM
+-- Generation Time: Feb 22, 2022 at 04:55 PM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -79,16 +79,6 @@ CREATE TABLE `assignments` (
   `Group_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `assignments`
---
-
-INSERT INTO `assignments` (`Assignment_ID`, `Submit_Date`, `Progress_ID`, `Group_ID`) VALUES
-(19, '2022-01-30 16:42:09', 2, 10),
-(20, '2022-02-02 15:06:22', 10, 10),
-(21, '2022-02-02 15:42:45', 3, 10),
-(22, '2022-02-02 15:42:55', 4, 10);
-
 -- --------------------------------------------------------
 
 --
@@ -103,14 +93,6 @@ CREATE TABLE `evalcomment` (
   `Group_Member_ID` int(11) NOT NULL,
   `Group_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Dumping data for table `evalcomment`
---
-
-INSERT INTO `evalcomment` (`Eval_Comment_ID`, `Comment`, `File_Name`, `Re_Eval`, `Group_Member_ID`, `Group_ID`) VALUES
-(24, 'bad', '', 0, 53, 10),
-(25, 'better', '1643984623056-keyboard-shortcuts-windows (2).pdf', 1, 53, 10);
 
 -- --------------------------------------------------------
 
@@ -127,21 +109,6 @@ CREATE TABLE `files` (
   `Group_Member_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `files`
---
-
-INSERT INTO `files` (`File_ID`, `File_Name`, `Path`, `Type`, `Assignment_ID`, `Group_Member_ID`) VALUES
-(37, '1643560929862-keyboard-shortcuts-windows.pdf', 'public_senior\\uploads\\assignments\\1643560929862-keyboard-shortcuts-windows.pdf', 'File', 19, 51),
-(38, '1643560929871-Screenshot 2021-09-11 200954.png', 'public_senior\\uploads\\assignments\\1643560929871-Screenshot 2021-09-11 200954.png', 'File', 19, 51),
-(39, '1643561335307-keyboard-shortcuts-windows (2).pdf', 'public_senior\\uploads\\assignments\\1643561335307-keyboard-shortcuts-windows (2).pdf', 'File', 19, 53),
-(40, '1643814382934-keyboard-shortcuts-windows.pdf', 'public_senior\\uploads\\assignments\\1643814382934-keyboard-shortcuts-windows.pdf', 'File', 20, 51),
-(41, '1643814382941-Screenshot 2021-09-11 200954.png', 'public_senior\\uploads\\assignments\\1643814382941-Screenshot 2021-09-11 200954.png', 'File', 20, 51),
-(42, '1643816565804-keyboard-shortcuts-windows.pdf', 'public_senior\\uploads\\assignments\\1643816565804-keyboard-shortcuts-windows.pdf', 'File', 21, 51),
-(43, '1643816575301-6131501052.pdf', 'public_senior\\uploads\\assignments\\1643816575301-6131501052.pdf', 'File', 22, 51),
-(44, '1643983324546-keyboard-shortcuts-windows (2).pdf', 'public_senior\\uploads\\assignments\\1643983324546-keyboard-shortcuts-windows (2).pdf', 'File', 20, 53),
-(45, '1643984623056-keyboard-shortcuts-windows (2).pdf', 'public_senior\\uploads\\assignments\\1643984623056-keyboard-shortcuts-windows (2).pdf', 'File', 20, 53);
-
 -- --------------------------------------------------------
 
 --
@@ -155,14 +122,6 @@ CREATE TABLE `gradecriterias` (
   `Major_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `gradecriterias`
---
-
-INSERT INTO `gradecriterias` (`Grade_Criteria_ID`, `Grade_Criteria_Name`, `Grade_Criteria_Pass`, `Major_ID`, `Project_on_term_ID`) VALUES
-(111, 'S', 75, 1, 15),
-(112, 'U', 0, 1, 15);
 
 -- --------------------------------------------------------
 
@@ -179,21 +138,6 @@ CREATE TABLE `groupmembers` (
   `Group_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `groupmembers`
---
-
-INSERT INTO `groupmembers` (`Group_Member_ID`, `User_Email`, `User_Status`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES
-(51, '6131501052@lamduan.mfu.ac.th', 1, '1111111111', 3, 10, 15),
-(52, '6131302001@lamduan.mfu.ac.th', 1, '222222', 2, 10, 15),
-(53, 'kiwlom093@gmail.com', 1, '', 0, 10, 15),
-(54, 'sootarin@gmail.com', 1, '', 1, 10, 15),
-(55, 'surapol_mfu@gmail.com', 1, '', 1, 10, 15),
-(56, '6131302005@lamduan.mfu.ac.th', 1, '0805630800', 3, 11, 15),
-(57, 'cickpoo0121@gmail.com', 0, '', 0, 11, 15),
-(58, 'kiwlom093@gmail.com', 0, '', 1, 11, 15),
-(59, 'nilubon_mfu@gmail.com', 0, '', 1, 11, 15);
 
 -- --------------------------------------------------------
 
@@ -235,14 +179,6 @@ CREATE TABLE `groups` (
   `Received_New_Grade` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `groups`
---
-
-INSERT INTO `groups` (`Group_ID`, `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Group_Status`, `Group_Progression`, `Project_on_term_ID`, `Grade`, `Is_Re_Eval`, `Received_New_Grade`) VALUES
-(10, 'ASDASD', 'asdasdasd', '', 1, 1, 10, 15, 'S', 1, 1),
-(11, 'กา', 'ga', '', 1, 1, 2, 15, NULL, 0, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -261,13 +197,13 @@ CREATE TABLE `majors` (
 --
 
 INSERT INTO `majors` (`Major_ID`, `Major_Name`, `Acronym`, `Major_Status`) VALUES
-(1, 'Information Technology', '', 1),
-(2, 'Computer Science and Innovation', '', 1),
-(3, 'Multimedia Technology and Animation', '', 1),
-(4, 'Software Engineering', '', 1),
-(5, 'Information and Communication Engineering', '', 1),
-(6, 'Computer Engineering', '', 1),
-(7, 'Digital Technology for Business Innovation', '', 1),
+(1, 'Information Technology', 'IT', 1),
+(2, 'Computer Science and Innovation', 'CSI', 1),
+(3, 'Multimedia Technology and Animation', 'MTA', 1),
+(4, 'Software Engineering', 'SE', 1),
+(5, 'Information and Communication Engineering', 'ICE', 1),
+(6, 'Computer Engineering', 'CE', 1),
+(7, 'Digital Technology for Business Innovation', 'DTBI', 1),
 (99, 'admin', '', 1);
 
 -- --------------------------------------------------------
@@ -311,18 +247,6 @@ CREATE TABLE `progressionsinfo` (
   `Major_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `progressionsinfo`
---
-
-INSERT INTO `progressionsinfo` (`Progression_Info_ID`, `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES
-(22, '2022-01-23', '2022-01-29', 1, 1, 15),
-(23, '2022-01-30', '2021-02-04', 2, 1, 15),
-(24, '2021-02-02', '2021-02-12', 3, 1, 15),
-(25, '2022-02-12', '2022-02-19', 4, 1, 15),
-(27, '2022-03-01', '2022-03-08', 7, 1, 15),
-(28, '2022-03-09', '2022-03-16', 8, 1, 15);
 
 -- --------------------------------------------------------
 
@@ -383,18 +307,6 @@ CREATE TABLE `scorecriterias` (
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `scorecriterias`
---
-
-INSERT INTO `scorecriterias` (`Score_criteria_ID`, `Advisor_Score`, `Committee_Score`, `Major_ID`, `Progress_ID`, `Sub_Progress_ID`, `Project_on_term_ID`) VALUES
-(25, 10, 10, 1, 3, NULL, 15),
-(26, 10, 10, 1, 4, NULL, 15),
-(27, 0, 0, 1, 5, NULL, 15),
-(28, 0, 0, 1, 6, NULL, 15),
-(29, 15, 10, 1, 7, NULL, 15),
-(30, 15, 20, 1, 8, NULL, 15);
-
 -- --------------------------------------------------------
 
 --
@@ -404,20 +316,11 @@ INSERT INTO `scorecriterias` (`Score_criteria_ID`, `Advisor_Score`, `Committee_S
 CREATE TABLE `scores` (
   `Score_ID` int(11) NOT NULL,
   `Score` float NOT NULL,
-  `Max_Score` int(2) NOT NULL,
+  `Max_Score` float NOT NULL,
   `Comment` text NOT NULL,
   `Group_Member_ID` int(11) NOT NULL,
   `Assignment_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Dumping data for table `scores`
---
-
-INSERT INTO `scores` (`Score_ID`, `Score`, `Max_Score`, `Comment`, `Group_Member_ID`, `Assignment_ID`) VALUES
-(33, 0, 0, 'jjjj', 53, 19),
-(34, 50, 10, 'k', 53, 21),
-(35, 30, 10, 'kk', 53, 22);
 
 -- --------------------------------------------------------
 
@@ -474,22 +377,18 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES
-('6131302001@lamduan.mfu.ac.th', '6131302001', 'Chumphon Aekwarodom', 1, NULL, 1, 15),
-('6131302002@lamduan.mfu.ac.th', '6131302002', 'Tee Benjamin', 1, NULL, 1, 15),
-('6131302005@lamduan.mfu.ac.th', '6131302005', 'Pipat Massri', 1, NULL, 1, 15),
 ('6131501026@lamduan.mfu.ac.th', '6131501026', 'Nuttapong Samipak', 1, NULL, 6, 15),
 ('6131501037@lamduan.mfu.ac.th', '6131501037', 'Pronpom Kumthong', 1, NULL, 6, 15),
 ('6131501042@lamduan.mfu.ac.th', '6131501042', 'Pornsupa Sombatsiri', 1, NULL, 6, 15),
 ('6131501049@lamduan.mfu.ac.th', '6131501049', 'Rujikorn Precha', 1, NULL, 6, 15),
 ('6131501052@lamduan.mfu.ac.th', '6131501052', 'Wachirachai Nitsomboon', 1, NULL, 1, 15),
-('cickpoo0121@gmail.com', NULL, 'Cickpool', 0, NULL, 1, 15),
+('cickpoo0121@gmail.com', NULL, 'Cickpool', 2, NULL, 1, 15),
 ('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 15),
-('kiwlom093@gmail.com', '6131501097', 'Kiwlom Somboon', 2, NULL, 1, 15),
-('nilubon_mfu@gmail.com', NULL, 'Nilubon Kurubanjerdit', 0, NULL, 7, 15),
-('nitsomboon77@gmail.com', NULL, 'Wachirachai Nitsomboon', 1, NULL, 1, 15),
+('kiwlom093@gmail.com', '6131501097', 'Kiwlom Somboon', 2, NULL, 2, 15),
 ('oscarstones093@gmail.com', '6131501037', 'Wachirawut Nidsomboon', 0, NULL, 1, 15),
 ('sootarin@gmail.com', NULL, 'Sootarin Noopap', 0, NULL, 7, 15),
-('surapol_mfu@gmail.com', NULL, 'Surapol Vorapatratorn', 0, NULL, 6, 15);
+('surapol_mfu@gmail.com', NULL, 'Surapol Vorapatratorn', 0, NULL, 6, 15),
+('wachirachai.n@appman.co.th', '6131501055', 'Test student', 1, '1302492', 1, 15);
 
 --
 -- Indexes for dumped tables
@@ -664,43 +563,43 @@ ALTER TABLE `abstracts`
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
-  MODIFY `Announcement_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `Announcement_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `assignments`
 --
 ALTER TABLE `assignments`
-  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `evalcomment`
 --
 ALTER TABLE `evalcomment`
-  MODIFY `Eval_Comment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `Eval_Comment_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `files`
 --
 ALTER TABLE `files`
-  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `gradecriterias`
 --
 ALTER TABLE `gradecriterias`
-  MODIFY `Grade_Criteria_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
+  MODIFY `Grade_Criteria_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `groupmembers`
 --
 ALTER TABLE `groupmembers`
-  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `majors`
@@ -718,7 +617,7 @@ ALTER TABLE `progressions`
 -- AUTO_INCREMENT for table `progressionsinfo`
 --
 ALTER TABLE `progressionsinfo`
-  MODIFY `Progression_Info_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `Progression_Info_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `projectonterm`
@@ -736,13 +635,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `scorecriterias`
 --
 ALTER TABLE `scorecriterias`
-  MODIFY `Score_criteria_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `Score_criteria_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `scores`
 --
 ALTER TABLE `scores`
-  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `subprogressions`
