@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Feb 18, 2022 at 10:59 AM
+-- Generation Time: Feb 22, 2022 at 02:43 PM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -252,6 +252,7 @@ INSERT INTO `groups` (`Group_ID`, `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advis
 CREATE TABLE `majors` (
   `Major_ID` int(11) NOT NULL,
   `Major_Name` varchar(50) NOT NULL,
+  `Acronym` varchar(10) NOT NULL,
   `Major_Status` int(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -259,15 +260,15 @@ CREATE TABLE `majors` (
 -- Dumping data for table `majors`
 --
 
-INSERT INTO `majors` (`Major_ID`, `Major_Name`, `Major_Status`) VALUES
-(1, 'Information Technology', 1),
-(2, 'Computer Science and Innovation', 1),
-(3, 'Multimedia Technology and Animation', 1),
-(4, 'Software Engineering', 1),
-(5, 'Information and Communication Engineering', 1),
-(6, 'Computer Engineering', 1),
-(7, 'Digital Technology for Business Innovation', 1),
-(99, 'admin', 1);
+INSERT INTO `majors` (`Major_ID`, `Major_Name`, `Acronym`, `Major_Status`) VALUES
+(1, 'Information Technology', '', 1),
+(2, 'Computer Science and Innovation', '', 1),
+(3, 'Multimedia Technology and Animation', '', 1),
+(4, 'Software Engineering', '', 1),
+(5, 'Information and Communication Engineering', '', 1),
+(6, 'Computer Engineering', '', 1),
+(7, 'Digital Technology for Business Innovation', '', 1),
+(99, 'admin', '', 1);
 
 -- --------------------------------------------------------
 
