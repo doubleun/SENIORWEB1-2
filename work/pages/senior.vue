@@ -43,31 +43,41 @@
               </center>
             </v-card-text>
 
-            <nuxt-link
-              to="/Senior1/Student/topic"
+            <!-- <nuxt-link
+              to="/api/auth/google"
               tag="div"
               class="buttonsenior1and2"
+            > -->
+            <v-btn
+              text
+              style="width: 300px; height: 100px"
+              class="buttonsenior1and2"
+              @click="() => route(1)"
             >
-              <v-btn text style="width:300px;height:100px">
-                <v-card-text class="text--primary">
-                  <center>
-                    <div><h3>SENIOR PROJECT 1</h3></div>
-                    <div><h4>SEM 1/2564</h4></div>
-                  </center>
-                </v-card-text>
-              </v-btn>
-            </nuxt-link>
+              <v-card-text class="text--primary">
+                <center>
+                  <div><h3>SENIOR PROJECT 1</h3></div>
+                  <div><h4>SEM 1/2564</h4></div>
+                </center>
+              </v-card-text>
+            </v-btn>
+            <!-- </nuxt-link> -->
             <br />
-            <div class="buttonsenior1and2">
-              <v-btn text style="width:300px;height:100px">
-                <v-card-text class="text--primary">
-                  <center>
-                    <div><h3>SENIOR PROJECT 2</h3></div>
-                    <div><h4>SEM 2/2564</h4></div>
-                  </center>
-                </v-card-text>
-              </v-btn>
-            </div>
+            <!-- <div class="buttonsenior1and2"> -->
+            <v-btn
+              text
+              style="width: 300px; height: 100px"
+              class="buttonsenior1and2"
+              @click="route(2)"
+            >
+              <v-card-text class="text--primary">
+                <center>
+                  <div><h3>SENIOR PROJECT 2</h3></div>
+                  <div><h4>SEM 2/2564</h4></div>
+                </center>
+              </v-card-text>
+            </v-btn>
+            <!-- </div> -->
           </v-card>
         </v-main>
       </div>
@@ -79,9 +89,52 @@
 import itbackground from "../static/bg.png";
 export default {
   data: () => ({
-    image: itbackground
+    image: itbackground,
   }),
-  layout: "empty"
+  async asyncData({ store, redirect }) {
+    console.log(store.getters["auth/currentUser"]);
+    console.log(store.getters["auth/isAuth"]);
+    if (!store.getters["auth/isAuth"]) {
+      redirect("/");
+    }
+  },
+  methods: {
+    test() {
+      console.log(this.$store.state.auth);
+    },
+    // TODO: Delete this!
+    async testAsync() {
+      console.log(this.$store.state);
+      // const res = await this.$axios.$get("http://localhost:3000/api/user");
+      // console.log(res);
+    },
+    route(semester) {
+      // this.$store.state.auth.currentUser.role === 1
+      //   ? this.$router.push(`/Senior${semester}/student/`)
+      //   : this.$router.push(`/Senior${semester}/coordinator/`);
+      switch (this.$store.state.auth.currentUser.role) {
+        case 0: {
+          window.location.replace(`/senior${semester}/teacher/`);
+          // this.$router.push(`/senior${semester}/teacher/`);
+          break;
+        }
+        case 1: {
+          window.location.replace(`/senior${semester}/student/`);
+
+          // this.$router.push(`/senior${semester}/student/`);
+          break;
+        }
+        case 2: {
+          window.location.replace(`/senior${semester}/coordinator/`);
+
+          // this.$router.push(`/senior${semester}/coordinator/`);
+          break;
+        }
+      }
+    },
+  },
+  middleware: ["adminRedirect", "authenticated"],
+  layout: "empty",
 };
 </script>
 
@@ -124,7 +177,9 @@ export default {
   color: white !important;
 }
 .buttonsenior1and2 {
-  padding-left: 20%;
+  /* padding-left: 20%; */
+  display: block;
+  margin: auto;
 }
 /*
 .logo {

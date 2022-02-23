@@ -1,9 +1,9 @@
 <template>
   <v-app dark>
-    <Sidebar :items="items" theme="white" />
+    <StudentSidebar :items="items" theme="white" />
     <div class="it-background">
+      <MainAppbar theme="transparent" />
       <v-main>
-        <Appbar theme="transparent" />
         <v-container>
           <Nuxt />
         </v-container>
@@ -13,50 +13,46 @@
 </template>
 
 <script>
-import Appbar from "@/components/Global/mainAppbar";
-import Sidebar from "@/components/Student/stuSidebar";
+// import Appbar from "@/components/Global/mainAppbar";
+// import Sidebar from "@/components/Student/stuSidebar";
 
 export default {
-  components: {
-    Appbar,
-    Sidebar
-  },
   data() {
     return {
       items: [
         {
           icon: "mdi-home",
           title: "Home",
-          to: "/senior1/admin/"
-        },
-        {
-          icon: "mdi-account-group",
-          title: "Group",
-          to: "/senior1/admin/group"
-        },
-        {
-          icon: "mdi-account-cog",
-          title: "Manage Student",
-          to: "/senior1/admin/student"
-        },
-        {
-          icon: "mdi-office-building-cog",
-          title: "Manage Teacher",
-          to: "/senior1/admin/teacher"
-        },
-        {
-          icon: "mdi-clipboard-check-multiple",
-          title: "Criteria",
-          to: "/senior1/admin/criteria"
+          to: "/senior/admin/",
         },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Semester Date",
-          to: "/senior1/admin/semesterDate"
-        }
-      ]
+          to: "/senior/admin/semesterDate",
+        },
+        {
+          icon: "mdi-office-building-cog",
+          title: "Manage Teacher",
+          to: "/senior/admin/teacher",
+        },
+        {
+          icon: "mdi-account-cog",
+          title: "Manage Student",
+          to: "/senior/admin/student",
+        },
+        {
+          icon: "mdi-account-group",
+          title: "Group",
+          to: "/senior/admin/group",
+        },
+        {
+          icon: "mdi-clipboard-check-multiple",
+          title: "Criteria",
+          to: "/senior/admin/criteria",
+        },
+      ],
     };
-  }
+  },
 };
 </script>
 <style scoped>
