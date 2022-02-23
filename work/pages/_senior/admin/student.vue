@@ -24,7 +24,7 @@
           <p class="white--text">Year</p>
           <v-select
             v-model="selectedYear"
-            :items="yearNSemsters.map(itm => itm.Academic_Year)"
+            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
             @change="handelchangeRenderStudents"
             dense
             solo
@@ -35,7 +35,7 @@
           <p class="white--text">Semester</p>
           <v-select
             v-model="selectedSemester"
-            :items="yearNSemsters.map(itm => itm.Academic_Term)"
+            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
             @change="handelchangeRenderStudents"
             dense
             solo
@@ -43,7 +43,7 @@
           />
         </div>
         <div>
-          <v-btn color="success"
+          <v-btn color="success" @click="handleExports(students)"
             ><v-icon>mdi-microsoft-excel</v-icon> Export</v-btn
           >
         </div>
@@ -82,8 +82,10 @@
 <script>
 // // import LongTableCard from "@/components/admin/longTableCard";
 // import AdminDataTable from "@/components/admin/adminDataTable";
+import exportXLSX from "@/mixins/exportXLSX";
 
 export default {
+  mixins: [exportXLSX],
   layout: "admin",
   data: () => ({
     selectedMajor: {},
@@ -97,10 +99,10 @@ export default {
       ,
       { text: "ID", align: "center", value: "User_Identity_ID" },
       { text: "NAME", align: "center", value: "User_Name" },
-      { text: "EMAIL", align: "center", value: "User_Email" }
+      { text: "EMAIL", align: "center", value: "User_Email" },
       // { text: "SEM", align: "center", value: "Committee" },
       // { text: "STUDY PROGRAM", align: "center", value: "Committee" },
-    ]
+    ],
   }),
 
   async asyncData({ $axios }) {
@@ -117,7 +119,7 @@ export default {
         Major_ID: majors[0].Major_ID,
         Academic_Year: yearNSemsters[0].Academic_Year,
         Academic_Term: yearNSemsters[0].Academic_Term,
-        User_Role: "1"
+        User_Role: "1",
       });
     } catch (error) {
       console.log("error", error);
@@ -140,7 +142,7 @@ export default {
           Major_ID: this.selectedMajor.Major_ID,
           Academic_Year: this.selectedYear,
           Academic_Term: this.selectedSemester,
-          User_Role: "1"
+          User_Role: "1",
         });
       } catch (error) {
         console.log(error);
@@ -148,8 +150,8 @@ export default {
 
       console.log(this.students);
       this.loading = false;
-    }
-  }
+    },
+  },
 };
 </script>
 

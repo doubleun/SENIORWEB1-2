@@ -88,7 +88,7 @@ export default {
   data: () => ({
     loading3: false,
     sem: ["1/2564", "2/2564"],
-    filterGrade: [],
+    // filterGrade: [],
     selectedYear: null,
     selectedSemester: null,
     selectedGrade: {},
@@ -136,7 +136,7 @@ export default {
         { text: "GRADE", value: "Grade", align: "center" }
       );
 
-      // console.log("header", header);
+      console.log("header", header);
 
       // Fetch grade criteria
       var gradeCriteria = await $axios.$post("/criteria/gradeMajor", {
@@ -151,7 +151,15 @@ export default {
       // add filtter grade (All)
       gradeCriteria.unshift({ Grade_Criteria_Name: "All" });
 
-      return { yearNSemsters, grade: score, gradeCriteria, header };
+      const filterGrade = score.filter((el) => el.Grade !== "All");
+
+      return {
+        yearNSemsters,
+        grade: score,
+        gradeCriteria,
+        header,
+        filterGrade,
+      };
     } catch (error) {
       console.log(error);
     }
@@ -160,9 +168,8 @@ export default {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
     this.selectedGrade = this.gradeCriteria[0];
-    this.filterGrade = this.grade.filter((el) => el.grade != "All");
 
-    // console.log("filterGrade", this.filterGrade);
+    console.log("filterGrade", this.filterGrade);
   },
   methods: {
     async handelFilterWithAcademic() {

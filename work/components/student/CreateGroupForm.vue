@@ -244,6 +244,16 @@
                   <v-text-field
                     v-model="coadvisorName"
                     label="Co-advisor Name"
+                    :rules="[
+                      () =>
+                        handleValidateTextField({
+                          string: coadvisorName,
+                          option: 'onlyNormalCharEngAndNumber',
+                          required: false,
+                          errorMsg:
+                            'Not allow start and end with space / Not allow special character and only English characters.',
+                        }),
+                    ]"
                     :disabled="!headMember"
                     color="blue"
                     outlined
@@ -460,7 +470,7 @@ export default {
     email: ["", "", "", ""],
     major: "1",
     showResposeBtn: false,
-    majorPro:[]
+    majorPro: [],
   }),
   mixins: [utils],
 
@@ -475,8 +485,7 @@ export default {
     this.allStudentsInSchool = res.students;
     // console.log("Students: ", res.students);
     this.allTeachersInSchool = res.teachers;
-   
-    
+
     // console.log("Teachers: ", res.teachers);
   },
   watch: {
@@ -560,7 +569,7 @@ export default {
     async submitInfo() {
       // Validate form to make sure that everything is filled
       this.$refs.form.validate();
-    // console.log(this.selectedStudent)
+      // console.log(this.selectedStudent)
       // Make sure that atleast one advisor and one committee is selected
       if (
         this.selectedAdvisor === null ||
@@ -581,7 +590,7 @@ export default {
           confirmButtonText: "Yes",
         })
         .then(async (result) => {
-          // 
+          //
           if (result.isConfirmed) {
             const res = await this.$axios.$post("group/createGroup", {
               Project_NameTh: this.thaiName,
@@ -758,14 +767,14 @@ export default {
           index >= 1 &&
             // Add more project member fields
             this.addMemberFields();
-console.log("hearrrr"+itm)
+          console.log("hearrrr" + itm);
           // Pass value into all project member fields
           this.selectedStudent[index] = {
             User_Email: itm.User_Email,
             User_Identity_ID: itm.User_Identity_ID,
             User_Name: itm.User_Name,
             User_Role: itm.User_Role,
-            User_Major: itm.Major_ID
+            User_Major: itm.Major_ID,
           };
           this.name[index] = itm.User_Name;
           this.email[index] = itm.User_Email;
@@ -816,7 +825,7 @@ console.log("hearrrr"+itm)
         User_Identity_ID: this.$store.state.auth.currentUser.userId,
         User_Name: this.$store.state.auth.currentUser.name,
         User_Role: this.$store.state.auth.currentUser.role,
-        User_Major: this.$store.state.auth.currentUser.major
+        User_Major: this.$store.state.auth.currentUser.major,
       };
       this.memberStatus[0] = 1;
     }
