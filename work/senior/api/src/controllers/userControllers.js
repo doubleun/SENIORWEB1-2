@@ -192,24 +192,22 @@ uploadfile = async (req, res) => {
               if (err) {
                 console.log(err.code);
                 if (err.code == "ER_DUP_ENTRY") {
-                  res.status(500).send("Duplicate data");-
+                  res.status(500).send("Duplicate data");
                 } else {
                   res.status(500).send("Internal Server Error");
                 }
               } else {
-                if(result.affectedRows ==0){
-                  errorcou ++
+                if (result.affectedRows == 0) {
+                  errorcou++;
                 }
                 if (i == rows.length - 1) {
-                  if(errorcou==0){
+                  if (errorcou == 0) {
                     res.status(200).send("success");
-                  }else if(errorcou==rows.length - 1){
+                  } else if (errorcou == rows.length - 1) {
                     res.status(200).send("noeffect");
-                  }
-                  else{
+                  } else {
                     res.status(200).send("someproblem");
                   }
-                  
                 }
               }
             }
@@ -241,7 +239,7 @@ uploadfileteacher = async (req, res) => {
       // avatar.mv("uploads/excel/" + name);
       // console.log(req.files[0]['filename'])
       var sql =
-      "INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,(SELECT Major_ID FROM majors WHERE Acronym = ?),(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
+        "INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,(SELECT Major_ID FROM majors WHERE Acronym = ?),(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) ";
 
       var obj = readXlsxFile(req.files[0]["path"]).then((rows) => {
         let semiter;
@@ -259,7 +257,7 @@ uploadfileteacher = async (req, res) => {
           } else if (term == "SECOND") {
             term = 2;
           }
-         
+
           con.query(
             sql,
             [
@@ -282,20 +280,18 @@ uploadfileteacher = async (req, res) => {
                   res.status(500).send("Internal Server Error");
                 }
               } else {
-                console.log(result.affectedRows)
-                if(result.affectedRows ==0){
-                  errorcou ++
+                console.log(result.affectedRows);
+                if (result.affectedRows == 0) {
+                  errorcou++;
                 }
                 if (i == rows.length - 1) {
-                  if(errorcou==0){
+                  if (errorcou == 0) {
                     res.status(200).send("success");
-                  }else if(errorcou==rows.length - 1){
+                  } else if (errorcou == rows.length - 1) {
                     res.status(200).send("noeffect");
-                  }
-                  else{
+                  } else {
                     res.status(200).send("someproblem");
                   }
-                  
                 }
               }
             }
