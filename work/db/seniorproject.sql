@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Feb 22, 2022 at 04:55 PM
+-- Generation Time: Feb 25, 2022 at 02:57 PM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -139,6 +139,21 @@ CREATE TABLE `groupmembers` (
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `groupmembers`
+--
+
+INSERT INTO `groupmembers` (`Group_Member_ID`, `User_Email`, `User_Status`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES
+(14, '6131501026@lamduan.mfu.ac.th', 0, '0805630800', 2, 4, 15),
+(15, 'kiwlom093@gmail.com', 0, '', 0, 4, 15),
+(16, 'cickpoo0121@gmail.com', 0, '', 1, 4, 15),
+(17, 'surapol_mfu@gmail.com', 0, '', 1, 4, 15),
+(18, '6131302005@lamduan.mfu.ac.th', 1, '0835496949', 3, 5, 15),
+(19, '6131501026@lamduan.mfu.ac.th', 0, '0805630800', 2, 5, 15),
+(20, 'cickpoo0121@gmail.com', 0, '', 0, 5, 15),
+(21, 'kiwlom093@gmail.com', 0, '', 1, 5, 15),
+(22, 'surapol_mfu@gmail.com', 0, '', 1, 5, 15);
+
 -- --------------------------------------------------------
 
 --
@@ -178,6 +193,14 @@ CREATE TABLE `groups` (
   `Is_Re_Eval` int(1) NOT NULL DEFAULT 0,
   `Received_New_Grade` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `groups`
+--
+
+INSERT INTO `groups` (`Group_ID`, `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Group_Status`, `Group_Progression`, `Project_on_term_ID`, `Grade`, `Is_Re_Eval`, `Received_New_Grade`) VALUES
+(4, 'สา', 'sa', '', 6, 1, 2, 15, NULL, 0, 0),
+(5, 'สา', 'sa', '', 6, 1, 2, 15, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -247,6 +270,16 @@ CREATE TABLE `progressionsinfo` (
   `Major_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `progressionsinfo`
+--
+
+INSERT INTO `progressionsinfo` (`Progression_Info_ID`, `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES
+(3, '2022-02-23', '2022-02-25', 1, 6, 15),
+(4, '2022-02-24', '2022-02-28', 3, 6, 15),
+(5, '2022-03-01', '2022-03-31', 4, 6, 15),
+(6, '2022-02-24', '2022-02-28', 1, 1, 15);
 
 -- --------------------------------------------------------
 
@@ -377,6 +410,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES
+('6131302005@lamduan.mfu.ac.th', '6131302005', 'pipat massri', 1, NULL, 1, 15),
 ('6131501026@lamduan.mfu.ac.th', '6131501026', 'Nuttapong Samipak', 1, NULL, 6, 15),
 ('6131501037@lamduan.mfu.ac.th', '6131501037', 'Pronpom Kumthong', 1, NULL, 6, 15),
 ('6131501042@lamduan.mfu.ac.th', '6131501042', 'Pornsupa Sombatsiri', 1, NULL, 6, 15),
@@ -593,13 +627,13 @@ ALTER TABLE `gradecriterias`
 -- AUTO_INCREMENT for table `groupmembers`
 --
 ALTER TABLE `groupmembers`
-  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `majors`
@@ -617,7 +651,7 @@ ALTER TABLE `progressions`
 -- AUTO_INCREMENT for table `progressionsinfo`
 --
 ALTER TABLE `progressionsinfo`
-  MODIFY `Progression_Info_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Progression_Info_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `projectonterm`
