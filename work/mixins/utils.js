@@ -55,12 +55,14 @@ export default {
             ? errorMsg
             : true;
         case "onlyNumber":
-          return (required && !string) || cvAll || !/^$|^\d+$/.test(string)
+          return (required && !string && string !== 0) ||
+            cvAll ||
+            !/^$|^\d+$/.test(string)
             ? errorMsg
             : true;
           break;
         case "onlyNumberFloat":
-          return (required && !string) ||
+          return (required && !string && string !== 0) ||
             cvAll ||
             !/^$|^\d*\.?\d+$/.test(string)
             ? errorMsg

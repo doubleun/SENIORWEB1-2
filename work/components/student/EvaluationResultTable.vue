@@ -39,7 +39,7 @@
         </v-card>
         <v-card :loading="loading" class="mx-auto pb-5" max-width="570">
           <v-card-title>
-            COMMITTEE 2
+            COMMITTEE
 
             <!-- Icon indicate if teacher submiited eval comment yet -->
             <v-icon right color="success" v-if="committee2">
@@ -78,7 +78,7 @@
       <v-col cols="12" sm="6">
         <v-card :loading="loading" class="mx-auto my-6 pb-5" max-width="570">
           <v-card-title>
-            COMMITTEE 1
+            COMMITTEE
 
             <!-- Icon indicate if teacher submiited eval comment yet -->
             <v-icon right color="success" v-if="committee1">

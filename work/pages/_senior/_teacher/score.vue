@@ -148,7 +148,7 @@ export default {
         a.Grade_Criteria_Pass < b.Grade_Criteria_Pass ? 1 : -1
       );
 
-      // add filtter grade (All)
+      // add display all grades option to v-select for sorting by grade (All)
       gradeCriteria.unshift({ Grade_Criteria_Name: "All" });
 
       const filterGrade = score.filter((el) => el.Grade !== "All");
