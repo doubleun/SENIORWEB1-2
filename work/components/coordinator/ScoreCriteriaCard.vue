@@ -9,8 +9,18 @@
     <div class="score-criteria-content">
       <!-- Table attr -->
       <h4>CRITERIA</h4>
-      <h4>Advisor Score</h4>
-      <h4>Committee 1/2 Score</h4>
+      <h4>Advisor</h4>
+      <div style="display: flex; justify-content: center">
+        <h4 style="margin-right: 2px">Committees Total</h4>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon color="primary" dark v-bind="attrs" v-on="on">
+              mdi-information-outline
+            </v-icon>
+          </template>
+          <span>This score will be divided in half for each committee</span>
+        </v-tooltip>
+      </div>
       <h4>Total</h4>
       <h4>ACTIONS</h4>
 
@@ -119,7 +129,7 @@ export default {
         { id: 1, name: "Advisor Score", score: 0, value: "Advisor_Score" },
         {
           id: 2,
-          name: "Committee 1/2 Score",
+          name: "Committees Total Score",
           score: 0,
           value: "Committee_Score",
         },
@@ -134,6 +144,15 @@ export default {
   methods: {
     async updateScoreCriteria(criteriaItem) {
       try {
+        // Check if there's score at all
+        if (
+          (!criteriaItem?.Advisor_Score && criteriaItem?.Advisor_Score !== 0) ||
+          (!criteriaItem?.Committee_Score &&
+            criteriaItem?.Committee_Score !== 0)
+        ) {
+          this.$swal.fire("Something went wrong", "", "warning");
+          return;
+        }
         // console.log("criteria item: ", criteriaItem);
         const newScoreTotal =
           parseInt(criteriaItem.Advisor_Score) +
@@ -175,6 +194,7 @@ export default {
         return;
       } catch (err) {
         console.log(err);
+        this.$swal.fire("Something went wrong", "", "warning");
         return;
       }
     },
