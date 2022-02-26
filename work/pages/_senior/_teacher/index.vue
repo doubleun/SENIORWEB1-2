@@ -1,14 +1,28 @@
 <template>
   <div>
     <CoordinatorHomeCardStatus :info="info" />
-    <CoordinatorHomeAnnouncement :announcements="announcements" editable />
+    <CoordinatorHomeAnnouncement
+      :dataUi="dataUi"
+      :bindingData="announcements"
+      @on-update-announcements="refresh"
+      editable
+    />
   </div>
 </template>
 <script>
 // import CardStatus from "@/components/coordinator/homeCardStatus";
 // import Announcement from "@/components/coordinator/homeAnnouncement";
+import utils from "@/mixins/utils";
+
 export default {
   layout: "coordinatorsidebar",
+  data() {
+    return {
+      dataUi: { announcement: [] },
+    };
+  },
+  mixins: [utils],
+
   async asyncData({ $axios, store }) {
     try {
       const announcements = await $axios.$post("/announc/major", {
@@ -19,7 +33,7 @@ export default {
         Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
 
-      console.log(data)
+      console.log(data);
 
       //! Fetch home info (mock)
       const teacherInfo = [
@@ -43,6 +57,19 @@ export default {
     } catch (error) {
       console.log(error);
     }
+  },
+  mounted() {
+    this.dataUi = {
+      announcement: this.handleCloneDeep(this.announcements),
+    };
+  },
+  methods: {
+    async refresh() {
+      await this.$nuxt.refresh();
+      this.dataUi = {
+        announcement: this.handleCloneDeep(this.announcements),
+      };
+    },
   },
 };
 </script>

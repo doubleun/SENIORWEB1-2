@@ -39,7 +39,7 @@
       </v-row>
     </v-card>
 
-    <CoordinatorHomeAnnouncement :announcements="announcements" />
+    <CoordinatorHomeAnnouncement :dataUi="announcements" />
     <!-- </div> -->
   </div>
 </template>
