@@ -100,7 +100,6 @@
                     <h3 class="font-weight-bold">
                       <v-icon small>mdi-checkbox-blank-circle</v-icon>
                       {{ announcement.Text }}
-                      {{ index }}
                     </h3>
 
                     <div>
@@ -139,6 +138,7 @@
                         <v-card-text>
                           <v-container>
                             <v-col>
+                              <h3>Detail Announcement</h3>
                               <v-textarea
                                 v-model="bindAnnouncement[index].Text"
                                 label="Text"
@@ -270,7 +270,6 @@ export default {
       // 4 is the maximum rows
       const startIndex = 4 * (this.page - 1);
       const endIndex = startIndex + 4;
-
       return this.dataUi.announcements.slice(startIndex, endIndex);
     },
     pageLength() {
@@ -361,10 +360,11 @@ export default {
         this.$refs.selectAdd.reset();
         this.$refs.checkAdd.reset();
       } else {
-        this.snackbarText =
-          "Failed to add new announcement, please try again later";
-        this.submitSnackbar = true;
+        // this.snackbarText =
+        //   "Failed to add new announcement, please try again later";
+        // this.submitSnackbar = true;
         this.dialog = false;
+        this.$swal.fire("Something wrong", res, "error");
       }
     },
     // === Handle delete announcement from database === //
@@ -375,8 +375,8 @@ export default {
           text: "Are you sure to delete this announcement.",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
+          // confirmButtonColor: "#d33",
+          // cancelButtonColor: "#3085d6",
           confirmButtonText: "Yes",
         })
         .then(async (result) => {
@@ -444,10 +444,11 @@ export default {
           "success"
         );
       } else {
-        this.snackbarText =
-          "Failed to update an announcement, please try again later";
-        this.submitSnackbar = true;
+        // this.snackbarText =
+        //   "Failed to update an announcement, please try again later";
+        // this.submitSnackbar = true;
         this.dataUi.announcements[index].modal = false;
+        this.$swal.fire("Something wrong", res, "error");
       }
     },
     handleSelectMajorAdd() {

@@ -6,24 +6,32 @@ export default {
     titleTemplate: "%s - work",
     title: "work",
     htmlAttrs: {
-      lang: "en"
+      lang: "en",
     },
     meta: [
       { charset: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { hid: "description", name: "description", content: "" },
-      { name: "format-detection", content: "telephone=no" }
+      { name: "format-detection", content: "telephone=no" },
     ],
     link: [
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/icon?family=Material+Icons"
-      }
-    ]
+        href: "https://fonts.googleapis.com/icon?family=Material+Icons",
+      },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css?family=Montserrat&display=swap",
+      },
+    ],
   },
   env: {
-    baseUrl: process.env.BASE_URL || "http://localhost:3000"
+    baseUrl: process.env.BASE_URL || "http://localhost:3000",
+  },
+
+  build: {
+    publicPath: "public_senior",
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -38,16 +46,16 @@ export default {
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
-    "@nuxtjs/vuetify"
+    "@nuxtjs/vuetify",
   ],
 
   axios: {
     baseURL: "http://localhost:3000/api",
-    credentials: true
+    credentials: true,
   },
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ["@nuxtjs/axios", "nuxt-sweetalert2"],
+  modules: ["@nuxtjs/axios", "vue-sweetalert2/nuxt"],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
@@ -62,16 +70,16 @@ export default {
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
-          success: colors.green.accent3
-        }
-      }
-    }
+          success: colors.green.accent3,
+        },
+      },
+    },
   },
 
   router: {
-    middleware: "authenticated"
+    middleware: "authenticated",
   },
-  serverMiddleware: [{ path: "/api", handler: "~/senior/api/app.js" }]
+  serverMiddleware: [{ path: "/api", handler: "~/senior/api/app.js" }],
 
   // // Auth
   // //! The commented out is an alternative, to use the backend redirect needs to be rewrote

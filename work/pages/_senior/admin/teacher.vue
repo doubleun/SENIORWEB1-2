@@ -20,7 +20,7 @@
             off
           />
         </div>
-        <div>
+        <div style="width: 100px;">
           <p class="white--text">Year</p>
           <v-select
             v-model="selectedYear"
@@ -31,7 +31,7 @@
             hide-details
           />
         </div>
-        <div>
+        <div style="width: 90px;">
           <p class="white--text">Semester</p>
           <v-select
             v-model="selectedSemester"
@@ -41,7 +41,7 @@
             solo
             hide-details
           />
-        </div>
+        </div>       
         <div>
           <p class="white--text">Role</p>
           <v-select
@@ -58,7 +58,7 @@
         </div>
         <div>
           <v-btn
-            class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
+            class="mb-1 dark-blue--text"
             align="right"
             justify="right"
             @click="handleFileImport"
@@ -75,13 +75,13 @@
             @change="handleBrowseFile"
           />
           <v-btn
-            class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
+            class="mb-1 dark-blue--text"
             align="right"
             justify="right"
             @click="downloadtemplete"
           >
             <v-icon dark-blue> mdi-application-import </v-icon>
-            dowload templete
+           <p style="font-size:12px">dowload templete</p> 
           </v-btn>
         </div>
       </div>
@@ -303,10 +303,10 @@ export default {
 
 /* Reduce the second select box's width */
 .admin-teacher-manage-actions > div:nth-child(2n) {
-  width: 20%;
+  width: 14%;
 }
 .admin-teacher-manage-actions > div:first-child {
-  width: 36%;
+  width: 25%;
 }
 .admin-teacher-manage-actions > div:last-child {
   display: flex;

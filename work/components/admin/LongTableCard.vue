@@ -41,7 +41,7 @@ export default {
   flex: 1;
 }
 .long-table-card .v-card__title .v-input {
-  max-width: 40%;
+  max-width: 25%;
 }
 
 /* Grid table */

@@ -166,7 +166,7 @@ export default {
     // TODO: keep group id to state for scoring of group
     pushOtherPage(id) {
       this.$router.push(
-        `/Senior1/${
+        `/senior1/${
           this.$store.state.auth.currentUser.role === 0
             ? "teacher"
             : "coordianator"
