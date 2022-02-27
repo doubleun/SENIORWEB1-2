@@ -39,13 +39,18 @@
       </v-row>
     </v-card>
 
-    <CoordinatorHomeAnnouncement :dataUi="announcements" />
+    <CoordinatorHomeAnnouncement :dataUi="dataUi" />
     <!-- </div> -->
   </div>
 </template>
 <script>
 // import Announcement from "@/components/coordinator/homeAnnouncement";
 export default {
+  data() {
+    return {
+      dataUi: { announcement: [] },
+    };
+  },
   computed: {
     normalCurrentProgress() {
       return this.$store.state.group.currentUserGroup?.Group_Progression;
@@ -165,6 +170,10 @@ export default {
       this.$store.state.group.currentUserGroup
     );
     // console.log("All progress: ", this.allProgress);
+
+    this.dataUi = {
+      announcement: this.announcements,
+    };
   },
 };
 </script>
