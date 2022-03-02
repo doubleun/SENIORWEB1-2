@@ -148,7 +148,6 @@ export default {
       // selectedDate: [],
       access_Date_Start: null,
       access_Date_End: null,
-      totalFile: [],
       headers: [
         {
           text: "TOPIC",
@@ -157,7 +156,6 @@ export default {
         },
         { text: "ASSIGNDATE", value: "DueDate_Start", align: "center" },
         { text: "DUEDATE", value: "DueDate_End", align: "center" },
-        { text: "FILE", value: "totalFile", align: "center" },
         { text: "ACTION", value: "action", align: "center" },
       ],
     };
@@ -171,7 +169,7 @@ export default {
         Major_ID: this.$store.state.auth.currentUser.major,
         Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       });
-      console.log("progression Duedate", duedate);
+      // console.log("progression Duedate", duedate);
 
       //
       var criteria = await this.$axios.$post("/criteria/scoreMajor", {
@@ -204,20 +202,10 @@ export default {
       this.access_Date_Start = duedate.projectOnTerm[0].Access_Date_Start;
       this.access_Date_End = duedate.projectOnTerm[0].Access_Date_End;
 
-      // get count file
-      for (let index = 0; index < criteria.length; index++) {
-        let total = await this.$axios.$post("/assignment/countFile", {
-          Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-          Progress_ID: criteria[index].Progress_ID,
-          Major: this.$store.state.auth.currentUser.major,
-        });
-        criteria[index].totalFile = await total[0].TotalFile;
-      }
-
       // map date
       // no due date in this semester
       if (duedate.progressionDuedate.length == 0) {
-        console.log("No due date");
+        // console.log("No due date");
         criteria = criteria.map((el, index) => ({
           ...el,
           selectedDate: [
@@ -312,11 +300,11 @@ export default {
         this.progressionDuedate
       );
 
-      console.log("progression Duedate22", this.progressionDuedate);
-      console.log(
-        "bindProgressionDuedate Duedate22",
-        this.bindProgressionDuedate
-      );
+      // console.log("progression Duedate22", this.progressionDuedate);
+      // console.log(
+      //   "bindProgressionDuedate Duedate22",
+      //   this.bindProgressionDuedate
+      // );
     } catch (error) {}
   },
 
@@ -354,7 +342,7 @@ export default {
 
     async dateMenuSave(date, progressId, progressInfoId, index) {
       var newDate = date.sort();
-      console.log("sort date", newDate);
+      // console.log("sort date", newDate);
       // const progressionDuedateIndex = this.progressionDuedate.indexOf(item);
 
       // let self = this;
@@ -378,7 +366,7 @@ export default {
       });
 
       if (res.status == 200) {
-        console.log("success", res);
+        // console.log("success", res);
 
         await this.$nuxt.refresh();
         this.$swal.fire("Successed", "", "success");
