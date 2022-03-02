@@ -77,7 +77,7 @@
               <h4 class="font-weight-bold">Project Member</h4>
               <!-- Student -->
               <!-- Loop the "projectMembers" array and render each student fields -->
-              <div v-for="(member, index) in projectMembers" :key="member">
+              <div v-for="(member, index) in projectMembers" :key="index">
                 <h5 class="font-weight-bold mt-5">
                   Student {{ member }}
                   <!-- Icon indicate if teacher submiited eval comment yet -->
@@ -122,16 +122,19 @@
                       ref="stuPhoneNumber"
                       v-model="phone[index]"
                       :rules="[
-                        handleValidateTextField(
-                          {
+                        () =>
+                          handleValidateTextField({
                             string: phone[index],
                             option: 'onlyNumber',
                             errorMsg:
-                              'This field is required / Not allow start and end with space / Start with 0 / Only 10 digit of number',
-                          },
-                          phone[index].length != 10,
-                          phone[index][0] != 0
-                        ),
+                              'This field is required /Only number / Not allow start and end with space',
+                          }),
+                        () =>
+                          phone[index][0] != 0 ? 'Please Start with 0' : true,
+                        () =>
+                          phone[index].length != 10
+                            ? 'Only 10 digit of number'
+                            : true,
                       ]"
                       :disabled="!headMember"
                       required
@@ -571,11 +574,17 @@ export default {
       this.$refs.form.validate();
       // console.log(this.selectedStudent)
       // Make sure that atleast one advisor and one committee is selected
+      // console.log(this.$refs.form.validate());
+      // console.log(this.valid);
       if (
         this.selectedAdvisor === null ||
         this.selectedCommittee1 === null ||
         this.selectedCommittee2 === null ||
-        this.valid === false
+        this.thaiName === "" ||
+        this.thaiName === null ||
+        this.engName === "" ||
+        this.engName === null ||
+        this.$refs.form.validate() === false
       )
         return;
 
@@ -646,7 +655,12 @@ export default {
       if (
         this.selectedAdvisor === null ||
         this.selectedCommittee1 === null ||
-        this.valid === false
+        this.selectedCommittee2 === null ||
+        this.thaiName === "" ||
+        this.thaiName === null ||
+        this.engName === "" ||
+        this.engName === null ||
+        this.$refs.form.validate() === false
       )
         return;
 
