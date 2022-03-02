@@ -250,14 +250,14 @@ uploadfileteacher = async (req, res) => {
         for (let i = 4; i < rows.length; i++) {
           console.log(rows[i]);
           // rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
-          term = rows[1][0].split(" ")[4];
+          if(rows[0][0] == "รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง"){
+            term = rows[1][0].split(" ")[4];
           semiter = rows[1][0].split(" ")[6];
           if (term == "FIRST") {
             term = 1;
           } else if (term == "SECOND") {
             term = 2;
           }
-
           con.query(
             sql,
             [
@@ -267,7 +267,6 @@ uploadfileteacher = async (req, res) => {
               "0",
               coursec,
               rows[i][4],
-
               semiter,
               term,
             ],
@@ -296,6 +295,12 @@ uploadfileteacher = async (req, res) => {
               }
             }
           );
+          }else{
+            res.status(400).send("Wrong data");
+            break;
+
+          }
+          
         }
       });
     }
