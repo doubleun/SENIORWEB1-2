@@ -5,7 +5,7 @@
     <!-- <v-app-bar-nav-icon @click.stop="toggleDrawer" /> -->
     <v-spacer></v-spacer>
     <!-- Menu -->
-    <v-menu offset-y>
+    <v-menu offset-y offset-x :nudge-bottom="10" :max-width="200">
       <template v-slot:activator="{ on }">
         <!-- Display name button -->
         <v-btn

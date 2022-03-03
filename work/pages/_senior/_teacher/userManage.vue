@@ -97,7 +97,7 @@ export default {
       { text: "EMAIL", align: "center", value: "User_Email" },
     ],
   }),
-  async asyncData({ app, $axios, store, route }) {
+  async asyncData({ app, $axios, store }) {
     let students, yearNSemsters;
 
     console.log(store.getters["group/availableProgress"]);
