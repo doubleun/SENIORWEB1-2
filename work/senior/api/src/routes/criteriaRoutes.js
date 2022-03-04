@@ -1,5 +1,7 @@
 const criteriaRouter = require("express").Router();
 const criteriaController = require("../controllers/criteriaControllers");
+const middle = require("../middleware/middle");
+
 // Get all score criterias
 criteriaRouter.get("/scoreAllMajor", criteriaController.getScoreAllMajor); // admin, coordinator
 // Get criteria by major

@@ -1,6 +1,7 @@
 const groupRouter = require("express").Router();
 const groupController = require("../controllers/groupControllers");
 const multer = require("../controllers/multer");
+const middle = require("../middleware/middle");
 
 groupRouter.get("/getByMajor", groupController.getByMajor); // addmin, co, advisor, committee
 groupRouter.post("/getGroupWithID", groupController.getGroupWithID); // coordinator

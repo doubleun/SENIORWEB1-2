@@ -1,6 +1,7 @@
 const assignmentRouter = require("express").Router();
 const assignmentController = require("../controllers/assignmentControllers");
 const multer = require("../controllers/multer");
+const middle = require("../middleware/middle");
 
 assignmentRouter.post(
   "/uploadAssignments",
