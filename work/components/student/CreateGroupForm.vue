@@ -3,32 +3,20 @@
     <v-row>
       <v-col>
         <h2 class="header-title mb-2 mt-5">Create Group</h2>
+        <p v-if="groupMembers.length !== 0">
+          <strong style="color: red">*</strong>
+          You can update group information until submit an assignment
+        </p>
       </v-col>
-      <!-- Alerts -->
-      <!-- <div v-if="0">
-        <v-col cols="8"
-          ><v-alert type="warning"
-            >An invitation to join the group has been sent. Please wait for your
-            invitation to be accepted.</v-alert
-          ></v-col
-        >
-      </div>
-      <div v-else>
-        <v-col
-          ><v-alert type="success"
-            >Everyone you've invited has accepted into your group.</v-alert
-          ></v-col
-        >
-      </div> -->
     </v-row>
     <v-divider></v-divider>
     <!-- Create group form -->
     <v-form ref="form" lazy-validation v-model="valid">
       <v-card class="content mt-5">
         <v-row>
-          <v-col cols="12" sm="3"
-            ><h3 class="font-weight-bold">CREATE GROUP</h3></v-col
-          >
+          <v-col cols="12" sm="3">
+            <h3 class="font-weight-bold">CREATE GROUP</h3>
+          </v-col>
           <v-col cols="12" sm="9">
             <!-- Part : project name -->
             <div class="projectName">
@@ -262,24 +250,6 @@
                     outlined
                     dense
                   ></v-text-field>
-                  <!-- <v-autocomplete
-                    v-model="selectedCoAdvisor"
-                    :items="allTeachersInSchool"
-                    :filter="customTeacherFilter"
-                    :disabled="
-                      (!!selectedCoAdvisor && groupCreated) || !headMember
-                    "
-                    outlined
-                    dense
-                    color="blue"
-                    hide-no-data
-                    hide-selected
-                    item-text="User_Name"
-                    item-value="User_Name"
-                    placeholder="Search co-advisor name"
-                    clearable
-                    return-object
-                  ></v-autocomplete> -->
                 </v-col>
               </v-row>
             </div>
@@ -387,7 +357,13 @@
                 >
                   Create
                 </v-btn>
-                <v-btn rounded dark color="indigo" @click="updateInfo" v-else>
+                <v-btn
+                  rounded
+                  dark
+                  color="indigo"
+                  @click="updateInfo"
+                  v-if="groupMembers.length !== 0 && !isHaveAssignment"
+                >
                   Update
                 </v-btn>
               </v-col>
@@ -474,6 +450,7 @@ export default {
     major: "1",
     showResposeBtn: false,
     majorPro: [],
+    isHaveAssignment: false,
   }),
   mixins: [utils],
 
@@ -484,6 +461,15 @@ export default {
     const res = await this.$axios.$post("/user/getAllUsersInSchool", {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
     });
+
+    // Fetch group assignment for block update info after submit an assignment
+    const isHaveAssignment = await this.$axios.$post(
+      "/assignment/groupAssignment",
+      {
+        Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
+      }
+    );
+    this.isHaveAssignment = isHaveAssignment.length > 0 ? true : false;
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
     // console.log("Students: ", res.students);
@@ -663,6 +649,8 @@ export default {
         this.$refs.form.validate() === false
       )
         return;
+
+      if (this.isHaveAssignment) return;
 
       this.$swal
         .fire({
