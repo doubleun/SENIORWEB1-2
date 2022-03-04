@@ -286,6 +286,9 @@ export default {
               this.dataUi.announcement = this.dataUi.announcement.filter(
                 (itm) => itm.Announcement_ID !== parseInt(id)
               );
+              this.bindingData = this.bindingData.filter(
+                (itm) => itm.Announcement_ID !== parseInt(id)
+              );
             } else {
               this.$swal.fire("Something wrong", res, "error");
             }
