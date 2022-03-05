@@ -43,14 +43,6 @@
           <v-row class="justify-center" no-gutters>
             <v-col md="3">
               <v-row align="center" justify="space-around">
-                <!-- index{{ index }} -->
-                <!-- <v-btn
-                  color="blue darken-4"
-                  class="white--text"
-                  v-on="on"
-                  v-bind="attrs"
-                  ><v-icon>mdi-pen</v-icon> Edit</v-btn
-                > -->
                 <v-menu
                   :ref="'dateMenu' + item.Progress_ID"
                   v-model="item.dateMenu"
@@ -120,11 +112,6 @@
                           duedate</span
                         >
                       </div>
-                      <!-- <v-alert dense outlined type="error">
-                        I'm a dense alert with the
-                        <strong>outlined</strong> prop and a
-                        <strong>type</strong> of error
-                      </v-alert> -->
                     </v-card>
                   </v-dialog>
                 </v-menu>
@@ -276,12 +263,6 @@ export default {
               : false;
             criteria[i].assignable = true;
 
-            //
-            // let IncreaseDay = new Date(
-            //   new Date(criteria[i - 1].selectedDate[1]).getTime()
-            // );
-            // IncreaseDay.setDate(IncreaseDay.getDate() + 1);
-
             criteria[i].startDate = this.plusOneDay(
               criteria[i - 1].selectedDate[1]
             );
@@ -299,12 +280,6 @@ export default {
       this.bindProgressionDuedate = this.handleCloneDeep(
         this.progressionDuedate
       );
-
-      // console.log("progression Duedate22", this.progressionDuedate);
-      // console.log(
-      //   "bindProgressionDuedate Duedate22",
-      //   this.bindProgressionDuedate
-      // );
     } catch (error) {}
   },
 

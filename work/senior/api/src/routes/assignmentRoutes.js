@@ -29,6 +29,7 @@ assignmentRouter.post(
 assignmentRouter.post("/", assignmentController.getAssignment);
 assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
 assignmentRouter.get("/abstracts", assignmentController.getAbstracts);
+assignmentRouter.post("/groupAssignment", assignmentController.getGroupAssignment);
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
 
 module.exports = assignmentRouter;
