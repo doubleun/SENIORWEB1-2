@@ -4,32 +4,32 @@ const multer = require("../controllers/multer");
 const middle = require("../middleware/middle");
 
 assignmentRouter.post(
-  "/uploadAssignments",
+  "/uploadAssignments",middle.checkAuthenticated,
   multer.upload.array("files", 10),
   assignmentController.uploadAssignments
 ); // student, teacher
 assignmentRouter.post(
-  "/getAssignmentFiles",
+  "/getAssignmentFiles",middle.checkAuthenticated,
   assignmentController.getAssignmentFiles
 ); // student, teacher
 assignmentRouter.post(
-  "/giveProgressScore",
+  "/giveProgressScore",middle.checkAuthenticated,
   multer.upload.single("file"),
   assignmentController.giveProgressScore
 ); // teacher
 assignmentRouter.post(
-  "/getTeacherProgressScore",
+  "/getTeacherProgressScore",middle.checkAuthenticated,
   assignmentController.getTeacherProgressScore
 ); // teacher
 assignmentRouter.post(
-  "/getEvaluationScores",
+  "/getEvaluationScores",middle.checkAuthenticated,
   assignmentController.getEvaluationScores
 ); // teacher
 // assignmentRouter.get("/major", criteriaController.getByMajor); // Add new score criterias
 // assignmentRouter.post("/edit", criteriaController.editCriteria); // admin
 assignmentRouter.post("/", assignmentController.getAssignment);
-assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
-assignmentRouter.get("/abstracts", assignmentController.getAbstracts);
+assignmentRouter.post("/countFile",middle.checkAuthenticated, assignmentController.countFileByMajor);
+assignmentRouter.get("/abstracts",middle.checkAuthenticated, assignmentController.getAbstracts);
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
 
 module.exports = assignmentRouter;
