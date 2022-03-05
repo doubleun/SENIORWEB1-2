@@ -230,7 +230,10 @@
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
-                      (!!selectedAdvisor && groupCreated) || !headMember
+                      (!!selectedAdvisor &&
+                        selectedAdvisorstatus !== 3 &&
+                        groupCreated) ||
+                      !headMember
                     "
                     :rules="[(val) => selectMemberRules('advisor', 0, val)]"
                     outlined
@@ -315,7 +318,10 @@
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
-                      (!!selectedCommittee1 && groupCreated) || !headMember
+                      (!!selectedCommittee1 &&
+                        selectedAdvisorstatus !== 3 &&
+                        groupCreated) ||
+                      !headMember
                     "
                     :rules="[(val) => selectMemberRules('advisor', 1, val)]"
                     outlined
@@ -356,7 +362,10 @@
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
-                      (!!selectedCommittee2 && groupCreated) || !headMember
+                      (!!selectedCommittee2 &&
+                        selectedAdvisorstatus !== 3 &&
+                        groupCreated) ||
+                      !headMember
                     "
                     :rules="[(val) => selectMemberRules('advisor', 2, val)]"
                     outlined
@@ -444,13 +453,13 @@ export default {
     filteredStudents: [],
     // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
     selectedAdvisor: null,
-    selectedAdvisorstatus: null,
+    selectedAdvisorstatus: 3,
     // selectedCoAdvisor: null,
     coadvisorName: "",
     selectedCommittee1: null,
     selectedCommittee2: null,
-    selectedCommittee1status: null,
-    selectedCommittee2status: null,
+    selectedCommittee1status: 3,
+    selectedCommittee2status: 3,
     valid: true,
     thaiName: "",
     engName: "",
@@ -467,10 +476,10 @@ export default {
     ],
     projectMembers: [1],
     memberStatus: [],
-    name: ["", "", "", ""],
-    phone: ["", "", "", ""],
-    // idstu: ["", "", "", ""],
-    email: ["", "", "", ""],
+    name: ["", "", "", "", "", "", "", "", "", ""],
+    phone: ["", "", "", "", "", "", "", "", "", ""],
+    // idstu: ["", "", "", "", "","", "", "", "", ""],
+    email: ["", "", "", "", "", "", "", "", "", ""],
     major: "1",
     showResposeBtn: false,
     majorPro: [],
@@ -798,13 +807,14 @@ export default {
       // Sets advisor
       const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
       // console.log("this" + advisor[0].User_Status);""
-      if (advisor.length !== 0)
+      if (advisor.length !== 0) {
         this.selectedAdvisor = {
           User_Email: advisor[0].User_Email,
           User_Name: advisor[0].User_Name,
           disabled: true,
         };
-      this.selectedAdvisorstatus = advisor[0].User_Status;
+        this.selectedAdvisorstatus = advisor[0].User_Status;
+      }
       // console.log(this.$store.state.group.currentUserGroup);
       //Set co-advisor name
       if (this.$store.state.group.currentUserGroup.Co_Advisor !== "") {

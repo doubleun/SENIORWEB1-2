@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Feb 25, 2022 at 02:57 PM
+-- Generation Time: Mar 03, 2022 at 12:47 PM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -139,21 +139,6 @@ CREATE TABLE `groupmembers` (
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `groupmembers`
---
-
-INSERT INTO `groupmembers` (`Group_Member_ID`, `User_Email`, `User_Status`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES
-(14, '6131501026@lamduan.mfu.ac.th', 0, '0805630800', 2, 4, 15),
-(15, 'kiwlom093@gmail.com', 0, '', 0, 4, 15),
-(16, 'cickpoo0121@gmail.com', 0, '', 1, 4, 15),
-(17, 'surapol_mfu@gmail.com', 0, '', 1, 4, 15),
-(18, '6131302005@lamduan.mfu.ac.th', 1, '0835496949', 3, 5, 15),
-(19, '6131501026@lamduan.mfu.ac.th', 0, '0805630800', 2, 5, 15),
-(20, 'cickpoo0121@gmail.com', 0, '', 0, 5, 15),
-(21, 'kiwlom093@gmail.com', 0, '', 1, 5, 15),
-(22, 'surapol_mfu@gmail.com', 0, '', 1, 5, 15);
-
 -- --------------------------------------------------------
 
 --
@@ -193,14 +178,6 @@ CREATE TABLE `groups` (
   `Is_Re_Eval` int(1) NOT NULL DEFAULT 0,
   `Received_New_Grade` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `groups`
---
-
-INSERT INTO `groups` (`Group_ID`, `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Group_Status`, `Group_Progression`, `Project_on_term_ID`, `Grade`, `Is_Re_Eval`, `Received_New_Grade`) VALUES
-(4, 'สา', 'sa', '', 6, 1, 2, 15, NULL, 0, 0),
-(5, 'สา', 'sa', '', 6, 1, 2, 15, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -271,16 +248,6 @@ CREATE TABLE `progressionsinfo` (
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `progressionsinfo`
---
-
-INSERT INTO `progressionsinfo` (`Progression_Info_ID`, `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES
-(3, '2022-02-23', '2022-02-25', 1, 6, 15),
-(4, '2022-02-24', '2022-02-28', 3, 6, 15),
-(5, '2022-03-01', '2022-03-31', 4, 6, 15),
-(6, '2022-02-24', '2022-02-28', 1, 1, 15);
-
 -- --------------------------------------------------------
 
 --
@@ -336,7 +303,6 @@ CREATE TABLE `scorecriterias` (
   `Committee_Score` int(11) DEFAULT 0,
   `Major_ID` int(11) NOT NULL,
   `Progress_ID` int(11) NOT NULL,
-  `Sub_Progress_ID` int(11) DEFAULT NULL,
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -354,19 +320,6 @@ CREATE TABLE `scores` (
   `Group_Member_ID` int(11) NOT NULL,
   `Assignment_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `subprogressions`
---
-
-CREATE TABLE `subprogressions` (
-  `Sub_Progress_ID` int(11) NOT NULL,
-  `Sub_Progress_Name` text NOT NULL,
-  `Type` int(1) NOT NULL,
-  `Progress_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -418,11 +371,12 @@ INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`,
 ('6131501052@lamduan.mfu.ac.th', '6131501052', 'Wachirachai Nitsomboon', 1, NULL, 1, 15),
 ('cickpoo0121@gmail.com', NULL, 'Cickpool', 2, NULL, 1, 15),
 ('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 15),
-('kiwlom093@gmail.com', '6131501097', 'Kiwlom Somboon', 2, NULL, 2, 15),
-('oscarstones093@gmail.com', '6131501037', 'Wachirawut Nidsomboon', 0, NULL, 1, 15),
+('kiwlom093@gmail.com', '6131501097', 'Coordinator Kiwlom', 2, NULL, 2, 15),
+('nitsomboon77@gmail.com', NULL, 'Ajarn Nitsomboon', 0, NULL, 1, 15),
+('oscarstones093@gmail.com', '6131501037', 'Admin Guy', 99, NULL, 1, 15),
 ('sootarin@gmail.com', NULL, 'Sootarin Noopap', 0, NULL, 7, 15),
 ('surapol_mfu@gmail.com', NULL, 'Surapol Vorapatratorn', 0, NULL, 6, 15),
-('wachirachai.n@appman.co.th', '6131501055', 'Test student', 1, '1302492', 1, 15);
+('wachirachai.n@appman.co.th', '6131501055', 'Student Nitsomboon', 1, '1302492', 1, 15);
 
 --
 -- Indexes for dumped tables
@@ -547,7 +501,6 @@ ALTER TABLE `roles`
 ALTER TABLE `scorecriterias`
   ADD PRIMARY KEY (`Score_criteria_ID`),
   ADD KEY `scorecriterias_ibfk_1` (`Progress_ID`),
-  ADD KEY `Sub_Progress_ID` (`Sub_Progress_ID`),
   ADD KEY `Major_ID` (`Major_ID`),
   ADD KEY `Project_on_term_ID` (`Project_on_term_ID`);
 
@@ -558,13 +511,6 @@ ALTER TABLE `scores`
   ADD PRIMARY KEY (`Score_ID`),
   ADD KEY `Group_Member_ID` (`Group_Member_ID`),
   ADD KEY `Assignment_ID` (`Assignment_ID`);
-
---
--- Indexes for table `subprogressions`
---
-ALTER TABLE `subprogressions`
-  ADD PRIMARY KEY (`Sub_Progress_ID`),
-  ADD KEY `Progress_ID` (`Progress_ID`);
 
 --
 -- Indexes for table `subroles`
@@ -678,12 +624,6 @@ ALTER TABLE `scores`
   MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `subprogressions`
---
-ALTER TABLE `subprogressions`
-  MODIFY `Sub_Progress_ID` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `subroles`
 --
 ALTER TABLE `subroles`
@@ -772,7 +712,6 @@ ALTER TABLE `projectonterm`
 ALTER TABLE `scorecriterias`
   ADD CONSTRAINT `Major_ID` FOREIGN KEY (`Major_ID`) REFERENCES `majors` (`Major_ID`),
   ADD CONSTRAINT `scorecriterias_ibfk_1` FOREIGN KEY (`Progress_ID`) REFERENCES `progressions` (`Progress_ID`),
-  ADD CONSTRAINT `scorecriterias_ibfk_2` FOREIGN KEY (`Sub_Progress_ID`) REFERENCES `subprogressions` (`Sub_Progress_ID`),
   ADD CONSTRAINT `scorecriterias_ibfk_3` FOREIGN KEY (`Project_on_term_ID`) REFERENCES `projectonterm` (`Project_on_term_ID`);
 
 --
@@ -781,12 +720,6 @@ ALTER TABLE `scorecriterias`
 ALTER TABLE `scores`
   ADD CONSTRAINT `scores_ibfk_1` FOREIGN KEY (`Group_Member_ID`) REFERENCES `groupmembers` (`Group_Member_ID`),
   ADD CONSTRAINT `scores_ibfk_2` FOREIGN KEY (`Assignment_ID`) REFERENCES `assignments` (`Assignment_ID`);
-
---
--- Constraints for table `subprogressions`
---
-ALTER TABLE `subprogressions`
-  ADD CONSTRAINT `subprogressions_ibfk_1` FOREIGN KEY (`Progress_ID`) REFERENCES `progressions` (`Progress_ID`);
 
 --
 -- Constraints for table `users`

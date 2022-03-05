@@ -166,7 +166,7 @@ updateGroup = (req, res) => {
   const sql =
     "UPDATE `groups` SET `Group_Name_Thai`=?,`Group_Name_Eng`=?,`Co_Advisor`=? ,`Major`=? WHERE `Group_ID`=?";
   const sql2 =
-    "UPDATE `groupmembers` SET `User_Email`=?,`User_Phone`=?,`Group_Role`=?,`Project_on_term_ID`=? WHERE `User_Email`=? AND `Group_ID`=?";
+    "UPDATE `groupmembers` SET `User_Email`=?,`User_Phone`=?,`Group_Role`=?,`Project_on_term_ID`=?, `User_Status` = IF(`User_Status` = 2, 0, `User_Status`) WHERE `User_Email`=? AND `Group_ID`=?";
   const insert =
     "INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID, `Group_ID`) VALUES (?,?,?,?,?)";
   let user = [];
