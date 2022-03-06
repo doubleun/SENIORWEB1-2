@@ -1,6 +1,7 @@
 const con = require("../config/db");
 const promisePool = con.promise();
 const fs = require("fs");
+const { result } = require("lodash");
 // // Upload one file
 // uploadFile = async (req, res) => {
 //   let assignment = req.files.assignment;
@@ -567,6 +568,22 @@ getAbstracts = (req, res) => {
   });
 };
 
+// for check studnet can't update group info after submit an assignment
+getGroupAssignment = (req, res) => {
+  console.log(req.body);
+  const Group_ID = req.body.Group_ID;
+  const groupAssignment = "SELECT * FROM `assignments` WHERE Group_ID = ?";
+  con.query(groupAssignment, [Group_ID], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      console.l
+      res.status(200).json(result);
+    }
+  });
+};
+
 module.exports = {
   uploadAssignments,
   giveProgressScore,
@@ -576,4 +593,5 @@ module.exports = {
   countFileByMajor,
   getEvaluationScores,
   getAbstracts,
+  getGroupAssignment,
 };

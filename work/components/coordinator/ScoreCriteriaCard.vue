@@ -189,6 +189,9 @@ export default {
         );
         // Refresh nuxt to re-fetch score criterias
         this.$emit("score-updated");
+        // Dispatch store available progressions too if this is the first progress (to unlock import student)
+        if (this.$store.getters["group/availableProgress"]?.length === 0)
+          await this.$store.dispatch("group/storeAvailableProgressions");
 
         criteriaItem.editDialog = false;
         return;

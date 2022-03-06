@@ -28,8 +28,11 @@ assignmentRouter.post(
 // assignmentRouter.get("/major", criteriaController.getByMajor); // Add new score criterias
 // assignmentRouter.post("/edit", criteriaController.editCriteria); // admin
 assignmentRouter.post("/", assignmentController.getAssignment);
+
 assignmentRouter.post("/countFile",middle.checkAuthenticated, assignmentController.countFileByMajor);
 assignmentRouter.get("/abstracts",middle.checkAuthenticated, assignmentController.getAbstracts);
+assignmentRouter.post("/groupAssignment",middle.checkAuthenticated, assignmentController.getGroupAssignment);
+
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
 
 module.exports = assignmentRouter;
