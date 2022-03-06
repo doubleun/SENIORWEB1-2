@@ -1,10 +1,11 @@
 const announcRouter = require("express").Router();
 const announcController = require("../controllers/announcementControllers");
+const middle = require("../middleware/middle");
 
-announcRouter.post("/major", announcController.getById); // co, advisor, committee, student
-announcRouter.get("/all", announcController.getAll); // admin
-announcRouter.post("/add", announcController.add); // co, admin
-announcRouter.post("/edit", announcController.edit); // co, admin
-announcRouter.delete("/delete", announcController.deletes); // co, admin
+announcRouter.post("/major",middle.checkAuthenticated, announcController.getById); // co, advisor, committee, student
+announcRouter.get("/all",middle.checkAuthenticatedteacher, announcController.getAll); // admin
+announcRouter.post("/add",middle.checkAuthenticatedteacher, announcController.add); // co, admin
+announcRouter.post("/edit",middle.checkAuthenticatedteacher, announcController.edit); // co, admin
+announcRouter.delete("/delete",middle.checkAuthenticatedteacher, announcController.deletes); // co, admin
 
 module.exports = announcRouter;
