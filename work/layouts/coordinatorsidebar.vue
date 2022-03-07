@@ -85,12 +85,13 @@ export default {
           }/committee`,
           role: 2,
         },
-        {
-          icon: "mdi-clipboard-text",
-          title: "Doucment",
-          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/viewAssignment`,
-          role: 0,
-        },
+        // TODO: Add document menu back after it's implemented
+        // {
+        //   icon: "mdi-clipboard-text",
+        //   title: "Doucment",
+        //   to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/viewAssignment`,
+        //   role: 0,
+        // },
       ],
     };
   },
