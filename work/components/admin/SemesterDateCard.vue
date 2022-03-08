@@ -263,14 +263,18 @@ export default {
     },
     async handleNewSemester() {
       try {
-        // // If selected semster is invalid display error and return
-        // if (
-        //   !this.availableSemesters.includes(this.selectedSemester) ||
-        //   this.selectedSemester < 0
-        // ) {
-        //   this.$swal.fire('Invaid semester', 'Please try again later', 'warning')
-        //   return;
-        // }
+        // If selected semster is invalid display error and return
+        if (
+          !this.availableSemesters.includes(this.selectedSemester) ||
+          this.selectedSemester < 0
+        ) {
+          this.$swal.fire(
+            "Invaid semester",
+            "Please make sure that you have select a semester",
+            "warning"
+          );
+          return;
+        }
         const res = await this.$axios.$post(
           "http://localhost:3000/api/date/semester/new",
           {
