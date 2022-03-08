@@ -30,7 +30,7 @@ assignmentRouter.post(
 assignmentRouter.post("/", assignmentController.getAssignment);
 
 assignmentRouter.post("/countFile",middle.checkAuthenticated, assignmentController.countFileByMajor);
-assignmentRouter.get("/abstracts",middle.checkAuthenticated, assignmentController.getAbstracts);
+assignmentRouter.get("/abstracts", assignmentController.getAbstracts);
 assignmentRouter.post("/groupAssignment",middle.checkAuthenticated, assignmentController.getGroupAssignment);
 
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);

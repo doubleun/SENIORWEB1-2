@@ -21,7 +21,7 @@ userRouter.post(
   multer.uploadUser.array("files", 10),
   UserControllers.uploadfileteacher
 );
-userRouter.get("/getAllMajors",middle.checkAuthenticated, UserControllers.getAllMajors); // admin
+userRouter.get("/getAllMajors", UserControllers.getAllMajors); // admin
 userRouter.get("/getTeacherRole",middle.checkAuthenticated, UserControllers.getTeacherRole); // admin
 userRouter.post("/updateUserRole",middle.checkAuthenticatedteacher, UserControllers.updateUserRole); // admin
 
