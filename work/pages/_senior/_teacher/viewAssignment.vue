@@ -32,22 +32,14 @@
             ></v-text-field
           ></v-col>
         </v-card-title>
-        <v-data-table
-          :headers="headers"
-          :items="desserts"
-          :search="search"
-          
-        >
-        <template v-slot:item.action="{ item }">
-      <v-row class="mb-6 pa-5 justify-center" no-gutters>
-        <button @click="download(item)">download</button>
-          <!-- <a href= item[0][4] download="">Download</a> -->
-        
-        
-      </v-row>
-    </template>
+        <v-data-table :headers="headers" :items="desserts" :search="search">
+          <template v-slot:item.action="{ item }">
+            <v-row class="mb-6 pa-5 justify-center" no-gutters>
+              <button @click="download(item)">download</button>
+              <!-- <a href= item[0][4] download="">Download</a> -->
+            </v-row>
+          </template>
         </v-data-table>
-         
       </v-card>
     </main>
   </section>
@@ -73,9 +65,7 @@ export default {
         { text: "Group", value: "group", align: "center" },
         { text: "Action", value: "action", align: "center" },
       ],
-      desserts: [
-       
-      ],
+      desserts: [],
     };
   },
   // async asyncData({ $axios,store }) {
@@ -97,22 +87,22 @@ export default {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       Major: this.$store.state.auth.currentUser.major,
     });
-    
+
     for (let i = 0; i < res.length; i++) {
       this.desserts.push({
         namefile: res[i]["File_Name"],
         type: res[i]["Type"],
         date: res[i]["time"],
         group: res[i]["group_Name"],
-        path: res[i]["Path"]
+        path: res[i]["Path"],
         // size: "2.8 MB",
       });
     }
   },
   methods: {
-    download(item){
-      window.location.href = "/api/"+item["path"]
-    }
+    download(item) {
+      window.location.href = "/api/" + item["path"];
+    },
   },
   // computed: {
   //   displayArr() {

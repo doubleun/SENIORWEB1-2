@@ -201,7 +201,6 @@ export default {
       this.dateData = await this.$axios.$post("/date/semester/get", {
         year: this.academicYear,
       });
-      this.availableSemesters = [1, 2, 3];
       if (this.dateData.length !== 0) {
         // Sort by academic term
         this.dateData.sort((a, b) => a.Academic_Term - b.Academic_Term);
@@ -227,9 +226,10 @@ export default {
             itm.Access_Date_End.slice(0, 10),
           ],
         }));
-        // Slice available semesters, for add new semester
-        this.availableSemesters = this.availableSemesters.slice(
-          this.dateData.length
+        // Check if semster alrady exists
+        const existsSemesters = this.dateData.map((el) => el.Academic_Term);
+        this.availableSemesters = this.availableSemesters.filter(
+          (el) => !existsSemesters.includes(el)
         );
 
         // data bind
@@ -263,6 +263,18 @@ export default {
     },
     async handleNewSemester() {
       try {
+        // If selected semster is invalid display error and return
+        if (
+          !this.availableSemesters.includes(this.selectedSemester) ||
+          this.selectedSemester < 0
+        ) {
+          this.$swal.fire(
+            "Invaid semester",
+            "Please make sure that you have select a semester",
+            "warning"
+          );
+          return;
+        }
         const res = await this.$axios.$post(
           "http://localhost:3000/api/date/semester/new",
           {
