@@ -95,7 +95,7 @@
                 <v-btn
                   color="blue darken-1"
                   text
-                  @click="handelchangeRenderTeachers"
+                  @click="handelchangeRenderUser"
                 >
                   Save
                 </v-btn>
@@ -227,15 +227,15 @@ export default {
     this.selectedRole = this.manageTeacher ? this.roles[0] : null;
   },
   methods: {
-    handelchangeRenderTeachers() {
-      this.dialogFilter = false;
+    handelchangeRenderUser() {
       this.$emit(
         "on-filtering",
         this.selectedMajor.Major_ID,
         this.selectedYear,
         this.selectedSemester,
-        this.selectedRole.Role_ID
+        this.manageTeacher ? this.selectedRole.Role_ID : null
       );
+      this.dialogFilter = false;
     },
     editItem(e) {
       console.log("New e: ", e);

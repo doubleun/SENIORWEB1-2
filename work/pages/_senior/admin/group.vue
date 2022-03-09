@@ -137,10 +137,9 @@
         </v-row>
       </v-card-title>
       <v-data-table
-        v-model="selected"
         :headers="headers"
-        item-key="Group_ID"
         :items="allGroups"
+        item-key="Group_ID"
         :search="searchGroup"
       >
         <template v-slot:item.Group_Name_Eng="props">
@@ -276,6 +275,7 @@ export default {
         Semester: this.selectedSemester,
       });
       this.loading = false;
+      this.dialogFilter = false;
     },
   },
   mixins: [exportXLSX],

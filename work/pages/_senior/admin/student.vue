@@ -101,11 +101,17 @@ export default {
   },
 
   methods: {
-    async handelchangeRenderStudents(majorId, year, semester) {
+    async handelchangeRenderStudents(majorId, year, semester, role) {
+      console.log("majorId", majorId);
+      console.log("year", year);
+      console.log("semester", semester);
+      console.log("role", role);
+
       this.loading = true;
+      // return;
       try {
         this.students = await this.$axios.$post("/user/getAllUserWithMajor", {
-          Major_ID: majorId.Major_ID,
+          Major_ID: majorId,
           Academic_Year: year,
           Academic_Term: semester,
           User_Role: "1",
