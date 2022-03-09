@@ -2,52 +2,26 @@
   <section>
     <main class="due-assignment-card-main">
       <h1>Document</h1>
-
-      <!-- Assignment card -->
-      <!-- <v-card>
-        <v-card-title>
-          Progress 1
-        </v-card-title> -->
-
-      <!-- Content -->
-      <!-- <div class="due-assignment-thumbnail-container">
-          <template v-for="thumb in displayArr">
-            <p class="due-assignment-thumbnail" :key="thumb">{{ thumb }}</p>
-          </template>
-        </div> -->
-      <!-- <v-pagination v-model="page" :length="pageLength" circle></v-pagination>
-      </v-card> -->
       <v-card>
         <v-card-title>
           List Documents
           <v-spacer></v-spacer>
-          <v-col md="3"
-            ><v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-              label="Search"
-              single-line
-              hide-details
-              outlined
-            ></v-text-field
-          ></v-col>
+          <v-text-field
+            v-model="search"
+            clearable
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+          ></v-text-field>
         </v-card-title>
-        <v-data-table
-          :headers="headers"
-          :items="desserts"
-          :search="search"
-          
-        >
-        <template v-slot:item.action="{ item }">
-      <v-row class="mb-6 pa-5 justify-center" no-gutters>
-        <button @click="download(item)">download</button>
-          <!-- <a href= item[0][4] download="">Download</a> -->
-        
-        
-      </v-row>
-    </template>
+        <v-data-table :headers="headers" :items="desserts" :search="search">
+          <template v-slot:item.action="{ item }">
+            <v-row class="mb-6 pa-5 justify-center" no-gutters>
+              <button @click="download(item)">download</button>
+              <!-- <a href= item[0][4] download="">Download</a> -->
+            </v-row>
+          </template>
         </v-data-table>
-         
       </v-card>
     </main>
   </section>
@@ -73,9 +47,7 @@ export default {
         { text: "Group", value: "group", align: "center" },
         { text: "Action", value: "action", align: "center" },
       ],
-      desserts: [
-       
-      ],
+      desserts: [],
     };
   },
   // async asyncData({ $axios,store }) {
@@ -97,22 +69,22 @@ export default {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       Major: this.$store.state.auth.currentUser.major,
     });
-    
+
     for (let i = 0; i < res.length; i++) {
       this.desserts.push({
         namefile: res[i]["File_Name"],
         type: res[i]["Type"],
         date: res[i]["time"],
         group: res[i]["group_Name"],
-        path: res[i]["Path"]
+        path: res[i]["Path"],
         // size: "2.8 MB",
       });
     }
   },
   methods: {
-    download(item){
-      window.location.href = "/api/"+item["path"]
-    }
+    download(item) {
+      window.location.href = "/api/" + item["path"];
+    },
   },
   // computed: {
   //   displayArr() {

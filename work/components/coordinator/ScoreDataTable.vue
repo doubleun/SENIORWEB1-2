@@ -5,32 +5,14 @@
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
-        :rules="[(val) => handleValidateScore(val)]"
         clearable
-        hide-details
+        append-icon="mdi-magnify"
         label="Search"
-        prepend-inner-icon="mdi-magnify"
-        filled
-        rounded
-        dense
-        class="search"
-        color="blue"
+        single-line
+        hide-details
       ></v-text-field>
     </v-card-title>
     <v-data-table :headers="headers" :items="items" :search="search">
-      <!-- <template v-slot:item.total="{ item }">
-        {{
-          parseInt(
-            +item.Progress1 +
-              +item.Progress2 +
-              +item.Progress3 +
-              +item.Progress4 +
-              +item.FinalPresentation +
-              +item.FinalDocumentation
-          )
-        }}
-      </template> -->
-
       <template v-slot:item.Progress1="{ item }">
         {{ +item.Progress1 }}
       </template>
@@ -54,10 +36,6 @@
       <template v-slot:item.FinalDocumentation="{ item }">
         {{ +item.FinalDocumentation }}
       </template>
-      <!-- <template v-slot:item.grade="{ item }">
-        <span v-if="item.finalgrade != null">{{ item.finalgrade }}</span>
-        <span v-else>{{ item.grade }}</span>
-      </template> -->
     </v-data-table>
   </v-card>
 </template>
@@ -79,6 +57,7 @@ export default {
         string: val,
         option: "onlyNormalCharEng",
         errorMsg: "Invalid search",
+        required: false,
       });
     },
   },

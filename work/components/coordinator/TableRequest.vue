@@ -1,82 +1,41 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="groupInfo"
-    :search="searchGroup"
-    sort-by="calories"
-    class="elevation-1"
-  >
-    <template v-slot:top>
-      <v-card-title>
-        <v-spacer></v-spacer>
-        <v-col md="3">
-          <v-text-field
-            v-model="searchGroup"
-            :rules="[(val) => handleValidateScore(val)]"
-            append-icon="mdi-magnify"
-            label="Search"
-            single-line
-            hide-details
-            outlined
-          ></v-text-field>
-        </v-col>
-      </v-card-title>
-      <!-- <v-dialog v-model="dialogDelete" max-width="500px">
-        <v-card>
-          <v-card-title class="text-h6"
-            >Are you sure you want to decline this group?</v-card-title
-          >
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="closeDelete"
-              >Cancel</v-btn
-            >
-            <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-              >OK</v-btn
-            >
-            <v-spacer></v-spacer>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-dialog v-model="dialog" max-width="290">
-        <v-card>
-          <v-card-title class="text-h5">
-            Confirmation of joining the group?
-          </v-card-title>
-
-          <v-card-text>
-            Once you have accepted to join the group, you cannot leave the
-            group, but you can only leave if the student requests to disband the
-            group.
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-
-            <v-btn color="green darken-1" text @click="dialog = false">
-              Disagree
+  <v-card>
+    <v-card-title>
+      <h3>Group</h3>
+      <v-spacer></v-spacer>
+      <v-text-field
+        v-model="searchGroup"
+        clearable
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
+    </v-card-title>
+    <v-data-table
+      :headers="headers"
+      :items="groupInfo"
+      :search="searchGroup"
+      sort-by="calories"
+      class="elevation-1"
+    >
+      <template v-slot:top> </template>
+      <template v-slot:item.actions="{ item }">
+        <v-row class="mb-6 pa-5 justify-center" no-gutters>
+          <v-col md="3">
+            <v-btn color="success" small @click="editItem(item)">
+              <v-icon> mdi-check </v-icon>
             </v-btn>
-
-            <v-btn color="green darken-1" text @click="save"> Agree </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog> -->
-    </template>
-    <template v-slot:item.actions="{ item }">
-      <v-row class="mb-6 pa-5 justify-center" no-gutters>
-        <v-col md="3">
-          <v-btn color="success" small @click="editItem(item)">
-            <v-icon> mdi-check </v-icon>
-          </v-btn>
-        </v-col>
-        <v-col md="4" offset-md="2">
-          <v-btn color="error" small @click="deleteItem(item)">
-            <v-icon> mdi-close </v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-    </template>
-  </v-data-table>
+          </v-col>
+          <v-col md="4" offset-md="2">
+            <v-btn color="error" small @click="deleteItem(item)">
+              <v-icon> mdi-close </v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </template>
+    </v-data-table>
+  </v-card>
 </template>
 
 <script>

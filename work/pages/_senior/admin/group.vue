@@ -1,107 +1,158 @@
 <template>
   <section>
-    <main class="admin-group-manage-main">
-      <v-row class="col-6 pb-12" style="color: #fff"
-        ><p style="font-size: 28px; font-weight: bold">Group</p></v-row
-      >
+    <!-- <main class="admin-group-manage-main"> -->
+    <!-- <v-row class="col-6 pb-12" style="color: #fff"
+      ><p style="font-size: 28px; font-weight: bold">Group</p></v-row
+    > -->
+    <h1 style="color: white">Group</h1>
+    <!-- <button @click="test">test</button> -->
 
-      <!-- <button @click="test">test</button> -->
-
-      <!-- Action buttons -->
-      <div class="admin-group-manage-actions">
-        <div>
-          <p class="white--text">Study Program</p>
-          <v-select
-            v-model="selectedMajor"
-            :items="majors"
-            @change="handleChangeRenderGroups"
-            item-text="Major_Name"
-            item-value="Major_ID"
-            return-object
-            dense
-            solo
-            hide-details
-            off
-          />
-        </div>
-        <div>
-          <p class="white--text">Year</p>
-          <v-select
-            v-model="selectedYear"
-            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-            @change="handleChangeRenderGroups"
-            dense
-            solo
-            hide-details
-          />
-        </div>
-        <div>
-          <p class="white--text">Semester</p>
-          <v-select
-            v-model="selectedSemester"
-            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-            @change="handleChangeRenderGroups"
-            dense
-            solo
-            hide-details
-          />
-        </div>
-        <div>
-          <v-btn color="success" @click="handleExports(selected, allGroups)"
-            ><v-icon>mdi-microsoft-excel</v-icon> Export to Excel</v-btn
-          >
-          <!-- <v-btn color="error" @click="checkdia"
-            ><v-icon>mdi-trash-can</v-icon> Delete</v-btn
-          > -->
-        </div>
+    <!-- Action buttons -->
+    <div class="my-5 d-flex justify-end">
+      <div>
+        <v-btn color="success" @click="handleExports(selected, allGroups)"
+          ><v-icon>mdi-microsoft-excel</v-icon>Export to Excel</v-btn
+        >
       </div>
-      <!-- <v-dialog v-model="dialog1" max-width="500px">
-        <v-card>
-          <v-card-title>
-            <span>Delete this?</span>
-          </v-card-title>
-          <v-card-text> Have you confirmed to delete this? </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="light" text right @click="dialog1 = false">
-              Close
-            </v-btn>
-            <v-btn color="primary" right @click="deletegroup"> Yes </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog> -->
-      <v-card>
-        <v-card-title>
-          Group List
-          <v-spacer></v-spacer>
-          <v-col md="3"
+    </div>
+
+    <v-card>
+      <v-card-title>
+        <h3>Groups</h3>
+        <v-spacer></v-spacer>
+        <v-row class="d-flex justify-end">
+          <v-col md="2" class="d-flex justify-end">
+            <v-dialog v-model="dialogFilter" persistent max-width="600px">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="mt-5 mr-2"
+                  small
+                  color="primary"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon> mdi-filter-variant-plus </v-icon>
+                </v-btn>
+              </template>
+
+              <!-- Action buttons -->
+              <v-card>
+                <v-card-title> Filter </v-card-title>
+                <v-card-text>
+                  <v-row>
+                    <v-col md="3">
+                      <p>Study Program</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedMajor"
+                        :items="majors"
+                        item-text="Major_Name"
+                        item-value="Major_ID"
+                        return-object
+                        dense
+                        solo
+                        hide-details
+                        off
+                      />
+                    </v-col>
+                  </v-row>
+                  <v-row v-if="manageTeacher">
+                    <v-col md="3">
+                      <p>Role</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedRole"
+                        :items="roles"
+                        item-text="Role_Name"
+                        item-value="Role_ID"
+                        return-object
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col md="3">
+                      <p>Year</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedYear"
+                        :items="yearNSemsters.map((itm) => itm.Academic_Year)"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col md="3">
+                      <p>Semester</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedSemester"
+                        :items="yearNSemsters.map((itm) => itm.Academic_Term)"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="dialogFilter = false"
+                  >
+                    Close
+                  </v-btn>
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="handleChangeRenderGroups"
+                  >
+                    Save
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-col>
+          <v-col md="6"
             ><v-text-field
               v-model="searchGroup"
+              clearable
               append-icon="mdi-magnify"
               label="Search"
               single-line
               hide-details
-              outlined
             ></v-text-field
           ></v-col>
-        </v-card-title>
-        <v-data-table
-          v-model="selected"
-          :headers="headers"
-          item-key="Group_ID"
-          :items="allGroups"
-          :search="searchGroup"
-        >
-          <template v-slot:item.Group_Name_Eng="props">
-            <v-row class="pa-2 justify-space-around" no-gutters>
-              <div style="cursor: pointer">
-                {{ props.item.Group_Name_Eng }}
-              </div>
-            </v-row>
-          </template>
-        </v-data-table>
-      </v-card>
-    </main>
+        </v-row>
+      </v-card-title>
+      <v-data-table
+        v-model="selected"
+        :headers="headers"
+        item-key="Group_ID"
+        :items="allGroups"
+        :search="searchGroup"
+      >
+        <template v-slot:item.Group_Name_Eng="props">
+          <v-row class="pa-2 justify-space-around" no-gutters>
+            <div style="cursor: pointer">
+              {{ props.item.Group_Name_Eng }}
+            </div>
+          </v-row>
+        </template>
+      </v-data-table>
+    </v-card>
+    <!-- </main> -->
   </section>
 </template>
 
@@ -122,6 +173,8 @@ export default {
       singleSelect: false,
       selected: [],
       selectedgroupid: [],
+      dialogFilter: false,
+      manageTeacher: false,
       headers: [
         {
           text: "GROUP NAME",
