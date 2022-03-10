@@ -1,10 +1,10 @@
 <template>
-  <section>
+  <v-container>
     <!-- <main class="admin-group-manage-main"> -->
     <!-- <v-row class="col-6 pb-12" style="color: #fff"
       ><p style="font-size: 28px; font-weight: bold">Group</p></v-row
     > -->
-    <h1 style="color: white">Group</h1>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Group</h2>
     <!-- <button @click="test">test</button> -->
 
     <!-- Action buttons -->
@@ -152,7 +152,7 @@
       </v-data-table>
     </v-card>
     <!-- </main> -->
-  </section>
+  </v-container>
 </template>
 
 <script>

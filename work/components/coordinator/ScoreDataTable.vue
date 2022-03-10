@@ -1,16 +1,114 @@
 <template>
   <v-card>
     <v-card-title>
-      <h3>Score Student</h3>
+      <h3>Student Score</h3>
       <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        clearable
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+      <v-row class="d-flex justify-end">
+        <v-col md="2" class="d-flex justify-end">
+          <v-dialog v-model="dialogFilter" persistent max-width="600px">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                class="mt-5 mr-2"
+                small
+                color="primary"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon> mdi-filter-variant-plus </v-icon>
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title> Filter </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col md="3">
+                    <p>Year</p>
+                  </v-col>
+
+                  <v-col md="9">
+                    <v-select
+                      v-model="selectedYear"
+                      :items="
+                        !!yearNSemsters
+                          ? yearNSemsters.map((itm) => itm.Academic_Year)
+                          : []
+                      "
+                      dense
+                      solo
+                      hide-details
+                      class="teb mb-1 mt-1 ma-2 mb-1"
+                    ></v-select>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col md="3">
+                    <p>Semester</p>
+                  </v-col>
+
+                  <v-col md="9">
+                    <v-select
+                      v-model="selectedSemester"
+                      :items="
+                        !!yearNSemsters
+                          ? yearNSemsters.map((itm) => itm.Academic_Term)
+                          : []
+                      "
+                      dense
+                      solo
+                      hide-details
+                      class="teb mb-1 mt-1 ma-2 mb-1"
+                    ></v-select>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col md="3">
+                    <p>Grade</p>
+                  </v-col>
+
+                  <v-col md="9">
+                    <v-select
+                      v-model="selectedGrade"
+                      :items="gradeCriteria"
+                      item-text="Grade_Criteria_Name"
+                      item-value="Grade_Criteria_Name"
+                      return-object
+                      label="Grade"
+                      dense
+                      solo
+                      class="teb mb-1 mt-1 mb-1"
+                    ></v-select>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="dialogFilter = false">
+                  Close
+                </v-btn>
+                <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="handelChangeRenderScore"
+                >
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-col>
+        <v-col md="6">
+          <v-text-field
+            v-model="search"
+            clearable
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
+        </v-col>
+      </v-row>
     </v-card-title>
     <v-data-table :headers="headers" :items="items" :search="search">
       <template v-slot:item.Progress1="{ item }">
@@ -45,10 +143,19 @@ import utils from "@/mixins/utils";
 
 export default {
   mixins: [utils],
-  props: { items: Array, headers: Array },
+  props: {
+    items: Array,
+    headers: Array,
+    gradeCriteria: Array,
+    yearNSemsters: Array,
+  },
   data() {
     return {
       search: "",
+      dialogFilter: false,
+      selectedYear: null,
+      selectedSemester: null,
+      selectedGrade: {},
     };
   },
   methods: {
@@ -60,9 +167,22 @@ export default {
         required: false,
       });
     },
+    async handelChangeRenderScore() {
+      await this.$emit(
+        "on-filter-score",
+        this.selectedYear,
+        this.selectedSemester,
+        this.selectedGrade
+      );
+      this.dialogFilter = false;
+    },
   },
   mounted() {
-    console.log("item", this.items);
+    // console.log("year", this.yearNSemsters);
+    // console.log("grade", this.gradeCriteria);
+    this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    this.selectedGrade = this.gradeCriteria[0];
   },
 };
 </script>

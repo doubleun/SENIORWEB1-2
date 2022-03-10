@@ -1,19 +1,17 @@
 <template>
-  <section>
-    <main>
-      <div class="admin-semester-date-main">
-        <h1>Semester Date</h1>
+  <v-container>
+    <div class="admin-semester-date-main">
+      <h2 class="header-title mb-2 mt-5 mb-10 white--text">Semester Date</h2>
 
-        <!-- New academic year -->
-        <v-btn color="blue darken-4" dark @click="handleNewAcademicYear">
-          New academic year
-        </v-btn>
-      </div>
+      <!-- New academic year -->
+      <v-btn color="blue darken-4" dark @click="handleNewAcademicYear">
+        New academic year
+      </v-btn>
+    </div>
 
-      <!-- Semester date card -->
-      <AdminSemesterDateCard :academicYear="academicYear" />
-    </main>
-  </section>
+    <!-- Semester date card -->
+    <AdminSemesterDateCard :academicYear="academicYear" />
+  </v-container>
 </template>
 
 <script>
@@ -27,7 +25,7 @@ export default {
       if (confirm("Add new academic year will stop all on-going progresses")) {
         try {
           const res = await this.$axios.$post("/date/academic/new", {
-            year: this.academicYear + 1
+            year: this.academicYear + 1,
           });
 
           // console.log(res);
@@ -37,7 +35,7 @@ export default {
           console.log(err);
         }
       }
-    }
+    },
   },
   async asyncData({ $axios }) {
     let data;
@@ -49,9 +47,9 @@ export default {
     }
     // console.log(data);
     return {
-      academicYear: parseInt(data[0].Academic_Year)
+      academicYear: parseInt(data[0].Academic_Year),
     };
-  }
+  },
 };
 </script>
 

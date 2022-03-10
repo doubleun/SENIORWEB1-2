@@ -4,14 +4,19 @@
     <v-card-title>
       <h3>Group</h3>
       <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        clearable
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+      <v-row class="d-flex justify-end">
+        <v-col md="2"></v-col>
+        <v-col md="6">
+          <v-text-field
+            v-model="search"
+            clearable
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
+        </v-col>
+      </v-row>
     </v-card-title>
     <v-data-table
       :headers="headers"

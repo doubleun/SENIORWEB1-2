@@ -1,8 +1,7 @@
-divdiv
 <template>
-  <section>
+  <v-container>
     <!-- <main class="admin-teacher-manage-main"> -->
-    <h1 style="color: white">Manage Teacher</h1>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Manage Teacher</h2>
     <div class="my-5 d-flex justify-end">
       <v-btn
         class="mr-2 dark-blue--text"
@@ -36,7 +35,7 @@ divdiv
     </div>
 
     <AdminDataTable
-      :tableTitle="'Teachers'"
+      :tableTitle="'Teacher'"
       :headers="headers"
       itemKey="User_Email"
       :items="teachers"
@@ -49,7 +48,7 @@ divdiv
       @on-filtering="handelchangeRenderTeachers"
     />
     <!-- </main> -->
-  </section>
+  </v-container>
 </template>
 
 <script>
@@ -127,7 +126,7 @@ export default {
   },
 
   methods: {
-    async handelchangeRenderTeachers(majorId, year, semester, role) {
+    async handelchangeRenderTeachers(year, semester, majorId, role) {
       console.log("majorId", majorId);
       console.log("year", year);
       console.log("semester", semester);

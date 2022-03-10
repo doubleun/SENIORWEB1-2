@@ -1,12 +1,9 @@
 <template>
-  <section>
-    <main class="coordinator-due-date-main">
-      <h1>Due Date</h1>
-
-      <!-- Assignment date card -->
-      <CoordinatorDueAssignmentCard />
-    </main>
-  </section>
+  <v-container>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Due Date</h2>
+    <!-- Assignment date card -->
+    <CoordinatorDueAssignmentCard />
+  </v-container>
 </template>
 
 <script>

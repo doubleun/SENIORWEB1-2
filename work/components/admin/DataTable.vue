@@ -22,7 +22,7 @@
             <v-card>
               <v-card-title> Filter </v-card-title>
               <v-card-text>
-                <v-row>
+                <v-row v-if="majors">
                   <v-col md="3">
                     <p>Study Program</p>
                   </v-col>
@@ -168,15 +168,10 @@
         </v-dialog>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <!-- <v-icon small @click="deleteItem(item)">
-          mdi-delete
-        </v-icon>
-
-      <!-- Conflict here -->
-        <!-- <template v-slot:item.User_Role="{ item }">
-        {{ (item.User_Role = handelTextRole(item.User_Role)) }} -->
-        <!-- Conflict ends -->
+        <v-btn dark color="blue darken-4">
+          <v-icon small class="mr-2" @click="editItem(item)"> mdi-pen </v-icon
+          >Edit
+        </v-btn>
       </template>
     </v-data-table>
   </v-card>
@@ -221,18 +216,22 @@ export default {
 
   mounted() {
     // console.log(this.items);
-    this.selectedMajor = this.majors[0];
+    this.majors ? (this.selectedMajor = this.majors[0]) : null;
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+
+    // selectedRole.Role_ID = null for co and admin manage student
     this.selectedRole = this.manageTeacher ? this.roles[0] : null;
   },
   methods: {
     handelchangeRenderUser() {
       this.$emit(
         "on-filtering",
-        this.selectedMajor.Major_ID,
         this.selectedYear,
         this.selectedSemester,
+        this.majors ? this.selectedMajor.Major_ID : null,
+
+        // selectedRole.Role_ID = null for co and admin manage student
         this.manageTeacher ? this.selectedRole.Role_ID : null
       );
       this.dialogFilter = false;

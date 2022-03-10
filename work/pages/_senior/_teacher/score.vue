@@ -1,85 +1,26 @@
 <template>
-  <div>
-    <v-container>
-      <h2 class="header-title mb-2 mt-5 mb-10 white--text">Score</h2>
-      <v-row class="btsem">
-        <v-col cols="3" sm="3" md="3" lg="3">
-          <div class="login" align="center" justify="center">
-            <v-row><h4 class="white--text">Year</h4></v-row>
-            <v-row>
-              <v-select
-                v-model="selectedYear"
-                :items="
-                  !!yearNSemsters
-                    ? yearNSemsters.map((itm) => itm.Academic_Year)
-                    : []
-                "
-                @change="handelFilterWithAcademic"
-                dense
-                solo
-                hide-details
-                class="teb mb-1 mt-1 ma-2 mb-1"
-              ></v-select>
-            </v-row>
-          </div>
-        </v-col>
-        <v-col cols="3" sm="3" md="3" lg="3">
-          <div class="login" align="center" justify="center">
-            <v-row><h4 class="white--text">Semester</h4></v-row>
-            <v-row>
-              <v-select
-                v-model="selectedSemester"
-                :items="
-                  !!yearNSemsters
-                    ? yearNSemsters.map((itm) => itm.Academic_Term)
-                    : []
-                "
-                @change="handelFilterWithAcademic"
-                dense
-                solo
-                hide-details
-                class="teb mb-1 mt-1 ma-2 mb-1"
-              ></v-select>
-            </v-row>
-          </div>
-        </v-col>
-        <v-col cols="3" sm="3" md="3" lg="3">
-          <div class="login" align="center" justify="center">
-            <v-row><h4 class="white--text">Grade</h4></v-row>
-            <v-row>
-              <v-select
-                v-model="selectedGrade"
-                :items="gradeCriteria"
-                @change="handelFilterWithGrade"
-                item-text="Grade_Criteria_Name"
-                item-value="Grade_Criteria_Name"
-                return-object
-                label="Grade"
-                dense
-                solo
-                class="teb mb-1 mt-1 mb-1"
-              ></v-select>
-            </v-row>
-          </div>
-        </v-col>
-        <v-col cols="3" sm="3" md="3" lg="3">
-          <div class="login" align="center" justify="center">
-            <v-row>
-              <v-btn
-                :loading="loading3"
-                :disabled="loading3"
-                @click="handleExports(filterGrade)"
-                class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
-              >
-                Export to Excel
-              </v-btn>
-            </v-row>
-          </div>
-        </v-col>
-      </v-row>
-      <CoordinatorScoreDataTable :items="filterGrade" :headers="header" />
-    </v-container>
-  </div>
+  <v-container>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Score</h2>
+
+    <div class="my-5 d-flex justify-end">
+      <v-btn
+        :loading="loading3"
+        :disabled="loading3"
+        @click="handleExports(filterGrade)"
+        color="success"
+      >
+        <v-icon>mdi-microsoft-excel</v-icon>Export to Excel
+      </v-btn>
+    </div>
+
+    <CoordinatorScoreDataTable
+      :items="filterGrade"
+      :headers="header"
+      :gradeCriteria="gradeCriteria"
+      :yearNSemsters="yearNSemsters"
+      @on-filter-score="handelFilterScore"
+    />
+  </v-container>
 </template>
 <script>
 // import scoreDataTable from "@/components/coordinator/scoreDataTable";
@@ -151,6 +92,25 @@ export default {
       // add display all grades option to v-select for sorting by grade (All)
       gradeCriteria.unshift({ Grade_Criteria_Name: "All" });
 
+      gradeCriteria.length == 3
+        ? (gradeCriteria = [
+            ...gradeCriteria,
+            { Grade_Criteria_Name: "A" },
+            { Grade_Criteria_Name: "B+" },
+            { Grade_Criteria_Name: "B" },
+            { Grade_Criteria_Name: "C+" },
+            { Grade_Criteria_Name: "C" },
+            { Grade_Criteria_Name: "D+" },
+            { Grade_Criteria_Name: "D" },
+            { Grade_Criteria_Name: "F" },
+          ])
+        : (gradeCriteria = [
+            ...gradeCriteria,
+            { Grade_Criteria_Name: "S" },
+            { Grade_Criteria_Name: "U" },
+            ,
+          ]);
+
       const filterGrade = score.filter((el) => el.Grade !== "All");
 
       return {
@@ -172,57 +132,47 @@ export default {
     console.log("filterGrade", this.filterGrade);
   },
   methods: {
-    async handelFilterWithAcademic() {
-      // console.log("major", this.$store.state.auth.currentUser.major);
-      // console.log("year", this.selectedYear);
-      // console.log("sem", this.selectedSemester);
+    async handelFilterScore(year, semester, selectedGrade) {
+      console.log("year", year);
+      console.log("sem", semester);
+      console.log("selectedGrade", selectedGrade);
 
       this.loading3 = true;
       try {
         // Fetch student score
         let score = await this.$axios.$post("/group/getScoreCoor", {
           Major: this.$store.state.auth.currentUser.major,
-          Academic_Year: this.selectedYear,
-          Academic_Term: this.selectedSemester,
+          Academic_Year: year,
+          Academic_Term: semester,
         });
 
         this.grade = score;
         this.filterGrade = this.grade.filter((el) =>
-          this.selectedGrade.Grade_Criteria_Name == "All"
+          selectedGrade.Grade_Criteria_Name == "All"
             ? el.grade != "All"
-            : el.grade == this.selectedGrade.Grade_Criteria_Name
+            : el.grade == selectedGrade.Grade_Criteria_Name
         );
-        // console.log("score", score);
-        // console.log("filter grade", this.finalgrade);
       } catch (error) {
         console.log(error);
       }
       this.loading3 = false;
     },
-    async handelFilterWithGrade() {
-      // console.log("filter", this.selectedGrade.Grade_Criteria_Name == "All");
-      // console.log(" grade", this.grade);
-      // let grade = this.selectedGrade.Grade_Criteria_Name;
-      this.loading3 = true;
-      try {
-        this.filterGrade = this.grade.filter((el) =>
-          this.selectedGrade.Grade_Criteria_Name == "All"
-            ? el.grade != "All"
-            : el.grade == this.selectedGrade.Grade_Criteria_Name
-        );
-        // console.log("filter grade", this.filterGrade);
-      } catch (error) {
-        console.log(error);
-      }
-      this.loading3 = false;
-    },
-    // filterGrade(item) {},
-    // total(score) {
-    //   score.forEach((obj, index) => {
-    //     console.log(Object.value(obj));
-    //     console.log(typeof Object.value(obj) === "number");
-    //     typeof Object.value(obj) === "number" ? obj : 0;
-    //   });
+    // async handelFilterWithGrade(selectedGrade) {
+    //   // console.log("filter", this.selectedGrade.Grade_Criteria_Name == "All");
+    //   // console.log(" grade", this.grade);
+    //   // let grade = this.selectedGrade.Grade_Criteria_Name;
+    //   this.loading3 = true;
+    //   try {
+    //     this.filterGrade = this.grade.filter((el) =>
+    //       selectedGrade.Grade_Criteria_Name == "All"
+    //         ? el.grade != "All"
+    //         : el.grade == selectedGrade.Grade_Criteria_Name
+    //     );
+    //     // console.log("filter grade", this.filterGrade);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    //   this.loading3 = false;
     // },
   },
 };
