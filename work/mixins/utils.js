@@ -71,19 +71,22 @@ export default {
       }
     },
 
-    // check file type
+    // check file type (accepted method)
     handelCheckInputFile({
       fileName,
-      type = ["docx", "pptx", "xlsx"],
-      errorMsg = "Microsoft office files cannot be preview",
+      // type = ["docx", "pptx", "xlsx"] // decline type
+      type = ["txt", "jpeg", "jpg", "png", "gif", "bmp", "pdf"], // accept type
+      errorMsg = "This file can not preview",
     }) {
-      // console.log("fileNameAA", fileName);
+      console.log("fileNameAA", fileName);
       // return true;
+
       let fileType = fileName.split(".");
       // console.log("fileType", fileType);
       // console.log("fileType1", fileType[fileType.length - 1].toLowerCase());
 
       if (type.includes(fileType[fileType.length - 1].toLowerCase())) {
+        console.log("show");
         return true;
       }
       return errorMsg;
