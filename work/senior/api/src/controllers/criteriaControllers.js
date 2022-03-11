@@ -20,7 +20,8 @@ getScoreByMajor = (req, res) => {
   // If only available is true, then only progress with total of more than 0 will be return
   const { Major_ID, Project_on_term_ID, onlyAvailable } = req.body;
   // Send query to fetch score criterias available in scorecriteria table, based on latest project_on_term_id
-  const getScoreQuery = `SELECT Score_criteria_ID, Advisor_Score, Committee_Score, Major_ID, (SELECT Progress_ID FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_ID, (SELECT Progress_Name FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_Name, Project_on_term_ID, Advisor_Score + Committee_Score AS Total FROM scorecriterias WHERE Major_ID = ? AND Project_on_term_ID = ? ${
+  // TODO: Change how onlyAvailable logic is check availibity
+  const getScoreQuery = `SELECT Score_criteria_ID, Advisor_Score, Committee_Score, Major_ID, (SELECT Progress_ID FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_ID, (SELECT Progress_Name FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_Name, Project_on_term_ID, Advisor_Score + Committee_Score AS Total, Status FROM scorecriterias WHERE Major_ID = ? AND Project_on_term_ID = ? ${
     onlyAvailable ? "AND NOT Advisor_Score + Committee_Score = 0" : ""
   } ORDER BY Progress_ID ASC`;
   try {
@@ -38,6 +39,7 @@ getScoreByMajor = (req, res) => {
           // This will check and fill in any missing progress
           // List of criterias needed to return
           const scoreCriteriasTemplate = [
+            "Proposal",
             "Progress 1",
             "Progress 2",
             "Progress 3",
@@ -45,6 +47,14 @@ getScoreByMajor = (req, res) => {
             "Final Presentation",
             "Final Documentation",
           ];
+
+          // Create new date from today
+          const defaultDate = new Date(
+            Date.now() - new Date().getTimezoneOffset() * 60000
+          )
+            .toISOString()
+            .substring(0, 10);
+
           // Check and fill scoreCriterias with missing progress in database
           for (let i = 0; i < scoreCriteriasTemplate.length; i++) {
             const existsProgress = scoreCriteriasResult.map(
@@ -55,12 +65,15 @@ getScoreByMajor = (req, res) => {
               scoreCriteriasResult.push({
                 Advisor_Score: 0,
                 Committee_Score: 0,
+                DueDate_Start: defaultDate,
+                DueDate_End: defaultDate,
                 Major_ID,
                 Progress_Name: scoreCriteriasTemplate[i],
                 Progress_ID: i + 3,
                 Project_on_term_ID,
                 Score_criteria_ID: null,
                 Total: 0,
+                Status: 0,
               });
           }
           res.status(200).json(scoreCriteriasResult);

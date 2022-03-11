@@ -158,7 +158,6 @@ export default {
       });
       // console.log("progression Duedate", duedate);
 
-      //
       var criteria = await this.$axios.$post("/criteria/scoreMajor", {
         Major_ID: this.$store.state.auth.currentUser.major,
         Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
@@ -319,37 +318,38 @@ export default {
       var newDate = date.sort();
       // console.log("sort date", newDate);
       // const progressionDuedateIndex = this.progressionDuedate.indexOf(item);
+      console.log(newDate);
 
-      // let self = this;
-      if (newDate.length < 2) {
-        this.progressionDuedate[index].isSelectDate = false;
-        return (this.progressionDuedate[index].dateMenu = true);
-      }
+      // // let self = this;
+      // if (newDate.length < 2) {
+      //   this.progressionDuedate[index].isSelectDate = false;
+      //   return (this.progressionDuedate[index].dateMenu = true);
+      // }
 
-      // return;
+      // // return;
 
-      this.progressionDuedate[index].isSelectDate = true;
+      // this.progressionDuedate[index].isSelectDate = true;
 
-      let res = await this.$axios.$post("date/progression/update", {
-        DueDate_Start: newDate[0],
-        DueDate_End: newDate[1],
-        Progress_ID: progressId,
-        Progression_Info_ID: progressInfoId,
-        Major_ID: this.$store.state.auth.currentUser.major,
-        Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-        Senior: this.$store.state.auth.currentUser.senior,
-      });
+      // let res = await this.$axios.$post("date/progression/update", {
+      //   DueDate_Start: newDate[0],
+      //   DueDate_End: newDate[1],
+      //   Progress_ID: progressId,
+      //   Progression_Info_ID: progressInfoId,
+      //   Major_ID: this.$store.state.auth.currentUser.major,
+      //   Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+      //   Senior: this.$store.state.auth.currentUser.senior,
+      // });
 
-      if (res.status == 200) {
-        // console.log("success", res);
+      // if (res.status == 200) {
+      //   // console.log("success", res);
 
-        await this.$nuxt.refresh();
-        this.$swal.fire("Successed", "", "success");
-        // console.log("ref", this.$refs["dateMenu" + progressId]);
-        // this.$refs["dateMenu" + progressId] = false;
-      } else {
-        this.$swal.fire("Something wrong", res.msg, "error");
-      }
+      //   await this.$nuxt.refresh();
+      //   this.$swal.fire("Successed", "", "success");
+      //   // console.log("ref", this.$refs["dateMenu" + progressId]);
+      //   // this.$refs["dateMenu" + progressId] = false;
+      // } else {
+      //   this.$swal.fire("Something wrong", res.msg, "error");
+      // }
     },
   },
 };
