@@ -41,7 +41,7 @@
               ? false
               : handelCheckInputFile({
                   fileName: selectedFile.fileName,
-                }) == true
+                }) === true
           "
           :data="selectedFile.src"
           width="100%"
