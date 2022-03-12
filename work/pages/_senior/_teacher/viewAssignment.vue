@@ -116,7 +116,7 @@ export default {
       search: "",
       selectedYear: null,
       selectedSemester: null,
-      yearNSemsters: [],
+      yearNSemsters: [{ Academic_Term: 0, Academic_Year: 0 }],
       dialogFilter: false,
       headers: [
         {
@@ -137,6 +137,7 @@ export default {
     // Fetch students and teachers
     try {
       this.yearNSemsters = await this.$axios.$get("/date/allYearsSemester");
+      console.log("this.yearNSemsters: ", this.yearNSemsters);
 
       this.documents = await this.$axios.$post("/group/getAllFilesMajor", {
         Academic_Year: this.yearNSemsters[0].Academic_Year,

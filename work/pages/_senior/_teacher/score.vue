@@ -50,14 +50,22 @@ export default {
         Academic_Term: yearNSemsters[0].Academic_Term,
       });
 
-      // console.log("score", score);
+      console.log("score", score);
+      const allProgresses = [
+        { Progress_Name: "Proposal" },
+        { Progress_Name: "Progress 1" },
+        { Progress_Name: "Progress 2" },
+        { Progress_Name: "Progress 3" },
+        { Progress_Name: "Progress 4" },
+        { Progress_Name: "Final Presentation" },
+        { Progress_Name: "Final Documentation" },
+      ];
 
       // header
-      var progression = store.state.group.availableProgress;
-      console.log("progression", progression);
+      console.log("progression", allProgresses);
       // mapping progression
-      var header = progression.map((el) => ({
-        text: el.Progress_Name.toUpperCase(),
+      var header = allProgresses.map((el) => ({
+        text: el.Progress_Name,
         value: el.Progress_Name.replace(/\s+/g, ""),
         align: "center",
       }));

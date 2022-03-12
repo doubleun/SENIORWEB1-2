@@ -155,16 +155,18 @@ export default {
 
     // TODO: Repeat logic (_teacher/_groupId/_progress.vue)
     // Fetch progression due date
-    let progressionDueDate = {};
-    const currentProgress = store.getters["group/availableProgress"].find(
-      (progress) => progress.Progress_ID === progressId + 2
-    );
-    // console.log("currentProgress: ", currentProgress);
-    if (store.getters["group/availableProgress"].length !== 0) {
-      progressionDueDate = {
-        DueDate_Start: currentProgress.DueDate_Start,
-        DueDate_End: currentProgress.DueDate_End,
-      };
+    let progressionDueDate = { DueDate_Start: null, DueDate_End: null };
+    if (!(progressId + 2 > 8)) {
+      const currentProgress = store.getters["group/availableProgress"].find(
+        (progress) => progress.Progress_ID === progressId + 2
+      );
+      // console.log("currentProgress: ", currentProgress);
+      if (store.getters["group/availableProgress"].length !== 0) {
+        progressionDueDate = {
+          DueDate_Start: currentProgress.DueDate_Start,
+          DueDate_End: currentProgress.DueDate_End,
+        };
+      }
     }
     console.log("ProgressDueDate: ", progressionDueDate);
 
