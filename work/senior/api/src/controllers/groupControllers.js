@@ -149,7 +149,6 @@ updateGroup = (req, res) => {
     Student9_Tel,
     Student10_Tel,
     Email_Student1,
-    Major,
     Email_Student2,
     Email_Student3,
     Email_Student4,
@@ -164,7 +163,7 @@ updateGroup = (req, res) => {
   } = req.body;
   console.log(req.body);
   const sql =
-    "UPDATE `groups` SET `Group_Name_Thai`=?,`Group_Name_Eng`=?,`Co_Advisor`=? ,`Major`=? WHERE `Group_ID`=?";
+    "UPDATE `groups` SET `Group_Name_Thai`=?,`Group_Name_Eng`=?,`Co_Advisor`=? WHERE `Group_ID`=?";
   const sql2 =
     "UPDATE `groupmembers` SET `User_Email`=?,`User_Phone`=?,`Group_Role`=?,`Project_on_term_ID`=?, `User_Status` = IF(`User_Status` = 2, 0, `User_Status`) WHERE `User_Email`=? AND `Group_ID`=?";
   const insert =
@@ -305,7 +304,7 @@ updateGroup = (req, res) => {
 
   con.query(
     sql,
-    [group[0][0], group[0][1], group[0][2], group[0][3], Group_ID],
+    [group[0][0], group[0][1], group[0][2], Group_ID],
     (err, result, fields) => {
       console.log(user);
       if (err) {

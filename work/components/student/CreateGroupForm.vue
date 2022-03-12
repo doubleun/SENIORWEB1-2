@@ -633,7 +633,7 @@ export default {
               Email_Student8: this.email[7],
               Email_Student9: this.email[8],
               Email_Student10: this.email[9],
-              Major: this.major,
+              Major: this.$store.state.auth.currentUser.major,
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
             });
@@ -709,7 +709,6 @@ export default {
               Email_Student8: this.email[7],
               Email_Student9: this.email[8],
               Email_Student10: this.email[9],
-              Major: this.major,
               Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
