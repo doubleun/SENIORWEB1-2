@@ -3,26 +3,14 @@
     <main class="coordinator-due-date-main">
       <h1>Due Date</h1>
 
-      <!-- Assignment date card -->
-      <CoordinatorDueAssignmentCard />
+      <h5>DELETE THIS PAGE</h5>
     </main>
   </section>
 </template>
 
 <script>
-// import DueAssignmentCard from "@/components/coordinator/dueAssignmentCard";
-
 export default {
   layout: "coordinatorsidebar",
-  // async asyncData({ $axios, store }) {
-  //   const duedate = await $axios.$post("/date/progression", {
-  //     Senior: store.state.auth.currentUser.senior,
-  //     Major_ID: store.state.auth.currentUser.major,
-  //     Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-  //   });
-  //   console.log(duedate);
-  //   return { duedate };
-  // },
 };
 </script>
 
