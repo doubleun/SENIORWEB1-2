@@ -1,65 +1,64 @@
 <template>
-  <section>
-    <main class="coordinator-eval-main">
-      <h1>
-        Evaluation Result
-        {{ groupAdvisor ? "(My Advisee)" : "(My Committee)" }}
-      </h1>
+  <v-contianer>
+    <!-- <main class="coordinator-eval-main"> -->
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">
+      Evaluation Result
+      {{ groupAdvisor ? "(My Advisee)" : "(My Committee)" }}
+    </h2>
 
-      <!-- Card (Evaluation result) -->
-      <!-- <ProjectDetailCard /> -->
+    <!-- Card (Evaluation result) -->
+    <!-- <ProjectDetailCard /> -->
 
-      <!-- Evaluation result -->
-      <v-card class="co-evaluation-result-card my-12">
-        <v-card-title>EVALUATION RESULT</v-card-title>
-        <EvaluationResultGrid
-          :Group_ID="Group_ID"
-          :evalScores="fetchScoresRes"
-        />
-      </v-card>
+    <ProjectDetailCard :GroupDetail="GroupDetail" />
 
-      <!-- Evaluation form -->
-      <v-card class="co-evaluation-form-card">
-        <v-card-title>Evaluation Form</v-card-title>
-        <div class="co-evaluation-form-card-content">
-          <h5>Comment</h5>
-          <v-textarea
-            v-model="comment"
+    <!-- Evaluation result -->
+    <v-card class="co-evaluation-result-card my-12">
+      <v-card-title>EVALUATION RESULT</v-card-title>
+      <EvaluationResultGrid :Group_ID="Group_ID" :evalScores="fetchScoresRes" />
+    </v-card>
+
+    <!-- Evaluation form -->
+    <v-card class="co-evaluation-form-card">
+      <v-card-title>Evaluation Form</v-card-title>
+      <div class="co-evaluation-form-card-content">
+        <h5>Comment</h5>
+        <v-textarea
+          v-model="comment"
+          :disabled="haveGrade"
+          auto-grow
+          outlined
+          rows="4"
+          row-height="30"
+        ></v-textarea>
+
+        <div v-if="groupAdvisor">
+          <h5>Grade</h5>
+
+          <v-select
+            v-model="selectedGrade"
+            :items="gradeNameArr"
             :disabled="haveGrade"
-            auto-grow
+            v-if="!gradeI"
+            dense
             outlined
-            rows="4"
-            row-height="30"
-          ></v-textarea>
+          ></v-select>
 
-          <div v-if="groupAdvisor">
-            <h5>Grade</h5>
-
-            <v-select
-              v-model="selectedGrade"
-              :items="gradeNameArr"
-              :disabled="haveGrade"
-              v-if="!gradeI"
-              dense
-              outlined
-            ></v-select>
-
-            <v-checkbox
-              v-model="gradeI"
-              label="Re-evaluation (Grade I)"
-              :disabled="haveGrade"
-            ></v-checkbox>
-          </div>
-
-          <v-btn :disabled="haveGrade" color="primary" @click="submitGrade"
-            >SUBMIT</v-btn
-          >
+          <v-checkbox
+            v-model="gradeI"
+            label="Re-evaluation (Grade I)"
+            :disabled="haveGrade"
+          ></v-checkbox>
         </div>
-      </v-card>
 
-      <!-- Edit eval modal -->
-    </main>
-  </section>
+        <v-btn :disabled="haveGrade" color="primary" @click="submitGrade"
+          >SUBMIT</v-btn
+        >
+      </div>
+    </v-card>
+
+    <!-- Edit eval modal -->
+    <!-- </main> -->
+  </v-contianer>
 </template>
 
 <script>
@@ -82,6 +81,12 @@ export default {
   async asyncData({ params, redirect, store, $axios }) {
     // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group id)
     const groupId = params.groupId.match(/(\d)/g).join("");
+
+    const groupRes = await $axios.$post("/group/getGroupWithID", {
+      Group_ID: groupId,
+      Email: store.state.auth.currentUser.email,
+      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+    });
 
     // Fetch given evaluation grade and comment
     const groupInfo = await $axios.$post("/group/getTeachersEval", {
@@ -158,6 +163,10 @@ export default {
       gradeNameArr,
       fetchScoresRes: !!fetchScoresRes ? fetchScoresRes : {},
       groupInfo,
+      GroupDetail: {
+        GroupInfo: groupRes.groupInfo[0],
+        GroupMembers: groupRes.groupMembers,
+      },
     };
   },
 

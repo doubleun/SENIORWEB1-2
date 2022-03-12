@@ -1,40 +1,44 @@
 <template>
-  <section>
-    <main class="coordinator-progress-main">
-      <h1>{{ title }} ({{ groupAdvisor ? "My Advisee" : "Committee" }})</h1>
+  <v-container>
+    <!-- <main class="coordinator-progress-main"> -->
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">
+      {{ title.charAt(0).toUpperCase() + title.slice(1) }} ({{
+        groupAdvisor ? "My Advisee" : "Committee"
+      }})
+    </h2>
 
-      <!-- Card (Evaluation result) -->
-      <ProjectDetailCard :GroupDetail="GroupDetail" />
+    <!-- Card (Evaluation result) -->
+    <ProjectDetailCard :GroupDetail="GroupDetail" />
 
-      <!-- Evaluation result -->
-      <v-card
-        class="co-evaluation-result-card my-12"
-        v-if="this.$route.params.progress === 're-evaluation'"
-      >
-        <div v-if="!noWorkSubmitted">
-          <v-card-title>EVALUATION RESULT</v-card-title>
-          <EvaluationResultGrid
-            :Group_ID="GroupDetail.GroupInfo.Group_ID"
-            :evalScores="fetchScoresRes"
-          />
-        </div>
-      </v-card>
+    <!-- Evaluation result -->
+    <v-card
+      class="co-evaluation-result-card my-12"
+      v-if="this.$route.params.progress === 're-evaluation'"
+    >
+      <div v-if="!noWorkSubmitted">
+        <v-card-title>EVALUATION RESULT</v-card-title>
+        <EvaluationResultGrid
+          :Group_ID="GroupDetail.GroupInfo.Group_ID"
+          :evalScores="fetchScoresRes"
+        />
+      </div>
+    </v-card>
 
-      <!-- Display work -->
-      <DisplayWorkSection
-        :noWorkSubmitted="noWorkSubmitted"
-        :progressId="progressId"
-        :submittedFiles="submittedFiles"
-        :maxScore="maxScore"
-        :Assignment_ID="Assignment_ID"
-        :scoreInfo="scoreInfo"
-        :progressionDueDate="progressionDueDate"
-        :gradeNameArr="gradeNameArr"
-        :groupAdvisor="groupAdvisor"
-        :fetchScoresRes="fetchScoresRes"
-      />
-    </main>
-  </section>
+    <!-- Display work -->
+    <DisplayWorkSection
+      :noWorkSubmitted="noWorkSubmitted"
+      :progressId="progressId"
+      :submittedFiles="submittedFiles"
+      :maxScore="maxScore"
+      :Assignment_ID="Assignment_ID"
+      :scoreInfo="scoreInfo"
+      :progressionDueDate="progressionDueDate"
+      :gradeNameArr="gradeNameArr"
+      :groupAdvisor="groupAdvisor"
+      :fetchScoresRes="fetchScoresRes"
+    />
+    <!-- </main> -->
+  </v-container>
 </template>
 
 <script>
