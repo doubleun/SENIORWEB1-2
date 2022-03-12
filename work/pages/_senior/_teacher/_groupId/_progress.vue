@@ -1,40 +1,44 @@
 <template>
-  <section>
-    <main class="coordinator-progress-main">
-      <h1>{{ title }} ({{ groupAdvisor ? "My Advisee" : "Committee" }})</h1>
+  <v-container>
+    <!-- <main class="coordinator-progress-main"> -->
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">
+      {{ title.charAt(0).toUpperCase() + title.slice(1) }} ({{
+        groupAdvisor ? "My Advisee" : "Committee"
+      }})
+    </h2>
 
-      <!-- Card (Evaluation result) -->
-      <ProjectDetailCard :GroupDetail="GroupDetail" />
+    <!-- Card (Evaluation result) -->
+    <ProjectDetailCard :GroupDetail="GroupDetail" />
 
-      <!-- Evaluation result -->
-      <v-card
-        class="co-evaluation-result-card my-12"
-        v-if="this.$route.params.progress === 're-evaluation'"
-      >
-        <div v-if="!noWorkSubmitted">
-          <v-card-title>EVALUATION RESULT</v-card-title>
-          <EvaluationResultGrid
-            :Group_ID="GroupDetail.GroupInfo.Group_ID"
-            :evalScores="fetchScoresRes"
-          />
-        </div>
-      </v-card>
+    <!-- Evaluation result -->
+    <v-card
+      class="co-evaluation-result-card my-12"
+      v-if="this.$route.params.progress === 're-evaluation'"
+    >
+      <div v-if="!noWorkSubmitted">
+        <v-card-title>EVALUATION RESULT</v-card-title>
+        <EvaluationResultGrid
+          :Group_ID="GroupDetail.GroupInfo.Group_ID"
+          :evalScores="fetchScoresRes"
+        />
+      </div>
+    </v-card>
 
-      <!-- Display work -->
-      <DisplayWorkSection
-        :noWorkSubmitted="noWorkSubmitted"
-        :progressId="progressId"
-        :submittedFiles="submittedFiles"
-        :maxScore="maxScore"
-        :Assignment_ID="Assignment_ID"
-        :scoreInfo="scoreInfo"
-        :progressionDueDate="progressionDueDate"
-        :gradeNameArr="gradeNameArr"
-        :groupAdvisor="groupAdvisor"
-        :fetchScoresRes="fetchScoresRes"
-      />
-    </main>
-  </section>
+    <!-- Display work -->
+    <DisplayWorkSection
+      :noWorkSubmitted="noWorkSubmitted"
+      :progressId="progressId"
+      :submittedFiles="submittedFiles"
+      :maxScore="maxScore"
+      :Assignment_ID="Assignment_ID"
+      :scoreInfo="scoreInfo"
+      :progressionDueDate="progressionDueDate"
+      :gradeNameArr="gradeNameArr"
+      :groupAdvisor="groupAdvisor"
+      :fetchScoresRes="fetchScoresRes"
+    />
+    <!-- </main> -->
+  </v-container>
 </template>
 
 <script>
@@ -95,15 +99,21 @@ export default {
       );
       console.log("submittedFiles: ", submittedFiles);
 
+      // TODO: Repeat logic (student/work/_progress.vue)
       // Fetch progression due date
-      const progressionDueDate = await $axios.$post(
-        "/date/getProgressDueDate",
-        {
-          Progress_ID: progressId + 2,
-          Major_ID: store.state.auth.currentUser.major,
-          Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+      let progressionDueDate = { DueDate_Start: null, DueDate_End: null };
+      if (!(progressId + 2 > 8)) {
+        const currentProgress = store.getters["group/availableProgress"].find(
+          (progress) => progress.Progress_ID === progressId + 2
+        );
+        // console.log("currentProgress: ", currentProgress);
+        if (store.getters["group/availableProgress"].length !== 0) {
+          progressionDueDate = {
+            DueDate_Start: currentProgress.DueDate_Start,
+            DueDate_End: currentProgress.DueDate_End,
+          };
         }
-      );
+      }
       console.log("ProgressDueDate: ", progressionDueDate);
 
       // If no submitted files hides the DisplaWorkSection compoenent
@@ -125,7 +135,7 @@ export default {
           scoreInfo: null,
           gradeNameArr: [],
           groupAdvisor,
-          progressionDueDate: !!progressionDueDate ? progressionDueDate : {},
+          progressionDueDate,
         };
       }
 
@@ -187,10 +197,8 @@ export default {
         }
       }
 
-      // If progress id is 0 then we can't get max score (since progress id 2 is proposal)
       // Then instead of fetching max score, we fetch only assignment id
-      if (progressId === 0 || progressId === 8) {
-        console.log("getting assignment id for proposal");
+      if (progressId === 8) {
         maxScore.Assignment_ID = await $axios.$post(
           "/criteria/getAssignmentId",
           {

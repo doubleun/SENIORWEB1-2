@@ -109,6 +109,7 @@
                     <v-text-field
                       ref="stuPhoneNumber"
                       v-model="phone[index]"
+                      :maxlength="10"
                       :rules="[
                         () =>
                           handleValidateTextField({
@@ -139,7 +140,10 @@
                       :items="allStudentsInSchool"
                       :filter="customStudentFilter"
                       :disabled="
-                        index == 0 || !headMember || memberStatus[index] === 1
+                        index == 0 ||
+                        !headMember ||
+                        memberStatus[index] === 1 ||
+                        groupCreated
                       "
                       :rules="[
                         (val) => selectMemberRules('student', index, val),
@@ -172,7 +176,7 @@
               </div>
             </div>
             <!-- Add and remove member flex -->
-            <div class="d-flex flex-row" v-if="headMember">
+            <div class="d-flex flex-row" v-if="!groupCreated">
               <!-- Add member -->
               <div class="mb-5 mr-5" v-show="projectMembers.length < 10">
                 <a class="text-decoration-underline" @click="addMemberFields"
@@ -471,13 +475,17 @@ export default {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
     });
 
-    // Fetch group assignment for block update info after submit an assignment
-    const isHaveAssignment = await this.$axios.$post(
-      "/assignment/groupAssignment",
-      {
-        Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
-      }
-    );
+    let isHaveAssignment = [];
+
+    if (!!this.$store.state.group.currentUserGroup) {
+      // Fetch group assignment for block update info after submit an assignment
+      isHaveAssignment = await this.$axios.$post(
+        "/assignment/groupAssignment",
+        {
+          Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
+        }
+      );
+    }
     this.isHaveAssignment = isHaveAssignment.length > 0 ? true : false;
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
@@ -840,6 +848,8 @@ export default {
         User_Major: this.$store.state.auth.currentUser.major,
       };
       this.memberStatus[0] = 1;
+
+      console.log(" this.email: ", this.email);
     }
 
     // Check if current user is the head of the group

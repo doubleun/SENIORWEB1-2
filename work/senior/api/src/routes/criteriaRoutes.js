@@ -8,6 +8,11 @@ criteriaRouter.get("/scoreAllMajor", criteriaController.getScoreAllMajor); // ad
 criteriaRouter.post("/scoreMajor", criteriaController.getScoreByMajor); // admin
 // Edit criteria (insert, and update based on the criteria id sent from front-end)
 criteriaRouter.post("/scoreEdit", criteriaController.editScoreCriteria); // coordinator
+// Toggle score criteria status (active, inactive)
+criteriaRouter.post(
+  "/toggleScoreCriteriaStatus",
+  criteriaController.toggleScoreCriteriaStatus
+); // coordinator
 
 // Get all grade criterias
 criteriaRouter.get("/gradeAllMajor", criteriaController.getGradeAllMajor); // admin, coordinator

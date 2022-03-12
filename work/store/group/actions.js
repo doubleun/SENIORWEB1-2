@@ -19,8 +19,7 @@ export default {
     // Fetch all progress(es) in this major
     let allProgress = [];
 
-    console.log(state.rootState.group?.currentUserGroup);
-
+    // console.log(state.rootState.group?.currentUserGroup);
     try {
       // Check if current user's group info is available and fetch progress based on current user group's major
       if (!!state.rootState.group?.currentUserGroup) {
@@ -29,28 +28,20 @@ export default {
           Major_ID: state.rootState.group?.currentUserGroup.Major,
           Project_on_term_ID:
             state.rootState.group?.currentUserGroup.Project_on_term_ID,
+          onlyAvailable: true,
         });
       } else {
         // If not fetch available progress based on user's major
         allProgress = await this.$axios.$post("/criteria/scoreMajor", {
           Major_ID: state.rootState.auth.currentUser.major,
           Project_on_term_ID: state.rootState.auth.currentUser.projectOnTerm,
+          onlyAvailable: true,
         });
       }
 
       console.log("All progress from state: ", allProgress);
-
-      // If there are progresses available to this major (ie. coordinator set score criterias)
-      if (allProgress.length !== 0) {
-        // Filter all progresses to get only the ones that have total of more than zero
-        await state.commit(
-          "SET_AVAILABLE_PROGRESS",
-          allProgress.filter((progress) => progress.Total !== 0)
-        );
-      } else {
-        // If no progress available set it to null
-        await state.commit("SET_AVAILABLE_PROGRESS", null);
-      }
+      await state.commit("SET_AVAILABLE_PROGRESS", allProgress);
+      return;
     } catch (err) {
       console.log(err);
     }

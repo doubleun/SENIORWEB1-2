@@ -1,72 +1,38 @@
 <template>
-  <section>
-    <main class="admin-student-manage-main">
-      <h1>Manage Student</h1>
+  <v-container>
+    <!-- <main class="admin-student-manage-main"> -->
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Manage Student</h2>
 
-      <!-- Action buttons -->
-      <div class="admin-student-manage-actions">
-        <div>
-          <p class="white--text">Study Program</p>
-          <v-select
-            v-model="selectedMajor"
-            :items="majors"
-            @change="handelchangeRenderStudents"
-            item-text="Major_Name"
-            item-value="Major_ID"
-            return-object
-            dense
-            solo
-            hide-details
-            off
-          />
-        </div>
-        <div>
-          <p class="white--text">Year</p>
-          <v-select
-            v-model="selectedYear"
-            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-            @change="handelchangeRenderStudents"
-            dense
-            solo
-            hide-details
-          />
-        </div>
-        <div>
-          <p class="white--text">Semester</p>
-          <v-select
-            v-model="selectedSemester"
-            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-            @change="handelchangeRenderStudents"
-            dense
-            solo
-            hide-details
-          />
-        </div>
-        <div>
-          <v-btn color="success" @click="handleExports(students)"
-            ><v-icon>mdi-microsoft-excel</v-icon> Export</v-btn
-          >
-        </div>
-      </div>
+    <!-- Action buttons -->
+    <!-- <div class="admin-student-manage-actions"> -->
+    <div class="my-5 d-flex justify-end">
+      <v-btn color="success" @click="handleExports(students)">
+        <v-icon>mdi-microsoft-excel</v-icon>Export to Excel
+      </v-btn>
+    </div>
+    <!-- </div> -->
 
-      <!-- Data table here -->
-      <AdminDataTable
-        :tableTitle="'Manage Students'"
-        :headers="headers"
-        itemKey="User_Email"
-        :items="students"
-        :itemPerPage="10"
-      />
-      <!-- Student table card -->
-      <!-- <LongTableCard tableTitle="Student">
+    <!-- Data table here -->
+    <AdminDataTable
+      :tableTitle="'Student'"
+      :headers="headers"
+      itemKey="User_Email"
+      :items="students"
+      :itemPerPage="10"
+      :majors="majors"
+      :yearNSemsters="yearNSemsters"
+      @on-filtering="handelchangeRenderStudents"
+    />
+    <!-- Student table card -->
+    <!-- <LongTableCard tableTitle="Student">
         <template v-slot:data> -->
-      <!-- Table attributes -->
-      <!-- <template v-for="attr in attrs">
+    <!-- Table attributes -->
+    <!-- <template v-for="attr in attrs">
             <h5 :key="attr">{{ attr }}</h5>
           </template> -->
 
-      <!-- Table data -->
-      <!-- <template v-for="student in student">
+    <!-- Table data -->
+    <!-- <template v-for="student in student">
             <p :key="student.id + 1">{{ student.studentId }}</p>
             <p :key="student.id + 2">{{ student.name }}</p>
             <p :key="student.id + 3">{{ student.email }}</p>
@@ -75,8 +41,8 @@
           </template>
         </template>
       </LongTableCard> -->
-    </main>
-  </section>
+    <!-- </main> -->
+  </v-container>
 </template>
 
 <script>
@@ -135,13 +101,19 @@ export default {
   },
 
   methods: {
-    async handelchangeRenderStudents() {
+    async handelchangeRenderStudents(year, semester, majorId, role) {
+      console.log("majorId", majorId);
+      console.log("year", year);
+      console.log("semester", semester);
+      console.log("role", role);
+
       this.loading = true;
+      // return;
       try {
         this.students = await this.$axios.$post("/user/getAllUserWithMajor", {
-          Major_ID: this.selectedMajor.Major_ID,
-          Academic_Year: this.selectedYear,
-          Academic_Term: this.selectedSemester,
+          Major_ID: majorId,
+          Academic_Year: year,
+          Academic_Term: semester,
           User_Role: "1",
         });
       } catch (error) {

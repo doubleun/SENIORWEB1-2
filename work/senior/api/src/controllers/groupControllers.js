@@ -680,7 +680,7 @@ getScoreCoor = (req, res) => {
   // const Projectonterm = req.body.Projectonterm;
 
   const sql =
-    "SELECT st.User_Identity_ID as Id,st.User_Name AS Name,tea.User_Name AS Advisor ,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS Progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS Progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS Progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS Progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT Grade FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS Grade FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?";
+    "SELECT st.User_Identity_ID as Id,st.User_Name AS Name,tea.User_Name AS Advisor ,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gm.Group_ID) AS Proposal, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS Progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS Progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS Progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS Progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT Grade FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS Grade FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?";
   con.query(
     sql,
     [Academic_Year, Academic_Term, Major],
@@ -696,12 +696,13 @@ getScoreCoor = (req, res) => {
             {
               ...el,
               Total: parseInt(
-                +el.Progress1 +
-                +el.Progress2 +
-                +el.Progress3 +
-                +el.Progress4 +
-                +el.FinalPresentation +
-                +el.FinalDocumentation
+                +el.Proposal +
+                  +el.Progress1 +
+                  +el.Progress2 +
+                  +el.Progress3 +
+                  +el.Progress4 +
+                  +el.FinalPresentation +
+                  +el.FinalDocumentation
               ),
               Grade: grade,
             }
@@ -816,6 +817,7 @@ grading = async (req, res) => {
     Grade,
     isReEval,
     newEvalScore,
+    reEvalComment = false,
     Comment,
     Group_Member_ID,
     Assignment_ID,
@@ -823,10 +825,8 @@ grading = async (req, res) => {
 
   // If there is a file (re-eval grading) then create variable of the file name
   let fileName = "";
-  let reEvalComment = false;
   if (!!req.file) {
     fileName = req.file.filename;
-    reEvalComment = true;
   }
   // console.log("=========== DEBUG ==============");
 
@@ -960,7 +960,7 @@ countProgressGroup = (req, res) => {
   // count amount of my group and group request
   const { Project_on_term_ID } = req.body;
   const sql =
-    "SELECT COUNT(Major_ID)as numberPro , Major_ID FROM `progressionsinfo` WHERE Project_on_term_ID = ? GROUP BY Major_ID ORDER BY numberPro DESC";
+    "SELECT COUNT(Major_ID) as numberPro , Major_ID FROM `scorecriterias` WHERE Project_on_term_ID = ? GROUP BY Major_ID ORDER BY numberPro DESC";
   con.query(sql, [Project_on_term_ID], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -972,19 +972,23 @@ countProgressGroup = (req, res) => {
 };
 
 getAllFilesMajor = (req, res) => {
-  const { Project_on_term_ID, Major } = req.body;
-  console.log(req.body);
+  const { Academic_Year, Academic_Term, Major } = req.body;
+  // console.log(req.body);
 
   const sql =
-    "SELECT  `File_Name`, `Path`, `Type`,(SELECT `Submit_Date` FROM `assignments` WHERE `Assignment_ID` = files.Assignment_ID) AS time, (SELECT  `Group_Name_Eng` FROM `groups` WHERE `Group_ID` =(SELECT `Group_ID` FROM groupmembers WHERE Group_Member_ID = files.Group_Member_ID)) AS group_Name FROM `files` WHERE Assignment_ID IN (SELECT `Assignment_ID` FROM `assignments` WHERE Group_ID IN (SELECT DISTINCT Group_ID FROM groupmembers WHERE User_Email IN (SELECT `User_Email` FROM `users` WHERE Project_on_term_ID =? AND `Major_ID` = ?)))";
+    "SELECT  `File_Name` AS fileName, `Path` AS path, `Type` AS type,(SELECT `Submit_Date` FROM `assignments` WHERE `Assignment_ID` = files.Assignment_ID) AS submitDate, (SELECT  `Group_Name_Eng` FROM `groups` WHERE `Group_ID` =(SELECT `Group_ID` FROM groupmembers WHERE Group_Member_ID = files.Group_Member_ID)) AS groupName FROM `files` WHERE Assignment_ID IN (SELECT `Assignment_ID` FROM `assignments` WHERE Group_ID IN (SELECT DISTINCT Group_ID FROM groupmembers WHERE User_Email IN (SELECT `User_Email` FROM `users` WHERE Project_on_term_ID =(SELECT Project_on_term_ID FROM `projectonterm` WHERE Academic_Year=? AND Academic_Term=?) AND `Major_ID` = ?)))";
 
-  con.query(sql, [Project_on_term_ID, Major], (err, result, fields) => {
-    if (err) {
-      res.status(422).json({ msg: "Query Error", staus: 422 });
-    } else {
-      res.status(200).json(result);
+  con.query(
+    sql,
+    [Academic_Year, Academic_Term, Major],
+    (err, result, fields) => {
+      if (err) {
+        res.status(422).json({ msg: "Query Error", staus: 422 });
+      } else {
+        res.status(200).json(result);
+      }
     }
-  });
+  );
 };
 addGroupToSeTwo = (req, res) => {
   let gThname = "";
