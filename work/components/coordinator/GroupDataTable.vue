@@ -1,30 +1,5 @@
 <template>
   <div>
-    <!-- Sorting buttons -->
-    <v-row class="mb-4 justify-end">
-      <v-col cols="12" sm="2">
-        <p class="white--text my-0">Year</p>
-        <v-select
-          v-model="selectedYear"
-          :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-          @change="handleChangeRenderGroups"
-          dense
-          solo
-          hide-details
-        />
-      </v-col>
-      <v-col cols="12" sm="1">
-        <p class="white--text my-0">Semester</p>
-        <v-select
-          v-model="selectedSemester"
-          :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-          @change="handleChangeRenderGroups"
-          dense
-          solo
-          hide-details
-        />
-      </v-col>
-    </v-row>
     <div class="dataTable">
       <!-- Data Table -->
       <v-card>
@@ -140,7 +115,7 @@ export default {
       // let that = this;
       // Fetch all years and semesters
       this.yearNSemsters = await this.$axios.$get("/date/allYearsSemester");
-      console.log("yearNsemester", this.yearNSemsters);
+      // console.log("yearNsemester", this.yearNSemsters);
 
       this.selectedYear = this.yearNSemsters[0].Academic_Year;
       this.selectedSemester = this.yearNSemsters[0].Academic_Term;
