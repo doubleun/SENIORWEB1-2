@@ -38,12 +38,6 @@ export default {
           role: 0,
         },
         {
-          icon: "mdi-calendar-month",
-          title: "Due Date",
-          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/dueDate`,
-          role: 0,
-        },
-        {
           icon: "mdi-account-cog",
           title: "User Manage",
           to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/userManage`,
