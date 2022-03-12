@@ -50,11 +50,7 @@ export default {
   },
   data() {
     return {
-      dateFormatted: this.formatDate(
-        new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-          .toISOString()
-          .substring(0, 10)
-      ),
+      dateFormatted: this.formatDate(this.date),
       menu1: false,
       menu2: false,
     };
@@ -80,6 +76,9 @@ export default {
       if (!this.minDate) return null;
       // return new Date(this.minDate) >= new Date(this.date);
     },
+  },
+  mounted() {
+    console.log(this.date);
   },
 };
 </script>

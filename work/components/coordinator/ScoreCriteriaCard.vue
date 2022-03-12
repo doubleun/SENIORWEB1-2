@@ -10,7 +10,7 @@
       <v-data-table
         :headers="headers"
         :items="scoreCriterias"
-        sort-by="calories"
+        sort-by="Progress_ID"
         hide-default-footer
       >
         <template v-slot:top>
@@ -28,13 +28,14 @@
                 <v-container>
                   <!-- Edit card: progress name -->
                   <v-row>
-                    <v-text-field
+                    <!-- <h2>{{ editedItem.Progress_Name }}</h2> -->
+                    <!-- <v-text-field
                       v-model="editedItem.Progress_Name"
                       dense
-                      disabled
+                      readonly
                       filled
                       hide-details
-                    ></v-text-field>
+                    ></v-text-field> -->
                   </v-row>
                   <!-- Edit card: progress due date row -->
                   <v-row>
@@ -90,7 +91,9 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text> Cancel </v-btn>
+                <v-btn color="blue darken-1" text @click="close">
+                  Cancel
+                </v-btn>
                 <v-btn
                   color="blue darken-1"
                   text
@@ -109,19 +112,22 @@
               <v-icon small color="success darken-1">mdi-circle</v-icon> Active
             </h4>
             <h4 v-else class="error--text">
-              <v-icon small color="error darken-1">mdi-circle</v-icon> Not
-              Active
+              <v-icon small color="error darken-1">mdi-circle</v-icon> Inactive
             </h4>
           </div>
         </template>
         <!-- Switch toggle -->
         <template v-slot:item.toggle="{ item }">
-          <v-switch
-            v-model="item.Status"
-            @click="testLog"
-            hide-details
-            style="justify-content: center; margin: 0"
-          />
+          <div style="display: flex; justify-content: center">
+            <v-switch
+              v-model="item.Status"
+              @click="testLog"
+              hide-details
+              :ripple="false"
+              inset
+              style="margin: 0"
+            />
+          </div>
         </template>
         <!-- Edit button -->
         <template v-slot:item.edit="{ item }">
@@ -173,9 +179,36 @@ export default {
           value: "Status",
           sortable: false,
         },
-        { text: "Name", align: "center", value: "Progress_Name" },
-        { text: "Advisor Score", align: "center", value: "Advisor_Score" },
-        { text: "Committees Total", align: "center", value: "Committee_Score" },
+        {
+          text: "Name",
+          align: "center",
+          value: "Progress_Name",
+          sortable: false,
+        },
+        {
+          text: "Due-date start",
+          align: "center",
+          value: "DueDate_Start",
+          sortable: false,
+        },
+        {
+          text: "Due-date end",
+          align: "center",
+          value: "DueDate_End",
+          sortable: false,
+        },
+        {
+          text: "Advisor Score",
+          align: "center",
+          value: "Advisor_Score",
+          sortable: false,
+        },
+        {
+          text: "Committees Total",
+          align: "center",
+          value: "Committee_Score",
+          sortable: false,
+        },
         { text: "Toggle", value: "toggle", align: "center", sortable: false },
         { text: "Edit", value: "edit", align: "center", sortable: false },
       ],
@@ -191,8 +224,8 @@ export default {
       //     value: "Committee_Score",
       //   },
       // ],
-      // // Initial score on edit modal popup shows
-      // initialEditTotalScore: 0,
+      // Initial score on edit modal popup shows
+      initialEditTotalScore: 0,
     };
   },
   mounted() {
@@ -243,6 +276,34 @@ export default {
           this.$swal.fire("Invalid date input", "", "warning");
           return;
         }
+
+        // POST API for updating score criteria
+        const res = await this.$axios.$post("/criteria/scoreEdit", {
+          ...criteriaItem,
+        });
+
+        if (res.status !== 200)
+          throw new Error("Score failed to update, please try again later");
+
+        // Update total
+        this.scoreCriterias[this.editedIndex].Total =
+          parseInt(criteriaItem.Advisor_Score) +
+          parseInt(criteriaItem.Committee_Score);
+
+        // Show success popup
+        this.$swal.fire(
+          "Success",
+          "Update score criterias successfully",
+          "success"
+        );
+
+        // Refresh nuxt to re-fetch score criterias
+        this.$emit("score-updated");
+        // Dispatch store available progressions too if this is the first progress (to unlock import student)
+        if (this.$store.getters["group/availableProgress"]?.length === 0)
+          await this.$store.dispatch("group/storeAvailableProgressions");
+        this.dialog = false;
+        return;
       } catch (err) {
         console.log(err);
         this.$swal.fire("Something went wrong", "", "warning");
@@ -279,13 +340,10 @@ export default {
     //     return;
     //   }
     // },
-    // handleSetInitModalScore(criteria) {
-    //   this.initialEditTotalScore = this.allScoresTotal - criteria.Total;
-    //   // console.log(
-    //   //   "Total score - this progress's total: ",
-    //   //   this.initialEditTotalScore
-    //   // );
-    // },
+
+    handleToggleStatus() {
+      // TODO: Continue !!!
+    },
     handleValidateScore(val) {
       return this.handleValidateTextField(
         {
@@ -300,6 +358,11 @@ export default {
 
     editItem(item) {
       this.editedIndex = this.scoreCriterias.indexOf(item);
+
+      // Set initial total score
+      this.initialEditTotalScore = this.allScoresTotal - item.Total;
+
+      // Set editedItem object (for submitting api)
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
