@@ -13,9 +13,39 @@
         sort-by="Progress_ID"
         hide-default-footer
       >
+        <!-- Score criteria data table: header (committees total) -->
+        <template v-slot:header.Committee_Score="{ header }">
+          <v-tooltip bottom>
+            <!-- Tool tip content -->
+            <template v-slot:activator="{ on, attrs }">
+              <div class="table-header-icon" v-bind="attrs" v-on="on">
+                <p>{{ header.text }}</p>
+                <v-icon small color="primary">mdi-information</v-icon>
+              </div>
+            </template>
+            <!-- Tool tip text -->
+            <span>The score will be divide in half for each committee</span>
+          </v-tooltip>
+        </template>
+
+        <!-- Score criteria data table: header (toggle) -->
+        <template v-slot:header.toggle="{ header }">
+          <v-tooltip bottom>
+            <!-- Tool tip content -->
+            <template v-slot:activator="{ on, attrs }">
+              <div class="table-header-icon" v-bind="attrs" v-on="on">
+                <p>{{ header.text }}</p>
+                <v-icon small color="primary">mdi-information</v-icon>
+              </div>
+            </template>
+            <!-- Tool tip text -->
+            <span>Progress needs to be add first to unlock toggle</span>
+          </v-tooltip>
+        </template>
+
+        <!-- Score criteria data table: Dialog edit score criteria card -->
         <template v-slot:top>
           <v-dialog v-model="dialog" max-width="500px">
-            <!-- Dialog edit score criteria card -->
             <v-card>
               <v-card-title>
                 <span class="text-h5"
@@ -24,19 +54,8 @@
               </v-card-title>
 
               <!-- Edit progress card modal -->
-              <v-card-text>
+              <v-card-text style="padding: 0 24px 0 24px">
                 <v-container>
-                  <!-- Edit card: progress name -->
-                  <v-row>
-                    <!-- <h2>{{ editedItem.Progress_Name }}</h2> -->
-                    <!-- <v-text-field
-                      v-model="editedItem.Progress_Name"
-                      dense
-                      readonly
-                      filled
-                      hide-details
-                    ></v-text-field> -->
-                  </v-row>
                   <!-- Edit card: progress due date row -->
                   <v-row>
                     <v-col cols="12" lg="6">
@@ -77,6 +96,7 @@
                         <v-text-field
                           v-model="editedItem.Committee_Score"
                           prepend-icon="mdi-account-multiple-check"
+                          hint="The score will be divide in half for each committee"
                           label="Comittees total score"
                           :rules="[
                             () =>
@@ -89,22 +109,18 @@
                 </v-container>
               </v-card-text>
 
-              <v-card-actions>
+              <v-card-actions style="padding: 8px 16px 16px 16px">
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="close">
-                  Cancel
-                </v-btn>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="handleEditScoreCriteria"
-                >
+                <v-btn color="primary" text @click="close"> Cancel </v-btn>
+                <v-btn color="primary" dark @click="handleEditScoreCriteria">
                   Save
                 </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
         </template>
+
+        <!-- Score criteria data table: content data templates -->
         <!-- Currently active -->
         <template v-slot:item.Status="{ item }">
           <div class="score-criteria-status-container">
@@ -145,10 +161,13 @@
             />
           </div>
         </template>
-        <!-- Edit button -->
+        <!-- Edit score criteria button -->
         <template v-slot:item.edit="{ item }">
           <v-btn color="primary" @click="editItem(item)" :disabled="isAdmin"
-            ><v-icon small> mdi-pencil </v-icon> Edit</v-btn
+            ><v-icon small>
+              {{ !!item.Score_criteria_ID ? "mdi-pencil" : "mdi-plus-circle" }}
+            </v-icon>
+            {{ !!item.Score_criteria_ID ? "Edit" : "Add" }}</v-btn
           >
         </template>
         <template v-slot:no-data>
@@ -231,16 +250,6 @@ export default {
       ],
       editedIndex: -1,
       editedItem: {},
-      // editScoreDialog: false,
-      // editScoreRoles: [
-      //   { id: 1, name: "Advisor Score", score: 0, value: "Advisor_Score" },
-      //   {
-      //     id: 2,
-      //     name: "Committees Total Score",
-      //     score: 0,
-      //     value: "Committee_Score",
-      //   },
-      // ],
       // Initial score on edit modal popup shows
       initialEditTotalScore: 0,
     };
@@ -511,6 +520,16 @@ export default {
 }
 .score-criteria-input-flex > div {
   width: 46%;
+}
+
+.table-header-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1px;
+}
+.table-header-icon > p {
+  margin: 0;
 }
 .score-criteria-dialog-card hr {
   margin-block: 1rem;
