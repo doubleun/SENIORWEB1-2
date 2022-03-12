@@ -32,15 +32,8 @@ export default {
           to: `/senior${this.$store.state.auth.currentUser.senior}/student/stuCreateGroup`,
           disabled: false,
         },
-        // {
-        // id: 3,
-        //   icon: "topic",
-        //   title: "Topic",
-        //   to: "/Senior1/student/topic",
-        // disabled: true
-        // },
         {
-          id: 0,
+          id: 2,
           icon: "forum",
           title: "Proposal",
           to: `/senior${this.$store.state.auth.currentUser.senior}/student/work/proposal`,
@@ -125,18 +118,18 @@ export default {
     // console.log(this.$store.state.group);
     console.log(
       "All progresses (logged from side bar): ",
-      this.$store.state.group.availableProgress
+      this.$store.getters["group/availableProgress"]
     );
     console.log(
       "Current group info (logged from side bar):",
-      this.$store.state.group.currentUserGroup
+      this.$store.getters["group/currentUserGroup"]
     );
-    const availableIds = this.$store.state.group.availableProgress.map(
+    const availableIds = this.$store.getters["group/availableProgress"].map(
       (progress) => progress.Progress_ID
     );
 
     // Check if this student has a group
-    const userGroup = this.$store.state.group.currentUserGroup;
+    const userGroup = this.$store.getters["group/currentUserGroup"];
 
     // Filter to get only available progresses (which comes from score criterias where 'Total' not equal to 0)
     // Includes the ones with id = 0, which means they're not depending on score criterias
@@ -146,7 +139,7 @@ export default {
         availableIds.includes(item.id) ||
         // If Is_Re_Eval flag of the group is 1 it'll push item No.9 which is Re-eval menu into the array
         (item.id === 9 && userGroup
-          ? this.$store.state.group.currentUserGroup.Is_Re_Eval
+          ? this.$store.getters["group/currentUserGroup"].Is_Re_Eval
           : 0)
     );
   },

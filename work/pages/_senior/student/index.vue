@@ -65,7 +65,7 @@ export default {
       return currentProgressIndex + 1;
     },
     dueProgressStrings() {
-      console.log("this.dueProgress: ", this.dueProgress);
+      // console.log("this.dueProgress: ", this.dueProgress);
       let str = [];
       if (!!this.dueProgress) {
         // Construct end date as string
@@ -111,6 +111,8 @@ export default {
 
   async asyncData({ $axios, store }) {
     let announcements;
+    const availableProgress = store.state.group.availableProgress;
+    console.log(store.state.group.availableProgress);
     try {
       // Fetch announcements in current user's major
       announcements = await $axios.$post("/announc/major", {
@@ -127,33 +129,33 @@ export default {
     // TODO: This should be check from a flag in 'users' table (like showGroupProposal: true/false)
     const availableSteps = [
       { Progress_ID: 1, Progress_Name: "Group" },
-      { Progress_ID: 2, Progress_Name: "Proposal" },
-      ...store.state.group.availableProgress,
+      ...(!!availableProgress ? availableProgress : []),
     ];
     console.log("availableSteps", availableSteps);
 
-    // Fetch due dates
-    const dueDates = await $axios.$post("/date/progression", {
-      Major_ID: store.state.auth.currentUser.major,
-      Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-    });
-    // console.log("dueDates", dueDates.progressionDuedate);
-
-    // Check if user has a group
-    let dueProgress;
+    // Check if the student has a group
+    let dueProgress = {};
     if (!!store.state.group?.currentUserGroup) {
-      // Get the progress due date of the current group progress from dueDates.progressionDuedate
-      dueProgress = dueDates.progressionDuedate.find(
+      // If they do assign dueProgress according to their groupProgression
+      dueProgress = availableSteps.find(
         (progress) =>
           progress.Progress_ID ===
           store.state.group.currentUserGroup?.Group_Progression
       );
     } else {
-      // If no group then assign the first dueProgress
-      dueProgress = dueDates.progressionDuedate[0];
-    }
+      // Assign due date end to group from start date of the next progress
+      // First we check if there are any progress, if no get the first element which will result in "Invalid Date"
+      const nextProgressStartDate = !!availableProgress
+        ? availableSteps[1]
+        : availableSteps[0];
 
-    console.log(dueProgress);
+      // Then, assign start date of the next progress as end date of the first element (whcih is group)
+      const groupProgress = {
+        ...availableSteps[0],
+        DueDate_End: nextProgressStartDate?.DueDate_Start,
+      };
+      dueProgress = groupProgress;
+    }
 
     return {
       announcements,
