@@ -31,6 +31,7 @@ groupRouter.post(
   groupController.grading
 );
 groupRouter.put("/updateGroup", groupController.updateGroup);
+groupRouter.post("/getGroupMajor", groupController.getGroupMajor);
 groupRouter.put("/delete/one", groupController.deleteById);
 groupRouter.post("/countMyGroup", groupController.countTeachergroup);
 groupRouter.post("/getAllFilesMajor", groupController.getAllFilesMajor);

@@ -39,7 +39,7 @@ createGroup = (req, res) => {
   const sql =
     "INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) VALUES (?,?,?,?,?);";
   const sql2 =
-    "INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID,User_Status, `Group_ID`) VALUES (?,(SELECT MAX(Group_ID) FROM groups))";
+    "INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID,User_Status, `Group_ID`) VALUES (?,(SELECT MAX(`Group_ID`) FROM `groups` WHERE`Group_Name_Eng` = ? AND`Project_on_term_ID` = ?;))";
   let user = [];
   let group = [];
   let error = 0;
@@ -94,7 +94,7 @@ createGroup = (req, res) => {
       error++;
     } else {
       for (let i = 0; i < user.length; i++) {
-        con.query(sql2, [user[i]], (err, result2, fields) => {
+        con.query(sql2, [user[i], Project_NameEn, Project_on_term_ID], (err, result2, fields) => {
           // console.log("success", success);
           if (err) {
             // console.log("err hear")
@@ -414,6 +414,20 @@ getGroupInfo = (req, res) => {
   });
 };
 
+// Get current user group info if the student has one
+getGroupMajor = (req, res) => {
+  const { Group_ID } = req.body;
+  const sql =
+    "SELECT DISTINCT `Major_Name` FROM `majors` WHERE `Major_ID` IN (SELECT `Major_ID` FROM `users` WHERE `User_Email` IN (SELECT `User_Email` FROM `groupmembers` WHERE `Group_ID`= ? AND `User_Status` !=2 AND (`Group_Role` = 3 || `Group_Role` = 2)));";
+  con.query(sql, [Group_ID], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
 // Get group members for filling in the create group page form
 getGroupMembers = (req, res) => {
   const { Group_ID } = req.body;
@@ -481,11 +495,9 @@ getTeachersEval = (req, res) => {
   } = req.body;
   try {
     // Check if 'Single' is true, if it is then query for single teacher eval comment using email
-    const getTeachersEval = `SELECT ec.Comment, ec.File_Name, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
-      Single ? "gm.User_Email = ? AND" : ""
-    } ec.Group_ID = ? ${
-      reEvalComment ? "AND ec.Re_Eval = 1" : "AND ec.Re_Eval = 0"
-    }`;
+    const getTeachersEval = `SELECT ec.Comment, ec.File_Name, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${Single ? "gm.User_Email = ? AND" : ""
+      } ec.Group_ID = ? ${reEvalComment ? "AND ec.Re_Eval = 1" : "AND ec.Re_Eval = 0"
+      }`;
     // console.log("GetTeachersEvalSQL: ", getTeachersEval);
 
     // 1.) Select eval comment(s)
@@ -511,13 +523,13 @@ getTeachersEval = (req, res) => {
           // If the filterTeachersRole flag is true, then filter teachers based on their role
           const data = filterTeachersRole
             ? {
-                advisor: evalResult.filter(
-                  (teacher) => teacher.Group_Role === 0
-                )[0],
-                committees: evalResult.filter(
-                  (teacher) => teacher.Group_Role === 1
-                ),
-              }
+              advisor: evalResult.filter(
+                (teacher) => teacher.Group_Role === 0
+              )[0],
+              committees: evalResult.filter(
+                (teacher) => teacher.Group_Role === 1
+              ),
+            }
             : { eval: evalResult };
           // If no request for group info then only response with evalResult
           res.status(200).json(data);
@@ -630,16 +642,28 @@ statusgroup = (req, res) => {
 
 // Use for update group member status after user accept or decline group invitation
 updateMemberStatus = (req, res) => {
-  const { Status, User_Email, Group_Id } = req.body;
-  console.log(Status, User_Email, Group_Id);
+  const { Status, User_Email, Group_Id, Major } = req.body;
+  console.log(Status, User_Email, Group_Id, Major);
   const sql =
     "UPDATE `groupmembers` SET `User_Status`= ? WHERE Group_ID = ? AND User_Email = ?";
+  const updateGroup = "UPDATE `groups` SET `Major`=(SELECT `Major_ID` FROM `majors` WHERE `Major_Name` = ? ) WHERE `Group_ID` = ?;"
   try {
     con.query(sql, [Status, Group_Id, User_Email], (err, result, fields) => {
       if (err) {
         throw err;
       } else {
-        res.status(200).json({ msg: "Success", status: 200 });
+        if (Major != "" && Major != null) {
+          con.query(updateGroup, [Major, Group_Id], (err, result2, fields2) => {
+            if (err) {
+              throw err;
+            } else {
+              res.status(200).json({ msg: "Success", status: 200 });
+            }
+          })
+        } else {
+          res.status(200).json({ msg: "Success", status: 200 });
+        }
+
       }
     });
   } catch (err) {
@@ -812,9 +836,8 @@ grading = async (req, res) => {
       if (err) throw err;
     });
     // 1.) Insert comment in 'evalcomment' table
-    const insertEvalComment = `INSERT INTO evalcomment(Comment, File_Name, Group_Member_ID, Group_ID${
-      reEvalComment ? ", Re_Eval" : ""
-    }) VALUES (?, ?, ?, ?${reEvalComment ? ", 1" : ""})`;
+    const insertEvalComment = `INSERT INTO evalcomment(Comment, File_Name, Group_Member_ID, Group_ID${reEvalComment ? ", Re_Eval" : ""
+      }) VALUES (?, ?, ?, ?${reEvalComment ? ", 1" : ""})`;
     await conPromise.execute(
       insertEvalComment,
       [Comment, fileName, Group_Member_ID, Group_ID],
@@ -826,11 +849,9 @@ grading = async (req, res) => {
     // 2.) If is advisor, then update grade in 'groups' table
     if (isAdvisor && Grade) {
       // isReEval indicate that advisor gave an "I"
-      const updateGrade = `UPDATE groups SET Grade = ?, Is_Re_Eval = ${
-        isReEval ? 1 : 0
-      }, Received_New_Grade = ${newEvalScore ? 1 : 0} ${
-        isReEval ? ", Group_Progression = 10" : ""
-      } WHERE groups.Group_ID = ?`;
+      const updateGrade = `UPDATE groups SET Grade = ?, Is_Re_Eval = ${isReEval ? 1 : 0
+        }, Received_New_Grade = ${newEvalScore ? 1 : 0} ${isReEval ? ", Group_Progression = 10" : ""
+        } WHERE groups.Group_ID = ?`;
       await conPromise.execute(updateGrade, [Grade, Group_ID], (err) => {
         if (err) throw err;
       });
@@ -1082,4 +1103,5 @@ module.exports = {
   getAllFilesMajor,
   addGroupToSeTwo,
   countProgressGroup,
+  getGroupMajor
 };

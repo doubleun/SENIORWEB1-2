@@ -72,6 +72,7 @@ export default {
     ],
     idgroup: "",
     groupInfo: [],
+    major: "",
     editedIndex: -1,
     editedItem: {
       name: "",
@@ -132,9 +133,21 @@ export default {
         errorMsg: "Invalid search",
       });
     },
-    editItem(item) {
-      this.idgroup = item["id"];
+    async editItem(item) {
+      var major = [];
+      const res = await this.$axios.$post("/group/getGroupMajor", {
+        Group_ID: item["id"],
+      });
 
+      var inputOptionsPromise = new Promise(function (resolve) {
+        // get your data and pass it to resolve()
+
+        for (let i = 0; i < res.length; i++) {
+          major.push(res[i]["Major_Name"]);
+        }
+        resolve(major);
+      });
+      this.idgroup = item["id"];
       this.$swal
         .fire({
           title: `Accept ${item.groupName} group?`,
@@ -147,6 +160,24 @@ export default {
         })
         .then(async (result) => {
           if (result.isConfirmed) {
+            if (
+              this.$store.state.auth.currentUser.name === item["advisor"] &&
+              major.length !== 1
+            ) {
+              this.$swal
+                .fire({
+                  input: "select",
+                  inputOptions: inputOptionsPromise,
+                  inputValidator: (value) => {
+                    return !value && "You need to write something!";
+                  },
+                })
+                .then(async (result) => {
+                  let num = result["value"];
+                  this.major = major[num];
+                  
+                });
+            } 
             const res = await this.save();
             if (res) {
               this.$nuxt.refresh();
@@ -163,6 +194,7 @@ export default {
                 text: "Something went wrong!",
               });
             }
+            
           }
         });
     },
@@ -218,6 +250,7 @@ export default {
           User_Email: this.$store.state.auth.currentUser.email,
           Group_Id: this.idgroup,
           Status: 1,
+          Major: this.major,
         });
         return true;
       } catch (err) {
