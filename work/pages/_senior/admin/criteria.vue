@@ -1,34 +1,33 @@
 <template>
-  <section>
-    <main class="admin-criteria-main">
-      <h1>Criteria</h1>
+  <v-container>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Criteria</h2>
 
-      <!-- Select score study program -->
-      <div class="admin-criteria-score-actions">
-        <div>
-          <p class="white--text">Study Program</p>
-          <v-select
-            v-model="selectedMajor"
-            :items="majors"
-            item-text="Major_Name"
-            item-value="Major_ID"
-            @change="handleFetchCriterias"
-            return-object
-            dense
-            solo
-            hide-details
-            off
-          />
-        </div>
+    <!-- Select score study program -->
+    <div class="admin-criteria-score-actions">
+      <div>
+        <p class="white--text">Study Program</p>
+        <v-select
+          v-model="selectedMajor"
+          :items="majors"
+          item-text="Major_Name"
+          item-value="Major_ID"
+          @change="handleFetchCriterias"
+          return-object
+          dense
+          solo
+          hide-details
+          off
+        />
       </div>
+    </div>
 
-      <!-- Score criteria card -->
-      <CoordinatorScoreCriteriaCard :scoreCriterias="scoreCriterias" isAdmin />
+    <!-- Score criteria card -->
+    <CoordinatorScoreCriteriaCard :scoreCriterias="scoreCriterias" isAdmin />
 
-      <div class="grade-criteria-dialog-card"></div>
+    <div class="grade-criteria-dialog-card"></div>
 
-      <!-- Select grade study program -->
-      <!-- <div class="admin-criteria-score-actions">
+    <!-- Select grade study program -->
+    <!-- <div class="admin-criteria-score-actions">
         <div>
           <h4>Study Program</h4>
           <v-select
@@ -45,16 +44,15 @@
         </div>
       </div> -->
 
-      <!-- Grade criteria card -->
+    <!-- Grade criteria card -->
 
-      <CoordinatorGradeCriteriaCard
-        class="admin-criteria-grade-card"
-        :gradeCriterias="gradeCriterias"
-        :noGradeCriteriasProp="false"
-        :dataUI="dataUI"
-      />
-    </main>
-  </section>
+    <CoordinatorGradeCriteriaCard
+      class="admin-criteria-grade-card"
+      :gradeCriterias="gradeCriterias"
+      :noGradeCriteriasProp="false"
+      :dataUI="dataUI"
+    />
+  </v-container>
 </template>
 
 <script>

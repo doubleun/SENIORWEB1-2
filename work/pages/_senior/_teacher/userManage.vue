@@ -1,80 +1,49 @@
 <template>
-  <div>
-    <v-container>
-      <h2 class="header-title mb-2 mt-5 mb-10 white--text">User Manage</h2>
-      <v-row>
-        <!-- <v-col > -->
-        <div class="login">
-          <!-- <v-row> -->
-          <v-btn
-            class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
-            align="right"
-            justify="right"
-            @click="handleFileImport"
-          >
-            <v-icon dark-blue> mdi-application-import </v-icon>
-            Import
-          </v-btn>
-          <input
-            ref="uploader"
-            class="d-none"
-            id="fileBrowse"
-            type="file"
-            accept=".xlsx"
-            @change="handleBrowseFile"
-          />
-          <v-btn
-            class="mb-1 mt-7 mb-1 ma-2 dark-blue--text"
-            align="right"
-            justify="right"
-            @click="downloadtemplete"
-          >
-            <v-icon dark-blue> mdi-application-import </v-icon>
-            dowload templete
-          </v-btn>
-          <!-- </v-row> -->
-        </div>
-        <!-- </v-col> -->
-      </v-row>
-      <v-row class="btsem">
-        <v-col cols="6" sm="6" md="6" lg="6">
-          <div>
-            <p class="white--text">Year</p>
-            <v-select
-              v-model="selectedYear"
-              :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-              @change="handelchangeRenderStudents"
-              dense
-              solo
-              hide-details
-            />
-          </div>
-        </v-col>
-        <v-col cols="6" sm="6" md="6" lg="6">
-          <div>
-            <p class="white--text">Semester</p>
-            <v-select
-              v-model="selectedSemester"
-              :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-              @change="handelchangeRenderStudents"
-              dense
-              solo
-              hide-details
-            />
-          </div>
-        </v-col>
-      </v-row>
-      <br />
-      <!-- Data table here -->
-      <AdminDataTable
-        :tableTitle="'Manage Students'"
-        :headers="headers"
-        itemKey="User_Email"
-        :items="students"
-        :itemPerPage="10"
+  <v-container>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">User Manage</h2>
+
+    <div class="my-5 d-flex justify-end">
+      <v-btn
+        class="mr-2 dark-blue--text"
+        align="right"
+        justify="right"
+        color="primary"
+        @click="handleFileImport"
+      >
+        <v-icon dark-blue> mdi-application-import </v-icon>
+        Import
+      </v-btn>
+      <input
+        ref="uploader"
+        class="d-none"
+        id="fileBrowse"
+        type="file"
+        accept=".xlsx"
+        @change="handleBrowseFile"
       />
-    </v-container>
-  </div>
+      <v-btn
+        class="dark-blue--text"
+        align="right"
+        justify="right"
+        color="primary"
+        @click="downloadtemplete"
+      >
+        <v-icon dark-blue> mdi-application-import </v-icon>
+        dowload templete
+      </v-btn>
+    </div>
+
+    <!-- Data table here -->
+    <AdminDataTable
+      :tableTitle="'Student'"
+      :headers="headers"
+      itemKey="User_Email"
+      :items="students"
+      :itemPerPage="10"
+      :yearNSemsters="yearNSemsters"
+      @on-filtering="handelchangeRenderStudents"
+    />
+  </v-container>
 </template>
 <script>
 // import AdminDataTable from "@/components/admin/adminDataTable";
@@ -199,13 +168,13 @@ export default {
           });
       }
     },
-    async handelchangeRenderStudents() {
+    async handelchangeRenderStudents(year, semester) {
       this.loading = true;
       try {
         this.students = await this.$axios.$post("/user/getAllUserWithMajor", {
           Major_ID: this.$store.state.auth.currentUser.major,
-          Academic_Year: this.selectedYear,
-          Academic_Term: this.selectedSemester,
+          Academic_Year: year,
+          Academic_Term: semester,
           User_Role: "1",
         });
       } catch (error) {

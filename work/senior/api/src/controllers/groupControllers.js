@@ -951,19 +951,23 @@ countProgressGroup = (req, res) => {
 };
 
 getAllFilesMajor = (req, res) => {
-  const { Project_on_term_ID, Major } = req.body;
-  console.log(req.body);
+  const { Academic_Year, Academic_Term, Major } = req.body;
+  // console.log(req.body);
 
   const sql =
-    "SELECT  `File_Name`, `Path`, `Type`,(SELECT `Submit_Date` FROM `assignments` WHERE `Assignment_ID` = files.Assignment_ID) AS time, (SELECT  `Group_Name_Eng` FROM `groups` WHERE `Group_ID` =(SELECT `Group_ID` FROM groupmembers WHERE Group_Member_ID = files.Group_Member_ID)) AS group_Name FROM `files` WHERE Assignment_ID IN (SELECT `Assignment_ID` FROM `assignments` WHERE Group_ID IN (SELECT DISTINCT Group_ID FROM groupmembers WHERE User_Email IN (SELECT `User_Email` FROM `users` WHERE Project_on_term_ID =? AND `Major_ID` = ?)))";
+    "SELECT  `File_Name` AS fileName, `Path` AS path, `Type` AS type,(SELECT `Submit_Date` FROM `assignments` WHERE `Assignment_ID` = files.Assignment_ID) AS submitDate, (SELECT  `Group_Name_Eng` FROM `groups` WHERE `Group_ID` =(SELECT `Group_ID` FROM groupmembers WHERE Group_Member_ID = files.Group_Member_ID)) AS groupName FROM `files` WHERE Assignment_ID IN (SELECT `Assignment_ID` FROM `assignments` WHERE Group_ID IN (SELECT DISTINCT Group_ID FROM groupmembers WHERE User_Email IN (SELECT `User_Email` FROM `users` WHERE Project_on_term_ID =(SELECT Project_on_term_ID FROM `projectonterm` WHERE Academic_Year=? AND Academic_Term=?) AND `Major_ID` = ?)))";
 
-  con.query(sql, [Project_on_term_ID, Major], (err, result, fields) => {
-    if (err) {
-      res.status(422).json({ msg: "Query Error", staus: 422 });
-    } else {
-      res.status(200).json(result);
+  con.query(
+    sql,
+    [Academic_Year, Academic_Term, Major],
+    (err, result, fields) => {
+      if (err) {
+        res.status(422).json({ msg: "Query Error", staus: 422 });
+      } else {
+        res.status(200).json(result);
+      }
     }
-  });
+  );
 };
 addGroupToSeTwo = (req, res) => {
   let gThname = "";

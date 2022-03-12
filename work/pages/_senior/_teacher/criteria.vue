@@ -1,68 +1,66 @@
 <template>
-  <section>
-    <main class="coordinator-criteria-main">
-      <h1>Criteria</h1>
+  <v-container>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Criteria</h2>
 
-      <!-- Score criteria card -->
-      <CoordinatorScoreCriteriaCard
-        :scoreCriterias="scoreCriterias"
-        :dataUI="dataUI"
-        :admin="false"
-        @score-updated="refresh"
-      />
+    <!-- Score criteria card -->
+    <CoordinatorScoreCriteriaCard
+      :scoreCriterias="scoreCriterias"
+      :dataUI="dataUI"
+      :admin="false"
+      @score-updated="refresh"
+    />
 
-      <!-- Grade criteria card -->
-      <!-- Edit criteria button -->
-      <div class="coordinator-edit-grade-criteria">
-        <v-dialog v-model="editGradeDialog" width="500">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="blue darken-4"
-              class="white--text"
-              v-on="on"
-              v-bind="attrs"
-              v-show="!noGradeCriterias"
-            >
-              Edit Grade Criteria</v-btn
-            >
-          </template>
+    <!-- Grade criteria card -->
+    <!-- Edit criteria button -->
+    <div class="coordinator-edit-grade-criteria">
+      <v-dialog v-model="editGradeDialog" width="500">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            color="blue darken-4"
+            class="white--text"
+            v-on="on"
+            v-bind="attrs"
+            v-show="!noGradeCriterias"
+          >
+            Edit Grade Criteria</v-btn
+          >
+        </template>
 
-          <!-- Edit grade criteria pop up card -->
-          <v-card class="grade-criteria-dialog-card">
-            <v-card-title class="text-h5"> Grade Criteria </v-card-title>
+        <!-- Edit grade criteria pop up card -->
+        <v-card class="grade-criteria-dialog-card">
+          <v-card-title class="text-h5"> Grade Criteria </v-card-title>
 
-            <section class="d-flex flex-column" style="gap: 0.6rem">
-              <v-form ref="form" v-model="valid">
-                <div
-                  class="grade-criteria-input-flex"
-                  v-for="(grade, index) in gradeCriterias"
-                  :key="index"
-                >
-                  <div style="width: 12%">
-                    <v-subheader v-if="index === 0">Grade</v-subheader>
-                    <p>{{ grade.Grade_Criteria_Name }}</p>
-                  </div>
-                  <div style="width: 60%">
-                    <v-subheader v-if="index === 0">Pass Score</v-subheader>
-                    <p v-if="index === gradeCriterias.length - 1"></p>
-                    <v-text-field
-                      v-model="grade.Grade_Criteria_Pass"
-                      :rules="[
-                        () =>
-                          !!grade.Grade_Criteria_Pass ||
-                          'This field is required',
-                        handleCheckValidScore(grade.Grade_Criteria_Pass),
-                      ]"
-                      v-else
-                      outlined
-                      dense
-                      hide-details
-                    ></v-text-field>
-                  </div>
+          <section class="d-flex flex-column" style="gap: 0.6rem">
+            <v-form ref="form" v-model="valid">
+              <div
+                class="grade-criteria-input-flex"
+                v-for="(grade, index) in gradeCriterias"
+                :key="index"
+              >
+                <div style="width: 12%">
+                  <v-subheader v-if="index === 0">Grade</v-subheader>
+                  <p>{{ grade.Grade_Criteria_Name }}</p>
                 </div>
-              </v-form>
-            </section>
-            <!-- <div
+                <div style="width: 60%">
+                  <v-subheader v-if="index === 0">Pass Score</v-subheader>
+                  <p v-if="index === gradeCriterias.length - 1"></p>
+                  <v-text-field
+                    v-model="grade.Grade_Criteria_Pass"
+                    :rules="[
+                      () =>
+                        !!grade.Grade_Criteria_Pass || 'This field is required',
+                      handleCheckValidScore(grade.Grade_Criteria_Pass),
+                    ]"
+                    v-else
+                    outlined
+                    dense
+                    hide-details
+                  ></v-text-field>
+                </div>
+              </div>
+            </v-form>
+          </section>
+          <!-- <div
               class="grade-criteria-input-flex"
               v-for="(grade, index) in gradeCriterias"
               :key="index"
@@ -82,30 +80,29 @@
               </div>
             </div> -->
 
-            <v-divider></v-divider>
+          <v-divider></v-divider>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="secondary" text @click="editGradeDialog = false">
-                Cancel
-              </v-btn>
-              <v-btn color="primary" @click="handleUpdateGradeCriterias">
-                Save
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="secondary" text @click="editGradeDialog = false">
+              Cancel
+            </v-btn>
+            <v-btn color="primary" @click="handleUpdateGradeCriterias">
+              Save
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
 
-      <CoordinatorGradeCriteriaCard
-        :gradeCriterias="gradeCriterias"
-        :noGradeCriteriasProp="noGradeCriterias"
-        :dataUI="dataUI"
-        @add-grade-criterias="refresh"
-        class="coordinator-criteria-grade-card"
-      />
-    </main>
-  </section>
+    <CoordinatorGradeCriteriaCard
+      :gradeCriterias="gradeCriterias"
+      :noGradeCriteriasProp="noGradeCriterias"
+      :dataUI="dataUI"
+      @add-grade-criterias="refresh"
+      class="coordinator-criteria-grade-card"
+    />
+  </v-container>
 </template>
 
 <script>

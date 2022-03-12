@@ -1,80 +1,57 @@
 <template>
-  <div>
-    <!-- Sorting buttons -->
-    <v-row class="mb-4 justify-end">
-      <v-col cols="12" sm="2">
-        <p class="white--text my-0">Year</p>
-        <v-select
-          v-model="selectedYear"
-          :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-          @change="handleChangeRenderGroups"
-          dense
-          solo
-          hide-details
-        />
-      </v-col>
-      <v-col cols="12" sm="1">
-        <p class="white--text my-0">Semester</p>
-        <v-select
-          v-model="selectedSemester"
-          :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-          @change="handleChangeRenderGroups"
-          dense
-          solo
-          hide-details
-        />
-      </v-col>
-    </v-row>
-    <div class="dataTable">
-      <!-- Data Table -->
-      <v-card>
-        <v-card-title>
-          <v-spacer></v-spacer>
-          <v-col md="3"
-            ><v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-              label="Search"
-              single-line
-              hide-details
-              outlined
-            ></v-text-field
-          ></v-col>
-        </v-card-title>
-        <v-data-table
-          :headers="headers"
-          :items="groups"
-          :search="search"
-          item-key="Group_ID"
-        >
-          <!-- <template v-slot:item.Group_Name_Eng="{ item }">
+  <!-- Data Table -->
+  <v-card>
+    <v-card-title>
+      <h3>Group</h3>
+      <v-spacer></v-spacer>
+      <v-row class="d-flex justify-end">
+        <v-col md="2"></v-col>
+        <v-col md="6">
+          <v-text-field
+            v-model="search"
+            clearable
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
+        </v-col>
+      </v-row>
+    </v-card-title>
+    <v-data-table
+      :headers="headers"
+      :items="groups"
+      :search="search"
+      item-key="Group_ID"
+    >
+      <!-- <template v-slot:item.Group_Name_Eng="{ item }">
             <v-row class="mb-6 pa-5 justify-space-around" no-gutters>
               <div style="cursor: pointer">
                 {{ item.Group_Name_Eng }}
               </div>
             </v-row>
           </template> -->
-          <template v-slot:item.actions="{ item }">
-            <v-row class="justify-center py-5" no-gutters>
-              <!-- <v-col md="3"> -->
-              <v-row align="center" justify="space-around">
-                <v-col>
-                  <v-btn color="primary" @click="pushOtherPage(item.Group_ID)">
-                    <v-icon left> mdi-eye-arrow-right </v-icon>
-                    View
-                  </v-btn>
-                </v-col>
-                <v-col>
-                  <v-btn
-                    v-if="showDelete"
-                    color="error"
-                    @click="deleteGroup(item.Group_ID, item.Group_Name_Eng)"
-                  >
-                    <v-icon left> mdi-trash-can </v-icon>
-                    Delete
-                  </v-btn>
-                </v-col>
-                <!-- <v-row align="center" justify="space-around">
+      <template v-slot:item.actions="{ item }">
+        <v-row class="justify-center py-5" no-gutters>
+          <!-- <v-col md="3"> -->
+          <v-row align="center" justify="space-around">
+            <v-col>
+              <v-btn color="primary" @click="pushOtherPage(item.Group_ID)">
+                <v-icon left> mdi-eye-arrow-right </v-icon>
+                View
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                v-if="showDelete"
+                color="error"
+                @click="deleteGroup(item.Group_ID, item.Group_Name_Eng)"
+              >
+                <v-icon left> mdi-trash-can </v-icon>
+                Delete
+              </v-btn>
+            </v-col>
+            <!-- <v-row align="center" justify="space-around">
                   <v-btn
                     class="mb-10"
                     color="error"
@@ -84,14 +61,12 @@
                     View
                   </v-btn>
                 </v-row> -->
-              </v-row>
-              <!-- </v-col> -->
-            </v-row>
-          </template>
-        </v-data-table>
-      </v-card>
-    </div>
-  </div>
+          </v-row>
+          <!-- </v-col> -->
+        </v-row>
+      </template>
+    </v-data-table>
+  </v-card>
 </template>
 <script>
 export default {
@@ -140,7 +115,7 @@ export default {
       // let that = this;
       // Fetch all years and semesters
       this.yearNSemsters = await this.$axios.$get("/date/allYearsSemester");
-      console.log("yearNsemester", this.yearNSemsters);
+      // console.log("yearNsemester", this.yearNSemsters);
 
       this.selectedYear = this.yearNSemsters[0].Academic_Year;
       this.selectedSemester = this.yearNSemsters[0].Academic_Term;
@@ -169,7 +144,7 @@ export default {
         `/senior1/${
           this.$store.state.auth.currentUser.role === 0
             ? "teacher"
-            : "coordianator"
+            : "coordinator"
         }/group${id}`
       );
     },

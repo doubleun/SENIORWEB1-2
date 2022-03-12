@@ -1,25 +1,24 @@
 <template>
-  <section>
-    <main class="coordinator-group-main">
-      <h1>Group Info ({{ groupAdvisor ? "My Advisee" : "Committee" }})</h1>
+  <v-container>
+    <!-- <main class="coordinator-group-main"> -->
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">
+      Group Info ({{ groupAdvisor ? "My Advisee" : "Committee" }})
+    </h2>
 
-      <!-- First card (Evaluation result) -->
-      <v-card class="co-group-eval-card">
-        <v-card-title>EVALUATION RESULT</v-card-title>
-        <!-- Score table -->
-        <EvaluationResultGrid
-          :Group_ID="Group_ID"
-          :evalScores="fetchScoresRes"
-        />
-      </v-card>
+    <!-- First card (Evaluation result) -->
+    <v-card class="co-group-eval-card">
+      <v-card-title>EVALUATION RESULT</v-card-title>
+      <!-- Score table -->
+      <EvaluationResultGrid :Group_ID="Group_ID" :evalScores="fetchScoresRes" />
+    </v-card>
 
-      <!-- Second card (Group detail) -->
-      <GroupDetailCard
-        style="margin-block-start: 4.2rem"
-        :GroupDetail="GroupDetail"
-      />
-    </main>
-  </section>
+    <!-- Second card (Group detail) -->
+    <GroupDetailCard
+      style="margin-block-start: 4.2rem"
+      :GroupDetail="GroupDetail"
+    />
+    <!-- </main> -->
+  </v-container>
 </template>
 
 <script>

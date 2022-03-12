@@ -1,16 +1,120 @@
 <template>
-  <v-card class="long-table-card">
+  <v-card>
     <v-card-title>
-      <h4>{{ tableTitle }}</h4>
-      <v-text-field
-        placeholder="Search"
-        prepend-inner-icon="mdi-magnify"
-        outlined
-        hide-details
-        dense
-      ></v-text-field>
-    </v-card-title>
+      <h3>{{ tableTitle }}</h3>
+      <v-spacer></v-spacer>
+      <v-row class="d-flex justify-end">
+        <v-col md="2" class="d-flex justify-end">
+          <v-dialog v-model="dialogFilter" persistent max-width="600px">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                class="mt-5 mr-2"
+                small
+                color="primary"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon> mdi-filter-variant-plus </v-icon>
+              </v-btn>
+            </template>
 
+            <!-- Action buttons -->
+            <v-card>
+              <v-card-title> Filter </v-card-title>
+              <v-card-text>
+                <v-row v-if="majors">
+                  <v-col md="3">
+                    <p>Study Program</p>
+                  </v-col>
+                  <v-col md="9">
+                    <v-select
+                      v-model="selectedMajor"
+                      :items="majors"
+                      item-text="Major_Name"
+                      item-value="Major_ID"
+                      return-object
+                      dense
+                      solo
+                      hide-details
+                      off
+                    />
+                  </v-col>
+                </v-row>
+                <v-row v-if="manageTeacher">
+                  <v-col md="3">
+                    <p>Role</p>
+                  </v-col>
+                  <v-col md="9">
+                    <v-select
+                      v-model="selectedRole"
+                      :items="roles"
+                      item-text="Role_Name"
+                      item-value="Role_ID"
+                      return-object
+                      dense
+                      solo
+                      hide-details
+                    />
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col md="3">
+                    <p>Year</p>
+                  </v-col>
+                  <v-col md="9">
+                    <v-select
+                      v-model="selectedYear"
+                      :items="yearNSemsters.map((itm) => itm.Academic_Year)"
+                      dense
+                      solo
+                      hide-details
+                    />
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col md="3">
+                    <p>Semester</p>
+                  </v-col>
+                  <v-col md="9">
+                    <v-select
+                      v-model="selectedSemester"
+                      :items="yearNSemsters.map((itm) => itm.Academic_Term)"
+                      dense
+                      solo
+                      hide-details
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="dialogFilter = false">
+                  Close
+                </v-btn>
+                <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="handelchangeRenderUser"
+                >
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-col>
+        <v-col md="6">
+          <v-text-field
+            v-model="search"
+            clearable
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
+        </v-col>
+      </v-row>
+    </v-card-title>
     <!-- Grid table -->
     <v-data-table
       :headers="headers"
@@ -18,6 +122,7 @@
       :items-per-page="itemPerPage"
       :item-key="itemKey"
       class="elevation-1"
+      :search="search"
     >
       <template v-slot:top>
         <!-- Edit teacher dialog -->
@@ -63,15 +168,10 @@
         </v-dialog>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <!-- <v-icon small @click="deleteItem(item)">
-          mdi-delete
-        </v-icon>
-
-      <!-- Conflict here -->
-        <!-- <template v-slot:item.User_Role="{ item }">
-        {{ (item.User_Role = handelTextRole(item.User_Role)) }} -->
-        <!-- Conflict ends -->
+        <v-btn dark color="blue darken-4">
+          <v-icon small class="mr-2" @click="editItem(item)"> mdi-pen </v-icon
+          >Edit
+        </v-btn>
       </template>
     </v-data-table>
   </v-card>
@@ -87,8 +187,14 @@ export default {
     items: Array,
     manageTeacher: Boolean,
     teacherEditAttrs: Array,
+    majors: Array,
+    yearNSemsters: Array,
+    roles: Array,
   },
   data: () => ({
+    selectedMajor: {},
+    selectedYear: null,
+    selectedSemester: null,
     dialog: false,
     selectedTeacher: {
       User_Name: "",
@@ -100,11 +206,36 @@ export default {
       { label: "Teacher", value: 0 },
       { label: "Coordinator", value: 2 },
     ],
+    search: "",
+    dialogFilter: false,
+    selectedMajor: {},
+    selectedYear: null,
+    selectedSemester: null,
+    selectedRole: null,
   }),
+
   mounted() {
-    console.log(this.items);
+    // console.log(this.items);
+    this.majors ? (this.selectedMajor = this.majors[0]) : null;
+    this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+
+    // selectedRole.Role_ID = null for co and admin manage student
+    this.selectedRole = this.manageTeacher ? this.roles[0] : null;
   },
   methods: {
+    handelchangeRenderUser() {
+      this.$emit(
+        "on-filtering",
+        this.selectedYear,
+        this.selectedSemester,
+        this.majors ? this.selectedMajor.Major_ID : null,
+
+        // selectedRole.Role_ID = null for co and admin manage student
+        this.manageTeacher ? this.selectedRole.Role_ID : null
+      );
+      this.dialogFilter = false;
+    },
     editItem(e) {
       console.log("New e: ", e);
       this.selectedTeacher.User_Name = e.User_Name;
@@ -185,7 +316,7 @@ export default {
 </script>
 
 <style scoped>
-.long-table-card {
+/* .long-table-card {
   padding: 0;
-}
+} */
 </style>

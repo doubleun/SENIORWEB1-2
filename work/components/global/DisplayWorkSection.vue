@@ -19,6 +19,7 @@
         >
       </div>
     </div>
+
     <!-- (Left-side)Preview file -->
     <v-card class="preview-work-card">
       <!-- Switch file preview tabs -->
@@ -40,15 +41,15 @@
               ? false
               : handelCheckInputFile({
                   fileName: selectedFile.fileName,
-                }) != true
+                }) === true
           "
           :data="selectedFile.src"
           width="100%"
-          height="100%"
+          height="90%"
         ></object>
-        <p v-else>
+        <v-container v-else>
           {{ !selectedFile.fileName ? "" : "This file can not preview" }}
-        </p>
+        </v-container>
       </div>
     </v-card>
 
