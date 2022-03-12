@@ -3,32 +3,20 @@
     <v-row>
       <v-col>
         <h2 class="header-title mb-2 mt-5">Create Group</h2>
+        <p v-if="groupMembers.length !== 0">
+          <strong style="color: red">*</strong>
+          You can update group information until submit an assignment
+        </p>
       </v-col>
-      <!-- Alerts -->
-      <!-- <div v-if="0">
-        <v-col cols="8"
-          ><v-alert type="warning"
-            >An invitation to join the group has been sent. Please wait for your
-            invitation to be accepted.</v-alert
-          ></v-col
-        >
-      </div>
-      <div v-else>
-        <v-col
-          ><v-alert type="success"
-            >Everyone you've invited has accepted into your group.</v-alert
-          ></v-col
-        >
-      </div> -->
     </v-row>
     <v-divider></v-divider>
     <!-- Create group form -->
     <v-form ref="form" lazy-validation v-model="valid">
       <v-card class="content mt-5">
         <v-row>
-          <v-col cols="12" sm="3"
-            ><h3 class="font-weight-bold">CREATE GROUP</h3></v-col
-          >
+          <v-col cols="12" sm="3">
+            <h3 class="font-weight-bold">CREATE GROUP</h3>
+          </v-col>
           <v-col cols="12" sm="9">
             <!-- Part : project name -->
             <div class="projectName">
@@ -77,7 +65,7 @@
               <h4 class="font-weight-bold">Project Member</h4>
               <!-- Student -->
               <!-- Loop the "projectMembers" array and render each student fields -->
-              <div v-for="(member, index) in projectMembers" :key="member">
+              <div v-for="(member, index) in projectMembers" :key="index">
                 <h5 class="font-weight-bold mt-5">
                   Student {{ member }}
                   <!-- Icon indicate if teacher submiited eval comment yet -->
@@ -121,17 +109,21 @@
                     <v-text-field
                       ref="stuPhoneNumber"
                       v-model="phone[index]"
+                      :maxlength="10"
                       :rules="[
-                        handleValidateTextField(
-                          {
+                        () =>
+                          handleValidateTextField({
                             string: phone[index],
                             option: 'onlyNumber',
                             errorMsg:
-                              'This field is required / Not allow start and end with space / Start with 0 / Only 10 digit of number',
-                          },
-                          phone[index].length != 10,
-                          phone[index][0] != 0
-                        ),
+                              'This field is required /Only number / Not allow start and end with space',
+                          }),
+                        () =>
+                          phone[index][0] != 0 ? 'Please Start with 0' : true,
+                        () =>
+                          phone[index].length != 10
+                            ? 'Only 10 digit of number'
+                            : true,
                       ]"
                       :disabled="!headMember"
                       required
@@ -148,7 +140,10 @@
                       :items="allStudentsInSchool"
                       :filter="customStudentFilter"
                       :disabled="
-                        index == 0 || !headMember || memberStatus[index] === 1
+                        index == 0 ||
+                        !headMember ||
+                        memberStatus[index] === 1 ||
+                        groupCreated
                       "
                       :rules="[
                         (val) => selectMemberRules('student', index, val),
@@ -181,7 +176,7 @@
               </div>
             </div>
             <!-- Add and remove member flex -->
-            <div class="d-flex flex-row" v-if="headMember">
+            <div class="d-flex flex-row" v-if="!groupCreated">
               <!-- Add member -->
               <div class="mb-5 mr-5" v-show="projectMembers.length < 10">
                 <a class="text-decoration-underline" @click="addMemberFields"
@@ -227,7 +222,10 @@
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
-                      (!!selectedAdvisor && groupCreated) || !headMember
+                      (!!selectedAdvisor &&
+                        selectedAdvisorstatus !== 3 &&
+                        groupCreated) ||
+                      !headMember
                     "
                     :rules="[(val) => selectMemberRules('advisor', 0, val)]"
                     outlined
@@ -259,24 +257,6 @@
                     outlined
                     dense
                   ></v-text-field>
-                  <!-- <v-autocomplete
-                    v-model="selectedCoAdvisor"
-                    :items="allTeachersInSchool"
-                    :filter="customTeacherFilter"
-                    :disabled="
-                      (!!selectedCoAdvisor && groupCreated) || !headMember
-                    "
-                    outlined
-                    dense
-                    color="blue"
-                    hide-no-data
-                    hide-selected
-                    item-text="User_Name"
-                    item-value="User_Name"
-                    placeholder="Search co-advisor name"
-                    clearable
-                    return-object
-                  ></v-autocomplete> -->
                 </v-col>
               </v-row>
             </div>
@@ -312,7 +292,10 @@
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
-                      (!!selectedCommittee1 && groupCreated) || !headMember
+                      (!!selectedCommittee1 &&
+                        selectedAdvisorstatus !== 3 &&
+                        groupCreated) ||
+                      !headMember
                     "
                     :rules="[(val) => selectMemberRules('advisor', 1, val)]"
                     outlined
@@ -353,7 +336,10 @@
                     :items="allTeachersInSchool"
                     :filter="customTeacherFilter"
                     :disabled="
-                      (!!selectedCommittee2 && groupCreated) || !headMember
+                      (!!selectedCommittee2 &&
+                        selectedAdvisorstatus !== 3 &&
+                        groupCreated) ||
+                      !headMember
                     "
                     :rules="[(val) => selectMemberRules('advisor', 2, val)]"
                     outlined
@@ -384,7 +370,13 @@
                 >
                   Create
                 </v-btn>
-                <v-btn rounded dark color="indigo" @click="updateInfo" v-else>
+                <v-btn
+                  rounded
+                  dark
+                  color="indigo"
+                  @click="updateInfo"
+                  v-if="groupMembers.length !== 0 && !isHaveAssignment"
+                >
                   Update
                 </v-btn>
               </v-col>
@@ -441,13 +433,13 @@ export default {
     filteredStudents: [],
     // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
     selectedAdvisor: null,
-    selectedAdvisorstatus: null,
+    selectedAdvisorstatus: 3,
     // selectedCoAdvisor: null,
     coadvisorName: "",
     selectedCommittee1: null,
     selectedCommittee2: null,
-    selectedCommittee1status: null,
-    selectedCommittee2status: null,
+    selectedCommittee1status: 3,
+    selectedCommittee2status: 3,
     valid: true,
     thaiName: "",
     engName: "",
@@ -464,13 +456,14 @@ export default {
     ],
     projectMembers: [1],
     memberStatus: [],
-    name: ["", "", "", ""],
-    phone: ["", "", "", ""],
-    // idstu: ["", "", "", ""],
-    email: ["", "", "", ""],
+    name: ["", "", "", "", "", "", "", "", "", ""],
+    phone: ["", "", "", "", "", "", "", "", "", ""],
+    // idstu: ["", "", "", "", "","", "", "", "", ""],
+    email: ["", "", "", "", "", "", "", "", "", ""],
     major: "1",
     showResposeBtn: false,
     majorPro: [],
+    isHaveAssignment: false,
   }),
   mixins: [utils],
 
@@ -481,6 +474,19 @@ export default {
     const res = await this.$axios.$post("/user/getAllUsersInSchool", {
       Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
     });
+
+    let isHaveAssignment = [];
+
+    if (!!this.$store.state.group.currentUserGroup) {
+      // Fetch group assignment for block update info after submit an assignment
+      isHaveAssignment = await this.$axios.$post(
+        "/assignment/groupAssignment",
+        {
+          Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
+        }
+      );
+    }
+    this.isHaveAssignment = isHaveAssignment.length > 0 ? true : false;
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students;
     // console.log("Students: ", res.students);
@@ -571,11 +577,17 @@ export default {
       this.$refs.form.validate();
       // console.log(this.selectedStudent)
       // Make sure that atleast one advisor and one committee is selected
+      // console.log(this.$refs.form.validate());
+      // console.log(this.valid);
       if (
         this.selectedAdvisor === null ||
         this.selectedCommittee1 === null ||
         this.selectedCommittee2 === null ||
-        this.valid === false
+        this.thaiName === "" ||
+        this.thaiName === null ||
+        this.engName === "" ||
+        this.engName === null ||
+        this.$refs.form.validate() === false
       )
         return;
 
@@ -621,7 +633,7 @@ export default {
               Email_Student8: this.email[7],
               Email_Student9: this.email[8],
               Email_Student10: this.email[9],
-              Major: this.major,
+              Major: this.$store.state.auth.currentUser.major,
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
             });
@@ -646,9 +658,16 @@ export default {
       if (
         this.selectedAdvisor === null ||
         this.selectedCommittee1 === null ||
-        this.valid === false
+        this.selectedCommittee2 === null ||
+        this.thaiName === "" ||
+        this.thaiName === null ||
+        this.engName === "" ||
+        this.engName === null ||
+        this.$refs.form.validate() === false
       )
         return;
+
+      if (this.isHaveAssignment) return;
 
       this.$swal
         .fire({
@@ -690,7 +709,6 @@ export default {
               Email_Student8: this.email[7],
               Email_Student9: this.email[8],
               Email_Student10: this.email[9],
-              Major: this.major,
               Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
               Project_on_term_ID:
                 this.$store.state.auth.currentUser.projectOnTerm,
@@ -784,13 +802,14 @@ export default {
       // Sets advisor
       const advisor = this.groupMembers.filter((itm) => itm.Group_Role === 0);
       // console.log("this" + advisor[0].User_Status);""
-      if (advisor.length !== 0)
+      if (advisor.length !== 0) {
         this.selectedAdvisor = {
           User_Email: advisor[0].User_Email,
           User_Name: advisor[0].User_Name,
           disabled: true,
         };
-      this.selectedAdvisorstatus = advisor[0].User_Status;
+        this.selectedAdvisorstatus = advisor[0].User_Status;
+      }
       // console.log(this.$store.state.group.currentUserGroup);
       //Set co-advisor name
       if (this.$store.state.group.currentUserGroup.Co_Advisor !== "") {
@@ -828,6 +847,8 @@ export default {
         User_Major: this.$store.state.auth.currentUser.major,
       };
       this.memberStatus[0] = 1;
+
+      console.log(" this.email: ", this.email);
     }
 
     // Check if current user is the head of the group

@@ -1,6 +1,7 @@
 const groupRouter = require("express").Router();
 const groupController = require("../controllers/groupControllers");
 const multer = require("../controllers/multer");
+const middle = require("../middleware/middle");
 
 groupRouter.get("/getByMajor", groupController.getByMajor); // addmin, co, advisor, committee
 groupRouter.post("/getGroupWithID", groupController.getGroupWithID); // coordinator
@@ -30,11 +31,11 @@ groupRouter.post(
   groupController.grading
 );
 groupRouter.put("/updateGroup", groupController.updateGroup);
+groupRouter.post("/getGroupMajor", groupController.getGroupMajor);
 groupRouter.put("/delete/one", groupController.deleteById);
 groupRouter.post("/countMyGroup", groupController.countTeachergroup);
 groupRouter.post("/getAllFilesMajor", groupController.getAllFilesMajor);
 groupRouter.post("/moveGroup", groupController.addGroupToSeTwo);
 groupRouter.post("/countprogress", groupController.countProgressGroup);
-
 
 module.exports = groupRouter;

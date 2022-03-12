@@ -5,144 +5,271 @@
       <h4>Total: {{ allScoresTotal }}/100</h4>
     </v-card-title>
 
-    <!-- Score criteria table -->
-    <div class="score-criteria-content">
-      <!-- Table attr -->
-      <h4>CRITERIA</h4>
-      <h4>Advisor</h4>
-      <div style="display: flex; justify-content: center">
-        <h4 style="margin-right: 2px">Committees Total</h4>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-icon color="primary" dark v-bind="attrs" v-on="on">
-              mdi-information-outline
-            </v-icon>
-          </template>
-          <span>This score will be divided in half for each committee</span>
-        </v-tooltip>
-      </div>
-      <h4>Total</h4>
-      <h4>ACTIONS</h4>
-
-      <!-- Table records -->
-      <template v-for="(criteria, index) in dataUI.scoreCriterias">
-        <p :key="criteria.Progress_Name + 1">{{ criteria.Progress_Name }}</p>
-        <p :key="criteria.Progress_Name + 2">
-          {{ criteria.Advisor_Score || 0 }}
-        </p>
-        <p :key="criteria.Progress_Name + 3">
-          {{ criteria.Committee_Score || 0 }}
-        </p>
-        <p :key="criteria.Progress_Name + 4">{{ criteria.Total || 0 }}</p>
-
-        <!-- Edit score criteria button -->
-        <v-dialog
-          v-model="criteria.editDialog"
-          width="500"
-          :key="criteria.Progress_Name + 5"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="blue darken-4"
-              class="white--text"
-              v-on="on"
-              @click="handleSetInitModalScore(criteria)"
-              v-bind="attrs"
-              :disabled="
-                admin ||
-                (index !== 0 &&
-                  !dataUI.scoreCriterias[index - 1].Score_criteria_ID)
-              "
-              ><v-icon>mdi-pen</v-icon> Edit</v-btn
-            >
-          </template>
-
-          <!-- Edit score criteria pop up card -->
-          <v-card class="score-criteria-dialog-card">
-            <v-card-title class="text-h5"> Score Criteria </v-card-title>
-
-            <v-form ref="form">
-              <div class="score-criteria-input-flex">
-                <div v-for="role in editScoreRoles" :key="role.id">
-                  <v-subheader>{{ role.name }}</v-subheader>
-                  <v-text-field
-                    v-model="scoreCriterias[index][role.value]"
-                    :rules="[
-                      () =>
-                        handleValidateScore(scoreCriterias[index][role.value]),
-                    ]"
-                    outlined
-                    dense
-                  ></v-text-field>
-                </div>
+    <!-- Score criteria data table -->
+    <template>
+      <v-data-table
+        :headers="headers"
+        :items="scoreCriterias"
+        sort-by="Progress_ID"
+        hide-default-footer
+      >
+        <!-- Score criteria data table: header (committees total) -->
+        <template v-slot:header.Committee_Score="{ header }">
+          <v-tooltip bottom>
+            <!-- Tool tip content -->
+            <template v-slot:activator="{ on, attrs }">
+              <div class="table-header-icon" v-bind="attrs" v-on="on">
+                <p>{{ header.text }}</p>
+                <v-icon small color="primary">mdi-information</v-icon>
               </div>
-            </v-form>
+            </template>
+            <!-- Tool tip text -->
+            <span>The score will be divide in half for each committee</span>
+          </v-tooltip>
+        </template>
 
-            <v-divider></v-divider>
+        <!-- Score criteria data table: header (toggle) -->
+        <template v-slot:header.toggle="{ header }">
+          <v-tooltip bottom>
+            <!-- Tool tip content -->
+            <template v-slot:activator="{ on, attrs }">
+              <div class="table-header-icon" v-bind="attrs" v-on="on">
+                <p>{{ header.text }}</p>
+                <v-icon small color="primary">mdi-information</v-icon>
+              </div>
+            </template>
+            <!-- Tool tip text -->
+            <span>Progress needs to be add first to unlock toggle</span>
+          </v-tooltip>
+        </template>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="secondary"
-                text
-                @click="criteria.editDialog = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                color="primary"
-                @click="updateScoreCriteria(scoreCriterias[index])"
-              >
-                Save
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </template>
-    </div>
+        <!-- Score criteria data table: Dialog edit score criteria card -->
+        <template v-slot:top>
+          <v-dialog v-model="dialog" max-width="500px">
+            <v-card>
+              <v-card-title>
+                <span class="text-h5"
+                  >Edit progress: {{ editedItem.Progress_Name }}</span
+                >
+              </v-card-title>
+
+              <!-- Edit progress card modal -->
+              <v-card-text style="padding: 0 24px 0 24px">
+                <v-container>
+                  <!-- Edit card: progress due date row -->
+                  <v-row>
+                    <v-col cols="12" lg="6">
+                      <DatePicker
+                        dateLabel="Begin date"
+                        :date="editedItem.DueDate_Start"
+                        @update-date="
+                          (newDate) =>
+                            handleUpdateDate('DueDate_Start', newDate)
+                        "
+                      />
+                    </v-col>
+                    <v-col cols="12" lg="6">
+                      <DatePicker
+                        dateLabel="End date"
+                        :date="editedItem.DueDate_End"
+                        :minDate="editedItem.DueDate_Start"
+                        @update-date="
+                          (newDate) => handleUpdateDate('DueDate_End', newDate)
+                        "
+                      />
+                    </v-col>
+                  </v-row>
+                  <!-- Edit card: progress name -->
+                  <v-form ref="form">
+                    <v-row>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="editedItem.Advisor_Score"
+                          prepend-icon="mdi-account-check"
+                          label="Advisor score"
+                          :rules="[
+                            () => handleValidateScore(editedItem.Advisor_Score),
+                          ]"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="editedItem.Committee_Score"
+                          prepend-icon="mdi-account-multiple-check"
+                          hint="The score will be divide in half for each committee"
+                          label="Comittees total score"
+                          :rules="[
+                            () =>
+                              handleValidateScore(editedItem.Committee_Score),
+                          ]"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-form>
+                </v-container>
+              </v-card-text>
+
+              <v-card-actions style="padding: 8px 16px 16px 16px">
+                <v-spacer></v-spacer>
+                <v-btn color="primary" text @click="close"> Cancel </v-btn>
+                <v-btn color="primary" dark @click="handleEditScoreCriteria">
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </template>
+
+        <!-- Score criteria data table: content data templates -->
+        <!-- Currently active -->
+        <template v-slot:item.Status="{ item }">
+          <div class="score-criteria-status-container">
+            <h4 v-if="item.Status" class="success--text">
+              <v-icon small color="success darken-1">mdi-circle</v-icon> Active
+            </h4>
+            <h4 v-else class="error--text">
+              <v-icon small color="error darken-1">mdi-circle</v-icon> Inactive
+            </h4>
+          </div>
+        </template>
+        <!-- Due-date start (DueDate_Start) -->
+        <template v-slot:item.DueDate_Start="{ item }">
+          <div>
+            {{ !!item.Score_criteria_ID ? item.DueDate_Start : "NaN" }}
+          </div>
+        </template>
+        <!-- Due-date end (DueDate_End)-->
+        <template v-slot:item.DueDate_End="{ item }">
+          <div>
+            {{ !!item.Score_criteria_ID ? item.DueDate_End : "NaN" }}
+          </div>
+        </template>
+        <!-- Switch toggle -->
+        <template v-slot:item.toggle="{ item }">
+          <div style="display: flex; justify-content: center">
+            <v-switch
+              v-model="item.Status"
+              :false-value="0"
+              :true-value="1"
+              :data-criteria-id="item.Score_criteria_ID"
+              @click="handleToggleStatus($event, item.Status)"
+              hide-details
+              :ripple="false"
+              :disabled="!item.Score_criteria_ID || isAdmin"
+              inset
+              style="margin: 0"
+            />
+          </div>
+        </template>
+        <!-- Edit score criteria button -->
+        <template v-slot:item.edit="{ item }">
+          <v-btn color="primary" @click="editItem(item)" :disabled="isAdmin"
+            ><v-icon small>
+              {{ !!item.Score_criteria_ID ? "mdi-pencil" : "mdi-plus-circle" }}
+            </v-icon>
+            {{ !!item.Score_criteria_ID ? "Edit" : "Add" }}</v-btn
+          >
+        </template>
+        <template v-slot:no-data>
+          <p>No data found, please contact admin</p>
+        </template>
+      </v-data-table>
+    </template>
   </v-card>
 </template>
 
 <script>
 import utils from "@/mixins/utils";
+import dialog from "@/mixins/dialog";
+import DatePicker from "../common/DataPicker.vue";
 
 export default {
-  mixins: [utils],
+  mixins: [utils, dialog],
+  components: {
+    DatePicker,
+  },
   props: {
     scoreCriterias: {
       type: Array,
-      default: [],
+      default: () => [],
     },
     dataUI: {
       type: Object,
-      default: { scoreCriterias: [] },
+      default: () => {
+        scoreCriterias: [];
+      },
     },
-    admin: {
+    isAdmin: {
       type: Boolean,
-      default: false,
+      default: () => false,
     },
   },
   data() {
     return {
-      editScoreDialog: false,
-      editScoreRoles: [
-        { id: 1, name: "Advisor Score", score: 0, value: "Advisor_Score" },
+      testBool: false,
+      dialog: false,
+      headers: [
         {
-          id: 2,
-          name: "Committees Total Score",
-          score: 0,
-          value: "Committee_Score",
+          text: "Status",
+          align: "center",
+          value: "Status",
+          sortable: false,
         },
+        {
+          text: "Name",
+          align: "center",
+          value: "Progress_Name",
+          sortable: false,
+        },
+        {
+          text: "Due-date start",
+          align: "center",
+          value: "DueDate_Start",
+          sortable: false,
+        },
+        {
+          text: "Due-date end",
+          align: "center",
+          value: "DueDate_End",
+          sortable: false,
+        },
+        {
+          text: "Advisor Score",
+          align: "center",
+          value: "Advisor_Score",
+          sortable: false,
+        },
+        {
+          text: "Committees Total",
+          align: "center",
+          value: "Committee_Score",
+          sortable: false,
+        },
+        { text: "Toggle", value: "toggle", align: "center", sortable: false },
+        { text: "Edit", value: "edit", align: "center", sortable: false },
       ],
+      editedIndex: -1,
+      editedItem: {},
       // Initial score on edit modal popup shows
       initialEditTotalScore: 0,
     };
   },
   mounted() {
-    console.log(this.dataUI);
+    console.log("dataUI: ", this.dataUI);
+    console.log("scoreCriterias: ", this.scoreCriterias);
   },
   methods: {
-    async updateScoreCriteria(criteriaItem) {
+    testLog() {
+      console.log(this.testBool);
+    },
+    handleUpdateDate(date, newDate) {
+      this.editedItem[date] = newDate;
+    },
+    async handleEditScoreCriteria() {
+      console.log("this.editedItem: ", this.editedItem);
+      const criteriaItem = this.editedItem;
+      const startDate = new Date(criteriaItem.DueDate_Start);
+      const endDate = new Date(criteriaItem.DueDate_End);
       try {
         // Check if there's score at all
         if (
@@ -150,34 +277,42 @@ export default {
           (!criteriaItem?.Committee_Score &&
             criteriaItem?.Committee_Score !== 0)
         ) {
-          this.$swal.fire("Something went wrong", "", "warning");
+          this.$swal.fire("Invalid score input", "", "warning");
           return;
         }
-        // console.log("criteria item: ", criteriaItem);
+
+        // Calculate new score total
         const newScoreTotal =
           parseInt(criteriaItem.Advisor_Score) +
           parseInt(criteriaItem.Committee_Score);
-        console.log(this.$refs.form);
-        const isValid = this.$refs.form[0].validate();
+        const isValid = this.$refs.form.validate();
 
-        // Check if the criteria has an id and entered values are valid
-        if (!isValid) return;
-
-        // Check if total goes higher than 100, if it dose return
-        if (newScoreTotal + this.initialEditTotalScore > 100) {
-          this.$swal.fire("Total score must be less than 100", "", "warning");
+        // Check if the form is valid and check if total goes higher than 100, if it dose return
+        if (!isValid || newScoreTotal + this.initialEditTotalScore > 100) {
+          this.$swal.fire(
+            "There is an error, please check your score input",
+            "",
+            "warning"
+          );
           return;
         }
 
-        console.log("criteriaItem: ", criteriaItem);
+        // Check if end date is less than begin date
+        if (startDate > endDate) {
+          this.$swal.fire("Invalid date input", "", "warning");
+          return;
+        }
+
+        // POST API for updating score criteria
         const res = await this.$axios.$post("/criteria/scoreEdit", {
           ...criteriaItem,
         });
+
         if (res.status !== 200)
           throw new Error("Score failed to update, please try again later");
 
         // Update total
-        criteriaItem.Total =
+        this.scoreCriterias[this.editedIndex].Total =
           parseInt(criteriaItem.Advisor_Score) +
           parseInt(criteriaItem.Committee_Score);
 
@@ -187,10 +322,11 @@ export default {
           "Update score criterias successfully",
           "success"
         );
+
         // Refresh nuxt to re-fetch score criterias
         this.$emit("score-updated");
-
-        criteriaItem.editDialog = false;
+        // Close edit score criteria dialog
+        this.dialog = false;
         return;
       } catch (err) {
         console.log(err);
@@ -198,12 +334,33 @@ export default {
         return;
       }
     },
-    handleSetInitModalScore(criteria) {
-      this.initialEditTotalScore = this.allScoresTotal - criteria.Total;
-      // console.log(
-      //   "Total score - this progress's total: ",
-      //   this.initialEditTotalScore
-      // );
+
+    async handleToggleStatus(e, status) {
+      const criteriaId = e.target.getAttribute("data-criteria-id");
+      const projectOnTermId =
+        this.$store.getters["auth/currentUser"].projectOnTerm;
+      // If no criteria id or projectOnTermId, shows alert and return
+      if (!criteriaId || !projectOnTermId) {
+        this.$swal
+          .fire("An error has occured", "", "warning")
+          .then((res) => window.location.reload());
+        return;
+      }
+
+      // Fetch api to toggle progress status
+      const updateToggle = () => {
+        return this.$axios.$post("/criteria/toggleScoreCriteriaStatus", {
+          Status: status,
+          Score_criteria_ID: criteriaId,
+          Project_on_term_ID:
+            this.$store.getters["auth/currentUser"].projectOnTerm,
+        });
+      };
+      await this.showLoading(updateToggle);
+
+      // Dispatch store available progressions too if this is the first progress (to unlock import student)
+      await this.$store.dispatch("group/storeAvailableProgressions");
+      return;
     },
     handleValidateScore(val) {
       return this.handleValidateTextField(
@@ -215,6 +372,34 @@ export default {
         parseInt(val) > 100,
         parseInt(val) < 0
       );
+    },
+
+    editItem(item) {
+      this.editedIndex = this.scoreCriterias.indexOf(item);
+
+      // Set initial total score
+      this.initialEditTotalScore = this.allScoresTotal - item.Total;
+
+      // Set editedItem object (for submitting api)
+      this.editedItem = Object.assign({}, item);
+      this.dialog = true;
+    },
+
+    close() {
+      this.dialog = false;
+      this.$nextTick(() => {
+        this.editedItem = {};
+        this.editedIndex = -1;
+      });
+    },
+
+    save() {
+      if (this.editedIndex > -1) {
+        Object.assign(this.scoreCriterias[this.editedIndex], this.editedItem);
+      } else {
+        this.scoreCriterias.push(this.editedItem);
+      }
+      this.close();
     },
   },
   computed: {
@@ -307,7 +492,20 @@ export default {
 .score-criteria-input-flex > div {
   width: 46%;
 }
+
+.table-header-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1px;
+}
+.table-header-icon > p {
+  margin: 0;
+}
 .score-criteria-dialog-card hr {
   margin-block: 1rem;
+}
+.score-criteria-status-container > p {
+  margin: 0;
 }
 </style>

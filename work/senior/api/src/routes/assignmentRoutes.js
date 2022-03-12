@@ -1,6 +1,7 @@
 const assignmentRouter = require("express").Router();
 const assignmentController = require("../controllers/assignmentControllers");
 const multer = require("../controllers/multer");
+const middle = require("../middleware/middle");
 
 assignmentRouter.post(
   "/uploadAssignments",
@@ -27,8 +28,14 @@ assignmentRouter.post(
 // assignmentRouter.get("/major", criteriaController.getByMajor); // Add new score criterias
 // assignmentRouter.post("/edit", criteriaController.editCriteria); // admin
 assignmentRouter.post("/", assignmentController.getAssignment);
+
 assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
 assignmentRouter.get("/abstracts", assignmentController.getAbstracts);
+assignmentRouter.post(
+  "/groupAssignment",
+  assignmentController.getGroupAssignment
+);
+
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
 
 module.exports = assignmentRouter;

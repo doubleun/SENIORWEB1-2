@@ -1,17 +1,15 @@
 <template>
-  <section>
-    <main class="coordinator-criteria-main">
-      <h1>Criteria</h1>
+  <v-container>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Criteriass</h2>
 
-      <CsiDatatableprogress1 class="coordinator-criteria-grade-card" />
+    <CsiDatatableprogress1 class="coordinator-criteria-grade-card" />
 
-      <CsiDatatableprogress2 class="coordinator-criteria-grade-card" />
+    <CsiDatatableprogress2 class="coordinator-criteria-grade-card" />
 
-      <CsiDatatablefinalpresentation class="coordinator-criteria-grade-card" />
+    <CsiDatatablefinalpresentation class="coordinator-criteria-grade-card" />
 
-      <CsiDatatablefinaldocument class="coordinator-criteria-grade-card" />
-    </main>
-  </section>
+    <CsiDatatablefinaldocument class="coordinator-criteria-grade-card" />
+  </v-container>
 </template>
 
 <script>
@@ -25,9 +23,9 @@ export default {
 
   data() {
     return {
-      dialog: false
+      dialog: false,
     };
-  }
+  },
 };
 </script>
 

@@ -1,9 +1,7 @@
 <template>
-  <section>
-    <main class="coordinator-criteria-main">
-      <GlobalCsiCriteria class="coordinator-criteria-grade-card" />
-    </main>
-  </section>
+  <v-container>
+    <GlobalCsiCriteria class="coordinator-criteria-grade-card" />
+  </v-container>
 </template>
 
 <script>
@@ -13,9 +11,9 @@ export default {
   layout: "coordinatorsidebar",
   data() {
     return {
-      dialog: false
+      dialog: false,
     };
-  }
+  },
 };
 </script>
 

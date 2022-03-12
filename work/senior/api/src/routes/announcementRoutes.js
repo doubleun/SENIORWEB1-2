@@ -1,5 +1,6 @@
 const announcRouter = require("express").Router();
 const announcController = require("../controllers/announcementControllers");
+const middle = require("../middleware/middle");
 
 announcRouter.post("/major", announcController.getById); // co, advisor, committee, student
 announcRouter.get("/all", announcController.getAll); // admin

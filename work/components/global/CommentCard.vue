@@ -83,8 +83,8 @@ export default {
       this.teachers = this.committees;
     }
 
-    // If progress is proposal or re-eval hide score is true
-    if (parseInt(this.progressId) === 2 || parseInt(this.progressId) === 10) {
+    // If progress is re-eval hide score is true
+    if (parseInt(this.progressId) === 10) {
       this.hideScore = true;
     }
 

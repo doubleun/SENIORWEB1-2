@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <CoordinatorHomeCardStatus :info="info" />
     <CoordinatorHomeAnnouncement
       :dataUi="dataUi"
@@ -7,7 +7,7 @@
       @on-update-announcements="refresh"
       editable
     />
-  </div>
+  </v-container>
 </template>
 <script>
 // import CardStatus from "@/components/coordinator/homeCardStatus";

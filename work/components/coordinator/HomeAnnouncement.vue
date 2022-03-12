@@ -212,7 +212,7 @@ export default {
 
   mounted() {
     this.userRole = this.$store.state.auth.currentUser.role;
-    console.log("role", this.role);
+    // console.log("role", this.role);
     // console.log("dataUi", this.dataUi);
     // console.log("bindAnnouncement", this.bindingData);
   },
@@ -230,7 +230,7 @@ export default {
       let validateText = this.$refs.textAdd.validate("textAdd");
 
       // console.log("selectedMajor", selectedMajor);
-      console.log("validateText", validateText);
+      // console.log("validateText", validateText);
       if (!validateText) return;
 
       // Send axios request to add new announcement
@@ -258,7 +258,7 @@ export default {
     },
     // === Handle delete announcement from database === //
     async handleDeleteAnnouncement(id) {
-      console.log("id", id);
+      // console.log("id", id);
       this.$swal
         .fire({
           title: "Are you sure?",
@@ -284,6 +284,9 @@ export default {
               );
               // Update UI items
               this.dataUi.announcement = this.dataUi.announcement.filter(
+                (itm) => itm.Announcement_ID !== parseInt(id)
+              );
+              this.bindingData = this.bindingData.filter(
                 (itm) => itm.Announcement_ID !== parseInt(id)
               );
             } else {
