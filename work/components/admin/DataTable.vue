@@ -168,9 +168,8 @@
         </v-dialog>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-btn dark color="blue darken-4">
-          <v-icon small class="mr-2" @click="editItem(item)"> mdi-pen </v-icon
-          >Edit
+        <v-btn dark color="blue darken-4" @click="editItem(item)">
+          <v-icon small class="mr-2"> mdi-pen </v-icon>Edit
         </v-btn>
       </template>
     </v-data-table>
