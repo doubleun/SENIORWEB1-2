@@ -1,126 +1,126 @@
 <template>
-  <v-card class="due-assignment-card">
-    <v-card-title style="padding: 1rem 1rem 0">ASSIGNMENT</v-card-title>
+  <v-card>
+    <v-card-title><h3>Assignments</h3></v-card-title>
     <!-- Assignment table -->
-    <v-container>
-      <v-data-table
-        :headers="headers"
-        :items="progressionDuedate"
-        :hide-default-footer="true"
-        class="elevation-1"
-      >
-        <!-- set start/end date -->
-        <template v-slot:item.DueDate_Start="{ item }">
-          <div v-if="item.selectedDate[0] < item.selectedDate[1]">
-            <span>
-              {{ item.selectedDate[0] }}
-            </span>
-          </div>
 
-          <div v-else>
-            <span>
-              {{ item.selectedDate[1] }}
-            </span>
-          </div>
-        </template>
+    <v-data-table
+      :headers="headers"
+      :items="progressionDuedate"
+      :hide-default-footer="true"
+      class="elevation-1"
+    >
+      <!-- set start/end date -->
+      <template v-slot:item.DueDate_Start="{ item }">
+        <div v-if="item.selectedDate[0] < item.selectedDate[1]">
+          <span>
+            {{ item.selectedDate[0] }}
+          </span>
+        </div>
 
-        <template v-slot:item.DueDate_End="{ item }">
-          <div v-if="item.selectedDate[0] > item.selectedDate[1]">
-            <span>
-              {{ item.selectedDate[0] }}
-            </span>
-          </div>
+        <div v-else>
+          <span>
+            {{ item.selectedDate[1] }}
+          </span>
+        </div>
+      </template>
 
-          <div v-else>
-            <span>
-              {{ item.selectedDate[1] }}
-            </span>
-          </div>
-        </template>
+      <template v-slot:item.DueDate_End="{ item }">
+        <div v-if="item.selectedDate[0] > item.selectedDate[1]">
+          <span>
+            {{ item.selectedDate[0] }}
+          </span>
+        </div>
 
-        <!--edit button -->
-        <template v-slot:item.action="{ item, index }">
-          <v-row class="justify-center" no-gutters>
-            <v-col md="3">
-              <v-row align="center" justify="space-around">
-                <v-menu
-                  :ref="'dateMenu' + item.Progress_ID"
-                  v-model="item.dateMenu"
-                  :close-on-content-click="false"
-                  :return-value.sync="date"
-                  transition="scale-transition"
-                  offset-y
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      color="blue lighten-1"
-                      class="white--text px-5"
-                      v-on="on"
-                      v-bind="attrs"
-                      :disabled="!item.editable"
-                    >
-                      <v-icon>mdi-calendar-month</v-icon>
-                      <span v-if="item.assignable">Assign</span>
-                      <span v-else>Edit</span>
-                    </v-btn>
-                  </template>
+        <div v-else>
+          <span>
+            {{ item.selectedDate[1] }}
+          </span>
+        </div>
+      </template>
 
-                  <v-dialog
-                    ref="dialog"
-                    v-model="item.dateMenu"
-                    :return-value.sync="date"
-                    persistent
-                    width="290px"
+      <!--edit button -->
+      <template v-slot:item.action="{ item, index }">
+        <v-row class="justify-center" no-gutters>
+          <v-col md="3">
+            <v-row align="center" justify="space-around">
+              <v-menu
+                :ref="'dateMenu' + item.Progress_ID"
+                v-model="item.dateMenu"
+                :close-on-content-click="false"
+                :return-value.sync="date"
+                transition="scale-transition"
+                offset-y
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    dark
+                    color="blue darken-4"
+                    class="white--text px-5"
+                    v-on="on"
+                    v-bind="attrs"
+                    :disabled="!item.editable"
                   >
-                    <v-card>
-                      <v-date-picker
-                        v-model="bindProgressionDuedate[index].selectedDate"
-                        color=""
-                        no-title
-                        scrollable
-                        range
-                        :max="bindProgressionDuedate[index].endDate"
-                        :min="bindProgressionDuedate[index].startDate"
+                    <v-icon>mdi-pen</v-icon>
+                    <span v-if="item.assignable">Assign</span>
+                    <span v-else>Edit</span>
+                  </v-btn>
+                </template>
+
+                <v-dialog
+                  ref="dialog"
+                  v-model="item.dateMenu"
+                  :return-value.sync="date"
+                  persistent
+                  width="290px"
+                >
+                  <v-card>
+                    <v-date-picker
+                      v-model="bindProgressionDuedate[index].selectedDate"
+                      color=""
+                      no-title
+                      scrollable
+                      range
+                      :max="bindProgressionDuedate[index].endDate"
+                      :min="bindProgressionDuedate[index].startDate"
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="item.dateMenu = false"
                       >
-                        <v-spacer></v-spacer>
-                        <v-btn
-                          text
-                          color="primary"
-                          @click="item.dateMenu = false"
-                        >
-                          Cancel
-                        </v-btn>
-                        <v-btn
-                          text
-                          color="primary"
-                          @click="
-                            // (item.isSelectDate = false),
-                            dateMenuSave(
-                              bindProgressionDuedate[index].selectedDate,
-                              item.Progress_ID,
-                              item.Progression_Info_ID,
-                              index
-                            )
-                          "
-                        >
-                          OK
-                        </v-btn>
-                      </v-date-picker>
-                      <div v-if="!item.isSelectDate" class="pa-5">
-                        <span class="red--text text--lighten-1"
-                          >Please completely to select assign date and
-                          duedate</span
-                        >
-                      </div>
-                    </v-card>
-                  </v-dialog>
-                </v-menu>
-              </v-row>
-            </v-col>
-          </v-row>
-        </template>
-      </v-data-table>
-    </v-container>
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="
+                          // (item.isSelectDate = false),
+                          dateMenuSave(
+                            bindProgressionDuedate[index].selectedDate,
+                            item.Progress_ID,
+                            item.Progression_Info_ID,
+                            index
+                          )
+                        "
+                      >
+                        OK
+                      </v-btn>
+                    </v-date-picker>
+                    <div v-if="!item.isSelectDate" class="pa-5">
+                      <span class="red--text text--lighten-1"
+                        >Please completely to select assign date and
+                        duedate</span
+                      >
+                    </div>
+                  </v-card>
+                </v-dialog>
+              </v-menu>
+            </v-row>
+          </v-col>
+        </v-row>
+      </template>
+    </v-data-table>
   </v-card>
 </template>
 

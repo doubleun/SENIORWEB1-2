@@ -1,102 +1,54 @@
 <template>
-  <section>
-    <main class="admin-teacher-manage-main">
-      <h1>Manage Teacher</h1>
-
-      <!-- Action buttons -->
-      <div class="admin-teacher-manage-actions">
-        <div>
-          <p class="white--text">Study Program</p>
-          <v-select
-            v-model="selectedMajor"
-            :items="majors"
-            @change="handelchangeRenderTeachers"
-            item-text="Major_Name"
-            item-value="Major_ID"
-            return-object
-            dense
-            solo
-            hide-details
-            off
-          />
-        </div>
-        <div style="width: 100px;">
-          <p class="white--text">Year</p>
-          <v-select
-            v-model="selectedYear"
-            :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-            @change="handelchangeRenderTeachers"
-            dense
-            solo
-            hide-details
-          />
-        </div>
-        <div style="width: 90px;">
-          <p class="white--text">Semester</p>
-          <v-select
-            v-model="selectedSemester"
-            :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-            @change="handelchangeRenderTeachers"
-            dense
-            solo
-            hide-details
-          />
-        </div>       
-        <div>
-          <p class="white--text">Role</p>
-          <v-select
-            v-model="selectedRole"
-            :items="roles"
-            @change="handelchangeRenderTeachers"
-            item-text="Role_Name"
-            item-value="Role_ID"
-            return-object
-            dense
-            solo
-            hide-details
-          />
-        </div>
-        <div>
-          <v-btn
-            class="mb-1 dark-blue--text"
-            align="right"
-            justify="right"
-            @click="handleFileImport"
-          >
-            <v-icon dark-blue> mdi-application-import </v-icon>
-            Import
-          </v-btn>
-          <input
-            ref="uploader"
-            class="d-none"
-            id="fileBrowse"
-            type="file"
-            accept=".xlsx"
-            @change="handleBrowseFile"
-          />
-          <v-btn
-            class="mb-1 dark-blue--text"
-            align="right"
-            justify="right"
-            @click="downloadtemplete"
-          >
-            <v-icon dark-blue> mdi-application-import </v-icon>
-           <p style="font-size:12px">dowload templete</p> 
-          </v-btn>
-        </div>
-      </div>
-
-      <AdminDataTable
-        :tableTitle="'Manage Teachers'"
-        :headers="headers"
-        itemKey="User_Email"
-        :items="teachers"
-        :itemPerPage="10"
-        :teacherEditAttrs="attrs"
-        manageTeacher
+  <v-container>
+    <!-- <main class="admin-teacher-manage-main"> -->
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Manage Teacher</h2>
+    <div class="my-5 d-flex justify-end">
+      <v-btn
+        class="mr-2 dark-blue--text"
+        align="right"
+        justify="right"
+        color="primary"
+        @click="handleFileImport"
+      >
+        <v-icon dark-blue> mdi-application-import </v-icon>
+        Import
+      </v-btn>
+      <input
+        ref="uploader"
+        class="d-none"
+        id="fileBrowse"
+        type="file"
+        accept=".xlsx"
+        @change="handleBrowseFile"
       />
-    </main>
-  </section>
+
+      <v-btn
+        class="dark-blue--text"
+        align="right"
+        justify="right"
+        color="primary"
+        @click="downloadtemplete"
+      >
+        <v-icon dark> mdi-application-import </v-icon>
+        dowload templete
+      </v-btn>
+    </div>
+
+    <AdminDataTable
+      :tableTitle="'Teacher'"
+      :headers="headers"
+      itemKey="User_Email"
+      :items="teachers"
+      :itemPerPage="10"
+      :teacherEditAttrs="attrs"
+      manageTeacher
+      :majors="majors"
+      :yearNSemsters="yearNSemsters"
+      :roles="roles"
+      @on-filtering="handelchangeRenderTeachers"
+    />
+    <!-- </main> -->
+  </v-container>
 </template>
 
 <script>
@@ -151,6 +103,8 @@ export default {
         User_Role: roles[0].Role_ID,
       });
 
+      console.log("teacher", teachers);
+
       // Add user_role_name based on user_role (Should fetch role name from the database ?)
       teachers = teachers.map((teacher) => ({
         ...teacher,
@@ -165,23 +119,26 @@ export default {
 
   mounted() {
     // Set the default value
-    this.selectedMajor = this.majors[0];
-    this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
-    this.selectedRole = this.roles[0];
+    // this.selectedMajor = this.majors[0];
+    // this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    // this.selectedRole = this.roles[0];
   },
 
   methods: {
-    async handelchangeRenderTeachers() {
-      console.log("role", this.selectedRole.Role_ID);
-      console.log("major", this.selectedRole.Major_ID);
+    async handelchangeRenderTeachers(year, semester, majorId, role) {
+      console.log("majorId", majorId);
+      console.log("year", year);
+      console.log("semester", semester);
+      console.log("role", role);
+
       this.loading = true;
       try {
         this.teachers = await this.$axios.$post("/user/getAllUserWithMajor", {
-          Major_ID: this.selectedMajor.Major_ID,
-          Academic_Year: this.selectedYear,
-          Academic_Term: this.selectedSemester,
-          User_Role: this.selectedRole.Role_ID,
+          Major_ID: majorId,
+          Academic_Year: year,
+          Academic_Term: semester,
+          User_Role: role,
         });
         // Add user_role_name based on user_role (Should fetch role name from the database ?)
         this.teachers = this.teachers.map((teacher) => ({
@@ -233,36 +190,38 @@ export default {
             /* Read more about isConfirmed, isDenied below */
             try {
               if (result.isConfirmed) {
-              const res = await this.$axios.$post(
-                "user/importteacher",
-                formData
-              );
-              console.log(res)
-              if (!res) {
-                this.$swal.fire("Error! some thing went wrong", "", "warning");
-              } else {
-                if (res === "success") {
-                  this.$swal.fire("Saved!", "", "success");
-                } else if (res === "someproblem") {
-                  this.$swal.fire("Success", "Success with condition some field are not inserted", "warning");
-                } else {
+                const res = await this.$axios.$post(
+                  "user/importteacher",
+                  formData
+                );
+                console.log(res);
+                if (!res) {
                   this.$swal.fire(
-                    "Error! some thing went wrong",
-                    "User will not inserted",
-                    "warning"
-                  );
-                }
-                
-              }
-            }
-            } catch (error) {
-              this.$swal.fire(
                     "Error! some thing went wrong",
                     "",
                     "warning"
                   );
+                } else {
+                  if (res === "success") {
+                    this.$swal.fire("Saved!", "", "success");
+                  } else if (res === "someproblem") {
+                    this.$swal.fire(
+                      "Success",
+                      "Success with condition some field are not inserted",
+                      "warning"
+                    );
+                  } else {
+                    this.$swal.fire(
+                      "Error! some thing went wrong",
+                      "User will not inserted",
+                      "warning"
+                    );
+                  }
+                }
+              }
+            } catch (error) {
+              this.$swal.fire("Error! some thing went wrong", "", "warning");
             }
-            
           });
       }
     },

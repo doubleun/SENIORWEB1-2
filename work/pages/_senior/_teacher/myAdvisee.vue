@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <v-container>
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">My Advisee</h2>
     <CoordinatorGroupDataTable :Group_Role="0" showDelete />
-  </div>
+  </v-container>
 </template>
 <script>
 // import groupDataTable from "@/components/coordinator/groupDataTable";
