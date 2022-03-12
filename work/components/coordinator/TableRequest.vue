@@ -183,81 +183,55 @@ export default {
         resolve(major);
       });
       this.idgroup = item["id"];
-      if (this.$store.state.auth.currentUser.name === item["advisor"] && major.length !==1) {
-        this.$swal
-          .fire({
-            input: "select",
-            inputOptions: inputOptionsPromise,
-            inputValidator: (value) => {
-              return !value && "You need to write something!";
-            },
-          })
-          .then(async (result) => {
-            let num = result["value"];
-            this.major = major[num];
-            this.$swal
-              .fire({
-                title: `Accept ${item.groupName} group?`,
-                text: " Once you have accepted to join the group, you cannot leave the group, but you can only leave if the student requests to disband the group.",
-                icon: "info",
-                showCancelButton: true,
-                // confirmButtonColor: "#3085d6",
-                // cancelButtonColor: "#d33",
-                confirmButtonText: "Yes",
-              })
-              .then(async (result) => {
-                if (result.isConfirmed) {
-                  const res = await this.save();
-                  if (res) {
-                    this.$nuxt.refresh();
-
-                    this.$swal.fire(
-                      "Accepted",
-                      `Your has been joined <b>${item.groupName}</b> group.`,
-                      "success"
-                    );
-                  } else {
-                    this.$swal.fire({
-                      icon: "error",
-                      title: "Join group Failed",
-                      text: "Something went wrong!",
-                    });
-                  }
-                }
-              });
-          });
-      } else {
-        this.$swal
-          .fire({
-            title: `Accept ${item.groupName} group?`,
-            text: " Once you have accepted to join the group, you cannot leave the group, but you can only leave if the student requests to disband the group.",
-            icon: "info",
-            showCancelButton: true,
-            // confirmButtonColor: "#3085d6",
-            // cancelButtonColor: "#d33",
-            confirmButtonText: "Yes",
-          })
-          .then(async (result) => {
-            if (result.isConfirmed) {
-              const res = await this.save();
-              if (res) {
-                this.$nuxt.refresh();
-
-                this.$swal.fire(
-                  "Accepted",
-                  `Your has been joined <b>${item.groupName}</b> group.`,
-                  "success"
-                );
-              } else {
-                this.$swal.fire({
-                  icon: "error",
-                  title: "Join group Failed",
-                  text: "Something went wrong!",
+      this.$swal
+        .fire({
+          title: `Accept ${item.groupName} group?`,
+          text: " Once you have accepted to join the group, you cannot leave the group, but you can only leave if the student requests to disband the group.",
+          icon: "info",
+          showCancelButton: true,
+          // confirmButtonColor: "#3085d6",
+          // cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        })
+        .then(async (result) => {
+          if (result.isConfirmed) {
+            if (
+              this.$store.state.auth.currentUser.name === item["advisor"] &&
+              major.length !== 1
+            ) {
+              this.$swal
+                .fire({
+                  input: "select",
+                  inputOptions: inputOptionsPromise,
+                  inputValidator: (value) => {
+                    return !value && "You need to write something!";
+                  },
+                })
+                .then(async (result) => {
+                  let num = result["value"];
+                  this.major = major[num];
+                  
                 });
-              }
+            } 
+            const res = await this.save();
+            if (res) {
+              this.$nuxt.refresh();
+
+              this.$swal.fire(
+                "Accepted",
+                `Your has been joined <b>${item.groupName}</b> group.`,
+                "success"
+              );
+            } else {
+              this.$swal.fire({
+                icon: "error",
+                title: "Join group Failed",
+                text: "Something went wrong!",
+              });
             }
-          });
-      }
+            
+          }
+        });
     },
     deleteItem(item) {
       this.idgroup = item["id"];
