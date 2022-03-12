@@ -1,15 +1,15 @@
 import Swal from "sweetalert2";
 export default {
   methods: {
-    async showLoading(fetchFunction) {
+    async showLoading(callback) {
       Swal.fire({
         title: "Updating progress's status",
         timer: 2000,
         timerProgressBar: true,
-        didOpen: async () => {
+        didRender: async () => {
           Swal.showLoading();
           try {
-            const res = await fetchFunction();
+            const res = await callback();
             if (!res || res.status !== 200) {
               throw new Error(
                 "Request status is invalid, please try again later"
@@ -28,7 +28,7 @@ export default {
         },
         backdrop: true,
         allowOutsideClick: () => !Swal.isLoading(),
-      }).then(() => window.location.reload());
+      });
     },
   },
 };

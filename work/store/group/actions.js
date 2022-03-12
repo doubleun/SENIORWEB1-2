@@ -20,7 +20,6 @@ export default {
     let allProgress = [];
 
     // console.log(state.rootState.group?.currentUserGroup);
-
     try {
       // Check if current user's group info is available and fetch progress based on current user group's major
       if (!!state.rootState.group?.currentUserGroup) {
@@ -41,14 +40,8 @@ export default {
       }
 
       console.log("All progress from state: ", allProgress);
-      if (allProgress.length !== 0) {
-        await state.commit("SET_AVAILABLE_PROGRESS", allProgress);
-        return;
-      } else {
-        // If no progress available set it to []
-        await state.commit("SET_AVAILABLE_PROGRESS", []);
-        return;
-      }
+      await state.commit("SET_AVAILABLE_PROGRESS", allProgress);
+      return;
     } catch (err) {
       console.log(err);
     }

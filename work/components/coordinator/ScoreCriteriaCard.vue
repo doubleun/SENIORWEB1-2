@@ -325,9 +325,7 @@ export default {
 
         // Refresh nuxt to re-fetch score criterias
         this.$emit("score-updated");
-        // Dispatch store available progressions too if this is the first progress (to unlock import student)
-        if (this.$store.getters["group/availableProgress"]?.length === 0)
-          await this.$store.dispatch("group/storeAvailableProgressions");
+        // Close edit score criteria dialog
         this.dialog = false;
         return;
       } catch (err) {
@@ -337,37 +335,7 @@ export default {
       }
     },
 
-    //     console.log("criteriaItem: ", criteriaItem);
-    //     const res = await this.$axios.$post("/criteria/scoreEdit", {
-    //       ...criteriaItem,
-    //     });
-    //     if (res.status !== 200)
-    //       throw new Error("Score failed to update, please try again later");
-    //     // Update total
-    //     criteriaItem.Total =
-    //       parseInt(criteriaItem.Advisor_Score) +
-    //       parseInt(criteriaItem.Committee_Score);
-    //     // Show success popup
-    //     this.$swal.fire(
-    //       "Success",
-    //       "Update score criterias successfully",
-    //       "success"
-    //     );
-    //     // Refresh nuxt to re-fetch score criterias
-    //     this.$emit("score-updated");
-    //     // Dispatch store available progressions too if this is the first progress (to unlock import student)
-    //     if (this.$store.getters["group/availableProgress"]?.length === 0)
-    //       await this.$store.dispatch("group/storeAvailableProgressions");
-    //     criteriaItem.editDialog = false;
-    //     return;
-    //   } catch (err) {
-    //     console.log(err);
-    //     this.$swal.fire("Something went wrong", "", "warning");
-    //     return;
-    //   }
-    // },
-
-    handleToggleStatus(e, status) {
+    async handleToggleStatus(e, status) {
       const criteriaId = e.target.getAttribute("data-criteria-id");
       const projectOnTermId =
         this.$store.getters["auth/currentUser"].projectOnTerm;
@@ -388,7 +356,10 @@ export default {
             this.$store.getters["auth/currentUser"].projectOnTerm,
         });
       };
-      this.showLoading(updateToggle);
+      await this.showLoading(updateToggle);
+
+      // Dispatch store available progressions too if this is the first progress (to unlock import student)
+      await this.$store.dispatch("group/storeAvailableProgressions");
       return;
     },
     handleValidateScore(val) {

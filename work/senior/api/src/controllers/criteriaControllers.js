@@ -20,9 +20,8 @@ getScoreByMajor = (req, res) => {
   // If only available is true, then only progress with total of more than 0 will be return
   const { Major_ID, Project_on_term_ID, onlyAvailable } = req.body;
   // Send query to fetch score criterias available in scorecriteria table, based on latest project_on_term_id
-  // TODO: Change how onlyAvailable logic is check availibity
   const getScoreQuery = `SELECT Score_criteria_ID, Advisor_Score, Committee_Score, DueDate_Start, DueDate_End, Major_ID, (SELECT Progress_ID FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_ID, (SELECT Progress_Name FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_Name, Project_on_term_ID, Advisor_Score + Committee_Score AS Total, Status FROM scorecriterias WHERE Major_ID = ? AND Project_on_term_ID = ? ${
-    onlyAvailable ? "AND Status = 1" : ""
+    !!onlyAvailable ? "AND Status = 1" : ""
   } ORDER BY Progress_ID ASC`;
   try {
     con.query(
@@ -45,6 +44,7 @@ getScoreByMajor = (req, res) => {
             score.DueDate_End = offsetDate(score.DueDate_End);
           });
         }
+        console.log("scoreCriteriasResult: ", scoreCriteriasResult);
 
         // If only request for progress that has total of more than 0, then we don't need to fill missing progress with template
         if (onlyAvailable) {
@@ -88,6 +88,7 @@ getScoreByMajor = (req, res) => {
               });
           }
           res.status(200).json(scoreCriteriasResult);
+          return;
         }
       }
     );
