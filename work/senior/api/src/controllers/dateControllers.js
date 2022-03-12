@@ -17,118 +17,6 @@ getLatestProjectOnTerm = (req, res) => {
   }
 };
 
-// get progression of dua date by major
-getProgressionDuedate = async (req, res) => {
-  const { Major_ID, Project_on_term_ID } = req.body;
-  // const Project_on_term_ID = req.params.Project_on_term_ID
-  const sql =
-    "SELECT * FROM `progressionsinfo` WHERE Major_ID=? AND Project_on_term_ID=?";
-  const semDate = "SELECT * FROM `projectonterm` WHERE Project_on_term_ID=?";
-
-  await con.query(semDate, [Project_on_term_ID], (err, semDate, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      if (semDate.length == 0) {
-        res.status(200).json({ projectOnTerm: semDate });
-      } else {
-        con.query(
-          sql,
-          [Major_ID, Project_on_term_ID],
-          (err, result, fields) => {
-            if (err) {
-              console.log(err);
-              res.status(500).send("Internal Server Error");
-            } else {
-              res
-                .status(200)
-                .json({ progressionDuedate: result, projectOnTerm: semDate });
-            }
-          }
-        );
-      }
-    }
-  });
-
-  // await con.query(
-  //   sql,
-  //   [Major_ID, Project_on_term_ID],
-  //   (err, result, fields) => {
-  //     if (err) {
-  //       console.log(err);
-  //       res.status(500).send("Internal Server Error");
-  //     } else {
-
-  //     }
-  //   }
-  // );
-};
-
-// update progression duedate
-updateProgressionDuedate = async (req, res) => {
-  // if no progression data,
-  //      fontend must send Progression_Info_ID=0 to backend,
-  //      if have progression data send Progression_Info_ID to backend
-
-  console.log("body duedate", req.body);
-
-  const {
-    DueDate_Start,
-    DueDate_End,
-    Progress_ID,
-    Major_ID,
-    Project_on_term_ID,
-    Progression_Info_ID,
-    Senior,
-  } = req.body;
-  // const insert =
-  //   "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,(SELECT Progress_ID FROM progressions WHERE Progress_Name = ?),?,?);";
-  // const update =
-  //   "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = (SELECT Progress_ID FROM progressions WHERE Progress_Name = ?) , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
-
-  const insert =
-    "INSERT INTO `progressionsinfo` ( `DueDate_Start`, `DueDate_End`, `Progress_ID`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?,?,?);";
-
-  const update =
-    "UPDATE `progressionsinfo` SET `DueDate_Start` = ?, `DueDate_End` = ?, `Progress_ID` = ? , `Major_ID` = ?, `Project_on_term_ID` = ? WHERE `progressionsinfo`.`Progression_Info_ID` = ?;";
-
-  if (Progression_Info_ID == 0) {
-    await con.query(
-      insert,
-      [DueDate_Start, DueDate_End, Progress_ID, Major_ID, Project_on_term_ID],
-      (err, insert, fields) => {
-        if (err) {
-          console.log(err);
-          res.status(500).send("Internal Server Error");
-        } else {
-          res.status(200).json({ msg: "inserted", status: 200 });
-        }
-      }
-    );
-  } else {
-    await con.query(
-      update,
-      [
-        DueDate_Start,
-        DueDate_End,
-        Progress_ID,
-        Major_ID,
-        Project_on_term_ID,
-        Progression_Info_ID,
-      ],
-      (err, insert, fields) => {
-        if (err) {
-          console.log(err);
-          res.status(500).send("Internal Server Error");
-        } else {
-          res.status(200).json({ msg: "updated", status: 200 });
-        }
-      }
-    );
-  }
-};
-
 // Academic year
 getAcademicYear = async (req, res) => {
   const sql =
@@ -223,36 +111,12 @@ getYearsSemester = async (req, res) => {
   });
 };
 
-getProgressDueDate = async (req, res) => {
-  const { Progress_ID, Major_ID, Project_on_term_ID } = req.body;
-  const getProgressDueDate =
-    "SELECT `DueDate_Start`, `DueDate_End` FROM `progressionsinfo` WHERE `Progress_ID` = ? AND `Major_ID` = ? AND `Project_on_term_ID` = ?";
-  try {
-    con.query(
-      getProgressDueDate,
-      [Progress_ID, Major_ID, Project_on_term_ID],
-      (err, result, fields) => {
-        if (err) throw err;
-        res.status(200).json(result[0]);
-        return;
-      }
-    );
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal Server Error");
-    return;
-  }
-};
-
 module.exports = {
   getLatestProjectOnTerm,
-  getProgressionDuedate,
-  updateProgressionDuedate,
   getAcademicYear,
   newAcademicYear,
   getSemesterDate,
   newSemesterDate,
   updateSemesterDate,
   getYearsSemester,
-  getProgressDueDate,
 };

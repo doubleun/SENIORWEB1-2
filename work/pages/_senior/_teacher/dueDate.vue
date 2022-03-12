@@ -1,25 +1,16 @@
 <template>
-  <v-container>
-    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Due Date</h2>
-    <!-- Assignment date card -->
-    <CoordinatorDueAssignmentCard />
-  </v-container>
+  <section>
+    <main class="coordinator-due-date-main">
+      <h1>Due Date</h1>
+
+      <h5>DELETE THIS PAGE</h5>
+    </main>
+  </section>
 </template>
 
 <script>
-// import DueAssignmentCard from "@/components/coordinator/dueAssignmentCard";
-
 export default {
   layout: "coordinatorsidebar",
-  // async asyncData({ $axios, store }) {
-  //   const duedate = await $axios.$post("/date/progression", {
-  //     Senior: store.state.auth.currentUser.senior,
-  //     Major_ID: store.state.auth.currentUser.major,
-  //     Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-  //   });
-  //   console.log(duedate);
-  //   return { duedate };
-  // },
 };
 </script>
 

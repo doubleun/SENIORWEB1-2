@@ -99,15 +99,19 @@ export default {
       );
       console.log("submittedFiles: ", submittedFiles);
 
+      // TODO: Repeat logic (student/work/_progress.vue)
       // Fetch progression due date
-      const progressionDueDate = await $axios.$post(
-        "/date/getProgressDueDate",
-        {
-          Progress_ID: progressId + 2,
-          Major_ID: store.state.auth.currentUser.major,
-          Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
-        }
+      let progressionDueDate = {};
+      const currentProgress = store.getters["group/availableProgress"].find(
+        (progress) => progress.Progress_ID === progressId + 2
       );
+      // console.log("currentProgress: ", currentProgress);
+      if (store.getters["group/availableProgress"].length !== 0) {
+        progressionDueDate = {
+          DueDate_Start: currentProgress.DueDate_Start,
+          DueDate_End: currentProgress.DueDate_End,
+        };
+      }
       console.log("ProgressDueDate: ", progressionDueDate);
 
       // If no submitted files hides the DisplaWorkSection compoenent

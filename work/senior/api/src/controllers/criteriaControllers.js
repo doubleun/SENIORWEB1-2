@@ -20,8 +20,8 @@ getScoreByMajor = (req, res) => {
   // If only available is true, then only progress with total of more than 0 will be return
   const { Major_ID, Project_on_term_ID, onlyAvailable } = req.body;
   // Send query to fetch score criterias available in scorecriteria table, based on latest project_on_term_id
-  const getScoreQuery = `SELECT Score_criteria_ID, Advisor_Score, Committee_Score, Major_ID, (SELECT Progress_ID FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_ID, (SELECT Progress_Name FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_Name, Project_on_term_ID, Advisor_Score + Committee_Score AS Total FROM scorecriterias WHERE Major_ID = ? AND Project_on_term_ID = ? ${
-    onlyAvailable ? "AND NOT Advisor_Score + Committee_Score = 0" : ""
+  const getScoreQuery = `SELECT Score_criteria_ID, Advisor_Score, Committee_Score, DueDate_Start, DueDate_End, Major_ID, (SELECT Progress_ID FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_ID, (SELECT Progress_Name FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_Name, Project_on_term_ID, Advisor_Score + Committee_Score AS Total, Status FROM scorecriterias WHERE Major_ID = ? AND Project_on_term_ID = ? ${
+    !!onlyAvailable ? "AND Status = 1" : ""
   } ORDER BY Progress_ID ASC`;
   try {
     con.query(
@@ -29,6 +29,22 @@ getScoreByMajor = (req, res) => {
       [Major_ID, Project_on_term_ID],
       (err, scoreCriteriasResult, fields) => {
         if (err) throw err;
+
+        // TODO: Make utility file
+        // Offset date function
+        const offsetDate = (inputDate) =>
+          new Date(inputDate - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .substring(0, 10);
+
+        // Offset score criterias date
+        if (scoreCriteriasResult.length > 0) {
+          scoreCriteriasResult.forEach((score) => {
+            score.DueDate_Start = offsetDate(score.DueDate_Start);
+            score.DueDate_End = offsetDate(score.DueDate_End);
+          });
+        }
+        console.log("scoreCriteriasResult: ", scoreCriteriasResult);
 
         // If only request for progress that has total of more than 0, then we don't need to fill missing progress with template
         if (onlyAvailable) {
@@ -38,6 +54,7 @@ getScoreByMajor = (req, res) => {
           // This will check and fill in any missing progress
           // List of criterias needed to return
           const scoreCriteriasTemplate = [
+            "Proposal",
             "Progress 1",
             "Progress 2",
             "Progress 3",
@@ -45,6 +62,10 @@ getScoreByMajor = (req, res) => {
             "Final Presentation",
             "Final Documentation",
           ];
+
+          // Create new date from today
+          const defaultDate = offsetDate(Date.now());
+
           // Check and fill scoreCriterias with missing progress in database
           for (let i = 0; i < scoreCriteriasTemplate.length; i++) {
             const existsProgress = scoreCriteriasResult.map(
@@ -55,15 +76,19 @@ getScoreByMajor = (req, res) => {
               scoreCriteriasResult.push({
                 Advisor_Score: 0,
                 Committee_Score: 0,
+                DueDate_Start: defaultDate,
+                DueDate_End: defaultDate,
                 Major_ID,
                 Progress_Name: scoreCriteriasTemplate[i],
-                Progress_ID: i + 3,
+                Progress_ID: i + 2,
                 Project_on_term_ID,
                 Score_criteria_ID: null,
                 Total: 0,
+                Status: 0,
               });
           }
           res.status(200).json(scoreCriteriasResult);
+          return;
         }
       }
     );
@@ -79,24 +104,30 @@ editScoreCriteria = (req, res) => {
     Score_criteria_ID,
     Advisor_Score,
     Committee_Score,
+    DueDate_Start,
+    DueDate_End,
     Major_ID,
     Progress_ID,
     Project_on_term_ID,
   } = req.body;
+
+  const dataPayload = [
+    Advisor_Score,
+    Committee_Score,
+    DueDate_Start,
+    DueDate_End,
+    Major_ID,
+    Progress_ID,
+  ];
+
   try {
     // Update score criteria if "Score_criteria_ID" exists
-    if (Score_criteria_ID) {
+    if (!!Score_criteria_ID) {
       const updateScoreCriteria =
-        "UPDATE scorecriterias SET `Advisor_Score`=?, `Committee_Score`=?, `Major_ID`=?, `Progress_ID`=? WHERE `Score_criteria_ID` = ?";
+        "UPDATE scorecriterias SET `Advisor_Score`=?, `Committee_Score`=?, `DueDate_Start` = ?, `DueDate_End` = ?, `Major_ID`=?, `Progress_ID`=? WHERE `Score_criteria_ID` = ?";
       con.query(
         updateScoreCriteria,
-        [
-          Advisor_Score,
-          Committee_Score,
-          Major_ID,
-          Progress_ID,
-          Score_criteria_ID,
-        ],
+        [...dataPayload, Score_criteria_ID],
         (err, result, fields) => {
           if (err) {
             throw err;
@@ -108,30 +139,113 @@ editScoreCriteria = (req, res) => {
     } else {
       // Insert new score criteria
       const insertScoreCriteria =
-        "INSERT INTO `scorecriterias`(`Advisor_Score`, `Committee_Score`, `Major_ID`, `Progress_ID`, `Project_on_term_ID`) VALUES(?, ?, ?, ?, ?)";
+        "INSERT INTO `scorecriterias`(`Advisor_Score`, `Committee_Score`,`DueDate_Start`, `DueDate_End`, `Major_ID`, `Progress_ID`, `Project_on_term_ID`) VALUES(?, ?, ?, ?, ?, ?, ?)";
       con.query(
         insertScoreCriteria,
-        [
-          Advisor_Score,
-          Committee_Score,
-          Major_ID,
-          Progress_ID,
-          Project_on_term_ID,
-        ],
+        [...dataPayload, Project_on_term_ID],
         (err, result, fields) => {
           if (err) {
             throw err;
           } else {
             res.status(200).json({ msg: "success", status: 200 });
+            return;
           }
         }
       );
     }
+    return;
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error", status: 422 });
+    return;
   }
 };
+
+// Edit toggle score criteria status
+toggleScoreCriteriaStatus = (req, res) => {
+  const { Score_criteria_ID, Status, Project_on_term_ID } = req.body;
+
+  try {
+    const toggleScoreCriteria =
+      "UPDATE scorecriterias SET `Status`=? WHERE `Score_criteria_ID` = ? AND `Project_on_term_ID` = ?";
+    con.query(
+      toggleScoreCriteria,
+      [Status, Score_criteria_ID, Project_on_term_ID],
+      (err, result, fields) => {
+        if (err) {
+          throw err;
+        } else {
+          res.status(200).json({ msg: "success", status: 200 });
+          return;
+        }
+      }
+    );
+    return;
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Internal Server Error", status: 422 });
+    return;
+  }
+};
+// // Edit score criterias
+// editScoreCriteria = (req, res) => {
+//   const {
+//     Score_criteria_ID,
+//     Advisor_Score,
+//     Committee_Score,
+//     Major_ID,
+//     Progress_ID,
+//     Project_on_term_ID,
+//   } = req.body;
+//   try {
+//     // Update score criteria if "Score_criteria_ID" exists
+//     if (Score_criteria_ID) {
+//       const updateScoreCriteria =
+//         "UPDATE scorecriterias SET `Advisor_Score`=?, `Committee_Score`=?, `Major_ID`=?, `Progress_ID`=? WHERE `Score_criteria_ID` = ?";
+//       con.query(
+//         updateScoreCriteria,
+//         [
+//           Advisor_Score,
+//           Committee_Score,
+//           Major_ID,
+//           Progress_ID,
+//           Score_criteria_ID,
+//         ],
+//         (err, result, fields) => {
+//           if (err) {
+//             throw err;
+//           } else {
+//             res.status(200).json({ msg: "success", status: 200 });
+//           }
+//         }
+//       );
+//     } else {
+//       // Insert new score criteria
+//       const insertScoreCriteria =
+//         "INSERT INTO `scorecriterias`(`Advisor_Score`, `Committee_Score`, `Major_ID`, `Progress_ID`, `Project_on_term_ID`) VALUES(?, ?, ?, ?, ?)";
+//       con.query(
+//         insertScoreCriteria,
+//         [
+//           Advisor_Score,
+//           Committee_Score,
+//           Major_ID,
+//           Progress_ID,
+//           Project_on_term_ID,
+//         ],
+//         (err, result, fields) => {
+//           if (err) {
+//             throw err;
+//           } else {
+//             res.status(200).json({ msg: "success", status: 200 });
+//           }
+//         }
+//       );
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ msg: "Internal Server Error", status: 422 });
+//   }
+// };
 
 //* === Grade criteria === *//
 // Get all grade criterias
@@ -297,6 +411,7 @@ module.exports = {
   getScoreAllMajor,
   getScoreByMajor,
   editScoreCriteria,
+  toggleScoreCriteriaStatus,
   getGradeAllMajor,
   getGradeByMajor,
   editGradeCriteria,

@@ -77,8 +77,8 @@ export default {
         store.getters["group/availableProgress"]?.length === 0
       ) {
         app.$swal(
-          "Score criterias not set",
-          "Please, make sure to set score criteias and due date before import students",
+          "No score criterias available",
+          "You need to enable atleast one score criteria",
           "warning"
         );
         // if no score criteria yet, take user back to prev page

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Mar 03, 2022 at 12:47 PM
+-- Generation Time: Mar 12, 2022 at 10:05 AM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -236,21 +236,6 @@ INSERT INTO `progressions` (`Progress_ID`, `Progress_Name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `progressionsinfo`
---
-
-CREATE TABLE `progressionsinfo` (
-  `Progression_Info_ID` int(11) NOT NULL,
-  `DueDate_Start` date NOT NULL,
-  `DueDate_End` date NOT NULL,
-  `Progress_ID` int(11) NOT NULL,
-  `Major_ID` int(11) NOT NULL,
-  `Project_on_term_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `projectonterm`
 --
 
@@ -301,9 +286,12 @@ CREATE TABLE `scorecriterias` (
   `Score_criteria_ID` int(11) NOT NULL,
   `Advisor_Score` int(11) DEFAULT 0,
   `Committee_Score` int(11) DEFAULT 0,
+  `DueDate_Start` date NOT NULL DEFAULT current_timestamp(),
+  `DueDate_End` date NOT NULL DEFAULT current_timestamp(),
   `Major_ID` int(11) NOT NULL,
   `Progress_ID` int(11) NOT NULL,
-  `Project_on_term_ID` int(11) NOT NULL
+  `Project_on_term_ID` int(11) NOT NULL,
+  `Status` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -368,12 +356,12 @@ INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`,
 ('6131501037@lamduan.mfu.ac.th', '6131501037', 'Pronpom Kumthong', 1, NULL, 6, 15),
 ('6131501042@lamduan.mfu.ac.th', '6131501042', 'Pornsupa Sombatsiri', 1, NULL, 6, 15),
 ('6131501049@lamduan.mfu.ac.th', '6131501049', 'Rujikorn Precha', 1, NULL, 6, 15),
-('6131501052@lamduan.mfu.ac.th', '6131501052', 'Wachirachai Nitsomboon', 1, NULL, 1, 15),
+('6131501052@lamduan.mfu.ac.th', '6131501052', 'Wachirachai Nitsomboon', 1, NULL, 2, 15),
 ('cickpoo0121@gmail.com', NULL, 'Cickpool', 2, NULL, 1, 15),
 ('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 15),
 ('kiwlom093@gmail.com', '6131501097', 'Coordinator Kiwlom', 2, NULL, 2, 15),
 ('nitsomboon77@gmail.com', NULL, 'Ajarn Nitsomboon', 0, NULL, 1, 15),
-('oscarstones093@gmail.com', '6131501037', 'Admin Guy', 99, NULL, 1, 15),
+('oscarstones093@gmail.com', NULL, 'Admin Guy', 99, NULL, 1, 15),
 ('sootarin@gmail.com', NULL, 'Sootarin Noopap', 0, NULL, 7, 15),
 ('surapol_mfu@gmail.com', NULL, 'Surapol Vorapatratorn', 0, NULL, 6, 15),
 ('wachirachai.n@appman.co.th', '6131501055', 'Student Nitsomboon', 1, '1302492', 1, 15);
@@ -474,15 +462,6 @@ ALTER TABLE `progressions`
   ADD PRIMARY KEY (`Progress_ID`);
 
 --
--- Indexes for table `progressionsinfo`
---
-ALTER TABLE `progressionsinfo`
-  ADD PRIMARY KEY (`Progression_Info_ID`),
-  ADD KEY `Progress_ID` (`Progress_ID`),
-  ADD KEY `Major_ID` (`Major_ID`),
-  ADD KEY `Project_on_term_ID` (`Project_on_term_ID`);
-
---
 -- Indexes for table `projectonterm`
 --
 ALTER TABLE `projectonterm`
@@ -549,7 +528,7 @@ ALTER TABLE `announcements`
 -- AUTO_INCREMENT for table `assignments`
 --
 ALTER TABLE `assignments`
-  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `evalcomment`
@@ -561,25 +540,25 @@ ALTER TABLE `evalcomment`
 -- AUTO_INCREMENT for table `files`
 --
 ALTER TABLE `files`
-  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `gradecriterias`
 --
 ALTER TABLE `gradecriterias`
-  MODIFY `Grade_Criteria_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Grade_Criteria_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `groupmembers`
 --
 ALTER TABLE `groupmembers`
-  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `majors`
@@ -594,16 +573,10 @@ ALTER TABLE `progressions`
   MODIFY `Progress_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
--- AUTO_INCREMENT for table `progressionsinfo`
---
-ALTER TABLE `progressionsinfo`
-  MODIFY `Progression_Info_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
 -- AUTO_INCREMENT for table `projectonterm`
 --
 ALTER TABLE `projectonterm`
-  MODIFY `Project_on_term_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `Project_on_term_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -615,13 +588,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `scorecriterias`
 --
 ALTER TABLE `scorecriterias`
-  MODIFY `Score_criteria_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Score_criteria_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `scores`
 --
 ALTER TABLE `scores`
-  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `subroles`
@@ -691,14 +664,6 @@ ALTER TABLE `groups`
   ADD CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`Major`) REFERENCES `majors` (`Major_ID`),
   ADD CONSTRAINT `groups_ibfk_2` FOREIGN KEY (`Project_on_term_ID`) REFERENCES `projectonterm` (`Project_on_term_ID`),
   ADD CONSTRAINT `groups_ibfk_3` FOREIGN KEY (`Group_Progression`) REFERENCES `progressions` (`Progress_ID`);
-
---
--- Constraints for table `progressionsinfo`
---
-ALTER TABLE `progressionsinfo`
-  ADD CONSTRAINT `progressionsinfo_ibfk_1` FOREIGN KEY (`Progress_ID`) REFERENCES `progressions` (`Progress_ID`),
-  ADD CONSTRAINT `progressionsinfo_ibfk_2` FOREIGN KEY (`Major_ID`) REFERENCES `majors` (`Major_ID`),
-  ADD CONSTRAINT `progressionsinfo_ibfk_3` FOREIGN KEY (`Project_on_term_ID`) REFERENCES `projectonterm` (`Project_on_term_ID`);
 
 --
 -- Constraints for table `projectonterm`
