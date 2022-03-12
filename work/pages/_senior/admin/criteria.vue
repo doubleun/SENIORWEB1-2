@@ -23,11 +23,7 @@
       </div>
 
       <!-- Score criteria card -->
-      <CoordinatorScoreCriteriaCard
-        :dataUI="dataUI"
-        :scoreCriterias="scoreCriterias"
-        admin
-      />
+      <CoordinatorScoreCriteriaCard :scoreCriterias="scoreCriterias" isAdmin />
 
       <div class="grade-criteria-dialog-card"></div>
 

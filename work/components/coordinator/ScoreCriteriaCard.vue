@@ -116,14 +116,30 @@
             </h4>
           </div>
         </template>
+        <!-- Due-date start (DueDate_Start) -->
+        <template v-slot:item.DueDate_Start="{ item }">
+          <div>
+            {{ !!item.Score_criteria_ID ? item.DueDate_Start : "NaN" }}
+          </div>
+        </template>
+        <!-- Due-date end (DueDate_End)-->
+        <template v-slot:item.DueDate_End="{ item }">
+          <div>
+            {{ !!item.Score_criteria_ID ? item.DueDate_End : "NaN" }}
+          </div>
+        </template>
         <!-- Switch toggle -->
         <template v-slot:item.toggle="{ item }">
           <div style="display: flex; justify-content: center">
             <v-switch
               v-model="item.Status"
-              @click="testLog"
+              :false-value="0"
+              :true-value="1"
+              :data-criteria-id="item.Score_criteria_ID"
+              @click="handleToggleStatus($event, item.Status)"
               hide-details
               :ripple="false"
+              :disabled="!item.Score_criteria_ID || isAdmin"
               inset
               style="margin: 0"
             />
@@ -131,7 +147,7 @@
         </template>
         <!-- Edit button -->
         <template v-slot:item.edit="{ item }">
-          <v-btn color="primary" @click="editItem(item)"
+          <v-btn color="primary" @click="editItem(item)" :disabled="isAdmin"
             ><v-icon small> mdi-pencil </v-icon> Edit</v-btn
           >
         </template>
@@ -145,10 +161,11 @@
 
 <script>
 import utils from "@/mixins/utils";
+import dialog from "@/mixins/dialog";
 import DatePicker from "../common/DataPicker.vue";
 
 export default {
-  mixins: [utils],
+  mixins: [utils, dialog],
   components: {
     DatePicker,
   },
@@ -163,7 +180,7 @@ export default {
         scoreCriterias: [];
       },
     },
-    admin: {
+    isAdmin: {
       type: Boolean,
       default: () => false,
     },
@@ -341,8 +358,29 @@ export default {
     //   }
     // },
 
-    handleToggleStatus() {
-      // TODO: Continue !!!
+    handleToggleStatus(e, status) {
+      const criteriaId = e.target.getAttribute("data-criteria-id");
+      const projectOnTermId =
+        this.$store.getters["auth/currentUser"].projectOnTerm;
+      // If no criteria id or projectOnTermId, shows alert and return
+      if (!criteriaId || !projectOnTermId) {
+        this.$swal
+          .fire("An error has occured", "", "warning")
+          .then((res) => window.location.reload());
+        return;
+      }
+
+      // Fetch api to toggle progress status
+      const updateToggle = () => {
+        return this.$axios.$post("/criteria/toggleScoreCriteriaStatus", {
+          Status: status,
+          Score_criteria_ID: criteriaId,
+          Project_on_term_ID:
+            this.$store.getters["auth/currentUser"].projectOnTerm,
+        });
+      };
+      this.showLoading(updateToggle);
+      return;
     },
     handleValidateScore(val) {
       return this.handleValidateTextField(

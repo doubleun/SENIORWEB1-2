@@ -147,10 +147,39 @@ editScoreCriteria = (req, res) => {
             throw err;
           } else {
             res.status(200).json({ msg: "success", status: 200 });
+            return;
           }
         }
       );
     }
+    return;
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Internal Server Error", status: 422 });
+    return;
+  }
+};
+
+// Edit toggle score criteria status
+toggleScoreCriteriaStatus = (req, res) => {
+  const { Score_criteria_ID, Status, Project_on_term_ID } = req.body;
+
+  try {
+    const toggleScoreCriteria =
+      "UPDATE scorecriterias SET `Status`=? WHERE `Score_criteria_ID` = ? AND `Project_on_term_ID` = ?";
+    con.query(
+      toggleScoreCriteria,
+      [Status, Score_criteria_ID, Project_on_term_ID],
+      (err, result, fields) => {
+        if (err) {
+          throw err;
+        } else {
+          res.status(200).json({ msg: "success", status: 200 });
+          return;
+        }
+      }
+    );
+    return;
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error", status: 422 });
@@ -381,6 +410,7 @@ module.exports = {
   getScoreAllMajor,
   getScoreByMajor,
   editScoreCriteria,
+  toggleScoreCriteriaStatus,
   getGradeAllMajor,
   getGradeByMajor,
   editGradeCriteria,
