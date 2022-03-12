@@ -169,7 +169,7 @@ export default {
         `/senior1/${
           this.$store.state.auth.currentUser.role === 0
             ? "teacher"
-            : "coordianator"
+            : "coordinator"
         }/group${id}`
       );
     },
