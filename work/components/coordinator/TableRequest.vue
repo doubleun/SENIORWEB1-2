@@ -175,26 +175,41 @@ export default {
                 .then(async (result) => {
                   let num = result["value"];
                   this.major = major[num];
-                  
-                });
-            } 
-            const res = await this.save();
-            if (res) {
-              this.$nuxt.refresh();
+                  const res = await this.save();
+                  if (res) {
+                    this.$nuxt.refresh();
 
-              this.$swal.fire(
-                "Accepted",
-                `Your has been joined <b>${item.groupName}</b> group.`,
-                "success"
-              );
+                    this.$swal.fire(
+                      "Accepted",
+                      `Your has been joined <b>${item.groupName}</b> group.`,
+                      "success"
+                    );
+                  } else {
+                    this.$swal.fire({
+                      icon: "error",
+                      title: "Join group Failed",
+                      text: "Something went wrong!",
+                    });
+                  }
+                });
             } else {
-              this.$swal.fire({
-                icon: "error",
-                title: "Join group Failed",
-                text: "Something went wrong!",
-              });
+              const res = await this.save();
+              if (res) {
+                this.$nuxt.refresh();
+
+                this.$swal.fire(
+                  "Accepted",
+                  `Your has been joined <b>${item.groupName}</b> group.`,
+                  "success"
+                );
+              } else {
+                this.$swal.fire({
+                  icon: "error",
+                  title: "Join group Failed",
+                  text: "Something went wrong!",
+                });
+              }
             }
-            
           }
         });
     },
