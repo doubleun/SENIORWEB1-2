@@ -655,6 +655,7 @@ export default {
           // Append form data with file
           formData.append("file", this.teacherFile);
           formData.append("newEvalScore", true);
+          formData.append("reEvalComment", true);
         }
 
         this.$swal

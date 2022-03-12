@@ -6,6 +6,7 @@ export default {
         title: "Updating progress's status",
         timer: 2000,
         timerProgressBar: true,
+        showConfirmButton: false,
         didRender: async () => {
           Swal.showLoading();
           try {

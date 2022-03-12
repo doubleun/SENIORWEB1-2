@@ -111,28 +111,40 @@
       </v-row>
     </v-card-title>
     <v-data-table :headers="headers" :items="items" :search="search">
+      <template v-slot:item.Proposal="{ item }">
+        {{ !item.Proposal && item.Proposal !== 0 ? "NaN" : item.Proposal }}
+      </template>
+
       <template v-slot:item.Progress1="{ item }">
-        {{ +item.Progress1 }}
+        {{ !item.Progress1 && item.Progress1 !== 0 ? "NaN" : item.Progress1 }}
       </template>
 
       <template v-slot:item.Progress2="{ item }">
-        {{ +item.Progress2 }}
+        {{ !item.Progress2 && item.Progress2 !== 0 ? "NaN" : item.Progress2 }}
       </template>
 
       <template v-slot:item.Progress3="{ item }">
-        {{ +item.Progress3 }}
+        {{ !item.Progress3 && item.Progress3 !== 0 ? "NaN" : item.Progress3 }}
       </template>
 
       <template v-slot:item.Progress4="{ item }">
-        {{ +item.Progress4 }}
+        {{ !item.Progress4 && item.Progress4 !== 0 ? "NaN" : item.Progress4 }}
       </template>
 
       <template v-slot:item.FinalPresentation="{ item }">
-        {{ +item.FinalPresentation }}
+        {{
+          !item.FinalPresentation && item.FinalPresentation !== 0
+            ? "NaN"
+            : item.FinalPresentation
+        }}
       </template>
 
       <template v-slot:item.FinalDocumentation="{ item }">
-        {{ +item.FinalDocumentation }}
+        {{
+          !item.FinalDocumentation && item.FinalDocumentation !== 0
+            ? "NaN"
+            : item.FinalDocumentation
+        }}
       </template>
     </v-data-table>
   </v-card>
