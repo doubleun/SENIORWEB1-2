@@ -30,12 +30,26 @@ getScoreByMajor = (req, res) => {
       (err, scoreCriteriasResult, fields) => {
         if (err) throw err;
 
+        // console.log(
+        //   new Date(
+        //     scoreCriteriasResult[0].DueDate_Start -
+        //       new Date().getTimezoneOffset() * 60000
+        //   )
+        // );
+
         // TODO: Make utility file
         // Offset date function
         const offsetDate = (inputDate) =>
           new Date(inputDate - new Date().getTimezoneOffset() * 60000)
             .toISOString()
             .substring(0, 10);
+
+        // const formatTimezone = (inputDate) => {
+        //   const offestDate = new Date(
+        //     inputDate - new Date().getTimezoneOffset() * 60000
+        //   );
+        //   return offestDate.setMinutes(offestDate.getMinutes() + 1019);
+        // };
 
         // Offset score criterias date
         if (scoreCriteriasResult.length > 0) {
@@ -355,16 +369,16 @@ editGradeCriteria = async (req, res) => {
 };
 
 getProgressMaxScore = (req, res) => {
-  const { Group_Role, Progress_ID, Project_on_term_ID } = req.body;
+  const { Group_Role, Group_ID, Progress_ID, Project_on_term_ID } = req.body;
   // Convert group role number to text
   // TODO: This should fetch from the database (subroles) table ?
   const role = Group_Role === 0 ? "Advisor_Score" : "Committee_Score";
 
-  const getMaxScoreSql = `SELECT ${role}, (SELECT Assignment_ID FROM assignments WHERE Progress_ID = ?) AS Assignment_ID FROM scorecriterias WHERE Progress_ID = ? AND  Project_on_term_ID = ?`;
+  const getMaxScoreSql = `SELECT ${role}, (SELECT Assignment_ID FROM assignments WHERE Progress_ID = ? AND Group_ID = ?) AS Assignment_ID FROM scorecriterias WHERE Progress_ID = ? AND  Project_on_term_ID = ?`;
   try {
     con.query(
       getMaxScoreSql,
-      [Progress_ID, Progress_ID, Project_on_term_ID],
+      [Progress_ID, Progress_ID, Group_ID, Project_on_term_ID],
       (err, result, fields) => {
         if (err) throw err;
         // If no result res right away
