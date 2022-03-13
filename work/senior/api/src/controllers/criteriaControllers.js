@@ -378,7 +378,7 @@ getProgressMaxScore = (req, res) => {
   try {
     con.query(
       getMaxScoreSql,
-      [Progress_ID, Progress_ID, Group_ID, Project_on_term_ID],
+      [Progress_ID, Group_ID, Progress_ID, Project_on_term_ID],
       (err, result, fields) => {
         if (err) throw err;
         // If no result res right away
