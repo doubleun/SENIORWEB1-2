@@ -144,6 +144,10 @@ export default {
       fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
     }
 
+    // Commit group into state
+    if (!store.state.group.currentUserGroup)
+      store.commit("group/SET_GROUP", groupRes.groupInfo[0]);
+
     // Create grade name array using all available grade criterias
     let gradeNameArr = gradeCriterias.map(
       (criteria) => criteria.Grade_Criteria_Name

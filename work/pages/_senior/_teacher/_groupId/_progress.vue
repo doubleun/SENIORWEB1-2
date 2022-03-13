@@ -210,6 +210,7 @@ export default {
         // Fetch score criteria for setting the max score this user can give
         maxScore = await $axios.$post("/criteria/getProgressMaxScore", {
           Group_Role: groupRes.groupInfo[0].Current_Member_Role,
+          Group_ID: groupId,
           Progress_ID: progressId + 2,
           Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
         });
