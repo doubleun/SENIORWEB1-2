@@ -248,7 +248,7 @@ export default {
     console.log("Coms: ", this.committees);
 
     // Create new date object from progress due date, set by coordinator
-    let assignmentDueDate = new Date(this.progressionDueDate.DueDate_End);
+    const assignmentDueDate = new Date(this.progressionDueDate.DueDate_End);
 
     // If there are submitted files, add files into UI
     if (this.submittedFiles.length !== 0) {
@@ -256,8 +256,6 @@ export default {
       const assignmentSubmissionDate = new Date(
         this.submittedFiles[0].Submit_Date
       );
-
-      console.log(assignmentSubmissionDate);
 
       // First we check if work submission date is more than due date, if it is then student submit work late
       if (assignmentSubmissionDate > assignmentDueDate) {
@@ -506,7 +504,7 @@ export default {
                 this.showSubmission = false;
 
                 // Check if work submission date is more than due date, if it is then student submit work late
-                const submitTimeStamp = new Date(Date.now());
+                const submitTimeStamp = new Date();
                 if (
                   submitTimeStamp >
                   new Date(this.progressionDueDate.DueDate_End)

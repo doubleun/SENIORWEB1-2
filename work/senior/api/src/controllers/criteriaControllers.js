@@ -30,12 +30,12 @@ getScoreByMajor = (req, res) => {
       (err, scoreCriteriasResult, fields) => {
         if (err) throw err;
 
-        console.log(
-          new Date(
-            scoreCriteriasResult[0].DueDate_Start -
-              new Date().getTimezoneOffset() * 60000
-          )
-        );
+        // console.log(
+        //   new Date(
+        //     scoreCriteriasResult[0].DueDate_Start -
+        //       new Date().getTimezoneOffset() * 60000
+        //   )
+        // );
 
         // TODO: Make utility file
         // Offset date function
@@ -44,18 +44,18 @@ getScoreByMajor = (req, res) => {
             .toISOString()
             .substring(0, 10);
 
-        const formatTimezone = (inputDate) => {
-          const offestDate = new Date(
-            inputDate - new Date().getTimezoneOffset() * 60000
-          );
-          return offestDate.setMinutes(offestDate.getMinutes() + 1019);
-        };
+        // const formatTimezone = (inputDate) => {
+        //   const offestDate = new Date(
+        //     inputDate - new Date().getTimezoneOffset() * 60000
+        //   );
+        //   return offestDate.setMinutes(offestDate.getMinutes() + 1019);
+        // };
 
         // Offset score criterias date
         if (scoreCriteriasResult.length > 0) {
           scoreCriteriasResult.forEach((score) => {
-            score.DueDate_Start = formatTimezone(score.DueDate_Start);
-            score.DueDate_End = formatTimezone(score.DueDate_End);
+            score.DueDate_Start = offsetDate(score.DueDate_Start);
+            score.DueDate_End = offsetDate(score.DueDate_End);
           });
         }
         console.log("scoreCriteriasResult: ", scoreCriteriasResult);
