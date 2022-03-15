@@ -68,9 +68,8 @@ export default {
   methods: {
     formatDate(date) {
       if (!date) return null;
-      const isoDate = date.toISOString().substring(0, 10);
 
-      const [year, month, day] = isoDate.split("-");
+      const [year, month, day] = date.split("-");
       return `${day}/${month}/${year}`;
     },
     calAllowDates() {
