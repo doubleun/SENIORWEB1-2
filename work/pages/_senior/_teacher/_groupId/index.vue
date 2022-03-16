@@ -27,7 +27,7 @@
 
 export default {
   layout: "coordinator",
-  async asyncData({ params, store, redirect, $axios }) {
+  async asyncData({ app, params, store, redirect, $axios }) {
     try {
       // Use regex to match only 'Number' in params (ie. ignore 'group' that comes before the actual group id)
       const groupId = params.groupId.match(/(\d)/g).join("");
@@ -55,7 +55,13 @@ export default {
 
       // If grade criteria has not been set, redirect user back
       if (gradeCriterias.length === 0) {
-        return redirect("/senior1/coordinator/");
+        app.$swal.fire(
+          "Cannot find grade criterias",
+          "Please make sure that you have set grade criterias",
+          "warning"
+        );
+
+        return app.router.push(-1);
       }
 
       // Fetch evaluation scores
@@ -104,8 +110,8 @@ export default {
         fetchScoresRes: !!fetchScoresRes ? fetchScoresRes : {},
       };
     } catch (error) {
-      console.log(error);
-      return redirect("/Senior1/coordinator/");
+      app.$swal.fire("An error has occur", "Please try again later", "error");
+      return app.router.push(-1);
     }
   },
 };
