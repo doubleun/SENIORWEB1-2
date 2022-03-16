@@ -68,14 +68,13 @@ export default {
   methods: {
     formatDate(date) {
       if (!date) return null;
-      const isoDate = date.toISOString().substring(0, 10);
+      console.log(date);
 
-      const [year, month, day] = isoDate.split("-");
+      const [year, month, day] = date.substring(0, 10).split("-");
       return `${day}/${month}/${year}`;
     },
     calAllowDates() {
       if (!this.minDate) return null;
-      // return new Date(this.minDate) >= new Date(this.date);
     },
   },
   mounted() {

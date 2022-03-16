@@ -10,6 +10,7 @@ export default {
     handleCloneDeep(obj) {
       return _.cloneDeep(obj);
     },
+
     // * Validations
     handleValidateTextField(
       {
@@ -90,6 +91,39 @@ export default {
         return true;
       }
       return errorMsg;
+    },
+
+    // * Format data
+    /**
+     * Handle format date object as locale string
+     * @param {...(Date|string)} inputDate - Input date object to format
+     * @param {object} options - Options
+     * @param {boolean} options.createDate - Create new date from inputDate as a string
+     * @param {boolean} options.displayTime - Show or hide time after date
+     * @param {boolean} options.dateStyle - full, long, medium, short
+     * @param {boolean} options.timeStyle - full, long, medium, short
+     * @param {string} locale.timeStyle - Locale for the output date time string ('th-TH', 'en-US')
+     * @returns locale date string
+     */
+    formatLocaleDateString(inputDate, options) {
+      if (!inputDate) return;
+      const {
+        createDate = false,
+        displayTime = true,
+        dateStyle = "full",
+        timeStyle = "medium",
+        locale = "en-US",
+      } = options;
+
+      // If create date is true, create new date object from inputDate
+      if (!!createDate) {
+        inputDate = new Date(inputDate);
+      }
+
+      return inputDate.toLocaleString(locale, {
+        dateStyle: dateStyle,
+        ...(!!displayTime ? { timeStyle } : {}),
+      });
     },
   },
 };

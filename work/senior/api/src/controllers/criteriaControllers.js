@@ -1,5 +1,6 @@
 const { json } = require("express");
 const con = require("../config/db");
+const { formatDateIso } = require("../utility");
 
 //* === Score criteria === *//
 // Get all score criterias
@@ -37,25 +38,11 @@ getScoreByMajor = (req, res) => {
           )
         );
 
-        // TODO: Make utility file
-        // Offset date function
-        const offsetDate = (inputDate) =>
-          new Date(inputDate - new Date().getTimezoneOffset() * 60000)
-            .toISOString()
-            .substring(0, 10);
-
-        const formatTimezone = (inputDate) => {
-          const offestDate = new Date(
-            inputDate - new Date().getTimezoneOffset() * 60000
-          );
-          return offestDate.setMinutes(offestDate.getMinutes() + 1019);
-        };
-
         // Offset score criterias date
         if (scoreCriteriasResult.length > 0) {
           scoreCriteriasResult.forEach((score) => {
-            score.DueDate_Start = formatTimezone(score.DueDate_Start);
-            score.DueDate_End = formatTimezone(score.DueDate_End);
+            score.DueDate_Start = formatDateIso(score.DueDate_Start);
+            score.DueDate_End = formatDateIso(score.DueDate_End);
           });
         }
         console.log("scoreCriteriasResult: ", scoreCriteriasResult);
@@ -78,7 +65,7 @@ getScoreByMajor = (req, res) => {
           ];
 
           // Create new date from today
-          const defaultDate = offsetDate(Date.now());
+          const defaultDate = formatDateIso(Date.now());
 
           // Check and fill scoreCriterias with missing progress in database
           for (let i = 0; i < scoreCriteriasTemplate.length; i++) {

@@ -132,18 +132,22 @@
             </h4>
           </div>
         </template>
-        <!-- Due-date start (DueDate_Start) -->
+        <!-- Due date start and end (DueDate_Start - DueDate_End) -->
         <template v-slot:item.DueDate_Start="{ item }">
           <div>
-            {{ !!item.Score_criteria_ID ? item.DueDate_Start : "NaN" }}
+            {{
+              !!item.Score_criteria_ID
+                ? formatDisplayDate([item.DueDate_Start, item.DueDate_End])
+                : "NaN"
+            }}
           </div>
         </template>
-        <!-- Due-date end (DueDate_End)-->
+        <!-- Due-date end (DueDate_End)
         <template v-slot:item.DueDate_End="{ item }">
           <div>
             {{ !!item.Score_criteria_ID ? item.DueDate_End : "NaN" }}
           </div>
-        </template>
+        </template> -->
         <!-- Switch toggle -->
         <template v-slot:item.toggle="{ item }">
           <div style="display: flex; justify-content: center">
@@ -222,15 +226,9 @@ export default {
           sortable: false,
         },
         {
-          text: "Due-date start",
+          text: "Due-date",
           align: "center",
           value: "DueDate_Start",
-          sortable: false,
-        },
-        {
-          text: "Due-date end",
-          align: "center",
-          value: "DueDate_End",
           sortable: false,
         },
         {
@@ -262,14 +260,50 @@ export default {
     testLog() {
       console.log(this.testBool);
     },
+    formatDatePickerProp(date) {
+      console.log(date);
+      const newDate = new Date(date);
+      console.log(newDate);
+      return newDate;
+    },
+    formatDisplayDate(dates) {
+      if (!dates || typeof dates !== "object" || dates?.length < 2)
+        return "NaN";
+
+      // Format dates to locale date string
+      dates = dates.map((date) => {
+        return this.formatLocaleDateString(date, {
+          createDate: true,
+          dateStyle: "medium",
+          displayTime: false,
+        });
+      });
+
+      // Concat string
+      return `${dates[0]} - ${dates[1]}`;
+    },
+    /**
+     * Transform date into timestamp and add up time to 11:59 (used for due date)
+     * @param {string} date - Date timestamp as a string format (2022-03-13T00:00:00.000Z)
+     * @returns timestamp with the time added up to 11:59
+     */
+    handleConvertDueDate(date) {
+      const returnDate = new Date(date);
+      returnDate.setMinutes(returnDate.getMinutes() + 1439);
+      return returnDate.toISOString().slice(0, 19).replace("T", " ");
+    },
     handleUpdateDate(date, newDate) {
       this.editedItem[date] = newDate;
     },
     async handleEditScoreCriteria() {
       console.log("this.editedItem: ", this.editedItem);
       const criteriaItem = this.editedItem;
-      const startDate = new Date(criteriaItem.DueDate_Start);
-      const endDate = new Date(criteriaItem.DueDate_End);
+      const startDate = this.handleConvertDueDate(criteriaItem.DueDate_Start);
+      const endDate = this.handleConvertDueDate(criteriaItem.DueDate_End);
+
+      // console.log("startDate: ", startDate);
+      // return;
+
       try {
         // Check if there's score at all
         if (
@@ -306,6 +340,8 @@ export default {
         // POST API for updating score criteria
         const res = await this.$axios.$post("/criteria/scoreEdit", {
           ...criteriaItem,
+          DueDate_Start: startDate,
+          DueDate_End: endDate,
         });
 
         if (res.status !== 200)
