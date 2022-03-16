@@ -556,8 +556,10 @@ getEvaluationScores = (req, res) => {
 };
 
 getAbstracts = (req, res) => {
+  // const abstracts =
+  //   "SELECT subquery.Abstract_ID, subquery.Abstract_Name,subquery.Submit_Date,subquery.Group_ID,subquery.Major, subquery.Project_on_term_ID,subquery.Group_Name_Thai,subquery.Group_Name_Eng,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT abs.Abstract_ID,abs.Abstract_Name,abs.Submit_Date,abs.Group_ID, abs.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gmb.Group_Member_ID,gmb.User_Email, gmb.Group_Role,gp.Major FROM abstracts abs INNER JOIN groups gp ON abs.Group_ID=gp.Group_ID INNER JOIN groupmembers gmb  ON gp.Group_ID=gmb.Group_ID  WHERE gmb.User_Status=1 AND gmb.Group_Role!=1) AS subquery GROUP BY subquery.Group_ID";
   const abstracts =
-    "SELECT subquery.Abstract_ID, subquery.Abstract_Name,subquery.Submit_Date,subquery.Group_ID,subquery.Major, subquery.Project_on_term_ID,subquery.Group_Name_Thai,subquery.Group_Name_Eng,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT abs.Abstract_ID,abs.Abstract_Name,abs.Submit_Date,abs.Group_ID, abs.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gmb.Group_Member_ID,gmb.User_Email, gmb.Group_Role,gp.Major FROM abstracts abs INNER JOIN groups gp ON abs.Group_ID=gp.Group_ID INNER JOIN groupmembers gmb  ON gp.Group_ID=gmb.Group_ID  WHERE gmb.User_Status=1 AND gmb.Group_Role!=1) AS subquery GROUP BY subquery.Group_ID";
+    'SELECT subquery.Group_ID, subquery.Group_Name_Eng,subquery.Group_Name_Thai, subquery.File_Name,subquery.Path,subquery.Submit_Date,subquery.Type,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT gp.Group_ID, gp.Group_Name_Eng,gp.Group_Name_Thai, fl.File_Name,fl.Path,ass.Submit_Date,fl.Type FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE fl.Type="Abstract")AS subquery';
   con.query(abstracts, (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -578,7 +580,7 @@ getGroupAssignment = (req, res) => {
       console.log(err);
       res.status(500).send("Internal Server Error");
     } else {
-      console.l
+      console.l;
       res.status(200).json(result);
     }
   });

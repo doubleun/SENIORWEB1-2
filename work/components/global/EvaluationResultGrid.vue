@@ -8,26 +8,37 @@
     class="elevation-1 pb-4"
     :class="{ 'px-4': hideGrade }"
   >
+    <template v-slot:item.proposal="{ item }">
+      {{ !item.proposal && item.proposal !== 0 ? "-" : item.proposal }}
+    </template>
     <template v-slot:item.progress1="{ item }">
-      {{ item.progress1 == null ? "-" : item.progress1 }}
+      {{ !item.progress1 && item.progress1 !== 0 ? "-" : item.progress1 }}
     </template>
     <template v-slot:item.progress2="{ item }">
-      {{ item.progress2 == null ? "-" : item.progress2 }}
+      {{ !item.progress2 && item.progress2 !== 0 ? "-" : item.progress2 }}
     </template>
     <template v-slot:item.progress3="{ item }">
-      {{ item.progress3 == null ? "-" : item.progress3 }}
+      {{ !item.progress3 && item.progress3 !== 0 ? "-" : item.progress3 }}
     </template>
     <template v-slot:item.progress4="{ item }">
-      {{ item.progress4 == null ? "-" : item.progress4 }}
+      {{ !item.progress4 && item.progress4 !== 0 ? "-" : item.progress4 }}
     </template>
     <template v-slot:item.finalPresentation="{ item }">
-      {{ item.finalPresentation == null ? "-" : item.finalPresentation }}
+      {{
+        !item.finalPresentation && item.finalPresentation !== 0
+          ? "-"
+          : item.finalPresentation
+      }}
     </template>
     <template v-slot:item.finalDocumentation="{ item }">
-      {{ item.finalDocumentation == null ? "-" : item.finalDocumentation }}
+      {{
+        !item.finalDocumentation && item.finalDocumentation !== 0
+          ? "-"
+          : item.finalDocumentation
+      }}
     </template>
     <template v-slot:item.normalGrade="{ item }">
-      {{ item.normalGrade == null ? "" : item.normalGrade }}
+      {{ !item.normalGrade && item.normalGrade !== 0 ? "" : item.normalGrade }}
     </template>
 
     <!-- <template v-slot:item.total="{ item }">
@@ -61,6 +72,11 @@ export default {
   data() {
     return {
       headers: [
+        {
+          text: "Proposal",
+          value: "proposal",
+          align: "center",
+        },
         {
           text: "Progress 1",
           value: "progress1",
