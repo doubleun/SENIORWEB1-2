@@ -1,8 +1,9 @@
 <template>
   <v-container>
-    <div class="admin-semester-date-main">
-      <h2 class="header-title mb-2 mt-5 mb-10 white--text">Semester Date</h2>
+    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Semester Date</h2>
+    <SelectSenior></SelectSenior>
 
+    <div class="my-5 d-flex justify-end">
       <!-- New academic year -->
       <v-btn color="blue darken-4" dark @click="handleNewAcademicYear">
         New academic year

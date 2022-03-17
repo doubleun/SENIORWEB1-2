@@ -2,6 +2,7 @@
   <div>
     <div class="cardStatus">
       <h2 class="header-title mb-2 mt-5 mb-10 white--text">Home</h2>
+      <SelectSenior></SelectSenior>
       <v-row class="justify-space-around">
         <v-card
           v-for="details in info"
@@ -32,6 +33,6 @@
 </template>
 <script>
 export default {
-  props: ["info"]
+  props: ["info"],
 };
 </script>

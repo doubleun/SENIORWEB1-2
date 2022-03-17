@@ -2,6 +2,7 @@
   <v-container>
     <!-- <main class="admin-student-manage-main"> -->
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Manage Student</h2>
+    <SelectSenior></SelectSenior>
 
     <!-- Action buttons -->
     <!-- <div class="admin-student-manage-actions"> -->

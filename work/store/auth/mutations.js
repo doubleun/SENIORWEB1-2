@@ -13,4 +13,11 @@ export default {
     state.currentUser = null;
     state.isAuthenticated = false;
   },
+  SET_USER_SENIOR(state, payload) {
+    if (!payload) {
+      state.currentUser.senior = 1;
+    } else {
+      state.currentUser.senior = payload;
+    }
+  },
 };
