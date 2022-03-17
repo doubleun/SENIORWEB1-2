@@ -142,7 +142,7 @@ export default {
     );
     console.log(
       "Current group info (logged from coordinator side bar):",
-      this.$store.state.group.currentUserGroup
+      this.$store.getters["group/currentUserGroup"]
     );
     // // If no group redirect to index to fetch group
     // if (!this.$store.state.group.currentUserGroup)
