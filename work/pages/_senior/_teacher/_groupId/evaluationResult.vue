@@ -88,6 +88,13 @@ export default {
       Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
     });
 
+    // Commit group into state
+    if (!store.state.group.currentUserGroup)
+      store.commit("group/SET_GROUP", groupRes.groupInfo[0]);
+
+    // Set available group progressions based on group major
+    store.dispatch("group/storeAvailableProgressions");
+
     // Fetch given evaluation grade and comment
     const groupInfo = await $axios.$post("/group/getTeachersEval", {
       Email: store.state.auth.currentUser.email,
@@ -148,10 +155,6 @@ export default {
       // Add to fetchScoresRes
       fetchScoresRes.suggestGrade = suggestGrade.Grade_Criteria_Name;
     }
-
-    // Commit group into state
-    if (!store.state.group.currentUserGroup)
-      store.commit("group/SET_GROUP", groupRes.groupInfo[0]);
 
     // Create grade name array using all available grade criterias
     let gradeNameArr = gradeCriterias.map(

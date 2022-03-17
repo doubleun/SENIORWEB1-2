@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Mar 12, 2022 at 10:05 AM
+-- Generation Time: Mar 17, 2022 at 05:54 PM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -286,8 +286,8 @@ CREATE TABLE `scorecriterias` (
   `Score_criteria_ID` int(11) NOT NULL,
   `Advisor_Score` int(11) DEFAULT 0,
   `Committee_Score` int(11) DEFAULT 0,
-  `DueDate_Start` date NOT NULL DEFAULT current_timestamp(),
-  `DueDate_End` date NOT NULL DEFAULT current_timestamp(),
+  `DueDate_Start` timestamp NOT NULL DEFAULT current_timestamp(),
+  `DueDate_End` timestamp NOT NULL DEFAULT current_timestamp(),
   `Major_ID` int(11) NOT NULL,
   `Progress_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL,
@@ -361,7 +361,7 @@ INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`,
 ('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 15),
 ('kiwlom093@gmail.com', '6131501097', 'Coordinator Kiwlom', 2, NULL, 2, 15),
 ('nitsomboon77@gmail.com', NULL, 'Ajarn Nitsomboon', 0, NULL, 1, 15),
-('oscarstones093@gmail.com', NULL, 'Admin Guy', 99, NULL, 1, 15),
+('oscarstones093@gmail.com', NULL, 'Admin Guy', 1, NULL, 1, 15),
 ('sootarin@gmail.com', NULL, 'Sootarin Noopap', 0, NULL, 7, 15),
 ('surapol_mfu@gmail.com', NULL, 'Surapol Vorapatratorn', 0, NULL, 6, 15),
 ('wachirachai.n@appman.co.th', '6131501055', 'Student Nitsomboon', 1, '1302492', 1, 15);
@@ -528,7 +528,7 @@ ALTER TABLE `announcements`
 -- AUTO_INCREMENT for table `assignments`
 --
 ALTER TABLE `assignments`
-  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `evalcomment`
@@ -540,25 +540,25 @@ ALTER TABLE `evalcomment`
 -- AUTO_INCREMENT for table `files`
 --
 ALTER TABLE `files`
-  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `gradecriterias`
 --
 ALTER TABLE `gradecriterias`
-  MODIFY `Grade_Criteria_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Grade_Criteria_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `groupmembers`
 --
 ALTER TABLE `groupmembers`
-  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `majors`
@@ -588,13 +588,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `scorecriterias`
 --
 ALTER TABLE `scorecriterias`
-  MODIFY `Score_criteria_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `Score_criteria_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `scores`
 --
 ALTER TABLE `scores`
-  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `subroles`
