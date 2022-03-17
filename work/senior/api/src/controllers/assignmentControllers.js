@@ -2,6 +2,7 @@ const con = require("../config/db");
 const promisePool = con.promise();
 const fs = require("fs");
 const { result } = require("lodash");
+const { formatDateIso } = require("../utility");
 // // Upload one file
 // uploadFile = async (req, res) => {
 //   let assignment = req.files.assignment;
@@ -31,17 +32,20 @@ uploadAssignments = async (req, res) => {
   if (typeof links === "string") links = [links];
 
   console.log("Abstract index: ", abstractIndex);
+  // Get current date as submit date
+  const submitDate = formatDateIso(new Date(Date.now()), { asDate: true });
+  console.log("submitDate: ", submitDate);
 
   // Database queries
   const assignmentSql =
-    "INSERT INTO assignments(Progress_ID, Group_ID) VALUES (?, ?)";
+    "INSERT INTO assignments(Progress_ID, Submit_Date, Group_ID) VALUES (?, ?, ?)";
   const filesSql =
     "INSERT INTO files(File_Name, Path, Type, Assignment_ID, Group_Member_ID) VALUES ?";
   try {
     // 1.) Insert assignment
     con.query(
       assignmentSql,
-      [Progress_ID, Group_ID],
+      [Progress_ID, submitDate, Group_ID],
       (err, assignmentResult, fields) => {
         if (err) throw err;
 
@@ -91,7 +95,7 @@ uploadAssignments = async (req, res) => {
             "INSERT INTO `abstracts`(`Abstract_Name`, `Group_ID`, `Project_on_term_ID`) VALUES (?, ?, ?)";
           con.query(
             abstractSql,
-            [abstractFile[0][0], Group_ID, Project_on_term_ID],
+            [abstractFile[0], Group_ID, Project_on_term_ID],
             (err) => {
               if (err) throw err;
             }
@@ -580,7 +584,7 @@ getGroupAssignment = (req, res) => {
       console.log(err);
       res.status(500).send("Internal Server Error");
     } else {
-      console.l;
+      console.log(err);
       res.status(200).json(result);
     }
   });

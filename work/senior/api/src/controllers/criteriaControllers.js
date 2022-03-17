@@ -1,5 +1,6 @@
 const { json } = require("express");
 const con = require("../config/db");
+const { formatDateIso } = require("../utility");
 
 //* === Score criteria === *//
 // Get all score criterias
@@ -30,18 +31,18 @@ getScoreByMajor = (req, res) => {
       (err, scoreCriteriasResult, fields) => {
         if (err) throw err;
 
-        // TODO: Make utility file
-        // Offset date function
-        const offsetDate = (inputDate) =>
-          new Date(inputDate - new Date().getTimezoneOffset() * 60000)
-            .toISOString()
-            .substring(0, 10);
+        // console.log(
+        //   new Date(
+        //     scoreCriteriasResult[0].DueDate_Start -
+        //       new Date().getTimezoneOffset() * 60000
+        //   )
+        // );
 
         // Offset score criterias date
         if (scoreCriteriasResult.length > 0) {
           scoreCriteriasResult.forEach((score) => {
-            score.DueDate_Start = offsetDate(score.DueDate_Start);
-            score.DueDate_End = offsetDate(score.DueDate_End);
+            score.DueDate_Start = formatDateIso(score.DueDate_Start);
+            score.DueDate_End = formatDateIso(score.DueDate_End);
           });
         }
         console.log("scoreCriteriasResult: ", scoreCriteriasResult);
@@ -64,7 +65,7 @@ getScoreByMajor = (req, res) => {
           ];
 
           // Create new date from today
-          const defaultDate = offsetDate(Date.now());
+          const defaultDate = formatDateIso(Date.now());
 
           // Check and fill scoreCriterias with missing progress in database
           for (let i = 0; i < scoreCriteriasTemplate.length; i++) {
@@ -355,16 +356,16 @@ editGradeCriteria = async (req, res) => {
 };
 
 getProgressMaxScore = (req, res) => {
-  const { Group_Role, Progress_ID, Project_on_term_ID } = req.body;
+  const { Group_Role, Group_ID, Progress_ID, Project_on_term_ID } = req.body;
   // Convert group role number to text
   // TODO: This should fetch from the database (subroles) table ?
   const role = Group_Role === 0 ? "Advisor_Score" : "Committee_Score";
 
-  const getMaxScoreSql = `SELECT ${role}, (SELECT Assignment_ID FROM assignments WHERE Progress_ID = ?) AS Assignment_ID FROM scorecriterias WHERE Progress_ID = ? AND  Project_on_term_ID = ?`;
+  const getMaxScoreSql = `SELECT ${role}, (SELECT Assignment_ID FROM assignments WHERE Progress_ID = ? AND Group_ID = ?) AS Assignment_ID FROM scorecriterias WHERE Progress_ID = ? AND  Project_on_term_ID = ?`;
   try {
     con.query(
       getMaxScoreSql,
-      [Progress_ID, Progress_ID, Project_on_term_ID],
+      [Progress_ID, Group_ID, Progress_ID, Project_on_term_ID],
       (err, result, fields) => {
         if (err) throw err;
         // If no result res right away

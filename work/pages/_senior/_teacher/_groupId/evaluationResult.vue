@@ -88,6 +88,13 @@ export default {
       Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
     });
 
+    // Commit group into state
+    if (!store.state.group.currentUserGroup)
+      store.commit("group/SET_GROUP", groupRes.groupInfo[0]);
+
+    // Set available group progressions based on group major
+    store.dispatch("group/storeAvailableProgressions");
+
     // Fetch given evaluation grade and comment
     const groupInfo = await $axios.$post("/group/getTeachersEval", {
       Email: store.state.auth.currentUser.email,
@@ -101,8 +108,8 @@ export default {
 
     // Check if the group has a grade, if not then committe cannot give comment
     if (!groupInfo.group.Grade && groupInfo.group.Current_Member_Role === 1) {
-      alert("Please wait until advisor give a grade");
-      redirect(`/Senior1/coordinator/${params.groupId}`);
+      app.$swal.fire("Please wait until advisor give a grade", "", "info");
+      return app.router.push(-1);
     }
 
     // Fetch available grade criterias
@@ -114,7 +121,12 @@ export default {
 
     // If grade criteria has not been set, redirect user back
     if (gradeCriterias.length === 0) {
-      return redirect(`/Senior1/coordinator/${params.groupId}`);
+      app.$swal.fire(
+        "Cannot find grade criterias",
+        "Please make sure that you have set grade criterias",
+        "warning"
+      );
+      return app.router.push(-1);
     }
     // Fetch evaluation scores
     const fetchScoresRes = await $axios.$post(

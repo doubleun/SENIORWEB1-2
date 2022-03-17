@@ -24,6 +24,7 @@ export default {
       // Check if current user's group info is available and fetch progress based on current user group's major
       if (!!state.rootState.group?.currentUserGroup) {
         console.log("=== Fetch progress with group major! ===");
+        console.log("=== STATE: ===", state.rootState.group?.currentUserGroup);
         allProgress = await this.$axios.$post("/criteria/scoreMajor", {
           Major_ID: state.rootState.group?.currentUserGroup.Major,
           Project_on_term_ID:
