@@ -265,7 +265,7 @@ export default {
       }
 
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentSubmissionDate.toLocaleString("en-US", {
+      this.submitDate = this.formatLocaleDateString(assignmentSubmissionDate, {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -274,21 +274,26 @@ export default {
       this.showSubmission = false;
 
       // TODO: Too many loops ??
-      // Set abbstract index to the right one
-      console.log(
-        this.submittedFiles.findIndex((file) => file.Type === "Abstract")
-      );
-      this.selectedAbstractIndex = this.submittedFiles.findIndex(
-        (file) => file.Type === "Abstract"
-      );
 
-      let files = this.submittedFiles
+      // Get only files
+      const allFiles = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file
         .filter(
           (file) =>
             (file.Type === "File" || file.Type === "Abstract") &&
             [2, 3].includes(file.Group_Role)
-        )
+        );
+
+      // console.log(
+      //   this.submittedFiles.findIndex((file) => file.Type === "Abstract")
+      // );
+
+      // Set abbstract index to the right one
+      this.selectedAbstractIndex = allFiles.findIndex(
+        (file) => file.Type === "Abstract"
+      );
+
+      let files = allFiles
         // Then, map each file and send axios get request to fetch the file from static folder in server
         .map(async (file) => {
           // Request response type to be 'blob'
@@ -324,7 +329,7 @@ export default {
     } else {
       // * === If no files submitted, due date will be shown * === //
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentDueDate.toLocaleString("en-US", {
+      this.submitDate = this.formatLocaleDateString(assignmentDueDate, {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -403,7 +408,6 @@ export default {
       this.availableLinks.pop();
     },
     async handleUploadAssignment() {
-      // TODO: Show total files size ??
       try {
         // Check if user input a link into the form
         const valid = this.$refs.linksForm.validate();
@@ -508,7 +512,8 @@ export default {
                 } else {
                   this.submitOnTime = true;
                 }
-                this.submitDate = submitTimeStamp.toLocaleString("en-US", {
+
+                this.submitDate = this.formatLocaleDateString(submitTimeStamp, {
                   dateStyle: "full",
                   timeStyle: "medium",
                 });

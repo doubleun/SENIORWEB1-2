@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import { parse } from "path";
 export default {
   data: () => ({
     teachers: [],
@@ -83,8 +84,13 @@ export default {
       this.teachers = this.committees;
     }
 
+    let maxScore = 0;
+    if (!!this.teachers && this.teachers?.length !== 0) {
+      maxScore = this.teachers[0].Max_Score;
+    }
+
     // If progress is re-eval hide score is true
-    if (parseInt(this.progressId) === 10) {
+    if (parseInt(this.progressId) === 10 || !parseInt(maxScore)) {
       this.hideScore = true;
     }
 

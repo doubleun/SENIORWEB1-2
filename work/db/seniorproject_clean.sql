@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Mar 17, 2022 at 05:54 PM
+-- Generation Time: Mar 17, 2022 at 05:55 PM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -45,13 +45,6 @@ CREATE TABLE `academicyear` (
   `Academic_Year` int(4) NOT NULL,
   `Created_Date` date NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Dumping data for table `academicyear`
---
-
-INSERT INTO `academicyear` (`Academic_Year`, `Created_Date`) VALUES
-(2021, '2021-05-12');
 
 -- --------------------------------------------------------
 
@@ -248,13 +241,6 @@ CREATE TABLE `projectonterm` (
   `Senior` int(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `projectonterm`
---
-
-INSERT INTO `projectonterm` (`Project_on_term_ID`, `Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`, `Senior`) VALUES
-(15, 2021, 1, '2022-01-01', '2022-06-04', 1);
-
 -- --------------------------------------------------------
 
 --
@@ -345,26 +331,6 @@ CREATE TABLE `users` (
   `Major_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES
-('6131302005@lamduan.mfu.ac.th', '6131302005', 'pipat massri', 1, NULL, 1, 15),
-('6131501026@lamduan.mfu.ac.th', '6131501026', 'Nuttapong Samipak', 1, NULL, 6, 15),
-('6131501037@lamduan.mfu.ac.th', '6131501037', 'Pronpom Kumthong', 1, NULL, 6, 15),
-('6131501042@lamduan.mfu.ac.th', '6131501042', 'Pornsupa Sombatsiri', 1, NULL, 6, 15),
-('6131501049@lamduan.mfu.ac.th', '6131501049', 'Rujikorn Precha', 1, NULL, 6, 15),
-('6131501052@lamduan.mfu.ac.th', '6131501052', 'Wachirachai Nitsomboon', 1, NULL, 2, 15),
-('cickpoo0121@gmail.com', NULL, 'Cickpool', 2, NULL, 1, 15),
-('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 15),
-('kiwlom093@gmail.com', '6131501097', 'Coordinator Kiwlom', 2, NULL, 2, 15),
-('nitsomboon77@gmail.com', NULL, 'Ajarn Nitsomboon', 0, NULL, 1, 15),
-('oscarstones093@gmail.com', NULL, 'Admin Guy', 1, NULL, 1, 15),
-('sootarin@gmail.com', NULL, 'Sootarin Noopap', 0, NULL, 7, 15),
-('surapol_mfu@gmail.com', NULL, 'Surapol Vorapatratorn', 0, NULL, 6, 15),
-('wachirachai.n@appman.co.th', '6131501055', 'Student Nitsomboon', 1, '1302492', 1, 15);
 
 --
 -- Indexes for dumped tables
@@ -576,7 +542,7 @@ ALTER TABLE `progressions`
 -- AUTO_INCREMENT for table `projectonterm`
 --
 ALTER TABLE `projectonterm`
-  MODIFY `Project_on_term_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `Project_on_term_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `roles`

@@ -76,14 +76,13 @@ export default {
         !store.getters["group/availableProgress"] ||
         store.getters["group/availableProgress"]?.length === 0
       ) {
-        app.$swal(
+        app.$swal.fire(
           "No score criterias available",
           "You need to enable atleast one score criteria",
           "warning"
         );
         // if no score criteria yet, take user back to prev page
-        app.router.push(-1);
-        return;
+        return app.router.push(-1);
       }
 
       // Fetch all years and semesters
