@@ -265,7 +265,7 @@ export default {
       }
 
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentSubmissionDate.toLocaleString("en-US", {
+      this.submitDate = this.formatLocaleDateString(assignmentSubmissionDate, {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -329,7 +329,7 @@ export default {
     } else {
       // * === If no files submitted, due date will be shown * === //
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentDueDate.toLocaleString("en-US", {
+      this.submitDate = this.formatLocaleDateString(assignmentDueDate, {
         dateStyle: "full",
         timeStyle: "medium",
       });
@@ -408,7 +408,6 @@ export default {
       this.availableLinks.pop();
     },
     async handleUploadAssignment() {
-      // TODO: Show total files size ??
       try {
         // Check if user input a link into the form
         const valid = this.$refs.linksForm.validate();
@@ -513,7 +512,8 @@ export default {
                 } else {
                   this.submitOnTime = true;
                 }
-                this.submitDate = submitTimeStamp.toLocaleString("en-US", {
+
+                this.submitDate = this.formatLocaleDateString(submitTimeStamp, {
                   dateStyle: "full",
                   timeStyle: "medium",
                 });
