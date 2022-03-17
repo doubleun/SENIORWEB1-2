@@ -75,9 +75,14 @@ export default {
     if (notAccpetMembers.length > 0) {
       // If notAcceptMembers is return from the asyncData, then we show alert and redirect
 
-      alert("Please wait until all members accept the group invite");
+      app.$swal.fire(
+        "Please wait until all members accept the group invite",
+        "",
+        "info"
+      );
       // Redirect to create group page so they can see all members status
-      redirect("/Senior1/student/stuCreateGroup");
+      // TODO: Create enum file that contains all hard-coded routes
+      redirect("/senior1/student/stuCreateGroup");
       return;
     }
 
