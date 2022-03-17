@@ -95,7 +95,7 @@ uploadAssignments = async (req, res) => {
             "INSERT INTO `abstracts`(`Abstract_Name`, `Group_ID`, `Project_on_term_ID`) VALUES (?, ?, ?)";
           con.query(
             abstractSql,
-            [abstractFile[0][0], Group_ID, Project_on_term_ID],
+            [abstractFile[0], Group_ID, Project_on_term_ID],
             (err) => {
               if (err) throw err;
             }
@@ -582,7 +582,7 @@ getGroupAssignment = (req, res) => {
       console.log(err);
       res.status(500).send("Internal Server Error");
     } else {
-      console.l;
+      console.log(err);
       res.status(200).json(result);
     }
   });

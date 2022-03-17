@@ -248,7 +248,7 @@ export default {
     console.log("Coms: ", this.committees);
 
     // Create new date object from progress due date, set by coordinator
-    let assignmentDueDate = new Date(this.progressionDueDate.DueDate_End);
+    const assignmentDueDate = new Date(this.progressionDueDate.DueDate_End);
 
     // If there are submitted files, add files into UI
     if (this.submittedFiles.length !== 0) {
@@ -256,8 +256,6 @@ export default {
       const assignmentSubmissionDate = new Date(
         this.submittedFiles[0].Submit_Date
       );
-
-      console.log(assignmentSubmissionDate);
 
       // First we check if work submission date is more than due date, if it is then student submit work late
       if (assignmentSubmissionDate > assignmentDueDate) {
@@ -276,21 +274,26 @@ export default {
       this.showSubmission = false;
 
       // TODO: Too many loops ??
-      // Set abbstract index to the right one
-      console.log(
-        this.submittedFiles.findIndex((file) => file.Type === "Abstract")
-      );
-      this.selectedAbstractIndex = this.submittedFiles.findIndex(
-        (file) => file.Type === "Abstract"
-      );
 
-      let files = this.submittedFiles
+      // Get only files
+      const allFiles = this.submittedFiles
         // Filter all submitted files and only get type of "File" and it's a student's file
         .filter(
           (file) =>
             (file.Type === "File" || file.Type === "Abstract") &&
             [2, 3].includes(file.Group_Role)
-        )
+        );
+
+      // console.log(
+      //   this.submittedFiles.findIndex((file) => file.Type === "Abstract")
+      // );
+
+      // Set abbstract index to the right one
+      this.selectedAbstractIndex = allFiles.findIndex(
+        (file) => file.Type === "Abstract"
+      );
+
+      let files = allFiles
         // Then, map each file and send axios get request to fetch the file from static folder in server
         .map(async (file) => {
           // Request response type to be 'blob'
@@ -500,7 +503,7 @@ export default {
                 this.showSubmission = false;
 
                 // Check if work submission date is more than due date, if it is then student submit work late
-                const submitTimeStamp = new Date(Date.now());
+                const submitTimeStamp = new Date();
                 if (
                   submitTimeStamp >
                   new Date(this.progressionDueDate.DueDate_End)

@@ -31,12 +31,12 @@ getScoreByMajor = (req, res) => {
       (err, scoreCriteriasResult, fields) => {
         if (err) throw err;
 
-        console.log(
-          new Date(
-            scoreCriteriasResult[0].DueDate_Start -
-              new Date().getTimezoneOffset() * 60000
-          )
-        );
+        // console.log(
+        //   new Date(
+        //     scoreCriteriasResult[0].DueDate_Start -
+        //       new Date().getTimezoneOffset() * 60000
+        //   )
+        // );
 
         // Offset score criterias date
         if (scoreCriteriasResult.length > 0) {
