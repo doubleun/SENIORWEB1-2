@@ -9,7 +9,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/redirect",
+      callbackURL: process.env.GOOGLE_CALLBACK,
       // passReqToCallback: true
     },
     (accessToken, refreshToken, profile, done) => {
