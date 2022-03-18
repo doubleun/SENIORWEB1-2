@@ -4,7 +4,7 @@
       <!-- 
         //* Snack bar (success dialog) *//
       -->
-      <v-snackbar v-model="submitSnackbar" right top light>
+      <!-- <v-snackbar v-model="submitSnackbar" right top light>
         {{ snackbarText }}
 
         <template v-slot:action="{ attrs }">
@@ -17,7 +17,7 @@
             Dismiss
           </v-btn>
         </template>
-      </v-snackbar>
+      </v-snackbar> -->
       <!-- Add announcement button -->
 
       <v-row class="justify-end pr-5 pt-5 pb-2">

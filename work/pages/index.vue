@@ -23,6 +23,9 @@
                   <h3 style="font-size: 12px">
                     SCHOOL OF INFORMATION TECHNOLOGY
                   </h3>
+                  <h5 class="white--text" v-if="isDev">
+                    Version: {{ version }}
+                  </h5>
                 </div>
               </v-row>
             </v-col>
@@ -148,7 +151,9 @@
               class="elevation-1"
             >
               <template v-slot:item.Abstract_Name="{ item }">
-                <v-icon large color="blue darken-2"> mdi-file </v-icon>
+                <v-icon @click="download(item)" x-large color="blue darken-2">
+                  mdi-file
+                </v-icon>
               </template>
 
               <template v-slot:item.content="{ item }">
@@ -175,8 +180,12 @@
 
 <script>
 import itbackground from "../static/bg.png";
+import { version } from "../package.json";
+
 export default {
   data: () => ({
+    isDev: process.env.NODE_ENV === "development",
+    version,
     image: itbackground,
     selectedMajor: {},
     textRule: [],
@@ -212,6 +221,12 @@ export default {
     this.selectedMajor = this.majors[0];
   },
   methods: {
+    download(item) {
+      // console.log("item", item);
+      // return;
+      window.open("/api/" + item["Path"]);
+      // window.location.href = "/api/" + item["Path"];
+    },
     hancelClearSearch() {
       console.log("reset");
       this.textRule = [];

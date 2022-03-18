@@ -53,6 +53,20 @@
                       />
                     </v-col>
                   </v-row>
+                  <v-row>
+                    <v-col md="3">
+                      <p>Type</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedType"
+                        :items="types"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
                 </v-card-text>
 
                 <v-card-actions>
@@ -87,16 +101,8 @@
         </v-row>
       </v-card-title>
       <v-data-table :headers="headers" :items="documents" :search="search">
-        <!-- <template v-slot:item.action="{ item }">
-          <v-row class="mb-6 pa-5 justify-center" no-gutters>
-            <button @click="download(item)">download</button>
-            <a href= item[0][4] download="">Download</a>
-          </v-row>
-        </template> -->
         <template v-slot:item.fileName="{ item }">
-          <a target="_blank" :href="'/api/' + item.path">
-            {{ item.fileName }}</a
-          >
+          <a target="_blank" :href="download(item)"> {{ item.fileName }}</a>
           <!-- <a href="/api/" {{ item.path}}>{{ item.fileName }}</a> -->
         </template>
       </v-data-table>
@@ -116,7 +122,9 @@ export default {
       search: "",
       selectedYear: null,
       selectedSemester: null,
-      yearNSemsters: [{ Academic_Term: 0, Academic_Year: 0 }],
+      selectedType: null,
+      types: ["All", "Abstract", "File", "Link"],
+      // yearNSemsters: [{ Academic_Term: 0, Academic_Year: 0 }],
       dialogFilter: false,
       headers: [
         {
@@ -129,35 +137,38 @@ export default {
         { text: "Group", value: "groupName", align: "center" },
         // { text: "Action", value: "action", align: "center" },
       ],
-      documents: [],
+      // documents: [],
     };
   },
-  async fetch() {
+  async asyncData({ store, $axios }) {
     // TODO: This is big fetch, put this in a state and check if exists before fetch it
     // Fetch students and teachers
+    var yearNSemsters, documents;
     try {
-      this.yearNSemsters = await this.$axios.$get("/date/allYearsSemester");
-      console.log("this.yearNSemsters: ", this.yearNSemsters);
+      yearNSemsters = await $axios.$get("/date/allYearsSemester");
 
-      this.documents = await this.$axios.$post("/group/getAllFilesMajor", {
-        Academic_Year: this.yearNSemsters[0].Academic_Year,
-        Academic_Term: this.yearNSemsters[0].Academic_Term,
-        Major: this.$store.state.auth.currentUser.major,
-      });
-
-      console.log("res", this.documents);
-
-      this.documents.map((el) => {
-        el.submitDate = this.offsetDate(el.submitDate);
+      var documents = await $axios.$post("/group/getAllFilesMajor", {
+        Academic_Year: yearNSemsters[0].Academic_Year,
+        Academic_Term: yearNSemsters[0].Academic_Term,
+        Major: store.state.auth.currentUser.major,
       });
     } catch (error) {
       console.log(error);
     }
+
+    return {
+      yearNSemsters,
+      documents,
+    };
   },
 
   mounted() {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    this.selectedType = this.types[0];
+    this.documents.map((el) => {
+      el.submitDate = this.offsetDate(el.submitDate);
+    });
   },
   methods: {
     offsetDate(date) {
@@ -170,7 +181,7 @@ export default {
       );
     },
     download(item) {
-      window.location.href = "/api/" + item["path"];
+      return item.type === "Link" ? item["path"] : "/api/" + item["path"];
     },
     async handelchangeRenderDocument() {
       try {
@@ -179,10 +190,26 @@ export default {
           Academic_Term: this.selectedSemester,
           Major: this.$store.state.auth.currentUser.major,
         });
+
+        this.documents.map((el) => {
+          el.submitDate = this.offsetDate(el.submitDate);
+        });
+        if (this.selectedType === "Abstract") {
+          this.documents = this.documents.filter(
+            (el) => el.type === "Abstract"
+          );
+        }
+        if (this.selectedType === "File") {
+          this.documents = this.documents.filter((el) => el.type === "File");
+        }
+        if (this.selectedType === "Link") {
+          this.documents = this.documents.filter((el) => el.type === "Link");
+        }
+        // return this.documents;
       } catch (error) {
         console.log(error);
       }
-      this.dialogFilter = true;
+      this.dialogFilter = false;
     },
   },
 };
