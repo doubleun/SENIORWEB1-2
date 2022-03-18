@@ -23,6 +23,9 @@
                   <h3 style="font-size: 12px">
                     SCHOOL OF INFORMATION TECHNOLOGY
                   </h3>
+                  <h5 class="white--text" v-if="isDev">
+                    Version: {{ version }}
+                  </h5>
                 </div>
               </v-row>
             </v-col>
@@ -177,8 +180,12 @@
 
 <script>
 import itbackground from "../static/bg.png";
+import { version } from "../package.json";
+
 export default {
   data: () => ({
+    isDev: process.env.NODE_ENV === "development",
+    version,
     image: itbackground,
     selectedMajor: {},
     textRule: [],
