@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Criteria</h2>
+      <SelectSenior></SelectSenior>
 
     <!-- Select score study program -->
     <div class="admin-criteria-score-actions">

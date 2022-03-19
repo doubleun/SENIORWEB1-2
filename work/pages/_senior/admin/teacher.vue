@@ -2,6 +2,8 @@
   <v-container>
     <!-- <main class="admin-teacher-manage-main"> -->
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Manage Teacher</h2>
+    <SelectSenior></SelectSenior>
+
     <div class="my-5 d-flex justify-end">
       <v-btn
         class="mr-2 dark-blue--text"
