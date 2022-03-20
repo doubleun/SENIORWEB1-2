@@ -196,11 +196,18 @@ export default {
   },
   mixins: [utils],
   async fetch() {
+    // Reset avaliable semesters
+    this.availableSemesters = [1, 2, 3];
     try {
+      // Get senior from state
+      const senior = this.$store.getters["auth/currentUser"].senior;
+
       // Fetch latest project on term
       this.dateData = await this.$axios.$post("/date/semester/get", {
         year: this.academicYear,
+        senior: senior,
       });
+      console.log("this.dateData: ", this.dateData);
       if (this.dateData.length !== 0) {
         // Sort by academic term
         this.dateData.sort((a, b) => a.Academic_Term - b.Academic_Term);
@@ -244,7 +251,7 @@ export default {
     // When new academic year is created from the parent's function, this child component will re-fetch the semester date
     academicYear(val) {
       console.log("academicYear changed");
-      this.$fetch();
+      this.$nuxt.refresh();
     },
   },
   methods: {
@@ -263,6 +270,7 @@ export default {
     },
     async handleNewSemester() {
       try {
+        const senior = this.$store.getters["auth/currentUser"].senior;
         // If selected semster is invalid display error and return
         if (
           !this.availableSemesters.includes(this.selectedSemester) ||
@@ -275,23 +283,22 @@ export default {
           );
           return;
         }
-        const res = await this.$axios.$post(
-          "http://localhost:3000/api/date/semester/new",
-          {
-            data: [
-              {
-                year: this.academicYear,
-                term: this.selectedSemester,
-                dateStart: new Date().toISOString().substr(0, 10),
-                dateEnd: new Date().toISOString().substr(0, 10),
-              },
-            ],
-          }
-        );
+        const res = await this.$axios.$post("date/semester/new", {
+          // TODO: Refactor, this used to be multiple insertion, but now it's one at a time
+          data: [
+            {
+              year: this.academicYear,
+              term: this.selectedSemester,
+              dateStart: new Date().toISOString().substr(0, 10),
+              dateEnd: new Date().toISOString().substr(0, 10),
+              senior,
+            },
+          ],
+        });
         // Close add new semester dialog
         this.newSemesterDateDialog = false;
         // Re-fetch new data
-        await this.$fetch();
+        await this.$nuxt.refresh();
       } catch (err) {
         console.log(err);
       }

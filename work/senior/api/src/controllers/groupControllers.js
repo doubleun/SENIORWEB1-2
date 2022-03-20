@@ -437,7 +437,7 @@ getGroupMajor = (req, res) => {
 getGroupMembers = (req, res) => {
   const { Group_ID } = req.body;
   const sql =
-    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Phone, gm.User_Status FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email WHERE gm.Group_ID = ? AND NOT gm.User_Status = 2 ORDER BY gm.Group_Role DESC";
+    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Phone, gm.User_Status FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email AND gm.Project_on_term_ID = u.Project_on_term_ID WHERE gm.Group_ID = ? AND NOT gm.User_Status = 2 ORDER BY gm.Group_Role DESC";
   con.query(sql, [Group_ID], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -450,17 +450,21 @@ getGroupMembers = (req, res) => {
 
 // Get group based on project on term (ie. academic year and semester)
 getAllGroupsAdmin = (req, res) => {
-  const { Year, Semester, Major } = req.body;
+  const { Year, Semester, Major, Senior } = req.body;
   const sql =
-    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name FROM majors WHERE Major_Id = ?)AS Major, (SELECT User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID ) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ?) AND Major = ? AND Group_Status = 1";
-  con.query(sql, [Major, Year, Semester, Major], (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.status(200).json(result);
+    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name FROM majors WHERE Major_Id = ?)AS Major, (SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?) AND Major = ? AND Group_Status = 1";
+  con.query(
+    sql,
+    [Major, Year, Semester, Senior, Major],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        res.status(200).json(result);
+      }
     }
-  });
+  );
 };
 
 // Get teachers with score on each progress, using group id
@@ -993,7 +997,7 @@ getAllFilesMajor = (req, res) => {
     [Academic_Year, Academic_Term, Major],
     (err, result, fields) => {
       if (err) {
-        res.status(422).json({ msg: "Query Error", staus: 422 });
+        res.status(422).json({ msg: "Query Error", status: 422 });
       } else {
         res.status(200).json(result);
       }
@@ -1021,7 +1025,7 @@ addGroupToSeTwo = (req, res) => {
     if (err1) {
       console.log(err1);
       errors++;
-      res.status(422).json({ msg: "Query Error", staus: 422 });
+      res.status(422).json({ msg: "Query Error", status: 422 });
     } else {
       for (let i = 0; i < resultGroup.length; i++) {
         gThname = resultGroup[i].Group_Name_Thai;
@@ -1037,7 +1041,7 @@ addGroupToSeTwo = (req, res) => {
             if (err) {
               console.log(err);
               errors++;
-              //   res.status(422).json({ msg: "Query Error", staus: 422 });
+              //   res.status(422).json({ msg: "Query Error", status: 422 });
               //   break;
             } else {
               //   console.log("ji")
@@ -1052,7 +1056,7 @@ addGroupToSeTwo = (req, res) => {
   con.query(selectuser, (err1, resultUser, fields1) => {
     if (err1) {
       console.log(err1);
-      res.status(422).json({ msg: "Query Error", staus: 422 });
+      res.status(422).json({ msg: "Query Error", status: 422 });
     } else {
       for (let i = 0; i < resultUser.length; i++) {
         con.query(
@@ -1068,7 +1072,7 @@ addGroupToSeTwo = (req, res) => {
             if (err1) {
               errors++;
               console.log(err1);
-              // res.status(422).json({ msg: "Query Error", staus: 422 });
+              // res.status(422).json({ msg: "Query Error", status: 422 });
               // break;
             } else {
             }
@@ -1079,9 +1083,9 @@ addGroupToSeTwo = (req, res) => {
   });
   // }
   if (errors > 0) {
-    res.status(422).json({ msg: "Query Error", staus: 422 });
+    res.status(422).json({ msg: "Query Error", status: 422 });
   } else {
-    res.status(200).json({ msg: "Success", staus: 200 });
+    res.status(200).json({ msg: "Success", status: 200 });
   }
 };
 

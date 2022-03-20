@@ -37,7 +37,7 @@ export default {
     this.selectedSenior = this.$store.state.auth.currentUser.senior;
   },
   methods: {
-    handelChangeSenior() {
+    async handelChangeSenior() {
       this.loading = true;
       // console.log("selectedSenior", this.selectedSenior);
       // return;
@@ -47,6 +47,9 @@ export default {
 
       // Set localStorage
       window.localStorage.setItem("senior", this.selectedSenior);
+
+      // Refresh ui
+      this.$nuxt.refresh();
       this.loading = false;
     },
   },

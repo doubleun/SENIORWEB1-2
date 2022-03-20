@@ -113,7 +113,7 @@ uploadAssignments = async (req, res) => {
     );
   } catch (err) {
     console.log(err);
-    res.status(422).json({ msg: "Query Error", staus: 422 });
+    res.status(422).json({ msg: "Query Error", status: 422 });
     return;
   }
 
@@ -132,7 +132,7 @@ getAssignmentFiles = (req, res) => {
       res.status(200).json(result);
     });
   } catch (err) {
-    res.status(422).json({ msg: "Query Error", staus: 422 });
+    res.status(422).json({ msg: "Query Error", status: 422 });
   }
 };
 
