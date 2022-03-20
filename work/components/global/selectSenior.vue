@@ -41,7 +41,12 @@ export default {
       this.loading = true;
       // console.log("selectedSenior", this.selectedSenior);
       // return;
-      this.$store.commit("auth/SET_USER_SENIOR", this.selectedSenior);
+      this.$store.commit("auth/SET_USER_SENIOR", {
+        senior: this.selectedSenior,
+      });
+
+      // Set localStorage
+      window.localStorage.setItem("senior", this.selectedSenior);
       this.loading = false;
     },
   },

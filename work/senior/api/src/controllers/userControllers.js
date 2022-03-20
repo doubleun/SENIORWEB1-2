@@ -54,10 +54,11 @@ updateUserRole = (req, res) => {
   }
 };
 
-getUser = async (req, res) => {
+getUser = (req, res) => {
   // Each request has 'user' embeded in there, and the passport.js middleware on the backend node.js server 'deserialize' it
   // That's why this just respond back the req.user
   res.status(200).json(req.user);
+  return;
 };
 
 countUser = async (req, res) => {
@@ -250,63 +251,87 @@ uploadfileteacher = async (req, res) => {
         for (let i = 4; i < rows.length; i++) {
           console.log(rows[i]);
           // rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
-          if(rows[0][0] == "รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง"){
+          if (
+            rows[0][0] ==
+            "รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง"
+          ) {
             term = rows[1][0].split(" ")[4];
-          semiter = rows[1][0].split(" ")[6];
-          if (term == "FIRST") {
-            term = 1;
-          } else if (term == "SECOND") {
-            term = 2;
-          }
-          con.query(
-            sql,
-            [
-              rows[i][3],
-              rows[i][1],
-              rows[i][2],
-              "0",
-              coursec,
-              rows[i][4],
-              semiter,
-              term,
-            ],
-            (err, result, fields) => {
-              if (err) {
-                console.log(err.code);
-                if (err.code == "ER_DUP_ENTRY") {
-                  res.status(500).send("Duplicate data");
-                } else {
-                  res.status(500).send("Internal Server Error");
-                }
-              } else {
-                console.log(result.affectedRows);
-                if (result.affectedRows == 0) {
-                  errorcou++;
-                }
-                if (i == rows.length - 1) {
-                  if (errorcou == 0) {
-                    res.status(200).send("success");
-                  } else if (errorcou == rows.length - 1) {
-                    res.status(200).send("noeffect");
+            semiter = rows[1][0].split(" ")[6];
+            if (term == "FIRST") {
+              term = 1;
+            } else if (term == "SECOND") {
+              term = 2;
+            }
+            con.query(
+              sql,
+              [
+                rows[i][3],
+                rows[i][1],
+                rows[i][2],
+                "0",
+                coursec,
+                rows[i][4],
+                semiter,
+                term,
+              ],
+              (err, result, fields) => {
+                if (err) {
+                  console.log(err.code);
+                  if (err.code == "ER_DUP_ENTRY") {
+                    res.status(500).send("Duplicate data");
                   } else {
-                    res.status(200).send("someproblem");
+                    res.status(500).send("Internal Server Error");
+                  }
+                } else {
+                  console.log(result.affectedRows);
+                  if (result.affectedRows == 0) {
+                    errorcou++;
+                  }
+                  if (i == rows.length - 1) {
+                    if (errorcou == 0) {
+                      res.status(200).send("success");
+                    } else if (errorcou == rows.length - 1) {
+                      res.status(200).send("noeffect");
+                    } else {
+                      res.status(200).send("someproblem");
+                    }
                   }
                 }
               }
-            }
-          );
-          }else{
+            );
+          } else {
             res.status(400).send("Wrong data");
             break;
-
           }
-          
         }
       });
     }
   } catch (err) {
-    res.status(500).send(err);
+    res.status(500).json({ msg: err, status: 500 });
     console.log(err);
+    return;
+  }
+};
+
+getUserProjectOnTerm = (req, res) => {
+  const { User_Email, Major_ID, senior } = req.body;
+  console.log(User_Email, Major_ID, senior);
+  try {
+    const getUserSeniorSql =
+      "SELECT u.Project_on_term_ID, pj.Senior FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
+    con.query(
+      getUserSeniorSql,
+      [User_Email, Major_ID, senior],
+      (err, result, fields) => {
+        if (err) throw err;
+        res.status(200).json(result);
+        return;
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: err, status: 500 });
+    return;
   }
 };
 
@@ -320,4 +345,5 @@ module.exports = {
   getAllMajors,
   updateUserRole,
   getTeacherRole,
+  getUserProjectOnTerm,
 };

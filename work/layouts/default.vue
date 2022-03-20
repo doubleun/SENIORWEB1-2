@@ -15,6 +15,7 @@
 // import Sidebar from "@/components/Student/stuSidebar";
 
 export default {
+  middleware: "checkRole",
   data() {
     return {
       items: [

@@ -14,10 +14,9 @@ export default {
     state.isAuthenticated = false;
   },
   SET_USER_SENIOR(state, payload) {
-    if (!payload) {
-      state.currentUser.senior = 1;
-    } else {
-      state.currentUser.senior = payload;
+    state.currentUser.senior = payload.senior;
+    if (!!payload?.projectOnTermId) {
+      state.currentUser.projectOnTerm = payload.projectOnTermId;
     }
   },
 };

@@ -102,32 +102,29 @@ export default {
     test() {
       console.log(this.$store.state.auth);
     },
-    // TODO: Delete this!
-    async testAsync() {
-      console.log(this.$store.state);
-      // const res = await this.$axios.$get("http://localhost:3000/api/user");
-      // console.log(res);
-    },
-    route(semester) {
-      // this.$store.state.auth.currentUser.role === 1
-      //   ? this.$router.push(`/Senior${semester}/student/`)
-      //   : this.$router.push(`/Senior${semester}/coordinator/`);
-      switch (this.$store.state.auth.currentUser.role) {
+    async route(senior) {
+      // Dispatch to get project on term id and store senior in state
+      await this.$store.dispatch("auth/storeProjectOnTerm", senior);
+
+      // Sets localStorage
+      // localStorage.setItem("userInfo", th);
+      localStorage.setItem("senior", senior);
+      localStorage.setItem(
+        "projectOnTerm",
+        this.$store.getters["auth/currentUser"].projectOnTerm
+      );
+
+      switch (this.$store.getters["auth/currentUser"].role) {
         case 0: {
-          window.location.replace(`/senior${semester}/teacher/`);
-          // this.$router.push(`/senior${semester}/teacher/`);
+          this.$router.replace(`/senior${senior}/teacher/`);
           break;
         }
         case 1: {
-          window.location.replace(`/senior${semester}/student/`);
-
-          // this.$router.push(`/senior${semester}/student/`);
+          this.$router.replace(`/senior${senior}/student/`);
           break;
         }
         case 2: {
-          window.location.replace(`/senior${semester}/coordinator/`);
-
-          // this.$router.push(`/senior${semester}/coordinator/`);
+          this.$router.replace(`/senior${senior}/coordinator/`);
           break;
         }
       }
