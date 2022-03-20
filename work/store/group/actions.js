@@ -19,7 +19,14 @@ export default {
     // Fetch all progress(es) in this major
     let allProgress = [];
 
-    // console.log(state.rootState.group?.currentUserGroup);
+    console.log(
+      "storeAvailableProgressions currentUser: ",
+      state.rootState.auth?.currentUser
+    );
+    // console.log(
+    //   "storeAvailableProgressions currentUserGroup: ",
+    //   state.rootState.group?.currentUserGroup
+    // );
     try {
       // Check if current user's group info is available and fetch progress based on current user group's major
       if (!!state.rootState.group?.currentUserGroup) {

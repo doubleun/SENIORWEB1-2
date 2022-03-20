@@ -7,6 +7,7 @@ export default async function ({ route, store, redirect }) {
     if (!store.getters["auth/currentUser"]?.projectOnTerm) {
       const regexSenior = /(?:\/senior)(\d)/g;
       const senior = regexSenior.exec(route.path)[1];
+      console.log("middleware ran: storing project on term id...");
       await store.dispatch("auth/storeProjectOnTerm", senior);
     }
 
@@ -37,8 +38,32 @@ export default async function ({ route, store, redirect }) {
       // NOTE: Maynot need '\/' at the end...
       const regexRole = new RegExp(`\/${role.name}\/`);
       const correctRole = regexRole.test(route.path);
+
+      // If user role is incorrect redirect user
       if (!correctRole) {
+        console.log("middleware ran: route blocked, unauthorized...");
         redirect(`/senior${senior}/${role.name}`);
+      }
+
+      // Store student group (if not exists)
+      if (
+        store.getters["auth/currentUser"]?.role === 1 &&
+        !store.getters["group/currentUserGroup"]
+      ) {
+        // Try fetch current user's group info if user role is 1 (ie. student)
+        console.log(
+          "middleware ran: getting available current student group..."
+        );
+        await store.dispatch("group/storeGroupInfo");
+      }
+
+      // Get available progress (if not exists)
+      if (
+        !!store.getters["auth/currentUser"] &&
+        !store.getters["group/availableProgress"]
+      ) {
+        console.log("middleware ran: getting available progress...");
+        await store.dispatch("group/storeAvailableProgressions");
       }
     } else {
       throw new Error("User info not sufficient");
