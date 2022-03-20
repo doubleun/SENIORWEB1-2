@@ -9,6 +9,7 @@ userRouter.get("/", UserControllers.getUser);
 userRouter.post("/getAllUserWithMajor", UserControllers.getAllUserWithMajor);
 // Fluke made this
 userRouter.post("/getAllUsersInSchool", UserControllers.getAllUsersInSchool);
+userRouter.post("/getUserProjectOnTerm", UserControllers.getUserProjectOnTerm);
 // userRouter.post("/gettacherwithrole", UserControllers.getTachersWithRole);
 userRouter.post("/amount", UserControllers.countUser);
 userRouter.post(
