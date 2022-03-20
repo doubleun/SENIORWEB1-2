@@ -17,6 +17,28 @@ getLatestProjectOnTerm = (req, res) => {
   }
 };
 
+// Get project on term id from senior, semester and year
+getProjectOnTerm = (req, res) => {
+  const { Academic_Year, Academic_Term, Senior } = req.body;
+  const getProjectOnTermSql =
+    "SELECT * FROM `projectonterm` WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?";
+  try {
+    con.query(
+      getProjectOnTermSql,
+      [Academic_Year, Academic_Term, Senior],
+      (err, projectOnTerm) => {
+        if (err) throw err;
+        res.status(200).json(projectOnTerm[0]);
+        return;
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
+  }
+};
+
 // Academic year
 getAcademicYear = async (req, res) => {
   const sql =
@@ -47,10 +69,10 @@ newAcademicYear = async (req, res) => {
 
 // Semester date
 getSemesterDate = async (req, res) => {
-  const { year } = req.body;
+  const { year, senior } = req.body;
   const sql =
-    "SELECT * FROM `projectonterm` WHERE `Academic_Year` = ? ORDER BY `Project_on_term_ID`";
-  con.query(sql, [year], (err, result, fields) => {
+    "SELECT * FROM `projectonterm` WHERE `Academic_Year` = ? AND `Senior` = ? ORDER BY `Project_on_term_ID`";
+  con.query(sql, [year, senior], (err, result, fields) => {
     if (err) {
       console.log(err);
       res.status(500).send("Internal Server Error");
@@ -61,11 +83,10 @@ getSemesterDate = async (req, res) => {
 };
 
 newSemesterDate = async (req, res) => {
-  // const {Academic_Year, Academic_Term, Date_Start, Date_End} = req.body
-  console.log(req.body.data);
   const { data } = req.body;
+  // TODO: Refactor, this used to be multiple insertion, but now it's one at a time
   const sql =
-    "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`) VALUES ?";
+    "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`, `Senior`) VALUES ?";
   con.query(
     sql,
     [data.map((obj) => Object.values(obj))],
@@ -113,6 +134,7 @@ getYearsSemester = async (req, res) => {
 
 module.exports = {
   getLatestProjectOnTerm,
+  getProjectOnTerm,
   getAcademicYear,
   newAcademicYear,
   getSemesterDate,

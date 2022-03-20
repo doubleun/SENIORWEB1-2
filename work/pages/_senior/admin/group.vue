@@ -6,13 +6,22 @@
     > -->
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Group</h2>
     <!-- <button @click="test">test</button> -->
-      <SelectSenior></SelectSenior>
+    <SelectSenior />
 
     <!-- Action buttons -->
-    <div class="my-5 d-flex justify-end">
+    <div class="my-5 d-flex justify-end" style="gap: 0.5rem; flex-wrap: wrap">
       <div>
         <v-btn color="success" @click="handleExports(selected, allGroups)"
           ><v-icon>mdi-microsoft-excel</v-icon>Export to Excel</v-btn
+        >
+      </div>
+      <div>
+        <v-btn
+          color="indigo darken-2"
+          dark
+          @click="handleMoveGroups"
+          v-if="$store.getters['auth/currentUser'].senior === 1"
+          ><v-icon>mdi-microsoft-excel</v-icon>Move group to senior 2</v-btn
         >
       </div>
     </div>
@@ -159,9 +168,11 @@
 <script>
 // import LongTableCard from "@/components/admin/longTableCard";
 import exportXLSX from "@/mixins/exportXLSX";
+import dialog from "@/mixins/dialog";
 
 export default {
   layout: "admin",
+  mixins: [exportXLSX, dialog],
   data() {
     return {
       searchGroup: "",
@@ -195,10 +206,12 @@ export default {
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
-  async asyncData({ $axios }) {
+  async asyncData({ $axios, store }) {
     let majors, yearNSemsters, allGroups;
 
+    const senior = store.getters["auth/currentUser"].senior;
     try {
+      if (!senior) throw new Error("Cannot find senior");
       // Fetch all majors
       majors = await $axios.$get("/user/getAllMajors");
       // Fetch all years and semesters
@@ -208,24 +221,16 @@ export default {
         Major: majors[0].Major_ID,
         Year: yearNSemsters[0].Academic_Year,
         Semester: yearNSemsters[0].Academic_Term,
+        Senior: senior,
       });
     } catch (err) {
       console.log(err);
+      return { majors: [], yearNSemsters: [], allGroups: [] };
     }
 
     return { majors, yearNSemsters, allGroups };
   },
   methods: {
-    // TODO: Delete This
-    test() {
-      console.log(this.majors);
-      console.log(this.yearNSemsters);
-      console.log(this.allGroups);
-    },
-    // TODO: Delete This
-    testSelect() {
-      console.log(this.selected);
-    },
     checkdia() {
       if (this.selected.length == 0) {
         this.$swal.fire({
@@ -238,34 +243,23 @@ export default {
         this.dialog1 = true;
       }
     },
-    // async deletegroup() {
-    //   this.loading = true;
-    //   this.dialog1 = false;
-    //   // this.selectedgroupid.push(this.selected[0]['Group_ID'])
-    //   // Create new array with only 2 values that the api needs
+    async handleMoveGroups() {
+      const moveGroups = async () => {
+        // Fetch project on term id for the group's next senior (ie. senior 2 projectOnTermId based on this group year and semster)
+        const projectOnTerm = await this.$axios.$post("date/getProjectOnTerm", {
+          Academic_Year: this.selectedYear,
+          Academic_Term: this.selectedSemester,
+          Senior: 2,
+        });
+        // console.log("projectOnTerm: ", projectOnTerm);
 
-    //   const data = this.selected.map((itm) => ({
-    //     Group_ID: itm.Group_ID,
-    //     Group_Status: 0,
-    //   }));
-    //   // Fetch update API
-    //   const res = await this.$axios.$put("/group/delete", {
-    //     data,
-    //   });
-
-    //   console.log(res);
-    //   console.log("Before Update: ", this.allGroups);
-    //   // Update UI
-    //   this.allGroups = this.allGroups.filter(
-    //     (itm) => !res.result.includes(itm.Group_ID)
-    //   );
-
-    //   console.log("UI update: ", this.allGroups);
-
-    //   console.log(this.selectedgroupid);
-
-    //   this.loading = false;
-    // },
+        return this.$axios.$post("group/moveGroup", {
+          // FIXME: This seems like a bad idea ?
+          Project_on_term_ID: projectOnTerm.Project_on_term_ID,
+        });
+      };
+      await this.showLoading(moveGroups);
+    },
     async handleChangeRenderGroups() {
       this.loading = true;
       // Clear selected group from the past filter
@@ -274,12 +268,12 @@ export default {
         Major: this.selectedMajor.Major_ID,
         Year: this.selectedYear,
         Semester: this.selectedSemester,
+        Senior: this.$store.getters["auth/currentUser"].senior,
       });
       this.loading = false;
       this.dialogFilter = false;
     },
   },
-  mixins: [exportXLSX],
 };
 </script>
 

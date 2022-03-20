@@ -779,13 +779,12 @@ export default {
 
       // Sets project members
       this.groupMembers
-        // Filter groupMembers array to get only group role 2, which is student role
+        // Filter groupMembers array to get only group role 2, which is student roles (head and member)
         .filter((itm) => itm.Group_Role === 3 || itm.Group_Role === 2)
         .map((itm, index) => {
           index >= 1 &&
             // Add more project member fields
             this.addMemberFields();
-          console.log("hearrrr" + itm);
           // Pass value into all project member fields
           this.selectedStudent[index] = {
             User_Email: itm.User_Email,

@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Semester Date</h2>
-    <SelectSenior></SelectSenior>
+    <SelectSenior />
 
     <div class="my-5 d-flex justify-end">
       <!-- New academic year -->

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Mar 17, 2022 at 05:54 PM
+-- Generation Time: Mar 20, 2022 at 08:51 AM
 -- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
 -- PHP Version: 8.0.15
 
@@ -357,6 +357,7 @@ INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`,
 ('6131501042@lamduan.mfu.ac.th', '6131501042', 'Pornsupa Sombatsiri', 1, NULL, 6, 15),
 ('6131501049@lamduan.mfu.ac.th', '6131501049', 'Rujikorn Precha', 1, NULL, 6, 15),
 ('6131501052@lamduan.mfu.ac.th', '6131501052', 'Wachirachai Nitsomboon', 1, NULL, 2, 15),
+('basketcasey44@gmail.com', NULL, 'Admin Two', 99, NULL, 1, 15),
 ('cickpoo0121@gmail.com', NULL, 'Cickpool', 2, NULL, 1, 15),
 ('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 15),
 ('kiwlom093@gmail.com', '6131501097', 'Coordinator Kiwlom', 2, NULL, 2, 15),
@@ -576,7 +577,7 @@ ALTER TABLE `progressions`
 -- AUTO_INCREMENT for table `projectonterm`
 --
 ALTER TABLE `projectonterm`
-  MODIFY `Project_on_term_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `Project_on_term_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `roles`
