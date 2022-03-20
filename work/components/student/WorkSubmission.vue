@@ -25,7 +25,21 @@
 
     <!-- Progress card -->
     <v-card class="progress-container">
-      <v-card-title>YOUR WORK</v-card-title>
+      <div class="d-flex flex-wrap justify-center" style="width: 100%">
+        <v-card-title class="flex-grow-1"> YOUR WORK </v-card-title>
+        <!-- Upload size progress bar -->
+        <div class="progress-upload-size-bar" v-show="showSubmission">
+          <p>Size:</p>
+          <v-progress-linear
+            rounded
+            :color="totalUploadSize.percentage < 80 ? 'success' : 'red'"
+            background-color="indigo lighten-5"
+            :value="totalUploadSize.percentage"
+            :height="10"
+          ></v-progress-linear>
+          <p>{{ totalUploadSize.stringSize }} / 5MB</p>
+        </div>
+      </div>
 
       <!-- Card content (flex container) -->
       <div class="progress-flex">
@@ -155,13 +169,6 @@
             </div>
           </v-radio-group>
         </div>
-
-        <!-- Upload size progress bar -->
-        <div class="progress-file-display-container" v-show="showSubmission">
-          <v-progress-linear
-            :value="totalUploadSize.percentage"
-          ></v-progress-linear>
-        </div>
       </div>
     </v-card>
   </main>
@@ -171,6 +178,7 @@
 import utils from "@/mixins/utils";
 
 export default {
+  mixins: [utils],
   data() {
     return {
       availableLinks: [],
@@ -186,7 +194,6 @@ export default {
       selectedAbstractIndex: 0,
     };
   },
-  mixins: [utils],
   props: {
     finalDocument: {
       type: Boolean,
@@ -238,6 +245,7 @@ export default {
       return {
         percentage: ((totalSize / this.maxSize) * 100).toFixed(2),
         byte: totalSize,
+        stringSize: this.bytesToSize(totalSize),
       };
     },
   },
@@ -673,18 +681,21 @@ export default {
   display: inline-block !important;
   height: fit-content !important;
 }
-/* .progress-file-input-container.submitted {
+
+/* Progress upload bar */
+.progress-upload-size-bar {
   display: flex;
-  border: 1.25px solid rgba(0, 0, 0, 0.38);
-  padding: 0, 12px;
-  border-radius: 8px;
-  cursor: pointer;
+  align-items: center;
+  gap: 0.5rem;
+  width: 40%;
 }
-.progress-file-input-container.submitted > p {
+.progress-upload-size-bar p {
+  flex-shrink: 0;
+  font-size: clamp(11px, 2vw, 14px);
+  width: fit-content;
+  color: gray;
   margin: 0;
-  padding: 10px;
-  font-size: clamp(12px, 2vw, 16px);
-} */
+}
 
 /* Files grid display small */
 @media only screen and (max-width: 768px) {
@@ -699,6 +710,12 @@ export default {
     align-items: center;
     text-align: center;
     font-size: clamp(12px, 2vw, 14px);
+  }
+  .progress-upload-size-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 50%;
   }
 }
 
