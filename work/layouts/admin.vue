@@ -51,6 +51,11 @@ export default {
           title: "Criteria",
           to: "/senior/admin/criteria",
         },
+        {
+          icon: "mdi-clipboard-list",
+          title: "Manage Majors",
+          to: "/senior/admin/majorManage",
+        },
       ],
     };
   },

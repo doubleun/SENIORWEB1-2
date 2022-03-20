@@ -25,7 +25,7 @@ export default {
     const announcements = await context.$axios.$get("announc/all");
 
     // Get all major
-    const majors = await context.$axios.$get("/user/getAllMajors");
+    const majors = await context.$axios.$get("/major/getAllActiveMajors");
 
     // TODO: Add modal(true, false) and allMajor(true, false) in the database. OR just checked and set major id to 99 (think about it)
     // Add modal (true, false to the object announcements)

@@ -207,7 +207,7 @@ export default {
     // Get all major
     var majors, abstracts;
     try {
-      majors = await $axios.$get("/user/getAllMajors");
+      majors = await $axios.$get("/major/getAllActiveMajors");
       abstracts = await $axios.$get("/assignment/abstracts");
       console.log("abstarct", abstracts);
     } catch (error) {

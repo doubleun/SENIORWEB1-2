@@ -4,19 +4,7 @@ const fs = require("fs");
 const readXlsxFile = require("read-excel-file/node");
 const { result } = require("lodash");
 
-// TODO: Move this to its own route ?
-getAllMajors = async (req, res) => {
-  const sql =
-    "SELECT * FROM `majors` WHERE `Major_Status` = 1 AND Major_ID !=99";
-  con.query(sql, (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.status(200).json(result);
-    }
-  });
-};
+
 
 // TODO: Move this to its own route ?
 getTeacherRole = async (req, res) => {
@@ -342,7 +330,6 @@ module.exports = {
   uploadfile,
   countUser,
   getUser,
-  getAllMajors,
   updateUserRole,
   getTeacherRole,
   getUserProjectOnTerm,
