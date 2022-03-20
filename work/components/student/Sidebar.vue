@@ -17,7 +17,14 @@
       <v-row class="justify-center"
         ><h6>SCHOOL OF INFORMATION TECHNOLOGY</h6></v-row
       >
-      <v-row class="justify-center"><h5 style="margin-left: 5px" :style="theme === 'default' ? '#253b6e' : 'white'">1/2022</h5></v-row>
+      <v-row class="justify-center" v-if="displaySemester"
+        ><h5
+          style="margin-left: 5px"
+          :style="theme === 'default' ? '#253b6e' : 'white'"
+        >
+          1/2022
+        </h5></v-row
+      >
     </v-col>
     <!-- Lists routes Home-Final Presentation -->
     <v-list shaped class="mt-3">
@@ -49,7 +56,20 @@
 </template>
 <script>
 export default {
-  props: ["items", "theme"]
+  props: {
+    items: {
+      type: Array,
+      default: () => [],
+    },
+    theme: {
+      type: String,
+      default: () => "default",
+    },
+    displaySemester: {
+      type: Boolean,
+      default: () => true,
+    },
+  },
   // computed: {
   //   drawer: {
   //     get() {

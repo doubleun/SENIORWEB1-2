@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <StudentSidebar :items="items" theme="white" />
+    <StudentSidebar :items="items" theme="white" :displaySemester="false" />
     <div class="it-background">
       <MainAppbar theme="transparent" />
       <v-main>

@@ -20,12 +20,12 @@ export const actions = {
 
     const { dispatch, commit, state } = context;
     await dispatch("auth/login");
-    if (!!state.auth.currentUser && state.auth?.currentUser?.role === 1) {
-      // Try fetch current user's group info if user role is 1 (ie. student)
-      await dispatch("group/storeGroupInfo");
-    }
-    if (!!state.auth.currentUser && state.auth?.currentUser)
-      // Try fetch available progressions
-      await dispatch("group/storeAvailableProgressions");
+    // if (!!state.auth.currentUser && state.auth?.currentUser?.role === 1) {
+    //   // Try fetch current user's group info if user role is 1 (ie. student)
+    //   await dispatch("group/storeGroupInfo");
+    // }
+    // if (!!state.auth.currentUser && state.auth?.currentUser)
+    //   // Try fetch available progressions
+    //   await dispatch("group/storeAvailableProgressions");
   },
 };
