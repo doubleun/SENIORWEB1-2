@@ -15,23 +15,9 @@
           ><v-icon>mdi-microsoft-excel</v-icon>Export to Excel</v-btn
         >
       </div>
-      <div>
-        <v-btn
-          color="indigo darken-2"
-          dark
-          @click="handleMoveGroups"
-          v-if="$store.getters['auth/currentUser'].senior === 1"
-          ><v-icon>mdi-microsoft-excel</v-icon>Move group to senior 2</v-btn
-        >
-      </div>
     </div>
 
-    <ViewGroupDetail
-      :majors="majors"
-      :yearNSemsters="yearNSemsters"
-      :allGroups="allGroups"
-      isAdmin
-    />
+    <ViewGroupDetail :yearNSemsters="yearNSemsters" :allGroups="allGroups" />
     <!-- </main> -->
   </v-container>
 </template>
@@ -48,6 +34,44 @@ export default {
       loading: false,
       manageTeacher: false,
     };
+  },
+
+  async asyncData({ $axios, store }) {
+    let yearNSemsters, allGroups;
+
+    const senior = store.getters["auth/currentUser"].senior;
+
+    try {
+      if (!senior) throw new Error("Cannot find senior");
+
+      // Fetch all years and semesters
+      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+      /// Fetch initial group
+      allGroups = await $axios.$post("/group/getAllAdmin", {
+        Major: store.state.auth.currentUser.major,
+        Year: yearNSemsters[0].Academic_Year,
+        Semester: yearNSemsters[0].Academic_Term,
+        Senior: senior,
+      });
+    } catch (err) {
+      console.log(err);
+      return { yearNSemsters: [], allGroups: [] };
+    }
+
+    return { yearNSemsters, allGroups };
+  },
+
+  methods: {
+    async handleChangeRenderGroups(year, semester, major, senior) {
+      this.loading = true;
+      this.allGroups = await this.$axios.$post("group/getAllAdmin", {
+        Major: major,
+        Year: year,
+        Semester: semester,
+        Senior: senior,
+      });
+      this.loading = false;
+    },
   },
 };
 </script>

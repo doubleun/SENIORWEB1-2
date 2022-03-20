@@ -23,7 +23,7 @@
               <v-card>
                 <v-card-title> Filter </v-card-title>
                 <v-card-text>
-                  <v-row>
+                  <v-row v-if="isAdmin">
                     <v-col md="3">
                       <p>Study Program</p>
                     </v-col>
@@ -140,7 +140,13 @@
 
 <script>
 export default {
-  props: [majors, yearNSemsters, allGroups, isAdmin],
+  props: {
+    majors: Array,
+    yearNSemsters: Array,
+    allGroups: Array,
+    isAdmin: Boolean,
+    manageTeacher: Boolean,
+  },
   data() {
     return {
       selectedYear: null,
@@ -163,11 +169,25 @@ export default {
     };
   },
   mounted() {
-    this.selectedMajor = isAdmin
+    this.selectedMajor = this.isAdmin
       ? this.majors[0]
       : this.$store.state.auth.currentUser.major;
     this.selectedYear = this.yearNSemsters[0].Academic_Year;
     this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+  },
+  methods: {
+    handleChangeRenderGroups() {
+      this.$emit(
+        "on-filtering",
+        this.selectedYear,
+        this.selectedSemester,
+        this.isAdmin
+          ? this.selectedMajor.Major_ID
+          : this.$store.state.auth.currentUser.major,
+        this.$store.getters["auth/currentUser"].senior
+      );
+      this.dialogFilter = false;
+    },
   },
 };
 </script>

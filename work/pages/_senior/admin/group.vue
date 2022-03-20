@@ -31,6 +31,7 @@
       :yearNSemsters="yearNSemsters"
       :allGroups="allGroups"
       isAdmin
+      @on-filtering="handleChangeRenderGroups"
     />
     <!-- </main> -->
   </v-container>
@@ -55,7 +56,6 @@ export default {
       singleSelect: false,
       selected: [],
       selectedgroupid: [],
-      dialogFilter: false,
       manageTeacher: false,
     };
   },
@@ -119,18 +119,15 @@ export default {
       };
       await this.showLoading(moveGroups);
     },
-    async handleChangeRenderGroups() {
+    async handleChangeRenderGroups(year, semester, major, senior) {
       this.loading = true;
-      // Clear selected group from the past filter
-      this.selected = [];
       this.allGroups = await this.$axios.$post("group/getAllAdmin", {
-        Major: this.selectedMajor.Major_ID,
-        Year: this.selectedYear,
-        Semester: this.selectedSemester,
-        Senior: this.$store.getters["auth/currentUser"].senior,
+        Major: major,
+        Year: year,
+        Semester: semester,
+        Senior: senior,
       });
       this.loading = false;
-      this.dialogFilter = false;
     },
   },
 };
