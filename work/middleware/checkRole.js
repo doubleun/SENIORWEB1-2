@@ -23,7 +23,10 @@ export default async function ({ route, store, redirect }) {
     if (store.getters["auth/currentUser"]?.projectOnTerm) {
       //FIXME: If there is a role (if not we should logout user and redirect to abstract page)
       let role;
-      if (!!store.getters["auth/currentUser"]?.role) {
+      if (
+        !!store.getters["auth/currentUser"]?.role ||
+        store.getters["auth/currentUser"]?.role === 0
+      ) {
         role = roles.filter(
           (role) => role.id === store.getters["auth/currentUser"]?.role
         )[0];
