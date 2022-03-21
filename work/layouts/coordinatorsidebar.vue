@@ -81,6 +81,12 @@ export default {
           role: 2,
         },
         {
+          icon: "mdi-account-group",
+          title: "Group",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/viewGroup`,
+          role: 0,
+        },
+        {
           icon: "mdi-clipboard-text",
           title: "Doucment",
           to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/viewAssignment`,

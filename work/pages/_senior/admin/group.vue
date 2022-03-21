@@ -26,141 +26,13 @@
       </div>
     </div>
 
-    <v-card>
-      <v-card-title>
-        <h3>Groups</h3>
-        <v-spacer></v-spacer>
-        <v-row class="d-flex justify-end">
-          <v-col md="2" class="d-flex justify-end">
-            <v-dialog v-model="dialogFilter" persistent max-width="600px">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  class="mt-5 mr-2"
-                  small
-                  color="primary"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon> mdi-filter-variant-plus </v-icon>
-                </v-btn>
-              </template>
-
-              <!-- Action buttons -->
-              <v-card>
-                <v-card-title> Filter </v-card-title>
-                <v-card-text>
-                  <v-row>
-                    <v-col md="3">
-                      <p>Study Program</p>
-                    </v-col>
-                    <v-col md="9">
-                      <v-select
-                        v-model="selectedMajor"
-                        :items="majors"
-                        item-text="Major_Name"
-                        item-value="Major_ID"
-                        return-object
-                        dense
-                        solo
-                        hide-details
-                        off
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row v-if="manageTeacher">
-                    <v-col md="3">
-                      <p>Role</p>
-                    </v-col>
-                    <v-col md="9">
-                      <v-select
-                        v-model="selectedRole"
-                        :items="roles"
-                        item-text="Role_Name"
-                        item-value="Role_ID"
-                        return-object
-                        dense
-                        solo
-                        hide-details
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col md="3">
-                      <p>Year</p>
-                    </v-col>
-                    <v-col md="9">
-                      <v-select
-                        v-model="selectedYear"
-                        :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-                        dense
-                        solo
-                        hide-details
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col md="3">
-                      <p>Semester</p>
-                    </v-col>
-                    <v-col md="9">
-                      <v-select
-                        v-model="selectedSemester"
-                        :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-                        dense
-                        solo
-                        hide-details
-                      />
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="dialogFilter = false"
-                  >
-                    Close
-                  </v-btn>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="handleChangeRenderGroups"
-                  >
-                    Save
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-col>
-          <v-col md="6"
-            ><v-text-field
-              v-model="searchGroup"
-              clearable
-              append-icon="mdi-magnify"
-              label="Search"
-              single-line
-              hide-details
-            ></v-text-field
-          ></v-col>
-        </v-row>
-      </v-card-title>
-      <v-data-table
-        :headers="headers"
-        :items="allGroups"
-        item-key="Group_ID"
-        :search="searchGroup"
-      >
-        <template v-slot:item.Group_Name_Eng="props">
-          <v-row class="pa-2 justify-space-around" no-gutters>
-            <div style="cursor: pointer">
-              {{ props.item.Group_Name_Eng }}
-            </div>
-          </v-row>
-        </template>
-      </v-data-table>
-    </v-card>
+    <ViewGroupDetail
+      :majors="majors"
+      :yearNSemsters="yearNSemsters"
+      :allGroups="allGroups"
+      isAdmin
+      @on-filtering="handleChangeRenderGroups"
+    />
     <!-- </main> -->
   </v-container>
 </template>
@@ -176,35 +48,22 @@ export default {
   data() {
     return {
       searchGroup: "",
-      selectedMajor: {},
-      selectedYear: null,
-      selectedSemester: null,
+      // selectedMajor: {},
+      // selectedYear: null,
+      // selectedSemester: null,
       loading: false,
       dialog1: false,
       singleSelect: false,
       selected: [],
       selectedgroupid: [],
-      dialogFilter: false,
       manageTeacher: false,
-      headers: [
-        {
-          text: "GROUP NAME",
-          align: "center",
-          sortable: false,
-          value: "Group_Name_Eng",
-        },
-        { text: "MEMBER", align: "center", value: "Students" },
-        { text: "PROGRAM", align: "center", value: "Major" },
-        { text: "ADVISOR", align: "center", value: "Advisor" },
-        { text: "COMMITTEE", align: "center", value: "Committee" },
-      ],
     };
   },
   mounted() {
     // Set the default value
-    this.selectedMajor = this.majors[0];
-    this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    // this.selectedMajor = this.majors[0];
+    // this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
   async asyncData({ $axios, store }) {
     let majors, yearNSemsters, allGroups;
@@ -260,18 +119,15 @@ export default {
       };
       await this.showLoading(moveGroups);
     },
-    async handleChangeRenderGroups() {
+    async handleChangeRenderGroups(year, semester, major, senior) {
       this.loading = true;
-      // Clear selected group from the past filter
-      this.selected = [];
       this.allGroups = await this.$axios.$post("group/getAllAdmin", {
-        Major: this.selectedMajor.Major_ID,
-        Year: this.selectedYear,
-        Semester: this.selectedSemester,
-        Senior: this.$store.getters["auth/currentUser"].senior,
+        Major: major,
+        Year: year,
+        Semester: semester,
+        Senior: senior,
       });
       this.loading = false;
-      this.dialogFilter = false;
     },
   },
 };
