@@ -75,12 +75,11 @@ export default {
       { lable: "EMAIL", value: "User_Email" },
     ],
     headers: [
-      ,
       { text: "NAME", align: "center", value: "User_Name" },
       { text: "EMAIL", align: "center", value: "User_Email" },
       // { text: "STUDY PROGRAM", align: "center", value: "Major_ID" },
       { text: "ROLE", align: "center", value: "User_Role_Name" },
-      { text: "Actions", align: "center", value: "actions", sortable: false },
+      { text: "ACTION", align: "center", value: "actions", sortable: false },
       // { text: "SEM", align: "center", value: "Committee" },
     ],
   }),
@@ -89,7 +88,7 @@ export default {
     let teachers, majors, yearNSemsters, roles;
     try {
       // Fetch all majors
-      majors = await $axios.$get("/user/getAllMajors");
+      majors = await $axios.$get("/major/getAllActiveMajors");
 
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get("/date/allYearsSemester");

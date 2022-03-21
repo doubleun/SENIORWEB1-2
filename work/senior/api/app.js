@@ -20,6 +20,7 @@ const groupRoutes = require("./src/routes/groupRoutes");
 const criteriaRoutes = require("./src/routes/criteriaRoutes");
 const assignmentRoutes = require("./src/routes/assignmentRoutes");
 const dateRoutes = require("./src/routes/dateRoutes");
+const majorRoutes = require("./src/routes/majorRoutes");
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.use("/group", groupRoutes);
 app.use("/criteria", criteriaRoutes);
 app.use("/assignment", assignmentRoutes);
 app.use("/date", dateRoutes);
+app.use("/major", majorRoutes);
 app.get("/test", (req, res) => {
   res.send("test");
 });

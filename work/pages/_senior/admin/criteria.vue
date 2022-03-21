@@ -77,7 +77,7 @@ export default {
       projectOnTerm = await $axios.$get("/date/getLatestProjectOnTerm");
 
       // Fetch all majors
-      majors = await $axios.$get("/user/getAllMajors");
+      majors = await $axios.$get("/major/getAllActiveMajors");
 
       // Fetch score criterias
       scoreCriterias = await $axios.$post("/criteria/scoreMajor", {

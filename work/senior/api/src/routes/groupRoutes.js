@@ -37,5 +37,6 @@ groupRouter.post("/countMyGroup", groupController.countTeachergroup);
 groupRouter.post("/getAllFilesMajor", groupController.getAllFilesMajor);
 groupRouter.post("/moveGroup", groupController.addGroupToSeTwo);
 groupRouter.post("/countprogress", groupController.countProgressGroup);
+groupRouter.post("/countOwnGroup", groupController.countOwnGroup);
 
 module.exports = groupRouter;

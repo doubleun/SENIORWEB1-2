@@ -72,7 +72,7 @@ export default {
     try {
       if (!senior) throw new Error("Cannot find senior");
       // Fetch all majors
-      majors = await $axios.$get("/user/getAllMajors");
+      majors = await $axios.$get("/major/getAllActiveMajors");
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get("/date/allYearsSemester");
       /// Fetch initial group
