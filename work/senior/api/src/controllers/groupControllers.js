@@ -1089,6 +1089,27 @@ addGroupToSeTwo = (req, res) => {
   }
 };
 
+countOwnGroup = (req, res) => {
+  // count group that is advisor or committee
+  const { Academic_Year, Academic_Term } = req.body;
+  // console.log(req.body);
+
+  const countGroup =
+    "SELECT subquery.User_Email,subquery.User_Name,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=0 AND Group_Member_ID=subquery.Group_Member_ID)AS Advisor,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=1 AND Group_Member_ID=subquery.Group_Member_ID)AS Committee FROM (SELECT gmb.Group_Member_ID,usr.User_Email,usr.User_Name,usr.User_Role FROM groupmembers gmb RIGHT JOIN users usr ON gmb.User_Email=usr.User_Email WHERE usr.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND (usr.User_Role=0 OR usr.User_Role=2))AS subquery ORDER BY User_Name ASC";
+
+  con.query(
+    countGroup,
+    [Academic_Year, Academic_Term],
+    (err, result, fields) => {
+      if (err) {
+        res.status(422).json({ msg: "Query Error", status: 422 });
+      } else {
+        res.status(200).json({ data: result, status: 200 });
+      }
+    }
+  );
+};
+
 module.exports = {
   getAll,
   getGroupWithID,
@@ -1118,4 +1139,5 @@ module.exports = {
   addGroupToSeTwo,
   countProgressGroup,
   getGroupMajor,
+  countOwnGroup,
 };

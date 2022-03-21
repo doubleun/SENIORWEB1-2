@@ -52,6 +52,11 @@ export default {
           to: "/senior/admin/criteria",
         },
         {
+          icon: "mdi-account-search ",
+          title: "Group of Teacher",
+          to: "/senior/admin/teacherGroup",
+        },
+        {
           icon: "mdi-clipboard-list",
           title: "Manage Majors",
           to: "/senior/admin/majorManage",
