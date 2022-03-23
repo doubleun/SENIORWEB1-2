@@ -5,24 +5,68 @@ const middle = require("../middleware/middle");
 
 var userRouter = require("express").Router();
 
+// accept role = all
 userRouter.get("/", UserControllers.getUser);
-userRouter.post("/getAllUserWithMajor", UserControllers.getAllUserWithMajor);
-// Fluke made this
-userRouter.post("/getAllUsersInSchool", UserControllers.getAllUsersInSchool);
-userRouter.post("/getUserProjectOnTerm", UserControllers.getUserProjectOnTerm);
+
+// accept role = admin, coordinator
+userRouter.post(
+  "/getAllUserWithMajor",
+  [middle.checkAuthenticated, middle.checkRole([2, 99]), middle.accessDate],
+
+  UserControllers.getAllUserWithMajor
+);
+
+// accept role = student
+userRouter.post(
+  "/getAllUsersInSchool",
+  // [middle.checkAuthenticated],
+  UserControllers.getAllUsersInSchool
+);
+
+// accept role = all
+userRouter.post(
+  "/getUserProjectOnTerm",
+  // [middle.checkAuthenticated],
+  UserControllers.getUserProjectOnTerm
+);
+
 // userRouter.post("/gettacherwithrole", UserControllers.getTachersWithRole);
-userRouter.post("/amount", UserControllers.countUser);
+
+// accept role = admin
+userRouter.post(
+  "/amount",
+  // [middle.checkAuthenticated],
+  UserControllers.countUser
+);
+
+// accept role = coordinator
 userRouter.post(
   "/importstudent",
   multer.uploadUser.array("files", 10),
+  // [middle.checkAuthenticated],
   UserControllers.uploadfile
 );
+
+// accept role = admin
 userRouter.post(
   "/importteacher",
   multer.uploadUser.array("files", 10),
+  // [middle.checkAuthenticated],
   UserControllers.uploadfileteacher
 );
-userRouter.get("/getTeacherRole", UserControllers.getTeacherRole); // admin
-userRouter.post("/updateUserRole", UserControllers.updateUserRole); // admin
+
+// accept role = admin
+userRouter.get(
+  "/getTeacherRole",
+  // [middle.checkAuthenticated],
+  UserControllers.getTeacherRole
+);
+
+// accept role = admin
+userRouter.post(
+  "/updateUserRole",
+  // [middle.checkAuthenticated],
+  UserControllers.updateUserRole
+);
 
 module.exports = userRouter;

@@ -4,10 +4,8 @@ const fs = require("fs");
 const readXlsxFile = require("read-excel-file/node");
 const { result } = require("lodash");
 
-
-
 // TODO: Move this to its own route ?
-getTeacherRole = async (req, res) => {
+getTeacherRole = (req, res) => {
   const sql = "SELECT * FROM `roles` WHERE Role_ID!=99 AND Role_ID!=1";
   con.query(sql, (err, result, fields) => {
     if (err) {
@@ -49,12 +47,12 @@ getUser = (req, res) => {
   return;
 };
 
-countUser = async (req, res) => {
+countUser = (req, res) => {
   const { Project_on_term_ID } = req.body;
   const sql =
     "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
 
-  await con.query(
+  con.query(
     sql,
     [Project_on_term_ID, Project_on_term_ID],
     (err, result, fields) => {
@@ -72,14 +70,14 @@ countUser = async (req, res) => {
   );
 };
 
-getAllUserWithMajor = async (req, res) => {
+getAllUserWithMajor = (req, res) => {
   const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body;
   const sql =
     "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
   console.log(req.body);
 
-  await con.query(
+  con.query(
     sql,
     [Major_ID, Academic_Year, Academic_Term, User_Role],
     (err, result, fields) => {
@@ -305,13 +303,15 @@ getUserProjectOnTerm = (req, res) => {
   const { User_Email, Major_ID, senior } = req.body;
   console.log(User_Email, Major_ID, senior);
   try {
+    // TODO: get lastest project on term
     const getUserSeniorSql =
-      "SELECT u.Project_on_term_ID, pj.Senior FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
+      "SELECT u.Project_on_term_ID, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
     con.query(
       getUserSeniorSql,
       [User_Email, Major_ID, senior],
       (err, result, fields) => {
         if (err) throw err;
+        req.user.accessDateEnd = result[0].Access_Date_End;
         res.status(200).json(result);
         return;
       }

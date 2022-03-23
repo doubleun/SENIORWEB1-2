@@ -48,12 +48,11 @@ passport.serializeUser((user, done) => {
         user.name = result[0].User_Name;
         user.role = result[0].User_Role;
         user.major = result[0].Major_ID;
-        // user.projectOnTerm = result[0].Project_on_term_ID;
+
         user.userId = result[0].User_Identity_ID;
         user.academicYear = result[0].Academic_Year;
         user.academicTerm = result[0].Academic_Term;
-        // FIXME: This should not assign senior right away !! (cuz projOnTerm will be wrong if we only change senior number later)
-        // user.senior = result[0].User_Role === 99 ? 1 : result[0].Senior;
+
         user.status = 200;
 
         if (result[0].User_Role === 99) {
