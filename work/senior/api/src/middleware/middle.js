@@ -45,17 +45,18 @@ var checkRole = (accepted = []) => {
 const accessDate = (req, res, next) => {
   // Role: student = 1, teacher = 0, coordinator = 2, admin = 99
 
+  // console.log("start check access date");
+  // console.log("db date", req.user.accessDateEnd);
+  // console.log("now  date ", new Date());
+  // console.log("db date time", new Date(req.user.accessDateEnd).getTime());
+  // console.log("now date time", new Date().getTime());
+  // console.log(
+  //   new Date(req.user.accessDateEnd).getTime() < new Date().getTime()
+  // );
+
   if (req.user.role === 99) {
     return next();
   }
-  console.log("start check access date");
-  console.log("db date", req.user.accessDateEnd);
-  console.log("now  date ", new Date());
-  console.log("db date time", new Date(req.user.accessDateEnd).getTime());
-  console.log("now date time", new Date().getTime());
-  console.log(
-    new Date(req.user.accessDateEnd).getTime() < new Date().getTime()
-  );
 
   if (new Date(req.user.accessDateEnd).getTime() < new Date().getTime()) {
     console.log("Invalid access");
