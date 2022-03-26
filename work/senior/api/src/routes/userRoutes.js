@@ -11,22 +11,21 @@ userRouter.get("/", UserControllers.getUser);
 // accept role = admin, coordinator
 userRouter.post(
   "/getAllUserWithMajor",
-  [middle.checkAuthenticated, middle.checkRole([2, 99]), middle.accessDate],
-
+  [middle.checkAuthenticated, middle.checkRole([2, 99])],
   UserControllers.getAllUserWithMajor
 );
 
 // accept role = student
 userRouter.post(
   "/getAllUsersInSchool",
-  // [middle.checkAuthenticated],
+  [middle.checkAuthenticated],
   UserControllers.getAllUsersInSchool
 );
 
 // accept role = all
 userRouter.post(
   "/getUserProjectOnTerm",
-  // [middle.checkAuthenticated],
+  [middle.checkAuthenticated],
   UserControllers.getUserProjectOnTerm
 );
 
@@ -35,37 +34,37 @@ userRouter.post(
 // accept role = admin
 userRouter.post(
   "/amount",
-  // [middle.checkAuthenticated],
+  [middle.checkAuthenticated, middle.checkRole[99]],
   UserControllers.countUser
 );
 
 // accept role = coordinator
 userRouter.post(
   "/importstudent",
+  [middle.checkAuthenticated, middle.checkRole[2], middle.accessDate],
   multer.uploadUser.array("files", 10),
-  // [middle.checkAuthenticated],
   UserControllers.uploadfile
 );
 
 // accept role = admin
 userRouter.post(
   "/importteacher",
+  [middle.checkAuthenticated, middle.checkRole[99]],
   multer.uploadUser.array("files", 10),
-  // [middle.checkAuthenticated],
   UserControllers.uploadfileteacher
 );
 
 // accept role = admin
 userRouter.get(
   "/getTeacherRole",
-  // [middle.checkAuthenticated],
+  [middle.checkAuthenticated, middle.checkRole[99]],
   UserControllers.getTeacherRole
 );
 
 // accept role = admin
 userRouter.post(
   "/updateUserRole",
-  // [middle.checkAuthenticated],
+  [middle.checkAuthenticated, middle.checkRole[99]],
   UserControllers.updateUserRole
 );
 

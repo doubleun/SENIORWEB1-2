@@ -18,13 +18,14 @@ getTeacherRole = (req, res) => {
 };
 
 updateUserRole = (req, res) => {
-  const { User_Role, User_Email, Project_on_term_ID } = req.body;
+  // const { User_Role, User_Email, Project_on_term_ID } = req.body;
+  const { User_Role, User_Email } = req.body;
   const updateUserRoleSql =
     "UPDATE users SET User_Role = ? WHERE User_Email = ? AND Project_on_term_ID = ?";
   try {
     con.query(
       updateUserRoleSql,
-      [User_Role, User_Email, Project_on_term_ID],
+      [User_Role, User_Email, req.user.projectOnTerm],
       (err, result) => {
         if (err) throw err;
         res
@@ -35,7 +36,7 @@ updateUserRole = (req, res) => {
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Internal Server Error", status: 500 });
+    res.status(500).send("Internal Server Error");
     return;
   }
 };
@@ -48,15 +49,16 @@ getUser = (req, res) => {
 };
 
 countUser = (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  // const { Project_on_term_ID } = req.body;
   const sql =
     "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
 
   con.query(
     sql,
-    [Project_on_term_ID, Project_on_term_ID],
+    [req.user.projectOnTerm, req.user.projectOnTerm],
     (err, result, fields) => {
       if (err) {
+        console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
         // console.log(result[0]);
@@ -93,13 +95,13 @@ getAllUserWithMajor = (req, res) => {
 };
 
 getAllUsersInSchool = async (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  // const { Project_on_term_ID } = req.body;
   const studentsSQL =
     "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 1 AND `Project_on_term_ID` = ?";
   const students = await new Promise((resolve, reject) => {
     con.query(
       studentsSQL,
-      [Project_on_term_ID],
+      [req.user.projectOnTerm],
       (err, studentsResult, fields) => {
         if (err) {
           console.log(err);
@@ -115,7 +117,7 @@ getAllUsersInSchool = async (req, res) => {
   const teachers = await new Promise((resolve, reject) => {
     con.query(
       teachersSQL,
-      [Project_on_term_ID],
+      [req.user.projectOnTerm],
       (err, teachersResult, fields) => {
         if (err) {
           console.log(err);
@@ -312,13 +314,16 @@ getUserProjectOnTerm = (req, res) => {
       (err, result, fields) => {
         if (err) throw err;
         req.user.accessDateEnd = result[0].Access_Date_End;
+        req.user.senior = senior;
+        req.user.projectOnTerm = result[0].Project_on_term_ID;
         res.status(200).json(result);
         return;
       }
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: err, status: 500 });
+    res.status(500).send("Internal Server Error");
+    // res.status(500).json({ msg: err, status: 500 });
     return;
   }
 };

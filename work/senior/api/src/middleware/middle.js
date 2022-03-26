@@ -1,18 +1,14 @@
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth2").Strategy;
-const { checkPermission } = require("../routes/permission");
-const con = require("../config/db");
-
 //Check authen login or not for all user
 const checkAuthenticated = (req, res, next) => {
   console.log("start check authenticate");
   if (!req.isAuthenticated()) {
-    console.log("Unauthorized");
-    res.status(403).end();
-
+    // res.status(403).end();
     // res.redirect("/logout");
-    // res.status(403).json({ status: 403, msg: "Unauthorized" });
+    // res.status(403).json({ status: 403, msg: "Unauthorized" }).end();
     // res.end();
+
+    console.log("Unauthorized");
+    res.status(403).send("Unauthorized").end();
   } else {
     next();
   }
@@ -30,11 +26,12 @@ var checkRole = (accepted = []) => {
 
   return (req, res, next) => {
     if (!accepted.includes(req.user.role)) {
-      console.log("Invalid role");
-      res.status(403).end();
-
+      // res.status(403).end();
       // res.redirect("http://localhost:3000/api/auth/logout");
-      // res.status(403).json({ status: 404, msg: "access api error" });
+      // res.status(403).json({ status: 404, msg: "access api error" }).end();
+
+      console.log("Invalid role");
+      res.status(403).send("Invalid role").end();
     } else {
       next();
     }
@@ -59,10 +56,12 @@ const accessDate = (req, res, next) => {
   }
 
   if (new Date(req.user.accessDateEnd).getTime() < new Date().getTime()) {
-    console.log("Invalid access");
-    res.status(403).end();
+    // res.status(403).end();
     // res.redirect(403, "/logout");
-    // res.status(403).json({ status: 404, msg: "access api error" });
+    // res.status(403).json({ status: 404, msg: "access api error" }).end();
+
+    console.log("Invalid access");
+    res.status(403).send("Invalid access").end();
   } else {
     next();
   }
