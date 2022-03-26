@@ -43,7 +43,7 @@ assignmentRouter.post(
   "/groupAssignment",
   [middle.checkAuthenticated, middle.checkRole([1])],
   assignmentController.getGroupAssignment
-); // studen
+); // student
 
 // FIXME: role not clear
 assignmentRouter.post(
@@ -60,8 +60,6 @@ assignmentRouter.post("/", assignmentController.getAssignment);
 
 // FIXME: this api dosen't use ?
 assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
-
-t;
 
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
 

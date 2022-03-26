@@ -35,13 +35,13 @@ groupRouter.post(
 
 groupRouter.post(
   "/socre",
-  [middle.checkAuthenticated, middle.checkRole[1]],
+  [middle.checkAuthenticated, middle.checkRole([1])],
   groupController.getGroupScore
 ); // student
 
 groupRouter.post(
   "/getAllAdmin",
-  [middle.checkAuthenticated, middle.checkRole[(2, 99)]],
+  [middle.checkAuthenticated, middle.checkRole([2, 99])],
   groupController.getAllGroupsAdmin
 ); // admin, coordinator
 

@@ -2,10 +2,30 @@ const announcRouter = require("express").Router();
 const announcController = require("../controllers/announcementControllers");
 const middle = require("../middleware/middle");
 
-announcRouter.post("/major", announcController.getById); // co, advisor, committee, student
-announcRouter.get("/all", announcController.getAll); // admin
-announcRouter.post("/add", announcController.add); // co, admin
-announcRouter.post("/edit", announcController.edit); // co, admin
-announcRouter.delete("/delete", announcController.deletes); // co, admin
+announcRouter.post(
+  "/major",
+  [middle.checkAuthenticated, middle.checkRole([0, 1, 2])],
+  announcController.getById
+); // co, advisor, committee, student
+announcRouter.get(
+  "/all",
+  [middle.checkAuthenticated, middle.checkRole([99])],
+  announcController.getAll
+); // admin
+announcRouter.post(
+  "/add",
+  [middle.checkAuthenticated, middle.checkRole([2, 99])],
+  announcController.add
+); // co, admin
+announcRouter.post(
+  "/edit",
+  [middle.checkAuthenticated, middle.checkRole([2, 99])],
+  announcController.edit
+); // co, admin
+announcRouter.delete(
+  "/delete",
+  [middle.checkAuthenticated, middle.checkRole([2, 99])],
+  announcController.deletes
+); // co, admin
 
 module.exports = announcRouter;
