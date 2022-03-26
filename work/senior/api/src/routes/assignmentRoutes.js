@@ -33,11 +33,7 @@ assignmentRouter.post(
   assignmentController.getTeacherProgressScore
 ); // teacher
 
-assignmentRouter.get(
-  "/abstracts",
-  [middle.checkAuthenticated],
-  assignmentController.getAbstracts
-); // all
+assignmentRouter.get("/abstracts", assignmentController.getAbstracts); // all
 
 assignmentRouter.post(
   "/groupAssignment",
