@@ -16,7 +16,6 @@ const checkAuthenticated = (req, res, next) => {
 
 // check role ex: accepted = [1, 99]
 var checkRole = (accepted = []) => {
-  console.log("start check role");
   // Role: student = 1, teacher = 0, coordinator = 2, admin = 99
 
   // TODO: don't hard code for role id
@@ -25,6 +24,7 @@ var checkRole = (accepted = []) => {
   // });
 
   return (req, res, next) => {
+    console.log("start check role");
     if (!accepted.includes(req.user.role)) {
       // res.status(403).end();
       // res.redirect("http://localhost:3000/api/auth/logout");

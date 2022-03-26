@@ -34,14 +34,14 @@ userRouter.post(
 // accept role = admin
 userRouter.post(
   "/amount",
-  [middle.checkAuthenticated, middle.checkRole[99]],
+  [middle.checkAuthenticated, middle.checkRole([99])],
   UserControllers.countUser
 );
 
 // accept role = coordinator
 userRouter.post(
   "/importstudent",
-  [middle.checkAuthenticated, middle.checkRole[2], middle.accessDate],
+  [middle.checkAuthenticated, middle.checkRole([2]), middle.accessDate],
   multer.uploadUser.array("files", 10),
   UserControllers.uploadfile
 );
@@ -49,7 +49,7 @@ userRouter.post(
 // accept role = admin
 userRouter.post(
   "/importteacher",
-  [middle.checkAuthenticated, middle.checkRole[99]],
+  [middle.checkAuthenticated, middle.checkRole([99])],
   multer.uploadUser.array("files", 10),
   UserControllers.uploadfileteacher
 );
@@ -57,14 +57,14 @@ userRouter.post(
 // accept role = admin
 userRouter.get(
   "/getTeacherRole",
-  [middle.checkAuthenticated, middle.checkRole[99]],
+  [middle.checkAuthenticated, middle.checkRole([99])],
   UserControllers.getTeacherRole
 );
 
 // accept role = admin
 userRouter.post(
   "/updateUserRole",
-  [middle.checkAuthenticated, middle.checkRole[99]],
+  [middle.checkAuthenticated, middle.checkRole([99])],
   UserControllers.updateUserRole
 );
 
