@@ -5,26 +5,50 @@ const middle = require("../middleware/middle");
 
 assignmentRouter.post(
   "/uploadAssignments",
+  [
+    middle.checkAuthenticated,
+    middle.checkRole([0, 1, 2]),
+    middle.checkAccessDate,
+  ],
   multer.upload.array("files", 10),
   assignmentController.uploadAssignments
 ); // student, teacher
+
 assignmentRouter.post(
   "/getAssignmentFiles",
+  [middle.checkAuthenticated, middle.checkRole([0, 1, 2])],
   assignmentController.getAssignmentFiles
 ); // student, teacher
+
 assignmentRouter.post(
   "/giveProgressScore",
   multer.upload.single("file"),
+  [middle.checkAuthenticated, middle.checkRole([0, 2]), middle.checkAccessDate],
   assignmentController.giveProgressScore
 ); // teacher
+
 assignmentRouter.post(
   "/getTeacherProgressScore",
+  [middle.checkAuthenticated, middle.checkRole([0, 2])],
   assignmentController.getTeacherProgressScore
 ); // teacher
+
+assignmentRouter.get(
+  "/abstracts",
+  [middle.checkAuthenticated],
+  assignmentController.getAbstracts
+); // all
+
+assignmentRouter.post(
+  "/groupAssignment",
+  [middle.checkAuthenticated, middle.checkRole([1])],
+  assignmentController.getGroupAssignment
+); // studen
 
 // FIXME: role not clear
 assignmentRouter.post(
   "/getEvaluationScores",
+  [middle.checkAuthenticated],
   assignmentController.getEvaluationScores
 ); // teacher
 
@@ -37,12 +61,7 @@ assignmentRouter.post("/", assignmentController.getAssignment);
 // FIXME: this api dosen't use ?
 assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
 
-assignmentRouter.get("/abstracts", assignmentController.getAbstracts); // all
-
-assignmentRouter.post(
-  "/groupAssignment",
-  assignmentController.getGroupAssignment
-);// student
+t;
 
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
 
