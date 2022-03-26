@@ -18,14 +18,13 @@ getTeacherRole = (req, res) => {
 };
 
 updateUserRole = (req, res) => {
-  // const { User_Role, User_Email, Project_on_term_ID } = req.body;
-  const { User_Role, User_Email } = req.body;
+  const { User_Role, User_Email, Project_on_term_ID } = req.body;
   const updateUserRoleSql =
     "UPDATE users SET User_Role = ? WHERE User_Email = ? AND Project_on_term_ID = ?";
   try {
     con.query(
       updateUserRoleSql,
-      [User_Role, User_Email, req.user.projectOnTerm],
+      [User_Role, User_Email, Project_on_term_ID],
       (err, result) => {
         if (err) throw err;
         res
@@ -48,14 +47,16 @@ getUser = (req, res) => {
   return;
 };
 
+
+// FIXME: get req.body be year sem senior 
 countUser = (req, res) => {
-  // const { Project_on_term_ID } = req.body;
+  const { Project_on_term_ID } = req.body;
   const sql =
     "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
 
   con.query(
     sql,
-    [req.user.projectOnTerm, req.user.projectOnTerm],
+    [Project_on_term_ID, Project_on_term_ID],
     (err, result, fields) => {
       if (err) {
         console.log(err);

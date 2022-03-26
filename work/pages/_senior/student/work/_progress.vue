@@ -115,7 +115,7 @@ export default {
       teachers = await $axios.$post("/group/getTeachersWithGroupID", {
         Group_ID: store.state.group.currentUserGroup.Group_ID,
         Progress_ID: progressId + 2,
-        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+        // Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
     }
 

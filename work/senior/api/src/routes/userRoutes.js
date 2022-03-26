@@ -41,7 +41,7 @@ userRouter.post(
 // accept role = coordinator
 userRouter.post(
   "/importstudent",
-  [middle.checkAuthenticated, middle.checkRole([2]), middle.accessDate],
+  [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],
   multer.uploadUser.array("files", 10),
   UserControllers.uploadfile
 );

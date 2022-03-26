@@ -39,7 +39,7 @@ var checkRole = (accepted = []) => {
 };
 
 // check access date
-const accessDate = (req, res, next) => {
+const checkAccessDate = (req, res, next) => {
   // Role: student = 1, teacher = 0, coordinator = 2, admin = 99
 
   // console.log("start check access date");
@@ -70,5 +70,5 @@ const accessDate = (req, res, next) => {
 module.exports = {
   checkAuthenticated,
   checkRole,
-  accessDate,
+  checkAccessDate,
 };

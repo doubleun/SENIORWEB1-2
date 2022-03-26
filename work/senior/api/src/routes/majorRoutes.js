@@ -2,11 +2,7 @@ const MajorControllers = require("../controllers/majorController");
 const majorRouter = require("express").Router();
 const middle = require("../middleware/middle");
 
-majorRouter.get(
-  "/getAllActiveMajors",
-  [middle.checkAuthenticated],
-  MajorControllers.getAllActiveMajors
-); // admin, cooridator TODO: not sure only admin or coor use this api
+majorRouter.get("/getAllActiveMajors", MajorControllers.getAllActiveMajors); // admin, cooridator TODO: not sure only admin or coor use this api
 
 majorRouter.get(
   "/getAllMajors",

@@ -6,7 +6,7 @@ export default {
       "/group/getGroupInfo",
       {
         User_Email: state.rootState.auth.currentUser.email,
-        Project_on_term_ID: state.rootState.auth.currentUser.projectOnTerm,
+        // Project_on_term_ID: state.rootState.auth.currentUser.projectOnTerm,
       }
     );
     if (currentUserGroupInfo.length !== 0) {
