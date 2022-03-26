@@ -21,20 +21,28 @@ assignmentRouter.post(
   "/getTeacherProgressScore",
   assignmentController.getTeacherProgressScore
 ); // teacher
+
+// FIXME: role not clear
 assignmentRouter.post(
   "/getEvaluationScores",
   assignmentController.getEvaluationScores
 ); // teacher
+
 // assignmentRouter.get("/major", criteriaController.getByMajor); // Add new score criterias
 // assignmentRouter.post("/edit", criteriaController.editCriteria); // admin
+
+// FIXME: this api dosen't use ?
 assignmentRouter.post("/", assignmentController.getAssignment);
 
+// FIXME: this api dosen't use ?
 assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
-assignmentRouter.get("/abstracts", assignmentController.getAbstracts);
+
+assignmentRouter.get("/abstracts", assignmentController.getAbstracts); // all
+
 assignmentRouter.post(
   "/groupAssignment",
   assignmentController.getGroupAssignment
-);
+);// student
 
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
 

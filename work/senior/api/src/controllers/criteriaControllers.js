@@ -4,7 +4,7 @@ const { formatDateIso } = require("../utility");
 
 //* === Score criteria === *//
 // Get all score criterias
-getScoreAllMajor = async (req, res) => {
+getScoreAllMajor = (req, res) => {
   const sql = "SELECT * FROM `scorecriterias`";
   con.query(sql, (err, result, fields) => {
     if (err) {
@@ -17,9 +17,16 @@ getScoreAllMajor = async (req, res) => {
 };
 
 // Get latest projectOnTerm score criteria by major id (ie. current semester criteria)
+
+// FIXME: some font end need to send project on term id
+// SQL injection ?
 getScoreByMajor = (req, res) => {
   // If only available is true, then only progress with total of more than 0 will be return
-  const { Major_ID, Project_on_term_ID, onlyAvailable } = req.body;
+  // const { Major_ID, Project_on_term_ID, onlyAvailable } = req.body;
+  const { Major_ID, onlyAvailable } = req.body;
+
+  let Project_on_term_ID = req.user.projectOnTerm;
+  // const { Major_ID, onlyAvailable } = req.body;
   // Send query to fetch score criterias available in scorecriteria table, based on latest project_on_term_id
   const getScoreQuery = `SELECT Score_criteria_ID, Advisor_Score, Committee_Score, DueDate_Start, DueDate_End, Major_ID, (SELECT Progress_ID FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_ID, (SELECT Progress_Name FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_Name, Project_on_term_ID, Advisor_Score + Committee_Score AS Total, Status FROM scorecriterias WHERE Major_ID = ? AND Project_on_term_ID = ? ${
     !!onlyAvailable ? "AND Status = 1" : ""
@@ -164,14 +171,15 @@ editScoreCriteria = (req, res) => {
 
 // Edit toggle score criteria status
 toggleScoreCriteriaStatus = (req, res) => {
-  const { Score_criteria_ID, Status, Project_on_term_ID } = req.body;
+  // const { Score_criteria_ID, Status, Project_on_term_ID } = req.body;
+  const { Score_criteria_ID, Status } = req.body;
 
   try {
     const toggleScoreCriteria =
       "UPDATE scorecriterias SET `Status`=? WHERE `Score_criteria_ID` = ? AND `Project_on_term_ID` = ?";
     con.query(
       toggleScoreCriteria,
-      [Status, Score_criteria_ID, Project_on_term_ID],
+      [Status, Score_criteria_ID, req.user.projectOnTerm],
       (err, result, fields) => {
         if (err) {
           throw err;
@@ -250,7 +258,7 @@ toggleScoreCriteriaStatus = (req, res) => {
 
 //* === Grade criteria === *//
 // Get all grade criterias
-getGradeAllMajor = async (req, res) => {
+getGradeAllMajor = (req, res) => {
   const sql = "SELECT * FROM `gradecriterias`";
   con.query(sql, (err, result, fields) => {
     if (err) {
@@ -266,14 +274,20 @@ getGradeAllMajor = async (req, res) => {
 getGradeByMajor = async (req, res) => {
   const majorId = req.body.Major_ID;
   // Query selecting grade criterias in a major based on latest project on term (ie. latest semester)
+
+  // I had change from laster project on term to user project on term id
   const getGradeCriteriasSql =
-    "SELECT * FROM `gradecriterias` WHERE Major_ID = ? AND Project_on_term_ID = (SELECT `Project_on_term_ID` FROM `projectonterm` ORDER BY projectonterm.Project_on_term_ID DESC LIMIT 1) ORDER BY Grade_Criteria_ID ASC";
+    "SELECT * FROM `gradecriterias` WHERE Major_ID = ? AND Project_on_term_ID = ?";
   try {
-    con.query(getGradeCriteriasSql, [majorId], (err, result) => {
-      if (err) throw err;
-      res.status(200).json(result);
-      return;
-    });
+    con.query(
+      getGradeCriteriasSql,
+      [majorId, req.user.projectOnTerm],
+      (err, result) => {
+        if (err) throw err;
+        res.status(200).json(result);
+        return;
+      }
+    );
   } catch (err) {
     console.log(err);
     res.status(500).send("Interal Server Error");
@@ -356,7 +370,8 @@ editGradeCriteria = async (req, res) => {
 };
 
 getProgressMaxScore = (req, res) => {
-  const { Group_Role, Group_ID, Progress_ID, Project_on_term_ID } = req.body;
+  // const { Group_Role, Group_ID, Progress_ID, Project_on_term_ID } = req.body;
+  const { Group_Role, Group_ID, Progress_ID } = req.body;
   // Convert group role number to text
   // TODO: This should fetch from the database (subroles) table ?
   const role = Group_Role === 0 ? "Advisor_Score" : "Committee_Score";
@@ -365,7 +380,7 @@ getProgressMaxScore = (req, res) => {
   try {
     con.query(
       getMaxScoreSql,
-      [Progress_ID, Group_ID, Progress_ID, Project_on_term_ID],
+      [Progress_ID, Group_ID, Progress_ID, req.user.projectOnTerm],
       (err, result, fields) => {
         if (err) throw err;
         // If no result res right away

@@ -82,7 +82,7 @@ export default {
       // Fetch score criterias
       scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
         Major_ID: majors[0].Major_ID,
-        Project_on_term_ID: projectOnTerm.Project_on_term_ID,
+        // Project_on_term_ID: projectOnTerm.Project_on_term_ID,
       });
 
       // Fetch grade criterias
@@ -112,7 +112,7 @@ export default {
       // Fetch score criterias
       this.scoreCriterias = await this.$axios.$post("/criteria/scoreMajor", {
         Major_ID: this.selectedMajor.Major_ID,
-        Project_on_term_ID: this.projectOnTerm.Project_on_term_ID,
+        // Project_on_term_ID: this.projectOnTerm.Project_on_term_ID,
       });
       // Fetch grade criterias
       this.gradeCriterias = await this.$axios.$post("/criteria/gradeMajor", {

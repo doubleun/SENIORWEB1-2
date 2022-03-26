@@ -130,7 +130,7 @@ export default {
       // Fetch score criterias
       scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
         Major_ID: store.state.auth.currentUser.major,
-        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+        // Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
       // Fetch grade criterias
       gradeCriterias = await $axios.$post("/criteria/gradeMajor", {

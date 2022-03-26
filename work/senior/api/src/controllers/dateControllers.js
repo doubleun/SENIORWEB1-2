@@ -1,7 +1,7 @@
 const con = require("../config/db");
 
 // Get latest project on term id
-getLatestProjectOnTerm = (req, res) => {
+getLatestProjectOnTerm = async (req, res) => {
   const getLatestProjectOnTermSql =
     "SELECT * FROM `projectonterm` ORDER BY `Project_on_term_ID` DESC LIMIT 1";
   try {
@@ -18,7 +18,7 @@ getLatestProjectOnTerm = (req, res) => {
 };
 
 // Get project on term id from senior, semester and year
-getProjectOnTerm = (req, res) => {
+getProjectOnTerm = async (req, res) => {
   const { Academic_Year, Academic_Term, Senior } = req.body;
   const getProjectOnTermSql =
     "SELECT * FROM `projectonterm` WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?";
@@ -40,7 +40,7 @@ getProjectOnTerm = (req, res) => {
 };
 
 // Academic year
-getAcademicYear = async (req, res) => {
+getAcademicYear = (req, res) => {
   const sql =
     "SELECT * FROM `academicyear` ORDER BY `Academic_Year` DESC LIMIT 1";
   con.query(sql, (err, result, fields) => {
@@ -53,7 +53,7 @@ getAcademicYear = async (req, res) => {
   });
 };
 
-newAcademicYear = async (req, res) => {
+newAcademicYear = (req, res) => {
   const { year } = req.body;
 
   const sql = "INSERT INTO `academicyear`(`Academic_Year`) VALUES (?)";
@@ -68,7 +68,7 @@ newAcademicYear = async (req, res) => {
 };
 
 // Semester date
-getSemesterDate = async (req, res) => {
+getSemesterDate = (req, res) => {
   const { year, senior } = req.body;
   const sql =
     "SELECT * FROM `projectonterm` WHERE `Academic_Year` = ? AND `Senior` = ? ORDER BY `Project_on_term_ID`";
@@ -82,7 +82,7 @@ getSemesterDate = async (req, res) => {
   });
 };
 
-newSemesterDate = async (req, res) => {
+newSemesterDate = (req, res) => {
   const { data } = req.body;
   // TODO: Refactor, this used to be multiple insertion, but now it's one at a time
   const sql =
@@ -119,7 +119,7 @@ updateSemesterDate = async (req, res) => {
 };
 
 // Get all available years and semester for Admin
-getYearsSemester = async (req, res) => {
+getYearsSemester = (req, res) => {
   const sql =
     "SELECT `Academic_Year`, `Academic_Term` FROM `projectonterm` ORDER BY Academic_Year DESC ";
   con.query(sql, (err, result, fields) => {
