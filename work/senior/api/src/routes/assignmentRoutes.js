@@ -41,21 +41,23 @@ assignmentRouter.post(
   assignmentController.getGroupAssignment
 ); // student
 
-// FIXME: role not clear
 assignmentRouter.post(
   "/getEvaluationScores",
   [middle.checkAuthenticated],
   assignmentController.getEvaluationScores
-); // teacher
+); // coordinator, teacher, student
 
-// assignmentRouter.get("/major", criteriaController.getByMajor); // Add new score criterias
-// assignmentRouter.post("/edit", criteriaController.editCriteria); // admin
-
+/**
+ * @deprecated -this function not use
+ */
 // FIXME: this api dosen't use ?
 assignmentRouter.post("/", assignmentController.getAssignment);
 
+/**
+ * @deprecated -this function not use
+ */
 // FIXME: this api dosen't use ?
-assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
+// assignmentRouter.post("/countFile", assignmentController.countFileByMajor);
 
 // assignmentRouter.post("/getBymajor", assignmentController.getAssignmentFilesMajor);
 

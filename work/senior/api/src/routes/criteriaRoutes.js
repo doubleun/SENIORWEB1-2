@@ -6,16 +6,18 @@ const middle = require("../middleware/middle");
 // 1.project on term id that send from front end not clear
 // 2.SQL injection ?
 // 3.role not clear
+// TODO: implement middleware
 // Get criteria by major
 criteriaRouter.post(
   "/scoreMajor",
   [middle.checkAuthenticated],
   criteriaController.getScoreByMajor
-); // admin, coordinator
+); // admin, coordinator, teacher
 
 // FIXME:
 // 1.project on term id that send from front end not clear
 // Edit criteria (insert, and update based on the criteria id sent from front-end)
+// TODO: implement middleware
 criteriaRouter.post(
   "/scoreEdit",
   [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],
@@ -30,24 +32,26 @@ criteriaRouter.post(
 ); // coordinator
 
 // FIXME: role not clear
+// TODO: implement middleware
 // Get criteria by major
 criteriaRouter.post(
   "/gradeMajor",
   [middle.checkAuthenticated],
   criteriaController.getGradeByMajor
-); // admin, coordinator
+); // admin, coordinator, teacher
 
 // FIXME: project on term id that send from front end not clear
 // Edit criteria (insert, and update based on the criteria id sent from front-end)
+// TODO: implement middleware
 criteriaRouter.post(
   "/gradeEdit",
-
   [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],
   criteriaController.editGradeCriteria
 ); // coordinator
 
 // FIXME: project on term id that send from front end not clear
 // Add grade criteria
+// TODO: implement middleware
 criteriaRouter.post(
   "/gradeAdd",
   [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],
@@ -68,11 +72,20 @@ criteriaRouter.post(
   criteriaController.getAssignmentId
 ); // coordinator, teacher
 
+// =========================================================
+
 // FIXME: this api not use?
 // Get all score criterias
+/**
+ * @deprecated - this fucntion not use
+ */
 criteriaRouter.get("/scoreAllMajor", criteriaController.getScoreAllMajor); // admin, coordinator
+
 // FIXME: this api not use?
 // Get all grade criterias
+/**
+ * @deprecated - this fucntion not use
+ */
 criteriaRouter.get("/gradeAllMajor", criteriaController.getGradeAllMajor); // admin, coordinator
 
 module.exports = criteriaRouter;

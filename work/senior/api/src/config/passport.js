@@ -1,7 +1,6 @@
 require("dotenv").config();
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
-const { checkPermission } = require("../routes/permission");
 const con = require("../config/db");
 
 passport.use(

@@ -171,15 +171,15 @@ editScoreCriteria = (req, res) => {
 
 // Edit toggle score criteria status
 toggleScoreCriteriaStatus = (req, res) => {
-  // const { Score_criteria_ID, Status, Project_on_term_ID } = req.body;
-  const { Score_criteria_ID, Status } = req.body;
+  const { Score_criteria_ID, Status, Project_on_term_ID } = req.body;
+  // const { Score_criteria_ID, Status } = req.body;
 
   try {
     const toggleScoreCriteria =
       "UPDATE scorecriterias SET `Status`=? WHERE `Score_criteria_ID` = ? AND `Project_on_term_ID` = ?";
     con.query(
       toggleScoreCriteria,
-      [Status, Score_criteria_ID, req.user.projectOnTerm],
+      [Status, Score_criteria_ID, Project_on_term_ID],
       (err, result, fields) => {
         if (err) {
           throw err;

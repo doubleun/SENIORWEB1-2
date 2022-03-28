@@ -116,12 +116,14 @@ groupRouter.post(
 // === role not sure ===
 
 // FIXME: not sure role
-groupRouter.post("/getGroupInfo", groupController.getGroupInfo); // student
+// TODO: implement middleware
+groupRouter.get("/getGroupInfo", groupController.getGroupInfo); // student, coordinator, teacher
 
 // FIXME: not sure role
+// TODO: implement middleware
 groupRouter.post("/getGroupMembers", groupController.getGroupMembers); // student
 
-// FIXME: not sure
+// FIXME: not sure == pendding
 groupRouter.post("/moveGroup", groupController.addGroupToSeTwo);
 // === role not sure ===
 

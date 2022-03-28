@@ -388,8 +388,8 @@ export default {
         return this.$axios.$post("/criteria/toggleScoreCriteriaStatus", {
           Status: status,
           Score_criteria_ID: criteriaId,
-          // Project_on_term_ID:
-          //   this.$store.getters["auth/currentUser"].projectOnTerm,
+          Project_on_term_ID:
+            this.$store.getters["auth/currentUser"].projectOnTerm,
         });
       };
       await this.showLoading(updateToggle);

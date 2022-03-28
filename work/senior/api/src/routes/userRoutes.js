@@ -1,5 +1,4 @@
 const UserControllers = require("../controllers/userControllers");
-const { checkLogin } = require("./permission");
 const multer = require("../controllers/multer");
 const middle = require("../middleware/middle");
 
