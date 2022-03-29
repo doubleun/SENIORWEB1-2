@@ -4,10 +4,8 @@ const fs = require("fs");
 const readXlsxFile = require("read-excel-file/node");
 const { result } = require("lodash");
 
-
-
 // TODO: Move this to its own route ?
-getTeacherRole = async (req, res) => {
+getTeacherRole = (req, res) => {
   const sql = "SELECT * FROM `roles` WHERE Role_ID!=99 AND Role_ID!=1";
   con.query(sql, (err, result, fields) => {
     if (err) {
@@ -37,7 +35,7 @@ updateUserRole = (req, res) => {
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Internal Server Error", status: 500 });
+    res.status(500).send("Internal Server Error");
     return;
   }
 };
@@ -49,16 +47,19 @@ getUser = (req, res) => {
   return;
 };
 
-countUser = async (req, res) => {
+
+// FIXME: get req.body be year sem senior 
+countUser = (req, res) => {
   const { Project_on_term_ID } = req.body;
   const sql =
     "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
 
-  await con.query(
+  con.query(
     sql,
     [Project_on_term_ID, Project_on_term_ID],
     (err, result, fields) => {
       if (err) {
+        console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
         // console.log(result[0]);
@@ -72,14 +73,14 @@ countUser = async (req, res) => {
   );
 };
 
-getAllUserWithMajor = async (req, res) => {
+getAllUserWithMajor = (req, res) => {
   const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body;
   const sql =
     "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
   console.log(req.body);
 
-  await con.query(
+  con.query(
     sql,
     [Major_ID, Academic_Year, Academic_Term, User_Role],
     (err, result, fields) => {
@@ -95,13 +96,13 @@ getAllUserWithMajor = async (req, res) => {
 };
 
 getAllUsersInSchool = async (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  // const { Project_on_term_ID } = req.body;
   const studentsSQL =
     "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 1 AND `Project_on_term_ID` = ?";
   const students = await new Promise((resolve, reject) => {
     con.query(
       studentsSQL,
-      [Project_on_term_ID],
+      [req.user.projectOnTerm],
       (err, studentsResult, fields) => {
         if (err) {
           console.log(err);
@@ -117,7 +118,7 @@ getAllUsersInSchool = async (req, res) => {
   const teachers = await new Promise((resolve, reject) => {
     con.query(
       teachersSQL,
-      [Project_on_term_ID],
+      [req.user.projectOnTerm],
       (err, teachersResult, fields) => {
         if (err) {
           console.log(err);
@@ -305,20 +306,25 @@ getUserProjectOnTerm = (req, res) => {
   const { User_Email, Major_ID, senior } = req.body;
   console.log(User_Email, Major_ID, senior);
   try {
+    // TODO: get lastest project on term
     const getUserSeniorSql =
-      "SELECT u.Project_on_term_ID, pj.Senior FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
+      "SELECT u.Project_on_term_ID, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
     con.query(
       getUserSeniorSql,
       [User_Email, Major_ID, senior],
       (err, result, fields) => {
         if (err) throw err;
+        req.user.accessDateEnd = result[0].Access_Date_End;
+        req.user.senior = senior;
+        req.user.projectOnTerm = result[0].Project_on_term_ID;
         res.status(200).json(result);
         return;
       }
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: err, status: 500 });
+    res.status(500).send("Internal Server Error");
+    // res.status(500).json({ msg: err, status: 500 });
     return;
   }
 };

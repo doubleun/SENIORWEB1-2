@@ -92,7 +92,7 @@ export default {
   async fetch() {
     const res = await this.$axios.$post("/group/listrequestGroup", {
       User_Email: this.$store.state.auth.currentUser.email,
-      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+      // Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       Group_Role: 1,
       Group_Role2: 0,
       User_Status: 0,

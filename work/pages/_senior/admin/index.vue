@@ -22,7 +22,7 @@ export default {
   mixins: [utils],
   async asyncData(context) {
     // Get announcements
-    const announcements = await context.$axios.$get("announc/all");
+    const announcements = await context.$axios.$get("/announc/all");
 
     // Get all major
     const majors = await context.$axios.$get("/major/getAllActiveMajors");

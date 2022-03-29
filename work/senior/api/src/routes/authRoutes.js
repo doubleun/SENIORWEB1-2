@@ -1,6 +1,5 @@
 const authRouter = require("express").Router();
 const authControllers = require("../controllers/authControllers");
-const { checkPermission, checkLogin } = require("./permission");
 
 authRouter.get("/", authControllers.test);
 authRouter.get("/google", authControllers.login);
