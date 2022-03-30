@@ -337,6 +337,22 @@ getUserProjectOnTerm = (req, res) => {
     return;
   }
 };
+getUserAvailableSeniors = (req, res) => {
+  const { email } = req.user;
+  try {
+    // TODO: Re-check SQL query
+    const getUserSeniorSql =
+      "SELECT MAX(pj.Project_on_term_ID) AS projectOnTerm, MAX(pj.Academic_Year) AS year, MAX(pj.Academic_Term) AS semester, pj.Senior FROM `projectonterm` as pj INNER JOIN `users` u ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email = ? GROUP BY pj.Senior ORDER BY pj.Senior ASC LIMIT 2";
+    con.query(getUserSeniorSql, [email], (err, result) => {
+      if (err) throw err;
+      res.status(200).json(result);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
+  }
+};
 
 module.exports = {
   getAllUserWithMajor,
@@ -348,4 +364,5 @@ module.exports = {
   updateUserRole,
   getTeacherRole,
   getUserProjectOnTerm,
+  getUserAvailableSeniors,
 };
