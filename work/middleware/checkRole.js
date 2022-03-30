@@ -12,6 +12,7 @@ export default async function ({ route, store, redirect }) {
       // console.log(route.path);
       senior = regexSenior.exec(route.path)[1];
     }
+    // This dispatch will check if project on term is in the token yet, if not it'll insert in the token
     await store.dispatch("auth/storeProjectOnTerm", senior);
 
     // 2.) Check if the role is allow to access this route

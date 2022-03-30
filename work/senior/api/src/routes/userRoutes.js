@@ -28,6 +28,13 @@ userRouter.post(
   UserControllers.getUserProjectOnTerm
 );
 
+// accept role = student, co, teacher
+userRouter.get(
+  "/getUserAvailableSeniors",
+  [middle.checkAuthenticated],
+  UserControllers.getUserAvailableSeniors
+);
+
 // userRouter.post("/gettacherwithrole", UserControllers.getTachersWithRole);
 
 // accept role = admin
