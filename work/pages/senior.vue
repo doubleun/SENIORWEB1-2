@@ -103,16 +103,8 @@ export default {
       console.log(this.$store.state.auth);
     },
     async route(senior) {
-      // Dispatch to get project on term id and store senior in state
-      await this.$store.dispatch("auth/storeProjectOnTerm", senior);
-
-      // Sets localStorage
-      // localStorage.setItem("userInfo", th);
-      localStorage.setItem("senior", senior);
-      localStorage.setItem(
-        "projectOnTerm",
-        this.$store.getters["auth/currentUser"].projectOnTerm
-      );
+      // // Dispatch to get project on term id and store senior in state
+      // await this.$store.dispatch("auth/storeProjectOnTerm", senior);
 
       switch (this.$store.getters["auth/currentUser"].role) {
         case 0: {

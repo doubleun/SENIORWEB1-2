@@ -45,9 +45,6 @@ export default {
         senior: this.selectedSenior,
       });
 
-      // Set localStorage
-      window.localStorage.setItem("senior", this.selectedSenior);
-
       // Refresh ui
       this.$nuxt.refresh();
       this.loading = false;

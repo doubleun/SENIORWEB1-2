@@ -47,8 +47,7 @@ getUser = (req, res) => {
   return;
 };
 
-
-// FIXME: get req.body be year sem senior 
+// FIXME: get req.body be year sem senior
 countUser = (req, res) => {
   const { Project_on_term_ID } = req.body;
   const sql =
@@ -303,28 +302,38 @@ uploadfileteacher = async (req, res) => {
 };
 
 getUserProjectOnTerm = (req, res) => {
-  const { User_Email, Major_ID, senior } = req.body;
-  console.log(User_Email, Major_ID, senior);
+  const { seniorFromRoute } = req.body;
+  const { email, major, senior, projectOnTerm } = req.user;
+
+  console.log("seniorFromRoute", seniorFromRoute);
+  console.log(email, major, senior, projectOnTerm);
+
   try {
-    // TODO: get lastest project on term
-    const getUserSeniorSql =
-      "SELECT u.Project_on_term_ID, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
-    con.query(
-      getUserSeniorSql,
-      [User_Email, Major_ID, senior],
-      (err, result, fields) => {
-        if (err) throw err;
-        req.user.accessDateEnd = result[0].Access_Date_End;
-        req.user.senior = senior;
-        req.user.projectOnTerm = result[0].Project_on_term_ID;
-        res.status(200).json(result);
-        return;
-      }
-    );
+    // 1.) Check if senior and proejectOnTerm exist in the token
+    if (!senior || !projectOnTerm) {
+      // 2.) Fetch senior and project on term
+      const getUserSeniorSql =
+        "SELECT u.Project_on_term_ID, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
+      con.query(
+        getUserSeniorSql,
+        [email, major, seniorFromRoute],
+        (err, result, fields) => {
+          if (err) throw err;
+          console.log("res", result);
+          req.user.accessDateEnd = result[0].Access_Date_End;
+          req.user.senior = senior;
+          req.user.projectOnTerm = result[0].Project_on_term_ID;
+          res.status(200).json(result);
+          return;
+        }
+      );
+    } else {
+      res.status(200).send("Project on term already exist");
+      return;
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal Server Error");
-    // res.status(500).json({ msg: err, status: 500 });
     return;
   }
 };
