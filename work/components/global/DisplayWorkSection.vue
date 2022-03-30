@@ -48,7 +48,23 @@
           height="90%"
         ></object>
         <v-container v-else>
-          {{ !selectedFile.fileName ? "" : "This file can not preview" }}
+          <!-- {{ !selectedFile.fileName ? "" : "This file can not preview" }} -->
+
+          <v-row
+            v-if="selectedFile.fileName"
+            class="justify-center align-center"
+            style="margin-top: 20%"
+          >
+            <v-col cols="12" sm="4">
+              <div>
+                <v-img src="/fileNotShow.png" max-width="150"></v-img>
+                <h3>THIS FILE DO NOT SUPPORT</h3>
+                <h5>CAN NOT PREVIEW</h5>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- <v-layout class="justify-center"> </v-layout> -->
         </v-container>
       </div>
     </v-card>

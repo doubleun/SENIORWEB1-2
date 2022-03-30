@@ -107,24 +107,30 @@ groupRouter.post(
 groupRouter.post(
   "/countOwnGroup",
   [middle.checkAuthenticated, middle.checkRole([99])],
-
   groupController.countOwnGroup
 ); // admin
 
 // =======================================================>
 
 // === role not sure ===
+groupRouter.get(
+  "/getGroupInfo",
+  [middle.checkAuthenticated, middle.checkRole([0, 1, 2])],
+  groupController.getGroupInfo
+); // student, coordinator, teacher
 
-// FIXME: not sure role
-// TODO: implement middleware
-groupRouter.get("/getGroupInfo", groupController.getGroupInfo); // student, coordinator, teacher
-
-// FIXME: not sure role
-// TODO: implement middleware
-groupRouter.post("/getGroupMembers", groupController.getGroupMembers); // student
+groupRouter.post(
+  "/getGroupMembers",
+  [middle.checkAuthenticated, middle.checkRole([1])],
+  groupController.getGroupMembers
+); // student
 
 // FIXME: not sure == pendding
-groupRouter.post("/moveGroup", groupController.addGroupToSeTwo);
+groupRouter.post(
+  "/moveGroup",
+  [middle.checkAuthenticated, middle.checkRole([99])],
+  groupController.addGroupToSeTwo
+);
 // === role not sure ===
 
 // =======================================================>
