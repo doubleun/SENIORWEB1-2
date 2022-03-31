@@ -24,7 +24,10 @@
         <h5>Comment</h5>
         <v-textarea
           v-model="comment"
+          ref="textComment"
+          name="textComment"
           :disabled="haveGrade"
+          :rules="[(v) => !!v || 'Comment is required']"
           auto-grow
           outlined
           rows="4"
@@ -212,17 +215,24 @@ export default {
     async submitGrade() {
       // If group alrady has a grade, teacher can't give them again
       // If no current group member id also return
+
+      let validateComment = this.$refs.textComment.validate("validateComment");
+      // console.log(validateComment);
+
       if (this.haveGrade || !this.currentMemberId) return;
 
       // If re-eval is checked (graded I) assign grade I to the 'selectedGrade'
       if (this.gradeI) this.selectedGrade = "I";
 
-      console.log(this.selectedGrade);
+      // console.log(this.selectedGrade);
       // If no grade has been selected, warn the user
-      if (this.groupAdvisor && this.selectedGrade === null) {
+      if (
+        (this.groupAdvisor && this.selectedGrade === null) ||
+        !validateComment
+      ) {
         this.$swal.fire(
           "Missing data",
-          "Please select Grade before submit.",
+          "Please select Grade or comment before submit.",
           "info"
         );
         return;
