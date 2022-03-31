@@ -143,10 +143,14 @@
               <v-card-text>
                 <v-container>
                   <!-- <div > -->
-                  <v-row v-for="el in finalDoc" class="my-3">
+                  <v-row
+                    v-for="(files, index) in finalDoc"
+                    :key="index"
+                    class="my-3"
+                  >
                     <v-col md="2" sm="2">
                       <v-icon
-                        @click="download(el)"
+                        @click="download(files)"
                         x-large
                         color="blue darken-2"
                       >
@@ -154,7 +158,7 @@
                       </v-icon>
                     </v-col>
                     <v-col md="9" sm="10" class="text-center">
-                      {{ el.fileName }}
+                      {{ files.fileName }}
                     </v-col>
                   </v-row>
                   <!-- </div> -->
