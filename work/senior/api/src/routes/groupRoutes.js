@@ -44,6 +44,11 @@ groupRouter.post(
   [middle.checkAuthenticated, middle.checkRole([2, 99])],
   groupController.getAllGroupsAdmin
 ); // admin, coordinator
+groupRouter.post(
+  "/getAllGroups",
+  [middle.checkAuthenticated, middle.checkRole([0, 1, 2, 99])],
+  groupController.getAllGroups
+); // all
 
 groupRouter.post(
   "/listrequestGroup",
@@ -103,6 +108,12 @@ groupRouter.post(
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.getAllFilesMajor
 ); // coordinator
+
+groupRouter.get(
+  "/getAllFinalDoc",
+  [middle.checkAuthenticated, middle.checkRole([0, 1, 2, 99])],
+  groupController.getAllFinalDoc
+); // all
 
 groupRouter.post(
   "/countOwnGroup",
