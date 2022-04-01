@@ -73,15 +73,16 @@ countUser = (req, res) => {
 };
 
 getAllUserWithMajor = (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body;
+  const { Major_ID, Academic_Year, Academic_Term, Senior, User_Role } =
+    req.body;
   const sql =
-    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
   console.log(req.body);
 
   con.query(
     sql,
-    [Major_ID, Academic_Year, Academic_Term, User_Role],
+    [Major_ID, Academic_Year, Academic_Term, Senior, User_Role],
     (err, result, fields) => {
       if (err) {
         console.log(err);

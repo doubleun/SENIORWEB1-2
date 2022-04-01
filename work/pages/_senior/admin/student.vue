@@ -22,6 +22,7 @@
       :itemPerPage="10"
       :majors="majors"
       :yearNSemsters="yearNSemsters"
+      :filterFromState="true"
       @on-filtering="handelchangeRenderStudents"
     />
     <!-- Student table card -->
@@ -62,6 +63,7 @@ export default {
     dialog1: false,
     singleSelect: false,
     selected: [],
+    students: [],
     headers: [
       ,
       { text: "ID", align: "center", value: "User_Identity_ID" },
@@ -73,7 +75,7 @@ export default {
   }),
 
   async asyncData({ $axios }) {
-    let students, majors, yearNSemsters;
+    let majors, yearNSemsters;
     try {
       // Fetch all majors
       majors = await $axios.$get("/major/getAllActiveMajors");
@@ -81,17 +83,31 @@ export default {
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get("/date/allYearsSemester");
 
-      // Fetch initial students
-      students = await $axios.$post("/user/getAllUserWithMajor", {
-        Major_ID: majors[0].Major_ID,
-        Academic_Year: yearNSemsters[0].Academic_Year,
-        Academic_Term: yearNSemsters[0].Academic_Term,
-        User_Role: "1",
-      });
+      // // Fetch initial students
+      // students = await $axios.$post("/user/getAllUserWithMajor", {
+      //   Major_ID: majors[0].Major_ID,
+      //   Academic_Year: yearNSemsters[0].Academic_Year,
+      //   Academic_Term: yearNSemsters[0].Academic_Term,
+      //   User_Role: "1",
+      // });
     } catch (error) {
       console.log("error", error);
     }
-    return { students, majors, yearNSemsters };
+    return { majors, yearNSemsters };
+  },
+
+  async fetch() {
+    /**
+     * Set inital value from state, first major and role
+     * @todo Refactor use a more universal way of fetching initial data
+     */
+    this.handelchangeRenderStudents(
+      this.$store.getters["auth/currentUser"].academicYear,
+      this.$store.getters["auth/currentUser"].semester,
+      this.$store.getters["auth/currentUser"].senior,
+      this.majors[0].Major_ID,
+      "1"
+    );
   },
 
   mounted() {
@@ -102,19 +118,20 @@ export default {
   },
 
   methods: {
-    async handelchangeRenderStudents(year, semester, majorId, role) {
+    async handelchangeRenderStudents(year, semester, senior, majorId, role) {
       console.log("majorId", majorId);
       console.log("year", year);
       console.log("semester", semester);
+      console.log("senior", senior);
       console.log("role", role);
 
       this.loading = true;
-      // return;
       try {
         this.students = await this.$axios.$post("/user/getAllUserWithMajor", {
           Major_ID: majorId,
           Academic_Year: year,
           Academic_Term: semester,
+          Senior: senior,
           User_Role: "1",
         });
       } catch (error) {

@@ -23,27 +23,41 @@ getScoreAllMajor = (req, res) => {
 getScoreByMajor = (req, res) => {
   // If only available is true, then only progress with total of more than 0 will be return
   // const { Major_ID, Project_on_term_ID, onlyAvailable } = req.body;
-  const { Major_ID, onlyAvailable } = req.body;
+  const {
+    Major_ID,
+    onlyAvailable,
+    Academic_Year,
+    Academic_Term,
+    Senior = 1,
+  } = req.body;
+  let Project_on_term_ID, projectOnTermString;
 
-  let Project_on_term_ID = req.user.projectOnTerm;
+  // If there are academic year pass in from body, don't use project on term id in query
+  if (!!Academic_Year && !!Academic_Term) {
+    Project_on_term_ID = null;
+    projectOnTermString =
+      "Project_on_term_ID = (SELECT `Project_on_term_ID` FROM `projectonterm` WHERE `Academic_Year` = ? AND `Academic_Term` = ? AND `Senior` = ?)";
+  } else {
+    Project_on_term_ID = req.user.projectOnTerm;
+    projectOnTermString = "Project_on_term_ID = ?";
+  }
+
   // const { Major_ID, onlyAvailable } = req.body;
   // Send query to fetch score criterias available in scorecriteria table, based on latest project_on_term_id
-  const getScoreQuery = `SELECT Score_criteria_ID, Advisor_Score, Committee_Score, DueDate_Start, DueDate_End, Major_ID, (SELECT Progress_ID FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_ID, (SELECT Progress_Name FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_Name, Project_on_term_ID, Advisor_Score + Committee_Score AS Total, Status FROM scorecriterias WHERE Major_ID = ? AND Project_on_term_ID = ? ${
+  const getScoreQuery = `SELECT Score_criteria_ID, Advisor_Score, Committee_Score, DueDate_Start, DueDate_End, Major_ID, (SELECT Progress_ID FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_ID, (SELECT Progress_Name FROM progressions WHERE progressions.Progress_ID = scorecriterias.Progress_ID) AS Progress_Name, Project_on_term_ID, Advisor_Score + Committee_Score AS Total, Status FROM scorecriterias WHERE Major_ID = ? AND ${projectOnTermString} ${
     !!onlyAvailable ? "AND Status = 1" : ""
   } ORDER BY Progress_ID ASC`;
   try {
     con.query(
       getScoreQuery,
-      [Major_ID, Project_on_term_ID],
+      [
+        Major_ID,
+        ...(!!Project_on_term_ID
+          ? [Project_on_term_ID]
+          : [Academic_Year, Academic_Term, Senior]),
+      ],
       (err, scoreCriteriasResult, fields) => {
         if (err) throw err;
-
-        // console.log(
-        //   new Date(
-        //     scoreCriteriasResult[0].DueDate_Start -
-        //       new Date().getTimezoneOffset() * 60000
-        //   )
-        // );
 
         // Offset score criterias date
         if (scoreCriteriasResult.length > 0) {
@@ -61,6 +75,9 @@ getScoreByMajor = (req, res) => {
         } else {
           // This will check and fill in any missing progress
           // List of criterias needed to return
+          /**
+           * @todo template should be coming from 'constants' file or something...
+           */
           const scoreCriteriasTemplate = [
             "Proposal",
             "Progress 1",
@@ -271,17 +288,31 @@ getGradeAllMajor = (req, res) => {
 };
 
 // Get grade criteria by major id
-getGradeByMajor = async (req, res) => {
-  const majorId = req.body.Major_ID;
+getGradeByMajor = (req, res) => {
+  const { Major_ID, Academic_Term, Academic_Year, Senior = 1 } = req.body;
+  let Project_on_term_ID, projectOnTermString;
+  // If there are academic year pass in from body, don't use project on term id in query
+  if (!!Academic_Year && !!Academic_Term) {
+    Project_on_term_ID = null;
+    projectOnTermString =
+      "Project_on_term_ID = (SELECT `Project_on_term_ID` FROM `projectonterm` WHERE `Academic_Year` = ? AND `Academic_Term` = ? AND `Senior` = ?)";
+  } else {
+    Project_on_term_ID = req.user.projectOnTerm;
+    projectOnTermString = "Project_on_term_ID = ?";
+  }
   // Query selecting grade criterias in a major based on latest project on term (ie. latest semester)
 
   // I had change from laster project on term to user project on term id
-  const getGradeCriteriasSql =
-    "SELECT * FROM `gradecriterias` WHERE Major_ID = ? AND Project_on_term_ID = ?";
+  const getGradeCriteriasSql = `SELECT * FROM gradecriterias WHERE Major_ID = ? AND ${projectOnTermString}`;
   try {
     con.query(
       getGradeCriteriasSql,
-      [majorId, req.user.projectOnTerm],
+      [
+        Major_ID,
+        ...(!!Project_on_term_ID
+          ? [Project_on_term_ID]
+          : [Academic_Year, Academic_Term, Senior]),
+      ],
       (err, result) => {
         if (err) throw err;
         res.status(200).json(result);
@@ -293,34 +324,6 @@ getGradeByMajor = async (req, res) => {
     res.status(500).send("Interal Server Error");
     return;
   }
-  // try {
-  //   con.query(sql, [majorId], (err, result, fields) => {
-  //     if (err) {
-  //       throw err;
-  //     } else {
-  //       if (result.length === 0) {
-  //         // If there are no criterias, return the default values
-  //         res.status(200).json([
-  //           {
-  //             Grade_Criteria_Name: "S",
-  //             Grade_Criteria_Pass: 0,
-  //             Major_ID: majorId,
-  //           },
-  //           {
-  //             Grade_Criteria_Name: "U",
-  //             Grade_Criteria_Pass: 0,
-  //             Major_ID: majorId,
-  //           },
-  //         ]);
-  //       } else {
-  //         res.status(200).json(result);
-  //       }
-  //     }
-  //   });
-  // } catch (err) {
-  //   console.log(err);
-  //   res.status(500).json({ msg: "Internal Server Error", status: 500 });
-  // }
 };
 
 // Add grade criterias

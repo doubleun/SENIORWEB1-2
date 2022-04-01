@@ -5,4 +5,7 @@ export default {
   isAuth(state) {
     return state.isAuthenticated;
   },
+  semesterData(state) {
+    return state.semesterData;
+  },
 };

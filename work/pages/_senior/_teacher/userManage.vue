@@ -41,6 +41,7 @@
       :items="students"
       :itemPerPage="10"
       :yearNSemsters="yearNSemsters"
+      :filterFromState="false"
       @on-filtering="handelchangeRenderStudents"
     />
   </v-container>
@@ -174,13 +175,14 @@ export default {
           Major_ID: this.$store.state.auth.currentUser.major,
           Academic_Year: year,
           Academic_Term: semester,
+          Senior: this.$store.state.auth.currentUser.senior,
           User_Role: "1",
         });
       } catch (error) {
         console.log(error);
       }
 
-      console.log(this.students);
+      console.log("this.students", this.students);
       this.loading = false;
     },
   },

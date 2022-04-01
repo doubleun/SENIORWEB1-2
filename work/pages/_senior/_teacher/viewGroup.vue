@@ -17,7 +17,11 @@
       </div>
     </div>
 
-    <ViewGroupDetail :yearNSemsters="yearNSemsters" :allGroups="allGroups" />
+    <ViewGroupDetail
+      :yearNSemsters="yearNSemsters"
+      :allGroups="allGroups"
+      @on-filtering="handleChangeRenderGroups"
+    />
     <!-- </main> -->
   </v-container>
 </template>

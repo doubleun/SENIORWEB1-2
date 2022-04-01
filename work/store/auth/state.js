@@ -1,4 +1,5 @@
 export default () => ({
   isAuthenticated: false,
-  currentUser: null
+  currentUser: null,
+  semesterData: null,
 });

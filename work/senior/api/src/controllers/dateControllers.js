@@ -47,8 +47,10 @@ getAcademicYear = (req, res) => {
     if (err) {
       console.log(err);
       res.status(500).send("Internal Server Error");
+      return;
     } else {
       res.status(200).json(result);
+      return;
     }
   });
 };
@@ -61,8 +63,10 @@ newAcademicYear = (req, res) => {
     if (err) {
       console.log(err);
       res.status(422).json({ msg: "Query Error", err });
+      return;
     } else {
       res.status(200).json({ msg: "Query Error", status: 200, result });
+      return;
     }
   });
 };
@@ -76,8 +80,10 @@ getSemesterDate = (req, res) => {
     if (err) {
       console.log(err);
       res.status(500).send("Internal Server Error");
+      return;
     } else {
       res.status(200).json(result);
+      return;
     }
   });
 };
@@ -94,8 +100,10 @@ newSemesterDate = (req, res) => {
       if (err) {
         console.log(err);
         res.status(422).json({ msg: "Query Error", err });
+        return;
       } else {
         res.status(200).json({ msg: "Query Error", status: 200, result });
+        return;
       }
     }
   );
@@ -113,23 +121,28 @@ updateSemesterDate = async (req, res) => {
       if (err) throw err;
     } catch (err) {
       res.status(422).json({ msg: "Query Error", status: 422 });
+      return;
     }
   });
   res.status(200).json({ msg: "success", status: 200 });
+  return;
 };
 
-// Get all available years and semester for Admin
+// Get all available years, semester and senior for Admin
 getYearsSemester = (req, res) => {
-  const sql =
-    "SELECT `Academic_Year`, `Academic_Term` FROM `projectonterm` ORDER BY Academic_Year DESC ";
-  con.query(sql, (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
+  try {
+    const getSemesterDataSql =
+      "SELECT `Academic_Year`, `Academic_Term`, `Senior` FROM `projectonterm` ORDER BY Academic_Year DESC";
+    con.query(getSemesterDataSql, (err, result) => {
+      if (err) throw err;
       res.status(200).json(result);
-    }
-  });
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
+  }
 };
 
 module.exports = {
