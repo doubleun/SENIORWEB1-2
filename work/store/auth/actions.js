@@ -21,7 +21,9 @@ export default {
 
     if (res.status === 200 && !state.rootState.auth.currentUser?.senior) {
       await state.commit("SET_USER_SENIOR", {
-        senior: res.data[0].Senior,
+        academicYear: res.data.Academic_Year,
+        semester: res.data.Academic_Term,
+        senior: res.data.Senior,
       });
     }
   },

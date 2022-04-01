@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <CoordinatorHomeCardStatus :info="info" />
+    <CoordinatorHomeCardStatus :info="info" :isAdmin="false" />
     <CoordinatorHomeAnnouncement
       :dataUi="dataUi"
       :bindingData="announcements"

@@ -64,6 +64,18 @@ export default {
       ],
     };
   },
+  async fetch() {
+    try {
+      const res = await this.$axios.get("/date/allYearsSemester");
+      if (res.status !== 200) {
+        throw new Error("Failed to fetch academic date data");
+      }
+      await this.$store.commit("auth/SET_USER_SEMESTER_DATA", res.data);
+    } catch (err) {
+      console.log(err);
+      return;
+    }
+  },
 };
 </script>
 <style scoped>

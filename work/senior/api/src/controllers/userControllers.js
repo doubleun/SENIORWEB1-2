@@ -73,15 +73,16 @@ countUser = (req, res) => {
 };
 
 getAllUserWithMajor = (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body;
+  const { Major_ID, Academic_Year, Academic_Term, Senior, User_Role } =
+    req.body;
   const sql =
-    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
   console.log(req.body);
 
   con.query(
     sql,
-    [Major_ID, Academic_Year, Academic_Term, User_Role],
+    [Major_ID, Academic_Year, Academic_Term, Senior, User_Role],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -313,7 +314,7 @@ getUserProjectOnTerm = (req, res) => {
     if (!senior || !projectOnTerm) {
       // 2.) Fetch senior and project on term
       const getUserSeniorSql =
-        "SELECT u.Project_on_term_ID, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
+        "SELECT u.Project_on_term_ID, pj.Academic_Year, pj.Academic_Term, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
       con.query(
         getUserSeniorSql,
         [email, major, seniorFromRoute],
@@ -321,9 +322,15 @@ getUserProjectOnTerm = (req, res) => {
           if (err) throw err;
           console.log("res", result);
           req.user.accessDateEnd = result[0].Access_Date_End;
-          req.user.senior = senior;
+          req.user.senior = result[0].Senior;
+          req.user.academicYear = result[0].Academic_Year;
+          req.user.semester = result[0].Academic_Term;
           req.user.projectOnTerm = result[0].Project_on_term_ID;
-          res.status(200).json(result);
+          res.status(200).json({
+            Academic_Year: result[0].Academic_Year,
+            Academic_Term: result[0].Academic_Term,
+            Senior: result[0].Senior,
+          });
           return;
         }
       );

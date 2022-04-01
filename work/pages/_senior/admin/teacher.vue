@@ -47,6 +47,7 @@
       :majors="majors"
       :yearNSemsters="yearNSemsters"
       :roles="roles"
+      :filterFromState="true"
       @on-filtering="handelchangeRenderTeachers"
     />
     <!-- </main> -->
@@ -69,6 +70,7 @@ export default {
     dialog1: false,
     singleSelect: false,
     selected: [],
+    teachers: [],
     // Attributes that will show in the 'Edit dialog'
     attrs: [
       { lable: "NAME", value: "User_Name" },
@@ -84,8 +86,8 @@ export default {
     ],
   }),
 
-  async asyncData({ $axios }) {
-    let teachers, majors, yearNSemsters, roles;
+  async asyncData({ $axios, store }) {
+    let majors, yearNSemsters, roles;
     try {
       // Fetch all majors
       majors = await $axios.$get("/major/getAllActiveMajors");
@@ -95,42 +97,33 @@ export default {
 
       // Fetch teacher's roles
       roles = await $axios.$get("/user/getTeacherRole");
-
-      // Fetch initial teachers
-      teachers = await $axios.$post("/user/getAllUserWithMajor", {
-        Major_ID: majors[0].Major_ID,
-        Academic_Year: yearNSemsters[0].Academic_Year,
-        Academic_Term: yearNSemsters[0].Academic_Term,
-        User_Role: roles[0].Role_ID,
-      });
-
-      console.log("teacher", teachers);
-
-      // Add user_role_name based on user_role (Should fetch role name from the database ?)
-      teachers = teachers.map((teacher) => ({
-        ...teacher,
-        User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator",
-      }));
     } catch (error) {
       console.log(error);
     }
 
-    return { teachers, majors, yearNSemsters, roles };
+    return { majors, yearNSemsters, roles };
   },
 
-  mounted() {
-    // Set the default value
-    // this.selectedMajor = this.majors[0];
-    // this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
-    // this.selectedRole = this.roles[0];
+  async fetch() {
+    /**
+     * Set inital value from state
+     * @todo Refactor use a more universal way of fetching initial data
+     */
+    this.handelchangeRenderTeachers(
+      this.$store.getters["auth/currentUser"].academicYear,
+      this.$store.getters["auth/currentUser"].semester,
+      this.$store.getters["auth/currentUser"].senior,
+      this.majors[0].Major_ID,
+      this.roles[0].Role_ID
+    );
   },
 
   methods: {
-    async handelchangeRenderTeachers(year, semester, majorId, role) {
+    async handelchangeRenderTeachers(year, semester, senior, majorId, role) {
       console.log("majorId", majorId);
       console.log("year", year);
       console.log("semester", semester);
+      console.log("senior", senior);
       console.log("role", role);
 
       this.loading = true;
@@ -139,6 +132,7 @@ export default {
           Major_ID: majorId,
           Academic_Year: year,
           Academic_Term: semester,
+          Senior: senior,
           User_Role: role,
         });
         // Add user_role_name based on user_role (Should fetch role name from the database ?)
