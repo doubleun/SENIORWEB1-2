@@ -2,22 +2,13 @@ const criteriaRouter = require("express").Router();
 const criteriaController = require("../controllers/criteriaControllers");
 const middle = require("../middleware/middle");
 
-// FIXME:
-// 1.project on term id that send from front end not clear
-// 2.SQL injection ?
-// 3.role not clear
-// TODO: implement middleware
 // Get criteria by major
 criteriaRouter.post(
   "/scoreMajor",
-  [middle.checkAuthenticated],
+  [middle.checkAuthenticated, middle.checkRole([0, 1, 2, 99])],
   criteriaController.getScoreByMajor
 ); // admin, coordinator, teacher
 
-// FIXME:
-// 1.project on term id that send from front end not clear
-// Edit criteria (insert, and update based on the criteria id sent from front-end)
-// TODO: implement middleware
 criteriaRouter.post(
   "/scoreEdit",
   [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],
@@ -31,27 +22,18 @@ criteriaRouter.post(
   criteriaController.toggleScoreCriteriaStatus
 ); // coordinator
 
-// FIXME: role not clear
-// TODO: implement middleware
-// Get criteria by major
 criteriaRouter.post(
   "/gradeMajor",
-  [middle.checkAuthenticated],
+  [middle.checkAuthenticated, middle.checkRole([0, 2, 99])],
   criteriaController.getGradeByMajor
 ); // admin, coordinator, teacher
 
-// FIXME: project on term id that send from front end not clear
-// Edit criteria (insert, and update based on the criteria id sent from front-end)
-// TODO: implement middleware
 criteriaRouter.post(
   "/gradeEdit",
   [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],
   criteriaController.editGradeCriteria
 ); // coordinator
 
-// FIXME: project on term id that send from front end not clear
-// Add grade criteria
-// TODO: implement middleware
 criteriaRouter.post(
   "/gradeAdd",
   [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],

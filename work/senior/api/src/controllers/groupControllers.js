@@ -479,6 +479,20 @@ getAllGroupsAdmin = (req, res) => {
   );
 };
 
+getAllGroups = (req, res) => {
+  const { Year, Semester } = req.body;
+  const sql =
+    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name from majors WHERE Major_ID=gp.Major)AS Major, gp.Grade,(SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? ) AND Group_Status = 1";
+  con.query(sql, [Year, Semester], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
 // Get teachers with score on each progress, using group id
 getTeachersWithGroupID = (req, res) => {
   // const { Group_ID, Progress_ID, Project_on_term_ID } = req.body;
@@ -1020,6 +1034,21 @@ getAllFilesMajor = (req, res) => {
   );
 };
 
+getAllFinalDoc = (req, res) => {
+  // console.log(req.body);
+
+  const finalDco =
+    "SELECT  fl.File_Name AS fileName, fl.Path AS path, fl.Type AS type,ass.Group_ID FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8";
+
+  con.query(finalDco, (err, result, fields) => {
+    if (err) {
+      res.status(422).json({ msg: "Query Error", status: 422 });
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
 // TODO: how font end send project on term id
 addGroupToSeTwo = (req, res) => {
   let errors = 0;
@@ -1101,6 +1130,7 @@ module.exports = {
   getScoreCoor,
   getGroupScore,
   getAllGroupsAdmin,
+  getAllGroups,
   listrequestGroup,
   updateMemberStatus,
   getMyGroup,
@@ -1114,4 +1144,5 @@ module.exports = {
   countProgressGroup,
   getGroupMajor,
   countOwnGroup,
+  getAllFinalDoc,
 };
