@@ -13,16 +13,20 @@
           <v-img src="/it_logo.png" max-width="80" class="mb-3"></v-img>
         </router-link>
       </v-row>
-      <v-row class="justify-center"><h4>SENIOR PROJECT</h4></v-row>
+      <v-row class="justify-center"
+        ><h4>
+          SENIOR PROJECT {{ !!displaySemester && !!senior ? senior : "" }}
+        </h4></v-row
+      >
       <v-row class="justify-center"
         ><h6>SCHOOL OF INFORMATION TECHNOLOGY</h6></v-row
       >
-      <v-row class="justify-center" v-if="displaySemester"
+      <v-row class="justify-center" v-if="!!displaySemester && !!academicYear"
         ><h5
           style="margin-left: 5px"
           :style="theme === 'default' ? '#253b6e' : 'white'"
         >
-          1/2022
+          {{ semester }} / {{ academicYear }}
         </h5></v-row
       >
     </v-col>
@@ -69,6 +73,18 @@ export default {
       type: Boolean,
       default: () => true,
     },
+  },
+  data: () => ({
+    academicYear: null,
+    semester: null,
+    senior: null,
+  }),
+  mounted() {
+    if (!!this.displaySemester) {
+      this.academicYear = this.$store.getters["auth/currentUser"].academicYear;
+      this.semester = this.$store.getters["auth/currentUser"].semester;
+      this.senior = this.$store.getters["auth/currentUser"].senior;
+    }
   },
   // computed: {
   //   drawer: {

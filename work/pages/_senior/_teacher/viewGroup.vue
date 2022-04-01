@@ -6,7 +6,6 @@
     > -->
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Group</h2>
     <!-- <button @click="test">test</button> -->
-    <SelectSenior v-if="role === 99" />
 
     <!-- Action buttons -->
     <div class="my-5 d-flex justify-end" style="gap: 0.5rem; flex-wrap: wrap">

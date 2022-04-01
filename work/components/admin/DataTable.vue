@@ -57,34 +57,37 @@
                     />
                   </v-col>
                 </v-row>
-                <v-row>
-                  <v-col md="3">
-                    <p>Year</p>
-                  </v-col>
-                  <v-col md="9">
-                    <v-select
-                      v-model="selectedYear"
-                      :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-                      dense
-                      solo
-                      hide-details
-                    />
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col md="3">
-                    <p>Semester</p>
-                  </v-col>
-                  <v-col md="9">
-                    <v-select
-                      v-model="selectedSemester"
-                      :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-                      dense
-                      solo
-                      hide-details
-                    />
-                  </v-col>
-                </v-row>
+                <!-- Select year and semester drop down -->
+                <div v-if="!filterFromState">
+                  <v-row>
+                    <v-col md="3">
+                      <p>Year</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedYear"
+                        :items="yearNSemsters.map((itm) => itm.Academic_Year)"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col md="3">
+                      <p>Semester</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedSemester"
+                        :items="yearNSemsters.map((itm) => itm.Academic_Term)"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
+                </div>
               </v-card-text>
 
               <v-card-actions>
@@ -189,6 +192,7 @@ export default {
     majors: Array,
     yearNSemsters: Array,
     roles: Array,
+    filterFromState: Boolean,
   },
   data: () => ({
     selectedMajor: {},
@@ -216,18 +220,30 @@ export default {
   mounted() {
     // console.log(this.items);
     this.majors ? (this.selectedMajor = this.majors[0]) : null;
-    this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    if (!!this.filterFromState) {
+      this.selectedYear = this.$store.getters["auth/currentUser"].academicYear;
+      this.selectedSemester = this.$store.getters["auth/currentUser"].semester;
+    } else {
+      this.selectedYear = this.yearNSemsters[0].Academic_Year;
+      this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    }
 
     // selectedRole.Role_ID = null for co and admin manage student
     this.selectedRole = this.manageTeacher ? this.roles[0] : null;
   },
   methods: {
     handelchangeRenderUser() {
+      if (!!this.filterFromState) {
+        this.selectedYear =
+          this.$store.getters["auth/currentUser"].academicYear;
+        this.selectedSemester =
+          this.$store.getters["auth/currentUser"].semester;
+      }
       this.$emit(
         "on-filtering",
         this.selectedYear,
         this.selectedSemester,
+        this.$store.getters["auth/currentUser"]?.senior || 1,
         this.majors ? this.selectedMajor.Major_ID : null,
 
         // selectedRole.Role_ID = null for co and admin manage student

@@ -48,36 +48,34 @@
               tag="div"
               class="buttonsenior1and2"
             > -->
-            <v-btn
-              text
-              style="width: 300px; height: 100px"
-              class="buttonsenior1and2"
-              @click="() => route(1)"
-            >
-              <v-card-text class="text--primary">
-                <center>
-                  <div><h3>SENIOR PROJECT 1</h3></div>
-                  <div><h4>SEM 1/2564</h4></div>
-                </center>
-              </v-card-text>
-            </v-btn>
-            <!-- </nuxt-link> -->
-            <br />
-            <!-- <div class="buttonsenior1and2"> -->
-            <v-btn
-              text
-              style="width: 300px; height: 100px"
-              class="buttonsenior1and2"
-              @click="route(2)"
-            >
-              <v-card-text class="text--primary">
-                <center>
-                  <div><h3>SENIOR PROJECT 2</h3></div>
-                  <div><h4>SEM 2/2564</h4></div>
-                </center>
-              </v-card-text>
-            </v-btn>
-            <!-- </div> -->
+            <section class="select-senior-buttons-container">
+              <div v-for="(senior, index) in availableSeniors" :key="index">
+                <v-btn
+                  text
+                  style="width: 300px; height: 100px"
+                  class="buttonsenior1and2"
+                  @click="
+                    () =>
+                      route({
+                        year: senior.year,
+                        semester: senior.semester,
+                        senior: senior.Senior,
+                      })
+                  "
+                >
+                  <v-card-text class="text--primary">
+                    <center>
+                      <div>
+                        <h3>SENIOR PROJECT {{ senior.Senior }}</h3>
+                      </div>
+                      <div>
+                        <h4>SEM {{ senior.semester }}/{{ senior.year }}</h4>
+                      </div>
+                    </center>
+                  </v-card-text>
+                </v-btn>
+              </div>
+            </section>
           </v-card>
         </v-main>
       </div>
@@ -91,28 +89,32 @@ export default {
   data: () => ({
     image: itbackground,
   }),
-  async asyncData({ store, redirect }) {
-    console.log(store.getters["auth/currentUser"]);
-    console.log(store.getters["auth/isAuth"]);
-    if (!store.getters["auth/isAuth"]) {
+  async asyncData({ $axios, store, redirect }) {
+    try {
+      // Fetch available seniors
+      const res = await $axios.get("/user/getUserAvailableSeniors");
+      console.log("available seniors data: ", res.data);
+      if (res.status === 200) {
+        return { availableSeniors: res.data };
+      } else {
+        throw new Error("Fail to fetch available seniors");
+      }
+    } catch (err) {
+      console.log(err);
       redirect("/");
+      return;
     }
   },
   methods: {
     test() {
       console.log(this.$store.state.auth);
     },
-    async route(senior) {
-      // Dispatch to get project on term id and store senior in state
-      await this.$store.dispatch("auth/storeProjectOnTerm", senior);
-
-      // Sets localStorage
-      // localStorage.setItem("userInfo", th);
-      localStorage.setItem("senior", senior);
-      localStorage.setItem(
-        "projectOnTerm",
-        this.$store.getters["auth/currentUser"].projectOnTerm
-      );
+    async route({ year, semester, senior }) {
+      this.$store.commit("auth/SET_USER_SENIOR", {
+        academicYear: year,
+        semester: semester,
+        senior: senior,
+      });
 
       switch (this.$store.getters["auth/currentUser"].role) {
         case 0: {
@@ -185,5 +187,10 @@ export default {
 }*/
 .sem1 {
   padding-top: 10%;
+}
+.select-senior-buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 </style>

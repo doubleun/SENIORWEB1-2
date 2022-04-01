@@ -47,8 +47,7 @@ getUser = (req, res) => {
   return;
 };
 
-
-// FIXME: get req.body be year sem senior 
+// FIXME: get req.body be year sem senior
 countUser = (req, res) => {
   const { Project_on_term_ID } = req.body;
   const sql =
@@ -74,15 +73,16 @@ countUser = (req, res) => {
 };
 
 getAllUserWithMajor = (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body;
+  const { Major_ID, Academic_Year, Academic_Term, Senior, User_Role } =
+    req.body;
   const sql =
-    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
   console.log(req.body);
 
   con.query(
     sql,
-    [Major_ID, Academic_Year, Academic_Term, User_Role],
+    [Major_ID, Academic_Year, Academic_Term, Senior, User_Role],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -303,28 +303,60 @@ uploadfileteacher = async (req, res) => {
 };
 
 getUserProjectOnTerm = (req, res) => {
-  const { User_Email, Major_ID, senior } = req.body;
-  console.log(User_Email, Major_ID, senior);
+  const { seniorFromRoute } = req.body;
+  const { email, major, senior, projectOnTerm } = req.user;
+
+  console.log("seniorFromRoute", seniorFromRoute);
+  console.log(email, major, senior, projectOnTerm);
+
   try {
-    // TODO: get lastest project on term
-    const getUserSeniorSql =
-      "SELECT u.Project_on_term_ID, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
-    con.query(
-      getUserSeniorSql,
-      [User_Email, Major_ID, senior],
-      (err, result, fields) => {
-        if (err) throw err;
-        req.user.accessDateEnd = result[0].Access_Date_End;
-        req.user.senior = senior;
-        req.user.projectOnTerm = result[0].Project_on_term_ID;
-        res.status(200).json(result);
-        return;
-      }
-    );
+    // 1.) Check if senior and proejectOnTerm exist in the token
+    if (!senior || !projectOnTerm) {
+      // 2.) Fetch senior and project on term
+      const getUserSeniorSql =
+        "SELECT u.Project_on_term_ID, pj.Academic_Year, pj.Academic_Term, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
+      con.query(
+        getUserSeniorSql,
+        [email, major, seniorFromRoute],
+        (err, result, fields) => {
+          if (err) throw err;
+          console.log("res", result);
+          req.user.accessDateEnd = result[0].Access_Date_End;
+          req.user.senior = result[0].Senior;
+          req.user.academicYear = result[0].Academic_Year;
+          req.user.semester = result[0].Academic_Term;
+          req.user.projectOnTerm = result[0].Project_on_term_ID;
+          res.status(200).json({
+            Academic_Year: result[0].Academic_Year,
+            Academic_Term: result[0].Academic_Term,
+            Senior: result[0].Senior,
+          });
+          return;
+        }
+      );
+    } else {
+      res.status(200).send("Project on term already exist");
+      return;
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal Server Error");
-    // res.status(500).json({ msg: err, status: 500 });
+    return;
+  }
+};
+getUserAvailableSeniors = (req, res) => {
+  const { email } = req.user;
+  try {
+    // TODO: Re-check SQL query
+    const getUserSeniorSql =
+      "SELECT MAX(pj.Project_on_term_ID) AS projectOnTerm, MAX(pj.Academic_Year) AS year, MAX(pj.Academic_Term) AS semester, pj.Senior FROM `projectonterm` as pj INNER JOIN `users` u ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email = ? GROUP BY pj.Senior ORDER BY pj.Senior ASC LIMIT 2";
+    con.query(getUserSeniorSql, [email], (err, result) => {
+      if (err) throw err;
+      res.status(200).json(result);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
     return;
   }
 };
@@ -339,4 +371,5 @@ module.exports = {
   updateUserRole,
   getTeacherRole,
   getUserProjectOnTerm,
+  getUserAvailableSeniors,
 };
