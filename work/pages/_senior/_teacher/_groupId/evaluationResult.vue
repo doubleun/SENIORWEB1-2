@@ -22,15 +22,17 @@
       <v-card-title>Evaluation Form</v-card-title>
       <div class="co-evaluation-form-card-content">
         <h5>Comment</h5>
-        <v-textarea
-          v-model="comment"
-          :disabled="haveGrade"
-          :rules="[() => !!comment || 'This field is required']"
-          auto-grow
-          outlined
-          rows="4"
-          row-height="30"
-        ></v-textarea>
+        <v-form ref="form">
+          <v-textarea
+            v-model="comment"
+            :disabled="haveGrade"
+            :rules="[() => !!comment || 'This field is required']"
+            auto-grow
+            outlined
+            rows="4"
+            row-height="30"
+          ></v-textarea>
+        </v-form>
 
         <div v-if="groupAdvisor">
           <h5>Grade</h5>
@@ -213,7 +215,12 @@ export default {
     async submitGrade() {
       // If group alrady has a grade, teacher can't give them again
       // If no current group member id also return
-      if (this.haveGrade || !this.currentMemberId) return;
+      if (
+        this.haveGrade ||
+        !this.currentMemberId ||
+        !this.$refs.form.validate()
+      )
+        return;
 
       // If re-eval is checked (graded I) assign grade I to the 'selectedGrade'
       if (this.gradeI) this.selectedGrade = "I";

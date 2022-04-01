@@ -54,7 +54,14 @@
                   text
                   style="width: 300px; height: 100px"
                   class="buttonsenior1and2"
-                  @click="() => route(senior.Senior)"
+                  @click="
+                    () =>
+                      route({
+                        year: senior.year,
+                        semester: senior.semester,
+                        senior: senior.Senior,
+                      })
+                  "
                 >
                   <v-card-text class="text--primary">
                     <center>
@@ -102,9 +109,12 @@ export default {
     test() {
       console.log(this.$store.state.auth);
     },
-    async route(senior) {
-      // // Dispatch to get project on term id and store senior in state
-      // await this.$store.dispatch("auth/storeProjectOnTerm", senior);
+    async route({ year, semester, senior }) {
+      this.$store.commit("auth/SET_USER_SENIOR", {
+        academicYear: year,
+        semester: semester,
+        senior: senior,
+      });
 
       switch (this.$store.getters["auth/currentUser"].role) {
         case 0: {
