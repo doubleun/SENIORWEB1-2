@@ -495,8 +495,15 @@ export default {
       // console.log('given score',this.givenScore)
     },
     handleCheckValidScore() {
+      let checkDecimal = String(this.givenScore).includes(".")
+        ? String(this.givenScore).split(".")[1].length > 1
+          ? true
+          : false
+        : false;
       return this.givenScore > this.maxScore || this.givenScore < 0
         ? "Invalid score"
+        : checkDecimal
+        ? "Only one deimal point"
         : true;
     },
     handleValidateFile() {
