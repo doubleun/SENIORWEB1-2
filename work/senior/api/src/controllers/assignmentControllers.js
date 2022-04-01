@@ -24,7 +24,7 @@ uploadAssignments = async (req, res) => {
     links,
     Group_Member_ID,
     abstractIndex,
-    Project_on_term_ID,
+    // Project_on_term_ID,
   } = req.body;
   // If no link then assign empty array
   if (!links) links = [];
@@ -81,7 +81,11 @@ uploadAssignments = async (req, res) => {
 
         // If there's abstract, then take it out of the files array
         // And make another insert query to abstract table
-        if (!!abstractIndex && !!Project_on_term_ID && allFiles.length > 0) {
+        if (
+          !!abstractIndex &&
+          !!req.user.projectOnTerm &&
+          allFiles.length > 0
+        ) {
           // get the file using abstract index
           const abstractFile = allFiles[abstractIndex];
           // // remove file from allFiles (because we will insert abstract in another table)
@@ -95,7 +99,7 @@ uploadAssignments = async (req, res) => {
             "INSERT INTO `abstracts`(`Abstract_Name`, `Group_ID`, `Project_on_term_ID`) VALUES (?, ?, ?)";
           con.query(
             abstractSql,
-            [abstractFile[0], Group_ID, Project_on_term_ID],
+            [abstractFile[0], Group_ID, req.user.projectOnTerm],
             (err) => {
               if (err) throw err;
             }
@@ -113,7 +117,7 @@ uploadAssignments = async (req, res) => {
     );
   } catch (err) {
     console.log(err);
-    res.status(422).json({ msg: "Query Error", staus: 422 });
+    res.status(422).json({ msg: "Query Error", status: 422 });
     return;
   }
 
@@ -132,7 +136,7 @@ getAssignmentFiles = (req, res) => {
       res.status(200).json(result);
     });
   } catch (err) {
-    res.status(422).json({ msg: "Query Error", staus: 422 });
+    res.status(422).json({ msg: "Query Error", status: 422 });
   }
 };
 
@@ -330,17 +334,23 @@ getTeacherProgressScore = (req, res) => {
   }
 };
 
+// FIXME: this api not use?
 // update progression of group
-updateProgression = async (req, res) => {
-  const { Major_ID, Project_on_term_ID, Progress_ID, Group_ID } = req.body;
+updateProgression = (req, res) => {
+  const {
+    Major_ID,
+    // Project_on_term_ID,
+    Progress_ID,
+    Group_ID,
+  } = req.body;
   const criterias =
     "SELECT * FROM `scorecriterias` WHERE Major_ID=? AND Project_on_term_ID=? AND Progress_ID=?";
   const score =
     "SELECT sc.Assignment_ID,sc.Score,sc.Comment,sc.Group_Member_ID FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE ass.Group_ID=? AND ass.Progress_ID=?";
   const update = "UPDATE groups SET Group_Progression =? WHERE Group_ID=?";
-  await con.query(
+  con.query(
     criterias,
-    [Major_ID, Project_on_term_ID, Progress_ID],
+    [Major_ID, req.user.projectOnTerm, Progress_ID],
     (err, result, fields) => {
       var giver = 0;
       if (err) {
@@ -407,8 +417,12 @@ updateProgression = async (req, res) => {
 // * if student don't send Group_Member_ID to api
 getAssignment = async (req, res) => {
   console.log(req.body);
-  const { Group_ID, Progress_ID, Group_Member_ID, Project_on_term_ID } =
-    req.body;
+  const {
+    Group_ID,
+    Progress_ID,
+    Group_Member_ID,
+    // Project_on_term_ID
+  } = req.body;
   // const Project_on_term_ID = req.params.Project_on_term_ID
   // const assigment =
   //   "SELECT * FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Group_ID=? AND ass.Progress_ID=?";
@@ -419,9 +433,9 @@ getAssignment = async (req, res) => {
       ? "SELECT sc.Score_ID, sc.Comment,fl.File_Name,gmb.Group_Role,gmb.Group_Member_ID FROM scores sc INNER JOIN files fl ON sc.Score_ID=fl.Score_ID INNER JOIN groupmembers gmb ON sc.Group_Member_ID = gmb.Group_Member_ID WHERE fl.Assignment_ID=? AND sc.Group_Member_ID=?"
       : "SELECT sc.Score_ID, sc.Comment,fl.File_Name,gmb.Group_Role,gmb.Group_Member_ID FROM scores sc INNER JOIN files fl ON sc.Score_ID=fl.Score_ID INNER JOIN groupmembers gmb ON sc.Group_Member_ID = gmb.Group_Member_ID WHERE fl.Assignment_ID=?";
 
-  await con.query(
+  con.query(
     assigment,
-    [Project_on_term_ID, Group_ID, Progress_ID],
+    [req.user.projectOnTerm, Group_ID, Progress_ID],
     (err, assigment, fields) => {
       if (err) {
         console.log(err);
@@ -455,15 +469,19 @@ getAssignment = async (req, res) => {
   );
 };
 
+// FIXME: this api not use?
 // view all assigment by progress id (admin)
-getAllAssignment = async (req, res) => {
-  const { Project_on_term_ID, Progress_ID } = req.body;
+getAllAssignment = (req, res) => {
+  const {
+    // Project_on_term_ID,
+    Progress_ID,
+  } = req.body;
   // const Project_on_term_ID = req.params.Project_on_term_ID
   const sql =
     "SELECT * FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=?";
-  await con.query(
+  con.query(
     sql,
-    [Project_on_term_ID, Progress_ID],
+    [req.user.projectOnTerm, Progress_ID],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -475,23 +493,24 @@ getAllAssignment = async (req, res) => {
   );
 };
 
+// FIXME: this api not use?
 // view all assigment by progress id (admin)
 countAssigment = (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  // const { Project_on_term_ID } = req.body;
   // const Project_on_term_ID = req.params.Project_on_term_ID
   const sql =
     "SELECT (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=1) AS progress1, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=2) AS progress2, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=3) AS progress3, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=4) AS progress4, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=5) AS FinalPresentation, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=6) AS FinalDocumentation, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=7) AS Topic, (SELECT COUNT(*) FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND ass.Progress_ID=8) AS Groups";
   con.query(
     sql,
     [
-      Project_on_term_ID,
-      Project_on_term_ID,
-      Project_on_term_ID,
-      Project_on_term_ID,
-      Project_on_term_ID,
-      Project_on_term_ID,
-      Project_on_term_ID,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
+      req.user.projectOnTerm,
+      req.user.projectOnTerm,
+      req.user.projectOnTerm,
+      req.user.projectOnTerm,
+      req.user.projectOnTerm,
+      req.user.projectOnTerm,
+      req.user.projectOnTerm,
     ],
     (err, result, fields) => {
       if (err) {
@@ -506,13 +525,17 @@ countAssigment = (req, res) => {
 
 // count last progress file for coordinator
 countFileByMajor = async (req, res) => {
-  const { Project_on_term_ID, Major, Progress_ID } = req.body;
+  const {
+    // Project_on_term_ID,
+    Major,
+    Progress_ID,
+  } = req.body;
   console.log(req.body);
   const sql =
     "SELECT COUNT(*) AS TotalFile FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE gp.Project_on_term_ID=? AND gp.Major=? AND ass.Progress_ID=?";
   con.query(
     sql,
-    [Project_on_term_ID, Major, Progress_ID],
+    [req.user.projectOnTerm, Major, Progress_ID],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -560,8 +583,6 @@ getEvaluationScores = (req, res) => {
 };
 
 getAbstracts = (req, res) => {
-  // const abstracts =
-  //   "SELECT subquery.Abstract_ID, subquery.Abstract_Name,subquery.Submit_Date,subquery.Group_ID,subquery.Major, subquery.Project_on_term_ID,subquery.Group_Name_Thai,subquery.Group_Name_Eng,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT abs.Abstract_ID,abs.Abstract_Name,abs.Submit_Date,abs.Group_ID, abs.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gmb.Group_Member_ID,gmb.User_Email, gmb.Group_Role,gp.Major FROM abstracts abs INNER JOIN groups gp ON abs.Group_ID=gp.Group_ID INNER JOIN groupmembers gmb  ON gp.Group_ID=gmb.Group_ID  WHERE gmb.User_Status=1 AND gmb.Group_Role!=1) AS subquery GROUP BY subquery.Group_ID";
   const abstracts =
     'SELECT subquery.Group_ID, subquery.Group_Name_Eng,subquery.Group_Name_Thai, subquery.File_Name,subquery.Path,subquery.Submit_Date,subquery.Type,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT gp.Group_ID, gp.Group_Name_Eng,gp.Group_Name_Thai, fl.File_Name,fl.Path,ass.Submit_Date,fl.Type FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE fl.Type="Abstract")AS subquery';
   con.query(abstracts, (err, result, fields) => {

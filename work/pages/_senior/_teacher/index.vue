@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <CoordinatorHomeCardStatus :info="info" />
+    <CoordinatorHomeCardStatus :info="info" :isAdmin="false" />
     <CoordinatorHomeAnnouncement
       :dataUi="dataUi"
       :bindingData="announcements"
@@ -30,7 +30,7 @@ export default {
       });
       const data = await $axios.$post("/group/countMyGroup", {
         User_Email: store.state.auth.currentUser.email,
-        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+        // Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
 
       console.log(data);

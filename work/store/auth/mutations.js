@@ -13,4 +13,14 @@ export default {
     state.currentUser = null;
     state.isAuthenticated = false;
   },
+  SET_USER_SENIOR(state, payload) {
+    state.currentUser.senior = payload.senior;
+    if (!!payload?.academicYear && !!payload?.semester) {
+      state.currentUser.academicYear = payload.academicYear;
+      state.currentUser.semester = payload.semester;
+    }
+  },
+  SET_USER_SEMESTER_DATA(state, payload) {
+    state.semesterData = payload;
+  },
 };

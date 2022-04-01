@@ -13,11 +13,22 @@
           <v-img src="/it_logo.png" max-width="80" class="mb-3"></v-img>
         </router-link>
       </v-row>
-      <v-row class="justify-center"><h4>SENIOR PROJECT</h4></v-row>
+      <v-row class="justify-center"
+        ><h4>
+          SENIOR PROJECT {{ !!displaySemester && !!senior ? senior : "" }}
+        </h4></v-row
+      >
       <v-row class="justify-center"
         ><h6>SCHOOL OF INFORMATION TECHNOLOGY</h6></v-row
       >
-      <v-row class="justify-center"><h5 style="margin-left: 5px" :style="theme === 'default' ? '#253b6e' : 'white'">1/2022</h5></v-row>
+      <v-row class="justify-center" v-if="!!displaySemester && !!academicYear"
+        ><h5
+          style="margin-left: 5px"
+          :style="theme === 'default' ? '#253b6e' : 'white'"
+        >
+          {{ semester }} / {{ academicYear }}
+        </h5></v-row
+      >
     </v-col>
     <!-- Lists routes Home-Final Presentation -->
     <v-list shaped class="mt-3">
@@ -49,7 +60,32 @@
 </template>
 <script>
 export default {
-  props: ["items", "theme"]
+  props: {
+    items: {
+      type: Array,
+      default: () => [],
+    },
+    theme: {
+      type: String,
+      default: () => "default",
+    },
+    displaySemester: {
+      type: Boolean,
+      default: () => true,
+    },
+  },
+  data: () => ({
+    academicYear: null,
+    semester: null,
+    senior: null,
+  }),
+  mounted() {
+    if (!!this.displaySemester) {
+      this.academicYear = this.$store.getters["auth/currentUser"].academicYear;
+      this.semester = this.$store.getters["auth/currentUser"].semester;
+      this.senior = this.$store.getters["auth/currentUser"].senior;
+    }
+  },
   // computed: {
   //   drawer: {
   //     get() {

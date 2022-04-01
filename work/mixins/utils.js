@@ -125,5 +125,18 @@ export default {
         ...(!!displayTime ? { timeStyle } : {}),
       });
     },
+
+    /**
+     * Handle format byte to sizes
+     * @param {number} bytes - Bytes needs to be convert
+     * @returns string of human readable sizes
+     */
+    bytesToSize(bytes) {
+      const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+      if (bytes === 0) return "0";
+      const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+      if (i === 0) return `${bytes} ${sizes[i]}`;
+      return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
+    },
   },
 };

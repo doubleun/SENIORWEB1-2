@@ -11,6 +11,7 @@ export default {
           Swal.showLoading();
           try {
             const res = await callback();
+            console.log("dialiog res: ", res);
             if (!res || res.status !== 200) {
               throw new Error(
                 "Request status is invalid, please try again later"

@@ -472,7 +472,7 @@ export default {
     // TODO: This is big fetch, put this in a state and check if exists before fetch it
     // Fetch students and teachers
     const res = await this.$axios.$post("/user/getAllUsersInSchool", {
-      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
+      // Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
     });
 
     let isHaveAssignment = [];
@@ -604,7 +604,7 @@ export default {
         .then(async (result) => {
           //
           if (result.isConfirmed) {
-            const res = await this.$axios.$post("group/createGroup", {
+            const res = await this.$axios.$post("/group/createGroup", {
               Project_NameTh: this.thaiName,
               Project_NameEn: this.engName,
               Studen_Number: this.projectMembers.length,
@@ -634,8 +634,8 @@ export default {
               Email_Student9: this.email[8],
               Email_Student10: this.email[9],
               Major: this.$store.state.auth.currentUser.major,
-              Project_on_term_ID:
-                this.$store.state.auth.currentUser.projectOnTerm,
+              // Project_on_term_ID:
+              //   this.$store.state.auth.currentUser.projectOnTerm,
             });
             console.log(res.status);
             // if (res.status == 200) {
@@ -710,8 +710,8 @@ export default {
               Email_Student9: this.email[8],
               Email_Student10: this.email[9],
               Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
-              Project_on_term_ID:
-                this.$store.state.auth.currentUser.projectOnTerm,
+              // Project_on_term_ID:
+              //   this.$store.state.auth.currentUser.projectOnTerm,
             });
             console.log(res);
             if (res.status == 200) {
@@ -779,13 +779,12 @@ export default {
 
       // Sets project members
       this.groupMembers
-        // Filter groupMembers array to get only group role 2, which is student role
+        // Filter groupMembers array to get only group role 2, which is student roles (head and member)
         .filter((itm) => itm.Group_Role === 3 || itm.Group_Role === 2)
         .map((itm, index) => {
           index >= 1 &&
             // Add more project member fields
             this.addMemberFields();
-          console.log("hearrrr" + itm);
           // Pass value into all project member fields
           this.selectedStudent[index] = {
             User_Email: itm.User_Email,

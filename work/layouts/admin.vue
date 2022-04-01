@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <StudentSidebar :items="items" theme="white" />
+    <StudentSidebar :items="items" theme="white" :displaySemester="false" />
     <div class="it-background">
       <MainAppbar theme="transparent" />
       <v-main>
@@ -17,6 +17,7 @@
 // import Sidebar from "@/components/Student/stuSidebar";
 
 export default {
+  middleware: "checkRole",
   data() {
     return {
       items: [
@@ -50,8 +51,30 @@ export default {
           title: "Criteria",
           to: "/senior/admin/criteria",
         },
+        {
+          icon: "mdi-account-search ",
+          title: "Group of Teacher",
+          to: "/senior/admin/teacherGroup",
+        },
+        {
+          icon: "mdi-clipboard-list",
+          title: "Manage Majors",
+          to: "/senior/admin/majorManage",
+        },
       ],
     };
+  },
+  async fetch() {
+    try {
+      const res = await this.$axios.get("/date/allYearsSemester");
+      if (res.status !== 200) {
+        throw new Error("Failed to fetch academic date data");
+      }
+      await this.$store.commit("auth/SET_USER_SEMESTER_DATA", res.data);
+    } catch (err) {
+      console.log(err);
+      return;
+    }
   },
 };
 </script>

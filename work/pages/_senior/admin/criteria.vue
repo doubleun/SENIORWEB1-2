@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Criteria</h2>
+    <SelectSenior />
 
     <!-- Select score study program -->
     <div class="admin-criteria-score-actions">
@@ -63,29 +64,36 @@ export default {
   layout: "admin",
   data() {
     return {
-      selectedMajor: null,
+      // selectedMajor: null,
       editGradeDialog: false,
       low: 0,
     };
   },
-  async asyncData({ $axios }) {
+  async asyncData({ $axios, store }) {
     /// Initial fetch
-    let majors, scoreCriterias, gradeCriterias, projectOnTerm;
+    let majors, scoreCriterias, gradeCriterias, projectOnTerm, selectedMajor;
     try {
       // Fetch latest project on term
       projectOnTerm = await $axios.$get("/date/getLatestProjectOnTerm");
 
       // Fetch all majors
-      majors = await $axios.$get("/user/getAllMajors");
+      majors = await $axios.$get("/major/getAllActiveMajors");
+      selectedMajor = majors[0];
 
       // Fetch score criterias
       scoreCriterias = await $axios.$post("/criteria/scoreMajor", {
+        Academic_Year: store.getters["auth/currentUser"].academicYear,
+        Academic_Term: store.getters["auth/currentUser"].semester,
+        Senior: store.getters["auth/currentUser"].senior,
         Major_ID: majors[0].Major_ID,
-        Project_on_term_ID: projectOnTerm.Project_on_term_ID,
+        // Project_on_term_ID: projectOnTerm.Project_on_term_ID,
       });
 
       // Fetch grade criterias
       gradeCriterias = await $axios.$post("/criteria/gradeMajor", {
+        Academic_Year: store.getters["auth/currentUser"].academicYear,
+        Academic_Term: store.getters["auth/currentUser"].semester,
+        Senior: store.getters["auth/currentUser"].senior,
         Major_ID: majors[0].Major_ID,
       });
 
@@ -102,7 +110,14 @@ export default {
     const dataUI = { scoreCriterias, gradeCriterias };
     console.log(dataUI);
 
-    return { majors, dataUI, scoreCriterias, gradeCriterias, projectOnTerm };
+    return {
+      majors,
+      dataUI,
+      scoreCriterias,
+      gradeCriterias,
+      projectOnTerm,
+      selectedMajor,
+    };
   },
 
   methods: {
@@ -110,11 +125,17 @@ export default {
     async handleFetchCriterias() {
       // Fetch score criterias
       this.scoreCriterias = await this.$axios.$post("/criteria/scoreMajor", {
+        Academic_Year: this.$store.getters["auth/currentUser"].academicYear,
+        Academic_Term: this.$store.getters["auth/currentUser"].semester,
+        Senior: this.$store.getters["auth/currentUser"].senior,
         Major_ID: this.selectedMajor.Major_ID,
-        Project_on_term_ID: this.projectOnTerm.Project_on_term_ID,
+        // Project_on_term_ID: this.projectOnTerm.Project_on_term_ID,
       });
       // Fetch grade criterias
       this.gradeCriterias = await this.$axios.$post("/criteria/gradeMajor", {
+        Academic_Year: this.$store.getters["auth/currentUser"].academicYear,
+        Academic_Term: this.$store.getters["auth/currentUser"].semester,
+        Senior: this.$store.getters["auth/currentUser"].senior,
         Major_ID: this.selectedMajor.Major_ID,
       });
 
@@ -126,7 +147,7 @@ export default {
   mounted() {
     // console.log("Scores: ", this.scoreCriterias);
     // console.log("Grades: ", this.gradeCriterias);
-    this.selectedMajor = this.majors[0];
+    // this.selectedMajor = this.majors[0];
   },
 };
 </script>

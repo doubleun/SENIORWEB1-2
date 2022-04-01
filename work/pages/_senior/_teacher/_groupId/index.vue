@@ -34,7 +34,7 @@ export default {
       const res = await $axios.$post("/group/getGroupWithID", {
         Group_ID: groupId,
         Email: store.state.auth.currentUser.email,
-        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+        // Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
 
       console.log("SET GROUP: ", res.groupInfo[0]);

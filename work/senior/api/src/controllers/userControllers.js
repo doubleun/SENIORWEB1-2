@@ -5,21 +5,7 @@ const readXlsxFile = require("read-excel-file/node");
 const { result } = require("lodash");
 
 // TODO: Move this to its own route ?
-getAllMajors = async (req, res) => {
-  const sql =
-    "SELECT * FROM `majors` WHERE `Major_Status` = 1 AND Major_ID !=99";
-  con.query(sql, (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.status(200).json(result);
-    }
-  });
-};
-
-// TODO: Move this to its own route ?
-getTeacherRole = async (req, res) => {
+getTeacherRole = (req, res) => {
   const sql = "SELECT * FROM `roles` WHERE Role_ID!=99 AND Role_ID!=1";
   con.query(sql, (err, result, fields) => {
     if (err) {
@@ -49,27 +35,30 @@ updateUserRole = (req, res) => {
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Internal Server Error", status: 500 });
+    res.status(500).send("Internal Server Error");
     return;
   }
 };
 
-getUser = async (req, res) => {
+getUser = (req, res) => {
   // Each request has 'user' embeded in there, and the passport.js middleware on the backend node.js server 'deserialize' it
   // That's why this just respond back the req.user
   res.status(200).json(req.user);
+  return;
 };
 
-countUser = async (req, res) => {
+// FIXME: get req.body be year sem senior
+countUser = (req, res) => {
   const { Project_on_term_ID } = req.body;
   const sql =
     "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
 
-  await con.query(
+  con.query(
     sql,
     [Project_on_term_ID, Project_on_term_ID],
     (err, result, fields) => {
       if (err) {
+        console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
         // console.log(result[0]);
@@ -83,16 +72,17 @@ countUser = async (req, res) => {
   );
 };
 
-getAllUserWithMajor = async (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body;
+getAllUserWithMajor = (req, res) => {
+  const { Major_ID, Academic_Year, Academic_Term, Senior, User_Role } =
+    req.body;
   const sql =
-    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
 
   console.log(req.body);
 
-  await con.query(
+  con.query(
     sql,
-    [Major_ID, Academic_Year, Academic_Term, User_Role],
+    [Major_ID, Academic_Year, Academic_Term, Senior, User_Role],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -106,13 +96,13 @@ getAllUserWithMajor = async (req, res) => {
 };
 
 getAllUsersInSchool = async (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  // const { Project_on_term_ID } = req.body;
   const studentsSQL =
     "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 1 AND `Project_on_term_ID` = ?";
   const students = await new Promise((resolve, reject) => {
     con.query(
       studentsSQL,
-      [Project_on_term_ID],
+      [req.user.projectOnTerm],
       (err, studentsResult, fields) => {
         if (err) {
           console.log(err);
@@ -128,7 +118,7 @@ getAllUsersInSchool = async (req, res) => {
   const teachers = await new Promise((resolve, reject) => {
     con.query(
       teachersSQL,
-      [Project_on_term_ID],
+      [req.user.projectOnTerm],
       (err, teachersResult, fields) => {
         if (err) {
           console.log(err);
@@ -250,63 +240,124 @@ uploadfileteacher = async (req, res) => {
         for (let i = 4; i < rows.length; i++) {
           console.log(rows[i]);
           // rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
-          if(rows[0][0] == "รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง"){
+          if (
+            rows[0][0] ==
+            "รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง"
+          ) {
             term = rows[1][0].split(" ")[4];
-          semiter = rows[1][0].split(" ")[6];
-          if (term == "FIRST") {
-            term = 1;
-          } else if (term == "SECOND") {
-            term = 2;
-          }
-          con.query(
-            sql,
-            [
-              rows[i][3],
-              rows[i][1],
-              rows[i][2],
-              "0",
-              coursec,
-              rows[i][4],
-              semiter,
-              term,
-            ],
-            (err, result, fields) => {
-              if (err) {
-                console.log(err.code);
-                if (err.code == "ER_DUP_ENTRY") {
-                  res.status(500).send("Duplicate data");
-                } else {
-                  res.status(500).send("Internal Server Error");
-                }
-              } else {
-                console.log(result.affectedRows);
-                if (result.affectedRows == 0) {
-                  errorcou++;
-                }
-                if (i == rows.length - 1) {
-                  if (errorcou == 0) {
-                    res.status(200).send("success");
-                  } else if (errorcou == rows.length - 1) {
-                    res.status(200).send("noeffect");
+            semiter = rows[1][0].split(" ")[6];
+            if (term == "FIRST") {
+              term = 1;
+            } else if (term == "SECOND") {
+              term = 2;
+            }
+            con.query(
+              sql,
+              [
+                rows[i][3],
+                rows[i][1],
+                rows[i][2],
+                "0",
+                coursec,
+                rows[i][4],
+                semiter,
+                term,
+              ],
+              (err, result, fields) => {
+                if (err) {
+                  console.log(err.code);
+                  if (err.code == "ER_DUP_ENTRY") {
+                    res.status(500).send("Duplicate data");
                   } else {
-                    res.status(200).send("someproblem");
+                    res.status(500).send("Internal Server Error");
+                  }
+                } else {
+                  console.log(result.affectedRows);
+                  if (result.affectedRows == 0) {
+                    errorcou++;
+                  }
+                  if (i == rows.length - 1) {
+                    if (errorcou == 0) {
+                      res.status(200).send("success");
+                    } else if (errorcou == rows.length - 1) {
+                      res.status(200).send("noeffect");
+                    } else {
+                      res.status(200).send("someproblem");
+                    }
                   }
                 }
               }
-            }
-          );
-          }else{
+            );
+          } else {
             res.status(400).send("Wrong data");
             break;
-
           }
-          
         }
       });
     }
   } catch (err) {
-    res.status(500).send(err);
+    res.status(500).json({ msg: err, status: 500 });
     console.log(err);
+    return;
+  }
+};
+
+getUserProjectOnTerm = (req, res) => {
+  const { seniorFromRoute } = req.body;
+  const { email, major, senior, projectOnTerm } = req.user;
+
+  console.log("seniorFromRoute", seniorFromRoute);
+  console.log(email, major, senior, projectOnTerm);
+
+  try {
+    // 1.) Check if senior and proejectOnTerm exist in the token
+    if (!senior || !projectOnTerm) {
+      // 2.) Fetch senior and project on term
+      const getUserSeniorSql =
+        "SELECT u.Project_on_term_ID, pj.Academic_Year, pj.Academic_Term, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
+      con.query(
+        getUserSeniorSql,
+        [email, major, seniorFromRoute],
+        (err, result, fields) => {
+          if (err) throw err;
+          console.log("res", result);
+          req.user.accessDateEnd = result[0].Access_Date_End;
+          req.user.senior = result[0].Senior;
+          req.user.academicYear = result[0].Academic_Year;
+          req.user.semester = result[0].Academic_Term;
+          req.user.projectOnTerm = result[0].Project_on_term_ID;
+          res.status(200).json({
+            Academic_Year: result[0].Academic_Year,
+            Academic_Term: result[0].Academic_Term,
+            Senior: result[0].Senior,
+          });
+          return;
+        }
+      );
+    } else {
+      res.status(200).send("Project on term already exist");
+      return;
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
+  }
+};
+getUserAvailableSeniors = (req, res) => {
+  const { email } = req.user;
+  try {
+    // TODO: Re-check SQL query
+    const getUserSeniorSql =
+      "SELECT MAX(pj.Project_on_term_ID) AS projectOnTerm, MAX(pj.Academic_Year) AS year, MAX(pj.Academic_Term) AS semester, pj.Senior FROM `projectonterm` as pj INNER JOIN `users` u ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email = ? GROUP BY pj.Senior ORDER BY pj.Senior ASC LIMIT 2";
+    con.query(getUserSeniorSql, [email], (err, result) => {
+      if (err) throw err;
+      res.status(200).json(result);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
   }
 };
 
@@ -317,7 +368,8 @@ module.exports = {
   uploadfile,
   countUser,
   getUser,
-  getAllMajors,
   updateUserRole,
   getTeacherRole,
+  getUserProjectOnTerm,
+  getUserAvailableSeniors,
 };
