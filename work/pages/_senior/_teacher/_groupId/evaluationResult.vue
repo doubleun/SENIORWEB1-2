@@ -25,6 +25,7 @@
         <v-textarea
           v-model="comment"
           :disabled="haveGrade"
+          :rules="[() => !!comment || 'This field is required']"
           auto-grow
           outlined
           rows="4"
