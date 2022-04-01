@@ -20,7 +20,7 @@
           color="indigo darken-2"
           dark
           @click="handleMoveGroups"
-          v-if="$store.getters['auth/currentUser'].senior === 1"
+          v-if="$store.getters['auth/currentUser'].senior === 2"
           ><v-icon>mdi-microsoft-excel</v-icon>Move group to senior 2</v-btn
         >
       </div>
