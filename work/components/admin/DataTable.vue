@@ -127,8 +127,8 @@
       class="elevation-1"
       :search="search"
     >
-      <template v-slot:top>
-        <!-- Edit teacher dialog -->
+      <!-- Edit teacher dialog -->
+      <!-- <template v-slot:top>
         <v-dialog v-model="dialog" max-width="500px" v-if="manageTeacher">
           <v-card class="edit-teacher-dialog-card">
             <v-card-title class="text-h5"> Edit teacher role </v-card-title>
@@ -169,11 +169,27 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-      </template>
-      <template v-slot:item.actions="{ item }">
+      </template> -->
+      <!-- <template v-slot:item.actions="{ item }">
         <v-btn dark color="blue darken-4" @click="editItem(item)">
           <v-icon small class="mr-2"> mdi-pen </v-icon>Edit
         </v-btn>
+      </template> -->
+
+      <template v-slot:item.User_Role_Name="{ item }">
+        <v-select
+          :items="availableRoles"
+          item-text="label"
+          item-value="value"
+          return-object
+          v-model="item.User_Role"
+          @change="handelchangeUserRole(item)"
+          dense
+          outlined
+          hide-details
+          class="ml-auto mr-auto"
+          style="max-width: 50%"
+        />
       </template>
     </v-data-table>
   </v-card>
@@ -269,6 +285,30 @@ export default {
       this.selectedTeacher.User_Role = { label: "", value: 0 };
       this.dialog = false;
     },
+    async handelchangeUserRole(user) {
+      console.log(user);
+      try {
+        await this.$axios.$post("/user/updateUserRole", {
+          User_Role: user.User_Role.value,
+          User_Email: user.User_Email,
+          Project_on_term_ID: user.Project_on_term_ID,
+        });
+        if (!!this.filterFromState) {
+          this.selectedYear =
+            this.$store.getters["auth/currentUser"].academicYear;
+          this.selectedSemester =
+            this.$store.getters["auth/currentUser"].semester;
+        }
+        this.handelchangeRenderUser();
+        this.$swal.fire(
+          "Success",
+          `Update teacher role to ${user.User_Role.label}`,
+          "success"
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async save() {
       try {
         this.$swal
@@ -313,19 +353,6 @@ export default {
         return;
       }
     },
-    // handelTextRole(role) {
-    //   console.log("handel text role");
-    //   console.log(role);
-    //   if (role == 0) {
-    //     return "Teacher";
-    //   } else if (role == 1) {
-    //     return "Student";
-    //   } else if (role == 2) {
-    //     return "Coordinator";
-    //   } else {
-    //     return role;
-    //   }
-    // }
   },
 };
 </script>
