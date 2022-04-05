@@ -309,50 +309,50 @@ export default {
         console.log(error);
       }
     },
-    async save() {
-      try {
-        this.$swal
-          .fire({
-            title: "Are you sure?",
-            text: `${this.selectedTeacher.User_Name} will becomes ${this.selectedTeacher.User_Role.label}`,
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Confirm",
-          })
-          .then(async (result) => {
-            try {
-              if (result.isConfirmed) {
-                const res = await this.$axios.$post("/user/updateUserRole", {
-                  User_Role: this.selectedTeacher.User_Role.value,
-                  User_Email: this.selectedTeacher.User_Email,
-                  Project_on_term_ID: this.selectedTeacher.Project_on_term_ID,
-                });
-                this.$swal.fire(
-                  "Success",
-                  `Update teacher role to ${this.selectedTeacher.User_Role.label}`,
-                  "success"
-                );
-                // Update UI
-                //FIXME: Can't use this because the dropdown role won't change, one way to change this is to emit an event to the parent, so the "selectedRole" can be change
-                //FIXME: this.$nuxt.refresh();
-                window.location.reload();
-                this.close();
-                return;
-              }
-            } catch (err) {
-              console.log(err);
-              this.close();
-              return;
-            }
-          });
-      } catch (err) {
-        console.log(err);
-        this.close();
-        return;
-      }
-    },
+    // async save() {
+    //   try {
+    //     this.$swal
+    //       .fire({
+    //         title: "Are you sure?",
+    //         text: `${this.selectedTeacher.User_Name} will becomes ${this.selectedTeacher.User_Role.label}`,
+    //         icon: "info",
+    //         showCancelButton: true,
+    //         confirmButtonColor: "#3085d6",
+    //         cancelButtonColor: "#d33",
+    //         confirmButtonText: "Confirm",
+    //       })
+    //       .then(async (result) => {
+    //         try {
+    //           if (result.isConfirmed) {
+    //             const res = await this.$axios.$post("/user/updateUserRole", {
+    //               User_Role: this.selectedTeacher.User_Role.value,
+    //               User_Email: this.selectedTeacher.User_Email,
+    //               Project_on_term_ID: this.selectedTeacher.Project_on_term_ID,
+    //             });
+    //             this.$swal.fire(
+    //               "Success",
+    //               `Update teacher role to ${this.selectedTeacher.User_Role.label}`,
+    //               "success"
+    //             );
+    //             // Update UI
+    //             //FIXME: Can't use this because the dropdown role won't change, one way to change this is to emit an event to the parent, so the "selectedRole" can be change
+    //             //FIXME: this.$nuxt.refresh();
+    //             window.location.reload();
+    //             this.close();
+    //             return;
+    //           }
+    //         } catch (err) {
+    //           console.log(err);
+    //           this.close();
+    //           return;
+    //         }
+    //       });
+    //   } catch (err) {
+    //     console.log(err);
+    //     this.close();
+    //     return;
+    //   }
+    // },
   },
 };
 </script>
