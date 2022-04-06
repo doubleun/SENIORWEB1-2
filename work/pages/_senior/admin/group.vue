@@ -122,6 +122,9 @@ export default {
         const projectOnTerm = await this.$axios.$post("date/getProjectOnTerm", {
           Academic_Year: this.selectedYear,
           Academic_Term: this.selectedSemester,
+          /**
+           * @deprecated This API do not use senior in SQL Query anymore! Please, refactor.
+           */
           Senior: 2,
         });
         // console.log("projectOnTerm: ", projectOnTerm);
