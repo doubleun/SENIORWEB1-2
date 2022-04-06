@@ -1,4 +1,5 @@
 const con = require("../config/db");
+const { formatDateIso } = require("../utility");
 
 // Get latest project on term id
 getLatestProjectOnTerm = async (req, res) => {
@@ -17,18 +18,24 @@ getLatestProjectOnTerm = async (req, res) => {
   }
 };
 
-// Get project on term id from senior, semester and year
+// Get project on term id from semester and year
 getProjectOnTerm = async (req, res) => {
-  const { Academic_Year, Academic_Term, Senior } = req.body;
+  const { Academic_Year, Academic_Term } = req.body;
   const getProjectOnTermSql =
-    "SELECT * FROM `projectonterm` WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?";
+    "SELECT * FROM `projectonterm` WHERE `Academic_Year` = ? AND `Academic_Term` = ? ORDER BY `Project_on_term_ID` DESC";
   try {
     con.query(
       getProjectOnTermSql,
-      [Academic_Year, Academic_Term, Senior],
+      [Academic_Year, Academic_Term],
       (err, projectOnTerm) => {
         if (err) throw err;
-        res.status(200).json(projectOnTerm[0]);
+        projectOnTerm.forEach((item) => {
+          item.Access_Date_Start = formatDateIso(item.Access_Date_Start);
+          item.Access_Date_End = formatDateIso(item.Access_Date_End);
+        });
+        // TODO: If we want to add only latest from each seniors are editable, then do it here
+        // console.log("projectOnTerm", projectOnTerm);
+        res.status(200).json(projectOnTerm);
         return;
       }
     );
@@ -90,42 +97,59 @@ getSemesterDate = (req, res) => {
 
 newSemesterDate = (req, res) => {
   const { data } = req.body;
-  // TODO: Refactor, this used to be multiple insertion, but now it's one at a time
-  const sql =
-    "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`, `Senior`) VALUES ?";
-  con.query(
-    sql,
-    [data.map((obj) => Object.values(obj))],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        res.status(422).json({ msg: "Query Error", err });
-        return;
-      } else {
-        res.status(200).json({ msg: "Query Error", status: 200, result });
-        return;
-      }
-    }
-  );
+  console.log("data", data);
+  try {
+    const addNewSemesterSql =
+      "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Senior`, `Access_Date_Start`, `Access_Date_End`) VALUES (?, ?, ?, ?, ?)";
+    con.query(addNewSemesterSql, data, (err, result) => {
+      if (err) throw err;
+      console.log("result", result);
+      res.status(200).json(result);
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal server error");
+    return;
+  }
+  // const { data } = req.body;
+  // // TODO: Refactor, this used to be multiple insertion, but now it's one at a time
+  // const sql =
+  //   "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`, `Senior`) VALUES ?";
+  // con.query(
+  //   sql,
+  //   [data.map((obj) => Object.values(obj))],
+  //   (err, result, fields) => {
+  //     if (err) {
+  //       console.log(err);
+  //       res.status(422).json({ msg: "Query Error", err });
+  //       return;
+  //     } else {
+  //       res.status(200).json({ msg: "Query Error", status: 200, result });
+  //       return;
+  //     }
+  //   }
+  // );
 };
 
 updateSemesterDate = async (req, res) => {
-  // data is an array that has 'Access_Date_Start, Access_Date_End, Project_on_term_ID' respectively
-  let { data } = req.body;
+  const { data } = req.body;
+  console.log("data", data);
 
   // Update semester date
-  const update =
+  const updateSql =
     "UPDATE `projectonterm` SET `Access_Date_Start`=?, `Access_Date_End`=? WHERE `Project_on_term_ID` = ?";
-  con.query(update, data, (err, result, fields) => {
+  con.query(updateSql, data, (err, result, fields) => {
     try {
       if (err) throw err;
+      res.status(200).json({ msg: "success", status: 200 });
+      return;
     } catch (err) {
+      console.log(err);
       res.status(422).json({ msg: "Query Error", status: 422 });
       return;
     }
   });
-  res.status(200).json({ msg: "success", status: 200 });
-  return;
 };
 
 // Get all available years, semester and senior for Admin

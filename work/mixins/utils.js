@@ -93,6 +93,11 @@ export default {
       return errorMsg;
     },
 
+    // Lodash isEqual
+    isEqual(el1, el2) {
+      return _.isEqual(el1, el2);
+    },
+
     // * Format data
     /**
      * Handle format date object as locale string

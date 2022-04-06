@@ -296,7 +296,7 @@ export default {
       this.editedItem[date] = newDate;
     },
     async handleEditScoreCriteria() {
-      console.log("this.editedItem: ", this.editedItem);
+      // console.log("this.editedItem: ", this.editedItem);
       const criteriaItem = this.editedItem;
       const startDate = this.handleConvertDueDate(criteriaItem.DueDate_Start);
       const endDate = this.handleConvertDueDate(criteriaItem.DueDate_End);
@@ -392,7 +392,7 @@ export default {
             this.$store.getters["auth/currentUser"].projectOnTerm,
         });
       };
-      await this.showLoading(updateToggle);
+      await this.showLoading(updateToggle, {title: "Updating progress's status"});
 
       // Dispatch store available progressions too if this is the first progress (to unlock import student)
       await this.$store.dispatch("group/storeAvailableProgressions");
@@ -427,6 +427,7 @@ export default {
         this.editedItem = {};
         this.editedIndex = -1;
       });
+      console.log('this.editedItem', this.editedItem)
     },
 
     save() {

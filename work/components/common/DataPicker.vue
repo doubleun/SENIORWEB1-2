@@ -70,6 +70,10 @@ export default {
       if (!date) return null;
       console.log(date);
 
+      // TODO: Check if incoming date is already in ISO format before do the substring (look at the comment below as ex.)
+      // if (date.length > 10)
+      // date = date.substring(0, 10)
+
       const [year, month, day] = date.substring(0, 10).split("-");
       return `${day}/${month}/${year}`;
     },
