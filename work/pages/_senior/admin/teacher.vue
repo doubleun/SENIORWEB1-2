@@ -79,9 +79,11 @@ export default {
     headers: [
       { text: "NAME", align: "center", value: "User_Name" },
       { text: "EMAIL", align: "center", value: "User_Email" },
-      // { text: "STUDY PROGRAM", align: "center", value: "Major_ID" },
-      { text: "ROLE", align: "center", value: "User_Role_Name" },
-      { text: "ACTION", align: "center", value: "actions", sortable: false },
+      { text: "STUDY PROGRAM", align: "center", value: "Major_Name" },
+      { text: "ADVISOR", align: "center", value: "Advisor" },
+      { text: "COMMITTEE", align: "center", value: "Committee" },
+      { text: "ROLE", align: "center", value: "User_Role_Name", width: "25%" },
+      // { text: "ACTION", align: "center", value: "actions", sortable: false },
       // { text: "SEM", align: "center", value: "Committee" },
     ],
   }),
@@ -120,11 +122,11 @@ export default {
 
   methods: {
     async handelchangeRenderTeachers(year, semester, senior, majorId, role) {
-      console.log("majorId", majorId);
-      console.log("year", year);
-      console.log("semester", semester);
-      console.log("senior", senior);
-      console.log("role", role);
+      // console.log("majorId", majorId);
+      // console.log("year", year);
+      // console.log("semester", semester);
+      // console.log("senior", senior);
+      // console.log("role", role);
 
       this.loading = true;
       try {

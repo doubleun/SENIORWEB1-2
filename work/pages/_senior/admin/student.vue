@@ -69,8 +69,8 @@ export default {
       { text: "ID", align: "center", value: "User_Identity_ID" },
       { text: "NAME", align: "center", value: "User_Name" },
       { text: "EMAIL", align: "center", value: "User_Email" },
+      { text: "STUDY PROGRAM", align: "center", value: "Major_Name" },
       // { text: "SEM", align: "center", value: "Committee" },
-      // { text: "STUDY PROGRAM", align: "center", value: "Committee" },
     ],
   }),
 
