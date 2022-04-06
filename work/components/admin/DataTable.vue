@@ -246,6 +246,8 @@ export default {
 
     // selectedRole.Role_ID = null for co and admin manage student
     this.selectedRole = this.manageTeacher ? this.roles[0] : null;
+
+    this.handelchangeRenderUser();
   },
   methods: {
     handelchangeRenderUser() {
@@ -309,7 +311,7 @@ export default {
         console.log(error);
       }
     },
-    
+
     // async save() {
     //   try {
     //     this.$swal

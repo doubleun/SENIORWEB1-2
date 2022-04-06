@@ -82,7 +82,7 @@ export default {
       { text: "STUDY PROGRAM", align: "center", value: "Major_Name" },
       { text: "ADVISOR", align: "center", value: "Advisor" },
       { text: "COMMITTEE", align: "center", value: "Committee" },
-      { text: "ROLE", align: "center", value: "User_Role_Name" },
+      { text: "ROLE", align: "center", value: "User_Role_Name", width: "25%" },
       // { text: "ACTION", align: "center", value: "actions", sortable: false },
       // { text: "SEM", align: "center", value: "Committee" },
     ],
