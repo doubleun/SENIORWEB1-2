@@ -5,7 +5,7 @@
         <!-- 
         //* Snack bar (success dialog) *//
       -->
-        <v-snackbar v-model="submitSnackbar" right top light>
+        <!-- <v-snackbar v-model="submitSnackbar" right top light>
           {{ snackbarText }}
 
           <template v-slot:action="{ attrs }">
@@ -18,7 +18,7 @@
               Dismiss
             </v-btn>
           </template>
-        </v-snackbar>
+        </v-snackbar> -->
         <!-- Add announcement button -->
 
         <v-row class="justify-end pr-5 pt-5 pb-2">
@@ -282,6 +282,11 @@ export default {
     },
   },
 
+  mounted() {
+    console.log(this.dataUi);
+    this.$emit("on-update-announcements");
+  },
+
   methods: {
     // rule of selected major add
     isSelectMajorAdd(selectedMajor, allmajor) {
@@ -340,6 +345,9 @@ export default {
       const res = await this.$axios.$post("/announc/add", {
         Text: this.Text.trim(),
         MajorID: selectedMajor,
+        Academic_Year: this.$store.getters["auth/currentUser"].academicYear,
+        Academic_Term: this.$store.getters["auth/currentUser"].semester,
+        Senior: this.$store.getters["auth/currentUser"].senior,
       });
       if (res.status === 200) {
         this.dialog = false;
