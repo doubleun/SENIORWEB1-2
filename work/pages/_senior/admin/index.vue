@@ -70,14 +70,14 @@ export default {
           Senior: this.$store.getters["auth/currentUser"].senior,
         });
 
-        console.log(
-          "Academic_Year",
-          this.$store.getters["auth/currentUser"].academicYear,
-          "Academic_Term",
-          this.$store.getters["auth/currentUser"].semester,
-          "Senior",
-          this.$store.getters["auth/currentUser"].senior
-        );
+        // console.log(
+        //   "Academic_Year",
+        //   this.$store.getters["auth/currentUser"].academicYear,
+        //   "Academic_Term",
+        //   this.$store.getters["auth/currentUser"].semester,
+        //   "Senior",
+        //   this.$store.getters["auth/currentUser"].senior
+        // );
 
         // TODO: Add modal(true, false) and allMajor(true, false) in the database. OR just checked and set major id to 99 (think about it)
         // Add modal (true, false to the object announcements)
@@ -103,7 +103,9 @@ export default {
 
         // Get home info for the statistic cards FIXME: to use real project on term
         const adminUserAmount = await this.$axios.$post("user/amount", {
-          Project_on_term_ID: 1,
+          Academic_Year: this.$store.getters["auth/currentUser"].academicYear,
+          Academic_Term: this.$store.getters["auth/currentUser"].semester,
+          Senior: this.$store.getters["auth/currentUser"].senior,
         });
         this.info = [
           {
@@ -122,6 +124,7 @@ export default {
             icon: "mdi-account-multiple-plus",
           },
         ];
+        console.log("info", this.info);
       } catch (error) {
         console.log(error);
       }

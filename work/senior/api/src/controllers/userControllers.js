@@ -49,13 +49,23 @@ getUser = (req, res) => {
 
 // FIXME: get req.body be year sem senior
 countUser = (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  const { Academic_Year, Academic_Term, Senior } = req.body;
   const sql =
-    "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
+    "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) ) AS teacher,(SELECT COUNT(*) FROM  groups WHERE (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?)) AS groups";
 
   con.query(
     sql,
-    [Project_on_term_ID, Project_on_term_ID],
+    [
+      Academic_Year,
+      Academic_Term,
+      Senior,
+      Academic_Year,
+      Academic_Term,
+      Senior,
+      Academic_Year,
+      Academic_Term,
+      Senior,
+    ],
     (err, result, fields) => {
       if (err) {
         console.log(err);
