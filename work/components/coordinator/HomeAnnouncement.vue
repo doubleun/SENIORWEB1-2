@@ -1,25 +1,6 @@
 <template>
   <div>
     <div class="announcement">
-      <!-- 
-        //* Snack bar (success dialog) *//
-      -->
-      <!-- <v-snackbar v-model="submitSnackbar" right top light>
-        {{ snackbarText }}
-
-        <template v-slot:action="{ attrs }">
-          <v-btn
-            color="pink"
-            text
-            v-bind="attrs"
-            @click="submitSnackbar = false"
-          >
-            Dismiss
-          </v-btn>
-        </template>
-      </v-snackbar> -->
-      <!-- Add announcement button -->
-
       <v-row class="justify-end pr-5 pt-5 pb-2">
         <!-- Dialog -->
         <v-dialog v-if="userRole == 2" v-model="dialog" max-width="600px">

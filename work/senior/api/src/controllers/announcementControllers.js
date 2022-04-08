@@ -6,7 +6,7 @@ const con = require("../config/db");
 getByMajorId = (req, res) => {
   const MajorID = req.body.MajorID;
   const sql =
-    "SELECT * FROM `announcements` WHERE Major_ID=? OR Major_ID = 99 AND Project_on_term_ID = ? ORDER BY Publish_Date DESC";
+    "SELECT *,(SELECT Major_Name FROM majors WHERE Major_ID=announcements.Major_ID ) AS Major_Name FROM `announcements` WHERE Major_ID=? OR Major_ID = 99 AND Project_on_term_ID = ? ORDER BY Publish_Date DESC";
   con.query(sql, [MajorID, req.user.projectOnTerm], (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -42,7 +42,7 @@ getAll = (req, res) => {
 // add announcement
 add = (req, res) => {
   const { Text, MajorID, Academic_Year, Academic_Term, Senior } = req.body;
-
+  console.log(req.body);
   // for coordinator
   const coordinatorAdd =
     "INSERT INTO `announcements` ( `Text`, `Major_ID`, `Project_on_term_ID`) VALUES (?,?,?);";
@@ -53,7 +53,7 @@ add = (req, res) => {
     req.user.role === 99 ? AdminAdd : coordinatorAdd,
     req.user.role === 99
       ? [Text, MajorID, Academic_Year, Academic_Term, Senior]
-      : [Text, MajorID],
+      : [Text, MajorID, req.user.projectOnTerm],
     (err, result, fields) => {
       if (err) {
         console.log(err);

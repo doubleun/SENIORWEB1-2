@@ -977,7 +977,7 @@ countTeachergroup = (req, res) => {
   // const { User_Email, Project_on_term_ID } = req.body;
   const { User_Email } = req.body;
   const sql =
-    "SELECT ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.Group_Role=0 AND gmb.User_Status=1) AS Advisor, ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.Group_Role=1 AND gmb.User_Status=1) AS Committee, ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.User_Status=0) AS GroupRequest";
+    "SELECT ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.Group_Role=0 AND gmb.User_Status=1 AND gp.Group_Status!=0) AS Advisor, ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.Group_Role=1 AND gmb.User_Status=1 AND gp.Group_Status!=0) AS Committee, ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.User_Status=0) AS GroupRequest";
   con.query(
     sql,
     [
