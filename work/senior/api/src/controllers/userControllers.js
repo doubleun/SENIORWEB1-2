@@ -82,6 +82,7 @@ countUser = (req, res) => {
   );
 };
 
+// FIXME: duplicate user
 getAllUserWithMajor = (req, res) => {
   const { Academic_Year, Academic_Term, Senior, User_Role, Major_ID } =
     req.body;

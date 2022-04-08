@@ -480,17 +480,21 @@ getAllGroupsAdmin = (req, res) => {
 };
 
 getAllGroups = (req, res) => {
-  const { Year, Semester } = req.body;
+  const { Academic_Year, Academic_Term, Senior } = req.body;
   const sql =
-    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name from majors WHERE Major_ID=gp.Major)AS Major, gp.Grade,(SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? ) AND Group_Status = 1";
-  con.query(sql, [Year, Semester], (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.status(200).json(result);
+    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name from majors WHERE Major_ID=gp.Major)AS Major, gp.Grade,(SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ? ) AND Group_Status = 1";
+  con.query(
+    sql,
+    [Academic_Year, Academic_Term, Senior],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        res.status(200).json(result);
+      }
     }
-  });
+  );
 };
 
 // Get teachers with score on each progress, using group id
