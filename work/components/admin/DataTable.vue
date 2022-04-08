@@ -57,34 +57,37 @@
                     />
                   </v-col>
                 </v-row>
-                <v-row>
-                  <v-col md="3">
-                    <p>Year</p>
-                  </v-col>
-                  <v-col md="9">
-                    <v-select
-                      v-model="selectedYear"
-                      :items="yearNSemsters.map((itm) => itm.Academic_Year)"
-                      dense
-                      solo
-                      hide-details
-                    />
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col md="3">
-                    <p>Semester</p>
-                  </v-col>
-                  <v-col md="9">
-                    <v-select
-                      v-model="selectedSemester"
-                      :items="yearNSemsters.map((itm) => itm.Academic_Term)"
-                      dense
-                      solo
-                      hide-details
-                    />
-                  </v-col>
-                </v-row>
+                <!-- Select year and semester drop down -->
+                <div v-if="!filterFromState">
+                  <v-row>
+                    <v-col md="3">
+                      <p>Year</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedYear"
+                        :items="yearNSemsters.map((itm) => itm.Academic_Year)"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col md="3">
+                      <p>Semester</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedSemester"
+                        :items="yearNSemsters.map((itm) => itm.Academic_Term)"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
+                </div>
               </v-card-text>
 
               <v-card-actions>
@@ -124,8 +127,8 @@
       class="elevation-1"
       :search="search"
     >
-      <template v-slot:top>
-        <!-- Edit teacher dialog -->
+      <!-- Edit teacher dialog -->
+      <!-- <template v-slot:top>
         <v-dialog v-model="dialog" max-width="500px" v-if="manageTeacher">
           <v-card class="edit-teacher-dialog-card">
             <v-card-title class="text-h5"> Edit teacher role </v-card-title>
@@ -166,11 +169,27 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-      </template>
-      <template v-slot:item.actions="{ item }">
+      </template> -->
+      <!-- <template v-slot:item.actions="{ item }">
         <v-btn dark color="blue darken-4" @click="editItem(item)">
           <v-icon small class="mr-2"> mdi-pen </v-icon>Edit
         </v-btn>
+      </template> -->
+
+      <template v-slot:item.User_Role_Name="{ item }">
+        <v-select
+          :items="availableRoles"
+          item-text="label"
+          item-value="value"
+          return-object
+          v-model="item.User_Role"
+          @change="handelchangeUserRole(item)"
+          dense
+          outlined
+          hide-details
+          class="ml-auto mr-auto"
+          style="max-width: 50%"
+        />
       </template>
     </v-data-table>
   </v-card>
@@ -189,6 +208,7 @@ export default {
     majors: Array,
     yearNSemsters: Array,
     roles: Array,
+    filterFromState: Boolean,
   },
   data: () => ({
     selectedMajor: {},
@@ -216,18 +236,32 @@ export default {
   mounted() {
     // console.log(this.items);
     this.majors ? (this.selectedMajor = this.majors[0]) : null;
-    this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    if (!!this.filterFromState) {
+      this.selectedYear = this.$store.getters["auth/currentUser"].academicYear;
+      this.selectedSemester = this.$store.getters["auth/currentUser"].semester;
+    } else {
+      this.selectedYear = this.yearNSemsters[0].Academic_Year;
+      this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    }
 
     // selectedRole.Role_ID = null for co and admin manage student
     this.selectedRole = this.manageTeacher ? this.roles[0] : null;
+
+    this.handelchangeRenderUser();
   },
   methods: {
     handelchangeRenderUser() {
+      if (!!this.filterFromState) {
+        this.selectedYear =
+          this.$store.getters["auth/currentUser"].academicYear;
+        this.selectedSemester =
+          this.$store.getters["auth/currentUser"].semester;
+      }
       this.$emit(
         "on-filtering",
         this.selectedYear,
         this.selectedSemester,
+        this.$store.getters["auth/currentUser"]?.senior || 1,
         this.majors ? this.selectedMajor.Major_ID : null,
 
         // selectedRole.Role_ID = null for co and admin manage student
@@ -253,63 +287,75 @@ export default {
       this.selectedTeacher.User_Role = { label: "", value: 0 };
       this.dialog = false;
     },
-    async save() {
+    async handelchangeUserRole(user) {
+      console.log(user);
       try {
-        this.$swal
-          .fire({
-            title: "Are you sure?",
-            text: `${this.selectedTeacher.User_Name} will becomes ${this.selectedTeacher.User_Role.label}`,
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Confirm",
-          })
-          .then(async (result) => {
-            try {
-              if (result.isConfirmed) {
-                const res = await this.$axios.$post("/user/updateUserRole", {
-                  User_Role: this.selectedTeacher.User_Role.value,
-                  User_Email: this.selectedTeacher.User_Email,
-                  Project_on_term_ID: this.selectedTeacher.Project_on_term_ID,
-                });
-                this.$swal.fire(
-                  "Success",
-                  `Update teacher role to ${this.selectedTeacher.User_Role.label}`,
-                  "success"
-                );
-                // Update UI
-                //FIXME: Can't use this because the dropdown role won't change, one way to change this is to emit an event to the parent, so the "selectedRole" can be change
-                //FIXME: this.$nuxt.refresh();
-                window.location.reload();
-                this.close();
-                return;
-              }
-            } catch (err) {
-              console.log(err);
-              this.close();
-              return;
-            }
-          });
-      } catch (err) {
-        console.log(err);
-        this.close();
-        return;
+        await this.$axios.$post("/user/updateUserRole", {
+          User_Role: user.User_Role.value,
+          User_Email: user.User_Email,
+          Project_on_term_ID: user.Project_on_term_ID,
+        });
+        if (!!this.filterFromState) {
+          this.selectedYear =
+            this.$store.getters["auth/currentUser"].academicYear;
+          this.selectedSemester =
+            this.$store.getters["auth/currentUser"].semester;
+        }
+        this.handelchangeRenderUser();
+        this.$swal.fire(
+          "Success",
+          `Update teacher role to ${user.User_Role.label}`,
+          "success"
+        );
+      } catch (error) {
+        console.log(error);
       }
     },
-    // handelTextRole(role) {
-    //   console.log("handel text role");
-    //   console.log(role);
-    //   if (role == 0) {
-    //     return "Teacher";
-    //   } else if (role == 1) {
-    //     return "Student";
-    //   } else if (role == 2) {
-    //     return "Coordinator";
-    //   } else {
-    //     return role;
+
+    // async save() {
+    //   try {
+    //     this.$swal
+    //       .fire({
+    //         title: "Are you sure?",
+    //         text: `${this.selectedTeacher.User_Name} will becomes ${this.selectedTeacher.User_Role.label}`,
+    //         icon: "info",
+    //         showCancelButton: true,
+    //         confirmButtonColor: "#3085d6",
+    //         cancelButtonColor: "#d33",
+    //         confirmButtonText: "Confirm",
+    //       })
+    //       .then(async (result) => {
+    //         try {
+    //           if (result.isConfirmed) {
+    //             const res = await this.$axios.$post("/user/updateUserRole", {
+    //               User_Role: this.selectedTeacher.User_Role.value,
+    //               User_Email: this.selectedTeacher.User_Email,
+    //               Project_on_term_ID: this.selectedTeacher.Project_on_term_ID,
+    //             });
+    //             this.$swal.fire(
+    //               "Success",
+    //               `Update teacher role to ${this.selectedTeacher.User_Role.label}`,
+    //               "success"
+    //             );
+    //             // Update UI
+    //             //FIXME: Can't use this because the dropdown role won't change, one way to change this is to emit an event to the parent, so the "selectedRole" can be change
+    //             //FIXME: this.$nuxt.refresh();
+    //             window.location.reload();
+    //             this.close();
+    //             return;
+    //           }
+    //         } catch (err) {
+    //           console.log(err);
+    //           this.close();
+    //           return;
+    //         }
+    //       });
+    //   } catch (err) {
+    //     console.log(err);
+    //     this.close();
+    //     return;
     //   }
-    // }
+    // },
   },
 };
 </script>

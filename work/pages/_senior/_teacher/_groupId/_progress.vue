@@ -81,7 +81,7 @@ export default {
       const groupRes = await $axios.$post("/group/getGroupWithID", {
         Group_ID: groupId,
         Email: store.state.auth.currentUser.email,
-        Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+        // Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
       });
       console.log("groupRes", groupRes);
       // Sets group advisor to true if the current user is the advisor of the group (Member_Role of 0 is advisor)
@@ -212,7 +212,7 @@ export default {
           Group_Role: groupRes.groupInfo[0].Current_Member_Role,
           Group_ID: groupId,
           Progress_ID: progressId + 2,
-          Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
+          // Project_on_term_ID: store.state.auth.currentUser.projectOnTerm,
         });
       }
 

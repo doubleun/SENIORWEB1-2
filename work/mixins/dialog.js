@@ -1,10 +1,24 @@
 import Swal from "sweetalert2";
 export default {
   methods: {
-    async showLoading(callback) {
+    /**
+     * Function to simplify loading dialog while fetching data
+     * @param {Function} callback - Callback function that will fetch and API
+     * @param {Object} options - Additional options
+     * @param {string} options.title - Loading dialog title text
+     * @param {number} options.timer - Loading timer before timeout (ms)
+     * @param {string} options.successMsg - Success message
+     * @returns undefined
+     */
+    async showLoading(callback, options) {
+      const {
+        title = "Loading...",
+        timer = 2000,
+        successMsg = "Success",
+      } = options;
       Swal.fire({
-        title: "Updating progress's status",
-        timer: 2000,
+        title,
+        timer,
         timerProgressBar: true,
         showConfirmButton: false,
         didRender: async () => {
@@ -17,8 +31,8 @@ export default {
                 "Request status is invalid, please try again later"
               );
             } else {
-              Swal.fire("Success", "", "success");
-              return;
+              Swal.fire(successMsg, "", "success");
+              return res;
             }
           } catch (err) {
             console.log(err);

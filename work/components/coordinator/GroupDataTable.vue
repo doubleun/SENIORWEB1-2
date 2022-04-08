@@ -117,14 +117,14 @@ export default {
       this.yearNSemsters = await this.$axios.$get("/date/allYearsSemester");
       // console.log("yearNsemester", this.yearNSemsters);
 
-      this.selectedYear = this.yearNSemsters[0].Academic_Year;
-      this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+      // this.selectedYear = this.yearNSemsters[0].Academic_Year;
+      // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
 
       // Fetch initial group FIXME: use user major
       this.groups = await this.$axios.$post("/group/listOwnGroup", {
         User_Email: this.$store.state.auth.currentUser.email,
-        Year: this.selectedYear,
-        Semester: this.selectedSemester,
+        Year: this.$store.getters["auth/currentUser"].academicYear,
+        Semester: this.$store.getters["auth/currentUser"].semester,
         Group_Role: this.Group_Role,
       });
       console.log("groups", this.groups);

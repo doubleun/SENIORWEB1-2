@@ -4,10 +4,8 @@ const fs = require("fs");
 const readXlsxFile = require("read-excel-file/node");
 const { result } = require("lodash");
 
-
-
 // TODO: Move this to its own route ?
-getTeacherRole = async (req, res) => {
+getTeacherRole = (req, res) => {
   const sql = "SELECT * FROM `roles` WHERE Role_ID!=99 AND Role_ID!=1";
   con.query(sql, (err, result, fields) => {
     if (err) {
@@ -37,7 +35,7 @@ updateUserRole = (req, res) => {
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Internal Server Error", status: 500 });
+    res.status(500).send("Internal Server Error");
     return;
   }
 };
@@ -49,16 +47,18 @@ getUser = (req, res) => {
   return;
 };
 
-countUser = async (req, res) => {
+// FIXME: get req.body be year sem senior
+countUser = (req, res) => {
   const { Project_on_term_ID } = req.body;
   const sql =
     "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
 
-  await con.query(
+  con.query(
     sql,
     [Project_on_term_ID, Project_on_term_ID],
     (err, result, fields) => {
       if (err) {
+        console.log(err);
         res.status(500).send("Internal Server Error");
       } else {
         // console.log(result[0]);
@@ -72,16 +72,25 @@ countUser = async (req, res) => {
   );
 };
 
-getAllUserWithMajor = async (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term, User_Role } = req.body;
+getAllUserWithMajor = (req, res) => {
+  const { Academic_Year, Academic_Term, Senior, User_Role, Major_ID } =
+    req.body;
+  // const sql =
+  //   "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+
+  // user with role, year, semster, senior, major
+  // const sql =
+  //   "SELECT subquery.User_Email,subquery.User_Name,subquery.User_Identity_ID,subquery.User_Role,subquery.Major_ID,(SELECT Major_Name FROM majors WHERE Major_ID=subquery.Major_ID) AS Major_Name FROM (SELECT usr.User_Email,usr.User_Identity_ID,usr.User_Name,usr.User_Role,usr.Course_code,usr.Major_ID,usr.Project_on_term_ID FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?))AS subquery";
+
+  // user with role, year, semster, senior, major
   const sql =
-    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+    "SELECT subquery.User_Identity_ID,subquery.User_Email,subquery.User_Name,subquery.User_Role,subquery.Major_ID,(SELECT Major_Name FROM majors WHERE Major_ID=subquery.Major_ID) AS Major_Name,subquery.Project_on_term_ID,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=0 AND Group_Member_ID=subquery.Group_Member_ID)AS Advisor,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=1 AND Group_Member_ID=subquery.Group_Member_ID)AS Committee FROM (SELECT gmb.Group_Member_ID,usr.User_Email,usr.User_Name,usr.User_Role,usr.Major_ID,usr.Project_on_term_ID,usr.User_Identity_ID FROM groupmembers gmb RIGHT JOIN users usr ON gmb.User_Email=usr.User_Email WHERE usr.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) AND usr.User_Role IN (?) AND usr.Major_ID=?)AS subquery ORDER BY User_Name ASC";
 
   console.log(req.body);
 
-  await con.query(
+  con.query(
     sql,
-    [Major_ID, Academic_Year, Academic_Term, User_Role],
+    [Academic_Year, Academic_Term, Senior, User_Role, Major_ID],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -95,13 +104,13 @@ getAllUserWithMajor = async (req, res) => {
 };
 
 getAllUsersInSchool = async (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  // const { Project_on_term_ID } = req.body;
   const studentsSQL =
     "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role` FROM `users` WHERE `User_Role` = 1 AND `Project_on_term_ID` = ?";
   const students = await new Promise((resolve, reject) => {
     con.query(
       studentsSQL,
-      [Project_on_term_ID],
+      [req.user.projectOnTerm],
       (err, studentsResult, fields) => {
         if (err) {
           console.log(err);
@@ -117,7 +126,7 @@ getAllUsersInSchool = async (req, res) => {
   const teachers = await new Promise((resolve, reject) => {
     con.query(
       teachersSQL,
-      [Project_on_term_ID],
+      [req.user.projectOnTerm],
       (err, teachersResult, fields) => {
         if (err) {
           console.log(err);
@@ -302,23 +311,60 @@ uploadfileteacher = async (req, res) => {
 };
 
 getUserProjectOnTerm = (req, res) => {
-  const { User_Email, Major_ID, senior } = req.body;
-  console.log(User_Email, Major_ID, senior);
+  const { seniorFromRoute } = req.body;
+  const { email, major, senior, projectOnTerm } = req.user;
+
+  console.log("seniorFromRoute", seniorFromRoute);
+  console.log(email, major, senior, projectOnTerm);
+
   try {
-    const getUserSeniorSql =
-      "SELECT u.Project_on_term_ID, pj.Senior FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
-    con.query(
-      getUserSeniorSql,
-      [User_Email, Major_ID, senior],
-      (err, result, fields) => {
-        if (err) throw err;
-        res.status(200).json(result);
-        return;
-      }
-    );
+    // 1.) Check if senior and proejectOnTerm exist in the token
+    if (!senior || !projectOnTerm) {
+      // 2.) Fetch senior and project on term
+      const getUserSeniorSql =
+        "SELECT u.Project_on_term_ID, pj.Academic_Year, pj.Academic_Term, pj.Senior, pj.Access_Date_End FROM `users` u INNER JOIN projectonterm pj ON u.Project_on_term_ID = pj.Project_on_term_ID WHERE u.User_Email = ? AND u.Major_ID = ? AND pj.Senior = ?";
+      con.query(
+        getUserSeniorSql,
+        [email, major, seniorFromRoute],
+        (err, result, fields) => {
+          if (err) throw err;
+          console.log("res", result);
+          req.user.accessDateEnd = result[0].Access_Date_End;
+          req.user.senior = result[0].Senior;
+          req.user.academicYear = result[0].Academic_Year;
+          req.user.semester = result[0].Academic_Term;
+          req.user.projectOnTerm = result[0].Project_on_term_ID;
+          res.status(200).json({
+            Academic_Year: result[0].Academic_Year,
+            Academic_Term: result[0].Academic_Term,
+            Senior: result[0].Senior,
+          });
+          return;
+        }
+      );
+    } else {
+      res.status(200).send("Project on term already exist");
+      return;
+    }
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: err, status: 500 });
+    res.status(500).send("Internal Server Error");
+    return;
+  }
+};
+getUserAvailableSeniors = (req, res) => {
+  const { email } = req.user;
+  try {
+    // TODO: Re-check SQL query
+    const getUserSeniorSql =
+      "SELECT MAX(pj.Project_on_term_ID) AS projectOnTerm, MAX(pj.Academic_Year) AS year, MAX(pj.Academic_Term) AS semester, pj.Senior FROM `projectonterm` as pj INNER JOIN `users` u ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email = ? GROUP BY pj.Senior ORDER BY pj.Senior ASC LIMIT 2";
+    con.query(getUserSeniorSql, [email], (err, result) => {
+      if (err) throw err;
+      res.status(200).json(result);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
     return;
   }
 };
@@ -333,4 +379,5 @@ module.exports = {
   updateUserRole,
   getTeacherRole,
   getUserProjectOnTerm,
+  getUserAvailableSeniors,
 };

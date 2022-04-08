@@ -6,7 +6,6 @@
     > -->
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Group</h2>
     <!-- <button @click="test">test</button> -->
-    <SelectSenior />
 
     <!-- Action buttons -->
     <div class="my-5 d-flex justify-end" style="gap: 0.5rem; flex-wrap: wrap">
@@ -17,7 +16,12 @@
       </div>
     </div>
 
-    <ViewGroupDetail :yearNSemsters="yearNSemsters" :allGroups="allGroups" />
+    <ViewGroupDetail
+      :yearNSemsters="yearNSemsters"
+      :allGroups="allGroups"
+      :title="'Group'"
+      @on-filtering="handleChangeRenderGroups"
+    />
     <!-- </main> -->
   </v-container>
 </template>
@@ -40,6 +44,7 @@ export default {
     let yearNSemsters, allGroups;
 
     const senior = store.getters["auth/currentUser"].senior;
+    const role = store.getters["auth/currentUser"].role;
 
     try {
       if (!senior) throw new Error("Cannot find senior");
@@ -58,7 +63,7 @@ export default {
       return { yearNSemsters: [], allGroups: [] };
     }
 
-    return { yearNSemsters, allGroups };
+    return { yearNSemsters, allGroups, role };
   },
 
   methods: {

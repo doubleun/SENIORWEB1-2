@@ -1,7 +1,8 @@
 const con = require("../config/db");
+const { formatDateIso } = require("../utility");
 
 // Get latest project on term id
-getLatestProjectOnTerm = (req, res) => {
+getLatestProjectOnTerm = async (req, res) => {
   const getLatestProjectOnTermSql =
     "SELECT * FROM `projectonterm` ORDER BY `Project_on_term_ID` DESC LIMIT 1";
   try {
@@ -17,18 +18,24 @@ getLatestProjectOnTerm = (req, res) => {
   }
 };
 
-// Get project on term id from senior, semester and year
-getProjectOnTerm = (req, res) => {
-  const { Academic_Year, Academic_Term, Senior } = req.body;
+// Get project on term id from semester and year
+getProjectOnTerm = async (req, res) => {
+  const { Academic_Year, Academic_Term } = req.body;
   const getProjectOnTermSql =
-    "SELECT * FROM `projectonterm` WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?";
+    "SELECT * FROM `projectonterm` WHERE `Academic_Year` = ? AND `Academic_Term` = ? ORDER BY `Project_on_term_ID` DESC";
   try {
     con.query(
       getProjectOnTermSql,
-      [Academic_Year, Academic_Term, Senior],
+      [Academic_Year, Academic_Term],
       (err, projectOnTerm) => {
         if (err) throw err;
-        res.status(200).json(projectOnTerm[0]);
+        projectOnTerm.forEach((item) => {
+          item.Access_Date_Start = formatDateIso(item.Access_Date_Start);
+          item.Access_Date_End = formatDateIso(item.Access_Date_End);
+        });
+        // TODO: If we want to add only latest from each seniors are editable, then do it here
+        // console.log("projectOnTerm", projectOnTerm);
+        res.status(200).json(projectOnTerm);
         return;
       }
     );
@@ -40,20 +47,22 @@ getProjectOnTerm = (req, res) => {
 };
 
 // Academic year
-getAcademicYear = async (req, res) => {
+getAcademicYear = (req, res) => {
   const sql =
     "SELECT * FROM `academicyear` ORDER BY `Academic_Year` DESC LIMIT 1";
   con.query(sql, (err, result, fields) => {
     if (err) {
       console.log(err);
       res.status(500).send("Internal Server Error");
+      return;
     } else {
       res.status(200).json(result);
+      return;
     }
   });
 };
 
-newAcademicYear = async (req, res) => {
+newAcademicYear = (req, res) => {
   const { year } = req.body;
 
   const sql = "INSERT INTO `academicyear`(`Academic_Year`) VALUES (?)";
@@ -61,14 +70,16 @@ newAcademicYear = async (req, res) => {
     if (err) {
       console.log(err);
       res.status(422).json({ msg: "Query Error", err });
+      return;
     } else {
       res.status(200).json({ msg: "Query Error", status: 200, result });
+      return;
     }
   });
 };
 
 // Semester date
-getSemesterDate = async (req, res) => {
+getSemesterDate = (req, res) => {
   const { year, senior } = req.body;
   const sql =
     "SELECT * FROM `projectonterm` WHERE `Academic_Year` = ? AND `Senior` = ? ORDER BY `Project_on_term_ID`";
@@ -76,60 +87,86 @@ getSemesterDate = async (req, res) => {
     if (err) {
       console.log(err);
       res.status(500).send("Internal Server Error");
+      return;
     } else {
       res.status(200).json(result);
+      return;
     }
   });
 };
 
-newSemesterDate = async (req, res) => {
+newSemesterDate = (req, res) => {
   const { data } = req.body;
-  // TODO: Refactor, this used to be multiple insertion, but now it's one at a time
-  const sql =
-    "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`, `Senior`) VALUES ?";
-  con.query(
-    sql,
-    [data.map((obj) => Object.values(obj))],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        res.status(422).json({ msg: "Query Error", err });
-      } else {
-        res.status(200).json({ msg: "Query Error", status: 200, result });
-      }
-    }
-  );
+  console.log("data", data);
+  try {
+    const addNewSemesterSql =
+      "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Senior`, `Access_Date_Start`, `Access_Date_End`) VALUES (?, ?, ?, ?, ?)";
+    con.query(addNewSemesterSql, data, (err, result) => {
+      if (err) throw err;
+      console.log("result", result);
+      res.status(200).json(result);
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal server error");
+    return;
+  }
+  // const { data } = req.body;
+  // // TODO: Refactor, this used to be multiple insertion, but now it's one at a time
+  // const sql =
+  //   "INSERT IGNORE INTO `projectonterm`(`Academic_Year`, `Academic_Term`, `Access_Date_Start`, `Access_Date_End`, `Senior`) VALUES ?";
+  // con.query(
+  //   sql,
+  //   [data.map((obj) => Object.values(obj))],
+  //   (err, result, fields) => {
+  //     if (err) {
+  //       console.log(err);
+  //       res.status(422).json({ msg: "Query Error", err });
+  //       return;
+  //     } else {
+  //       res.status(200).json({ msg: "Query Error", status: 200, result });
+  //       return;
+  //     }
+  //   }
+  // );
 };
 
 updateSemesterDate = async (req, res) => {
-  // data is an array that has 'Access_Date_Start, Access_Date_End, Project_on_term_ID' respectively
-  let { data } = req.body;
+  const { data } = req.body;
+  console.log("data", data);
 
   // Update semester date
-  const update =
+  const updateSql =
     "UPDATE `projectonterm` SET `Access_Date_Start`=?, `Access_Date_End`=? WHERE `Project_on_term_ID` = ?";
-  con.query(update, data, (err, result, fields) => {
+  con.query(updateSql, data, (err, result, fields) => {
     try {
       if (err) throw err;
+      res.status(200).json({ msg: "success", status: 200 });
+      return;
     } catch (err) {
+      console.log(err);
       res.status(422).json({ msg: "Query Error", status: 422 });
+      return;
     }
   });
-  res.status(200).json({ msg: "success", status: 200 });
 };
 
-// Get all available years and semester for Admin
-getYearsSemester = async (req, res) => {
-  const sql =
-    "SELECT `Academic_Year`, `Academic_Term` FROM `projectonterm` ORDER BY Academic_Year DESC ";
-  con.query(sql, (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
+// Get all available years, semester and senior for Admin
+getYearsSemester = (req, res) => {
+  try {
+    const getSemesterDataSql =
+      "SELECT `Academic_Year`, `Academic_Term`, `Senior` FROM `projectonterm` ORDER BY Academic_Year DESC";
+    con.query(getSemesterDataSql, (err, result) => {
+      if (err) throw err;
       res.status(200).json(result);
-    }
-  });
+      return;
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+    return;
+  }
 };
 
 module.exports = {

@@ -1,25 +1,42 @@
 <template>
-  <div>
-    <v-row
-      class="d-flex align-center"
-      style="margin-top: -5%; margin-bottom: 4%"
-    >
-      <v-col md="2" sm="3">
-        <h3 class="white--text">Senior Project</h3>
-      </v-col>
-      <v-col md="1" sm="2" class="mr-10">
+  <div style="margin-block-start: -2rem">
+    <v-row class="d-flex align-center">
+      <v-col sm="4" md="2">
         <v-select
-          v-model="selectedSenior"
-          :items="senior"
-          item-text="Senior"
-          item-value="senior"
-          dense
-          solo
-          hide-details
-          off
+          :items="academicData"
+          v-model="selectedAcademicData.year"
+          item-value="Academic_Year"
+          item-text="Academic_Year"
           @change="handelChangeSenior"
-        />
-      </v-col>
+          label="Year"
+          dark
+          filled
+        ></v-select
+      ></v-col>
+      <v-col sm="4" md="2">
+        <v-select
+          :items="academicDataOptions"
+          v-model="selectedAcademicData.semester"
+          item-value="Academic_Term"
+          item-text="Academic_Term"
+          @change="handelChangeSenior"
+          label="Semester"
+          dark
+          filled
+        ></v-select
+      ></v-col>
+      <v-col sm="4" md="2">
+        <v-select
+          :items="academicDataOptions"
+          v-model="selectedAcademicData.senior"
+          item-value="Senior"
+          item-text="Senior"
+          @change="handelChangeSenior"
+          label="Senior"
+          dark
+          filled
+        ></v-select
+      ></v-col>
     </v-row>
   </div>
 </template>
@@ -28,29 +45,56 @@
 export default {
   data() {
     return {
+      selectedAcademicData: { year: 0, semester: 0, senior: 0 },
+      academicData: [],
       selectedSenior: 1,
       senior: [1, 2],
-      loading: false,
+      // loading: false,
     };
   },
   mounted() {
-    this.selectedSenior = this.$store.state.auth.currentUser.senior;
+    this.academicData = this.$store.getters["auth/semesterData"];
+    console.log(!this.$store.getters["auth/currentUser"]?.year);
+    if (
+      !!this.academicData &&
+      !this.$store.getters["auth/currentUser"]?.academicYear
+    ) {
+      console.log("SET DEFAULT DATA");
+      this.selectedAcademicData = {
+        year: this.academicData[0].Academic_Year,
+        semester: this.academicData[0].Academic_Term,
+        senior: this.academicData[0].Senior,
+      };
+      this.handelChangeSenior();
+    } else {
+      this.selectedAcademicData.year =
+        this.$store.getters["auth/currentUser"].academicYear;
+      this.selectedAcademicData.semester =
+        this.$store.getters["auth/currentUser"].semester;
+      this.selectedAcademicData.senior =
+        this.$store.getters["auth/currentUser"].senior;
+    }
+  },
+  computed: {
+    academicDataOptions() {
+      return (
+        !!Array.isArray(this.academicData) &&
+        this.academicData?.filter(
+          (data) => data.Academic_Year === this.selectedAcademicData.year
+        )
+      );
+    },
   },
   methods: {
     async handelChangeSenior() {
-      this.loading = true;
-      // console.log("selectedSenior", this.selectedSenior);
-      // return;
+      // this.loading = true;
       this.$store.commit("auth/SET_USER_SENIOR", {
-        senior: this.selectedSenior,
+        academicYear: this.selectedAcademicData.year,
+        semester: this.selectedAcademicData.semester,
+        senior: this.selectedAcademicData.senior,
       });
 
-      // Set localStorage
-      window.localStorage.setItem("senior", this.selectedSenior);
-
-      // Refresh ui
-      this.$nuxt.refresh();
-      this.loading = false;
+      await this.$nuxt.refresh();
     },
   },
 };

@@ -440,10 +440,10 @@ export default {
           "Group_Member_ID",
           this.$store.state.group.currentUserGroup.Group_Member_ID
         );
-        formData.append(
-          "Project_on_term_ID",
-          this.$store.state.auth.currentUser.projectOnTerm
-        );
+        // formData.append(
+        //   "Project_on_term_ID",
+        //   this.$store.state.auth.currentUser.projectOnTerm
+        // );
 
         // If it is final document there must be abstract files
         if (this.finalDocument) {

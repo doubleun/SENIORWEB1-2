@@ -1,7 +1,6 @@
 require("dotenv").config();
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
-const { checkPermission } = require("../routes/permission");
 const con = require("../config/db");
 
 passport.use(
@@ -31,7 +30,7 @@ passport.use(
 
 passport.serializeUser((user, done) => {
   const sqlAdmin =
-    "SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, u.Course_code, u.Major_ID, u.Project_on_term_ID ,pj.Academic_Year, pj.Academic_Term, pj.Access_Date_Start, pj.Access_Date_End, pj.Senior FROM `users` u INNER JOIN `projectonterm` pj ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email= ?";
+    "SELECT `User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` FROM `users` WHERE `User_Email` = ?";
   con.query(sqlAdmin, user.email, (err, result, fields) => {
     if (err) {
       data = { message: "Internal Server Error", status: 422 };
@@ -48,16 +47,15 @@ passport.serializeUser((user, done) => {
         user.name = result[0].User_Name;
         user.role = result[0].User_Role;
         user.major = result[0].Major_ID;
-        // user.projectOnTerm = result[0].Project_on_term_ID;
+
         user.userId = result[0].User_Identity_ID;
-        user.academicYear = result[0].Academic_Year;
-        user.academicTerm = result[0].Academic_Term;
-        // FIXME: This should not assign senior right away !! (cuz projOnTerm will be wrong if we only change senior number later)
-        // user.senior = result[0].User_Role === 99 ? 1 : result[0].Senior;
+        // user.academicYear = result[0].Academic_Year;
+        // user.academicTerm = result[0].Academic_Term;
+
         user.status = 200;
 
         if (result[0].User_Role === 99) {
-          user.projectOnTerm = result[0].Project_on_term_ID;
+          // user.projectOnTerm = result[0].Project_on_term_ID;
           user.senior = 1;
         }
 

@@ -6,25 +6,24 @@ export default {
       await state.commit("SET_USER", res);
     } else {
       console.log("User not found");
-      await this.$axios.$get("http://localhost:3000/api/auth/logout");
+      await this.$axios.$get("/auth/logout");
       await state.commit("SET_USER", false);
     }
   },
   async logout(state) {
-    const res = await this.$axios.$get("http://localhost:3000/api/auth/logout");
+    const res = await this.$axios.$get("/auth/logout");
     await state.commit("SET_USER_INIT");
   },
   async storeProjectOnTerm(state, payload) {
-    const res = await this.$axios.$post("/user/getUserProjectOnTerm", {
-      User_Email: state.rootState.auth.currentUser.email,
-      Major_ID: state.rootState.auth.currentUser.major,
-      senior: payload,
+    const res = await this.$axios.post("/user/getUserProjectOnTerm", {
+      seniorFromRoute: payload,
     });
 
-    if (res.length !== 0) {
+    if (res.status === 200 && !state.rootState.auth.currentUser?.senior) {
       await state.commit("SET_USER_SENIOR", {
-        senior: res[0].Senior,
-        projectOnTermId: res[0].Project_on_term_ID,
+        academicYear: res.data.Academic_Year,
+        semester: res.data.Academic_Term,
+        senior: res.data.Senior,
       });
     }
   },

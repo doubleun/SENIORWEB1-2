@@ -33,7 +33,7 @@ createGroup = (req, res) => {
     Email_Student8,
     Email_Student9,
     Email_Student10,
-    Project_on_term_ID,
+    // Project_on_term_ID,
   } = req.body;
   console.log(req.body);
   const sql =
@@ -44,47 +44,53 @@ createGroup = (req, res) => {
   let group = [];
   let error = 0;
   let success = 0;
-  user.push([Email_Student1, Student1_Tel, 3, Project_on_term_ID, 1]);
+  user.push([Email_Student1, Student1_Tel, 3, req.user.projectOnTerm, 1]);
 
   if (Studen_Number > 1) {
-    user.push([Email_Student2, Student2_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student2, Student2_Tel, 2, req.user.projectOnTerm, 0]);
   }
   if (Studen_Number > 2) {
-    user.push([Email_Student3, Student3_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student3, Student3_Tel, 2, req.user.projectOnTerm, 0]);
   }
   if (Studen_Number > 3) {
-    user.push([Email_Student4, Student4_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student4, Student4_Tel, 2, req.user.projectOnTerm, 0]);
   }
   if (Studen_Number > 4) {
-    user.push([Email_Student5, Student5_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student5, Student5_Tel, 2, req.user.projectOnTerm, 0]);
   }
   if (Studen_Number > 5) {
-    user.push([Email_Student6, Student6_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student6, Student6_Tel, 2, req.user.projectOnTerm, 0]);
   }
   if (Studen_Number > 6) {
-    user.push([Email_Student7, Student7_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student7, Student7_Tel, 2, req.user.projectOnTerm, 0]);
   }
   if (Studen_Number > 7) {
-    user.push([Email_Student8, Student8_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student8, Student8_Tel, 2, req.user.projectOnTerm, 0]);
   }
   if (Studen_Number > 8) {
-    user.push([Email_Student9, Student9_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student9, Student9_Tel, 2, req.user.projectOnTerm, 0]);
   }
   if (Studen_Number > 9) {
-    user.push([Email_Student10, Student10_Tel, 2, Project_on_term_ID, 0]);
+    user.push([Email_Student10, Student10_Tel, 2, req.user.projectOnTerm, 0]);
   }
-  user.push([Advisor_Email, "", 0, Project_on_term_ID, 0]);
-  user.push([Committee1_Email, "", 1, Project_on_term_ID, 0]);
-  user.push([Committee2_Email, "", 1, Project_on_term_ID, 0]);
+  user.push([Advisor_Email, "", 0, req.user.projectOnTerm, 0]);
+  user.push([Committee1_Email, "", 1, req.user.projectOnTerm, 0]);
+  user.push([Committee2_Email, "", 1, req.user.projectOnTerm, 0]);
   if (CoAdvisor_Name == "" || CoAdvisor_Name == null) {
-    group.push([Project_NameTh, Project_NameEn, "", Major, Project_on_term_ID]);
+    group.push([
+      Project_NameTh,
+      Project_NameEn,
+      "",
+      Major,
+      req.user.projectOnTerm,
+    ]);
   } else {
     group.push([
       Project_NameTh,
       Project_NameEn,
       CoAdvisor_Name,
       Major,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
     ]);
   }
 
@@ -96,7 +102,7 @@ createGroup = (req, res) => {
       for (let i = 0; i < user.length; i++) {
         con.query(
           sql2,
-          [user[i], Project_NameEn, Project_on_term_ID],
+          [user[i], Project_NameEn, req.user.projectOnTerm],
           (err, result2, fields) => {
             console.log("user", user[i]);
             if (err) {
@@ -164,8 +170,8 @@ updateGroup = (req, res) => {
     Email_Student8,
     Email_Student9,
     Email_Student10,
-    Project_on_term_ID,
-    Group_Member_ID,
+    // Project_on_term_ID,
+    // Group_Member_ID,
   } = req.body;
   console.log(req.body);
   const sql =
@@ -182,7 +188,7 @@ updateGroup = (req, res) => {
     Email_Student1,
     Student1_Tel,
     3,
-    Project_on_term_ID,
+    req.user.projectOnTerm,
     Email_Student1,
     Group_ID,
   ]);
@@ -192,7 +198,7 @@ updateGroup = (req, res) => {
       Email_Student2,
       Student2_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student2,
       Group_ID,
     ]);
@@ -202,7 +208,7 @@ updateGroup = (req, res) => {
       Email_Student3,
       Student3_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student3,
       Group_ID,
     ]);
@@ -212,7 +218,7 @@ updateGroup = (req, res) => {
       Email_Student4,
       Student4_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student4,
       Group_ID,
     ]);
@@ -222,7 +228,7 @@ updateGroup = (req, res) => {
       Email_Student5,
       Student5_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student5,
       Group_ID,
     ]);
@@ -232,7 +238,7 @@ updateGroup = (req, res) => {
       Email_Student6,
       Student6_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student6,
       Group_ID,
     ]);
@@ -242,7 +248,7 @@ updateGroup = (req, res) => {
       Email_Student7,
       Student7_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student7,
       Group_ID,
     ]);
@@ -252,7 +258,7 @@ updateGroup = (req, res) => {
       Email_Student8,
       Student8_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student8,
       Group_ID,
     ]);
@@ -262,7 +268,7 @@ updateGroup = (req, res) => {
       Email_Student9,
       Student9_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student9,
       Group_ID,
     ]);
@@ -272,7 +278,7 @@ updateGroup = (req, res) => {
       Email_Student10,
       Student10_Tel,
       2,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       Email_Student10,
       Group_ID,
     ]);
@@ -282,7 +288,7 @@ updateGroup = (req, res) => {
     Advisor_Email,
     "",
     0,
-    Project_on_term_ID,
+    req.user.projectOnTerm,
     Advisor_Email,
     Group_ID,
   ]);
@@ -290,7 +296,7 @@ updateGroup = (req, res) => {
     Committee1_Email,
     "",
     1,
-    Project_on_term_ID,
+    req.user.projectOnTerm,
     Committee1_Email,
     Group_ID,
   ]);
@@ -298,14 +304,14 @@ updateGroup = (req, res) => {
     Committee2_Email,
     "",
     1,
-    Project_on_term_ID,
+    req.user.projectOnTerm,
     Committee2_Email,
     Group_ID,
   ]);
   if (CoAdvisor_Name == "" || CoAdvisor_Name == null) {
-    group.push([Project_NameTh, Project_NameEn, "", Major]);
+    group.push([Project_NameTh, Project_NameEn, ""]);
   } else {
-    group.push([Project_NameTh, Project_NameEn, CoAdvisor_Name, Major]);
+    group.push([Project_NameTh, Project_NameEn, CoAdvisor_Name]);
   }
 
   con.query(
@@ -370,7 +376,8 @@ updateGroup = (req, res) => {
 
 // Get group based on ID (for my advisee, comittee pages)
 getGroupWithID = async (req, res) => {
-  const { Group_ID, Email, Project_on_term_ID } = req.body;
+  // const { Group_ID, Email, Project_on_term_ID } = req.body;
+  const { Group_ID, Email } = req.body;
 
   try {
     // 1.) Select query for group members
@@ -380,7 +387,7 @@ getGroupWithID = async (req, res) => {
     // First element in the returned array is 'row', the second is 'field'
     const [groupMembers] = await con
       .promise()
-      .query(sqlGroupMembers, [Group_ID, Project_on_term_ID], (err) => {
+      .query(sqlGroupMembers, [Group_ID, req.user.projectOnTerm], (err) => {
         if (err) throw err;
       });
 
@@ -406,17 +413,22 @@ getGroupWithID = async (req, res) => {
 
 // Get current user group info if the student has one
 getGroupInfo = (req, res) => {
-  const { User_Email, Project_on_term_ID } = req.body;
+  // const { User_Email, Project_on_term_ID } = req.body;
+  // const { User_Email } = req.body;
   const sql =
     "SELECT gm.Group_Member_ID, gm.User_Phone, gm.Group_Role, gm.Group_ID, gm.User_Status, g.Major, g.Group_Name_Thai, g.Group_Name_Eng, g.Co_Advisor, g.Group_Status, g.Group_Progression, g.Grade, g.Is_Re_Eval, g.Received_New_Grade, g.Project_on_term_ID FROM `groupmembers` gm INNER JOIN `groups` g ON gm.Group_ID = g.Group_ID WHERE gm.User_Email = ? AND gm.Project_on_term_ID = ? AND NOT gm.User_Status = 2 AND NOT g.Group_Status = 0";
-  con.query(sql, [User_Email, Project_on_term_ID], (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.status(200).json(result);
+  con.query(
+    sql,
+    [req.user.email, req.user.projectOnTerm],
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        res.status(200).json(result);
+      }
     }
-  });
+  );
 };
 
 // Get current user group info if the student has one
@@ -467,15 +479,30 @@ getAllGroupsAdmin = (req, res) => {
   );
 };
 
+getAllGroups = (req, res) => {
+  const { Year, Semester } = req.body;
+  const sql =
+    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name from majors WHERE Major_ID=gp.Major)AS Major, gp.Grade,(SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? ) AND Group_Status = 1";
+  con.query(sql, [Year, Semester], (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
 // Get teachers with score on each progress, using group id
 getTeachersWithGroupID = (req, res) => {
-  const { Group_ID, Progress_ID, Project_on_term_ID } = req.body;
+  // const { Group_ID, Progress_ID, Project_on_term_ID } = req.body;
+  const { Group_ID, Progress_ID } = req.body;
   const getTeachersProgressSql =
     "SELECT gm.Group_Member_ID, gm.User_Email, gm.Group_Role, sc.Score, sc.Max_Score, sc.Comment, (SELECT `User_Name` FROM `users` WHERE `User_Email` = gm.User_Email) AS `User_Name` FROM `groupmembers` gm LEFT JOIN `scores` sc ON sc.Group_Member_ID = gm.Group_Member_ID WHERE gm.Group_ID = ? AND sc.Assignment_ID = (SELECT `Assignment_ID` FROM `assignments` WHERE `Progress_ID` = ? AND `Group_ID` = ?) AND gm.Project_on_term_ID = ? AND gm.Group_Role IN (0,1)";
   try {
     con.query(
       getTeachersProgressSql,
-      [Group_ID, Progress_ID, Group_ID, Project_on_term_ID],
+      [Group_ID, Progress_ID, Group_ID, req.user.projectOnTerm],
       (err, result, fields) => {
         if (err) throw err;
         res.status(200).json({
@@ -688,8 +715,7 @@ getScoreCoor = (req, res) => {
   const { Major, Academic_Year, Academic_Term } = req.body;
   console.log(req.body);
   // const major = req.body.Major;
-  // const Projectonterm = req.body.Projectonterm;
-
+  // const Projectonterm = req.body.Projectonterm;\
   const sql =
     "SELECT st.User_Identity_ID as Id,st.User_Name AS Name,tea.User_Name AS Advisor ,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gm.Group_ID) AS Proposal, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gm.Group_ID) AS Progress1,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gm.Group_ID) AS Progress2,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gm.Group_ID) AS Progress3,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gm.Group_ID) AS Progress4,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gm.Group_ID) AS FinalPresentation,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=gm.Group_ID) AS FinalDocumentation,(SELECT Grade FROM groups WHERE Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email AND`User_Status` = 1 AND`Project_on_term_ID` =st.`Project_on_term_ID`)) AS Grade FROM users st,groupmembers gm, users tea WHERE st.Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND gm.User_Email = st.User_Email AND st.User_Role = 1 AND tea.User_Email =(SELECT User_Email FROM groupmembers WHERE Group_Role = 0 AND Group_ID = (SELECT Group_ID FROM groupmembers WHERE User_Email = st.User_Email)) AND st.Major_ID = ?";
   con.query(
@@ -758,16 +784,17 @@ getGroupScore = (req, res) => {
 
 // list group that teacher are advisor or committee
 listOwnGroup = (req, res) => {
-  console.log(req.body);
-  const { User_Email, Year, Semester, Group_Role } = req.body;
+  // console.log(req.body);
+  const { Group_Role } = req.body;
+  const { email, academicYear, semester, senior } = req.user;
   const sql =
-    "SELECT Group_ID,Group_Name_Thai,Group_Name_Eng,Co_Advisor,(SELECT Major_Name FROM majors WHERE Major_ID = Major)AS Major,Group_Progression, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=1 ) AS Committees,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT groups.Group_ID AS Group_ID, groups.Group_Name_Thai,groups.Group_Name_Eng,groups.Co_Advisor,groups.Major,groups.Group_Progression,groupmembers.User_Email AS Members, groupmembers.User_Phone,groupmembers.Group_Role AS Roles FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND Group_Role=? AND User_Status = 1) AND groups.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND groups.Group_Status=1 ) AS subquery GROUP BY subquery.Group_ID";
+    "SELECT Group_ID,Group_Name_Thai,Group_Name_Eng,Co_Advisor,(SELECT Major_Name FROM majors WHERE Major_ID = Major)AS Major,Group_Progression, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=1 ) AS Committees,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT groups.Group_ID AS Group_ID, groups.Group_Name_Thai,groups.Group_Name_Eng,groups.Co_Advisor,groups.Major,groups.Group_Progression,groupmembers.User_Email AS Members, groupmembers.User_Phone,groupmembers.Group_Role AS Roles FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND Group_Role=? AND User_Status = 1) AND groups.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) AND groups.Group_Status=1 ) AS subquery GROUP BY subquery.Group_ID";
   // const sql = 'SELECT groups.Group_ID, groups.Group_Name_Thai,groups.Group_Name_Eng,groups.Co_Advisor,groups.Major,groups.Group_Progression ,groupmembers.Group_Member_ID,GROUP_CONCAT(  DISTINCT groupmembers.User_Email ORDER BY groupmembers.User_Email)AS Member,groupmembers.User_Phone,groupmembers.Group_Role FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =?) AND groups.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND groups.Group_Status=1 GROUP BY groups.Group_ID'
   // const sql =
   // "SELECT * FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND Group_Role=?) AND groups.Project_on_term_ID=?";
   con.query(
     sql,
-    [User_Email, Group_Role, Year, Semester],
+    [email, Group_Role, academicYear, semester, senior],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -781,13 +808,14 @@ listOwnGroup = (req, res) => {
 
 listrequestGroup = (req, res) => {
   console.log(req.body);
-  const {
-    User_Email,
-    Project_on_term_ID,
-    Group_Role,
-    User_Status,
-    Group_Role2,
-  } = req.body;
+  // const {
+  //   User_Email,
+  //   Project_on_term_ID,
+  //   Group_Role,
+  //   User_Status,
+  //   Group_Role2,
+  // } = req.body;
+  const { User_Email, Group_Role, User_Status, Group_Role2 } = req.body;
   const sql =
     "SELECT Group_ID,Group_Name_Thai,Group_Name_Eng,Co_Advisor,(SELECT Major_Name FROM majors WHERE Major_ID = Major)AS Major,Group_Progression, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=0 ) AS Advisor, (SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND gmb.Group_Role=1 ) AS Committees,(SELECT GROUP_CONCAT(usr.User_Name) FROM groupmembers gmb INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gmb.Group_ID = subquery.Group_ID AND ( gmb.Group_Role=2 OR gmb.Group_Role=3) ) AS Students FROM (SELECT groups.Group_ID AS Group_ID, groups.Group_Name_Thai,groups.Group_Name_Eng,groups.Co_Advisor,groups.Major,groups.Group_Progression,groupmembers.User_Email AS Members, groupmembers.User_Phone,groupmembers.Group_Role AS Roles FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND (Group_Role=? OR Group_Role=?) AND User_Status = ?) AND groups.Project_on_term_ID=? AND groups.Group_Status=1 ) AS subquery GROUP BY subquery.Group_ID";
   // const sql = 'SELECT groups.Group_ID, groups.Group_Name_Thai,groups.Group_Name_Eng,groups.Co_Advisor,groups.Major,groups.Group_Progression ,groupmembers.Group_Member_ID,GROUP_CONCAT(  DISTINCT groupmembers.User_Email ORDER BY groupmembers.User_Email)AS Member,groupmembers.User_Phone,groupmembers.Group_Role FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =?) AND groups.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND groups.Group_Status=1 GROUP BY groups.Group_ID'
@@ -795,7 +823,7 @@ listrequestGroup = (req, res) => {
   // "SELECT * FROM groupmembers,groups WHERE groupmembers.Group_ID= groups.Group_ID AND groupmembers.Group_ID IN (SELECT Group_ID FROM groupmembers WHERE User_Email =? AND Group_Role=?) AND groups.Project_on_term_ID=?";
   con.query(
     sql,
-    [User_Email, Group_Role, Group_Role2, User_Status, Project_on_term_ID],
+    [User_Email, Group_Role, Group_Role2, User_Status, req.user.projectOnTerm],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -946,18 +974,19 @@ grading = async (req, res) => {
 
 countTeachergroup = (req, res) => {
   // count amount of my group and group request
-  const { User_Email, Project_on_term_ID } = req.body;
+  // const { User_Email, Project_on_term_ID } = req.body;
+  const { User_Email } = req.body;
   const sql =
     "SELECT ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.Group_Role=0 AND gmb.User_Status=1) AS Advisor, ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.Group_Role=1 AND gmb.User_Status=1) AS Committee, ( SELECT COUNT(*) FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID WHERE gmb.User_Email=? AND gmb.Project_on_term_ID=? AND gmb.User_Status=0) AS GroupRequest";
   con.query(
     sql,
     [
       User_Email,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       User_Email,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
       User_Email,
-      Project_on_term_ID,
+      req.user.projectOnTerm,
     ],
     (err, result, fields) => {
       if (err) {
@@ -972,10 +1001,10 @@ countTeachergroup = (req, res) => {
 
 countProgressGroup = (req, res) => {
   // count amount of my group and group request
-  const { Project_on_term_ID } = req.body;
+  // const { Project_on_term_ID } = req.body;
   const sql =
     "SELECT COUNT(Major_ID) as numberPro , Major_ID FROM `scorecriterias` WHERE Project_on_term_ID = ? GROUP BY Major_ID ORDER BY numberPro DESC";
-  con.query(sql, [Project_on_term_ID], (err, result, fields) => {
+  con.query(sql, [req.user.projectOnTerm], (err, result, fields) => {
     if (err) {
       console.log(err);
       res.status(500).send("Internal Server Error");
@@ -1004,83 +1033,57 @@ getAllFilesMajor = (req, res) => {
     }
   );
 };
+
+getAllFinalDoc = (req, res) => {
+  // console.log(req.body);
+
+  const finalDco =
+    "SELECT  fl.File_Name AS fileName, fl.Path AS path, fl.Type AS type,ass.Group_ID FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8";
+
+  con.query(finalDco, (err, result, fields) => {
+    if (err) {
+      res.status(422).json({ msg: "Query Error", status: 422 });
+    } else {
+      res.status(200).json(result);
+    }
+  });
+};
+
+// TODO: how font end send project on term id
 addGroupToSeTwo = (req, res) => {
-  let gThname = "";
-  let gEnname = "";
-  let gAdvi = "";
-  let major = "";
   let errors = 0;
-  const { Project_on_term_ID } = req.body;
 
-  console.log(req.body);
-  const selectGroup =
-    "SELECT  `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major` FROM `groups` WHERE Project_on_term_ID = (SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior = 1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))";
   const addGroup =
-    "INSERT INTO `groups`( `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Project_on_term_ID`) VALUES(?,?,?,?,?);";
-  const selectuser =
-    "SELECT `User_Email`, `User_Phone`, `Group_Role`,(SELECT `Group_Name_Eng` FROM `groups` WHERE `Group_ID` = `groupmembers`.`Group_ID`) as groupname FROM `groupmembers` WHERE groupmembers.Project_on_term_ID =(SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior =1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers))";
-  const adduser =
-    "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `Group_ID`, `Project_on_term_ID`) VALUES (?,?,?,(SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng =?),?)";
-  con.query(selectGroup, (err1, resultGroup, fields1) => {
-    if (err1) {
-      console.log(err1);
-      errors++;
-      res.status(422).json({ msg: "Query Error", status: 422 });
-    } else {
-      for (let i = 0; i < resultGroup.length; i++) {
-        gThname = resultGroup[i].Group_Name_Thai;
-        gEnname = resultGroup[i].Group_Name_Eng;
-        gAdvi = resultGroup[i].Co_Advisor;
-        major = resultGroup[i].Major;
+    "INSERT IGNORE INTO `groups`( `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Project_on_term_ID`) SELECT `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`,(SELECT`Project_on_term_ID` FROM projectonterm WHERE Senior = 2 and `Project_on_term_ID` NOT IN (SELECT `Project_on_term_ID` FROM `groups` WHERE `Grade` NOT IN('I','P','U','F'))) FROM `groups` WHERE `Grade` NOT IN('I','P','U','F') AND Project_on_term_ID = (SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior = 1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers) AND `Group_Name_Eng`NOT IN (SELECT  `Group_Name_Eng` FROM groups WHERE `Project_on_term_ID` =(SELECT`Project_on_term_ID` FROM projectonterm WHERE Senior = 2 and `Project_on_term_ID` NOT IN (SELECT MAX(`Project_on_term_ID`) FROM `groups` WHERE `Grade` NOT IN('I','P','U','F')))))";
 
-        // groupinfo.push([])
-        con.query(
-          addGroup,
-          [gThname, gEnname, gAdvi, major, Project_on_term_ID],
-          (err, resultadd, fields) => {
-            if (err) {
-              console.log(err);
-              errors++;
-              //   res.status(422).json({ msg: "Query Error", status: 422 });
-              //   break;
-            } else {
-              //   console.log("ji")
-            }
-          }
-        );
-      }
-      // console.log(groupinfo)
-    }
-  });
-  // if (errors == 0) {
-  con.query(selectuser, (err1, resultUser, fields1) => {
-    if (err1) {
-      console.log(err1);
-      res.status(422).json({ msg: "Query Error", status: 422 });
+  const adduser =
+    "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT  groupmembers .`User_Email`,groupmembers .`User_Phone`,groupmembers .`Group_Role`,(SELECT IF(groupmembers.`Group_Role` = 3 ,1,0) ),(SELECT MAX(`Group_ID`) FROM `groups` WHERE `Group_Name_Eng` = (SELECT `Group_Name_Eng` FROM groups WHERE Group_ID = groupmembers.Group_ID)),(SELECT MAX(Project_on_term_ID) FROM groups WHERE Project_on_term_ID IN(SELECT `Project_on_term_ID` FROM projectonterm WHERE Senior = 2)) FROM groupmembers WHERE  Project_on_term_ID <> (SELECT MAX(Project_on_term_ID) FROM groups WHERE Project_on_term_ID IN(SELECT `Project_on_term_ID` FROM projectonterm WHERE Senior = 2)) AND Group_ID IN (SELECT`Group_ID` FROM groups WHERE `Group_Name_Eng`IN(SELECT `Group_Name_Eng` FROM `groups` WHERE `Project_on_term_ID`= (SELECT MAX(Project_on_term_ID) FROM groups WHERE Project_on_term_ID IN(SELECT `Project_on_term_ID` FROM projectonterm WHERE Senior = 2))))  AND `Group_ID` NOT IN (SELECT`Group_ID` FROM groups WHERE `Group_Name_Eng`IN(SELECT `Group_Name_Eng` FROM `groups` WHERE `Group_ID` IN  (SELECT `Group_ID` FROM `groupmembers` WHERE `Project_on_term_ID` = (SELECT MAX(Project_on_term_ID) FROM groups WHERE Project_on_term_ID IN(SELECT `Project_on_term_ID` FROM projectonterm WHERE Senior = 2)))))";
+
+  con.query(addGroup, (err, resultadd, fields) => {
+    if (err) {
+      console.log(err);
+      errors++;
+      //   res.status(422).json({ msg: "Query Error", status: 422 });
+      //   break;
     } else {
-      for (let i = 0; i < resultUser.length; i++) {
-        con.query(
-          adduser,
-          [
-            resultUser[i].User_Email,
-            resultUser[i].User_Phone,
-            resultUser[i].Group_Role,
-            resultUser[i].groupname,
-            Project_on_term_ID,
-          ],
-          (err, resultAdd, fields1) => {
-            if (err1) {
-              errors++;
-              console.log(err1);
-              // res.status(422).json({ msg: "Query Error", status: 422 });
-              // break;
-            } else {
-            }
-          }
-        );
-      }
+      //   console.log("ji")
     }
   });
+
+  // console.log(groupinfo)
+
+  // if (errors == 0) {
+
+  con.query(adduser, (err, resultAdd, fields1) => {
+    if (err1) {
+      errors++;
+      console.log(err1);
+      // res.status(422).json({ msg: "Query Error", status: 422 });
+      // break;
+    } else {
+    }
+  });
+
   // }
   if (errors > 0) {
     res.status(422).json({ msg: "Query Error", status: 422 });
@@ -1091,15 +1094,15 @@ addGroupToSeTwo = (req, res) => {
 
 countOwnGroup = (req, res) => {
   // count group that is advisor or committee
-  const { Academic_Year, Academic_Term } = req.body;
+  const { Academic_Year, Academic_Term, Senior } = req.body;
   // console.log(req.body);
 
   const countGroup =
-    "SELECT subquery.User_Email,subquery.User_Name,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=0 AND Group_Member_ID=subquery.Group_Member_ID)AS Advisor,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=1 AND Group_Member_ID=subquery.Group_Member_ID)AS Committee FROM (SELECT gmb.Group_Member_ID,usr.User_Email,usr.User_Name,usr.User_Role FROM groupmembers gmb RIGHT JOIN users usr ON gmb.User_Email=usr.User_Email WHERE usr.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=?) AND (usr.User_Role=0 OR usr.User_Role=2))AS subquery ORDER BY User_Name ASC";
+    "SELECT subquery.User_Email,subquery.User_Name,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=0 AND Group_Member_ID=subquery.Group_Member_ID)AS Advisor,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=1 AND Group_Member_ID=subquery.Group_Member_ID)AS Committee FROM (SELECT gmb.Group_Member_ID,usr.User_Email,usr.User_Name,usr.User_Role FROM groupmembers gmb RIGHT JOIN users usr ON gmb.User_Email=usr.User_Email WHERE usr.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) AND (usr.User_Role=0 OR usr.User_Role=2))AS subquery ORDER BY User_Name ASC";
 
   con.query(
     countGroup,
-    [Academic_Year, Academic_Term],
+    [Academic_Year, Academic_Term, Senior],
     (err, result, fields) => {
       if (err) {
         res.status(422).json({ msg: "Query Error", status: 422 });
@@ -1127,6 +1130,7 @@ module.exports = {
   getScoreCoor,
   getGroupScore,
   getAllGroupsAdmin,
+  getAllGroups,
   listrequestGroup,
   updateMemberStatus,
   getMyGroup,
@@ -1140,4 +1144,5 @@ module.exports = {
   countProgressGroup,
   getGroupMajor,
   countOwnGroup,
+  getAllFinalDoc,
 };

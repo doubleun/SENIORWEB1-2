@@ -1,310 +1,308 @@
 <template>
-  <v-card class="semester-date-card">
-    <v-card-title style="padding: 1rem 1rem 0"></v-card-title>
-    <!-- Semester date table -->
-    <div class="semester-date-content">
-      <!-- Table attr -->
-      <h4>SEMESTER</h4>
-      <h4>START DATE</h4>
-      <h4>END DATE</h4>
-      <h4>ACTIONS</h4>
+  <div>
+    <AdminSemesterDateFilter @filter-date="handleFilterDate" />
 
-      <!-- Table records -->
-      <template v-for="(data, index) in dateData">
-        <p :key="data.Academic_Term + 9">
-          {{ data.Academic_Term + "/" + academicYear }}
-        </p>
-        <p :key="data.Academic_Term + 99">{{ data.selectedDate[0] }}</p>
-        <p :key="data.Academic_Term + 999">{{ data.selectedDate[1] }}</p>
-        <div :key="data.Academic_Term + 9999">
-          <!-- Edit assign date -->
-          <v-menu
-            :ref="'dateMenu' + data.Project_on_term_ID"
-            v-model="data.dateMenu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="blue lighten-1"
-                class="white--text px-5"
-                v-on="on"
-                v-bind="attrs"
+    <v-card>
+      <template>
+        <v-data-table
+          :headers="headers"
+          :items="allProjectOnTerms"
+          hide-default-footer
+        >
+          <!-- Senior project name -->
+          <template v-slot:item.Senior="{ item }">
+            Senior Project {{ item.Senior }}
+          </template>
+
+          <!-- Semester / Academic Year -->
+          <template v-slot:item.Academic_Term="{ item }">
+            {{ item.Academic_Term }} / {{ item.Academic_Year }}
+          </template>
+
+          <!-- Start date -->
+          <template v-slot:item.Access_Date_Start="{ item, index }">
+            <!-- Date edit -->
+            <div v-if="editedIndex === index">
+              <v-menu
+                ref="editStartDateMenu"
+                v-model="item.startDateMenu"
+                :close-on-content-click="false"
+                :return-value.sync="editedItem.Access_Date_Start"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
               >
-                <v-icon>mdi-calendar-month</v-icon> EDIT
-              </v-btn>
-            </template>
-            <v-dialog
-              ref="dialog"
-              v-model="data.dateMenu"
-              :return-value.sync="date"
-              persistent
-              width="290px"
-            >
-              <v-date-picker
-                v-model="bindDate[index].selectedDate"
-                :allowed-dates="allowedDates"
-                color=""
-                no-title
-                scrollable
-                range
-              >
-                <v-spacer></v-spacer>
-                <v-btn text color="primary" @click="data.dateMenu = false">
-                  Cancel
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="
-                    dateMenuSave(
-                      data.Project_on_term_ID,
-                      bindDate[index].selectedDate,
-                      index
-                    )
-                  "
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="editedItem.Access_Date_Start"
+                    prepend-icon="mdi-calendar"
+                    hide-details
+                    dense
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="editedItem.Access_Date_Start"
+                  no-title
+                  scrollable
                 >
-                  OK
-                </v-btn>
-              </v-date-picker>
-            </v-dialog>
-          </v-menu>
-        </div>
-      </template>
-    </div>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="item.startDateMenu = false"
+                  >
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="
+                      $refs.editStartDateMenu.save(editedItem.Access_Date_Start)
+                    "
+                  >
+                    OK
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+            </div>
 
-    <!-- Add new semester -->
-    <template>
-      <div class="text-center" v-show="dateData.length < 3">
-        <v-dialog v-model="newSemesterDateDialog" width="500">
-          <template v-slot:activator="{ on, attrs }">
-            <div class="mt-5 mb-2 d-flex justify-center">
-              <v-btn color="primary dark-1" dark v-bind="attrs" v-on="on"
-                >+ Add new semester</v-btn
-              >
+            <!-- Date preview -->
+            <div v-else>
+              {{ formatDisplayDatePreview(item.Access_Date_Start) }}
             </div>
           </template>
 
-          <!-- Dialog card -->
-          <v-card>
-            <v-card-title class="text-h5 mb-3"> Add new semester </v-card-title>
-            <v-row class="mx-5">
-              <v-col class="d-flex" cols="12" sm="12" md="4">
-                <div class="d-flex flex-column">
-                  <p class="text-subtitle-2 my-0">Semester</p>
-                  <v-select
-                    :items="availableSemesters"
-                    v-model="selectedSemester"
-                    placeholder="Ex: 1"
-                    dense
-                    hide-details
-                    outlined
-                  ></v-select>
-                </div>
-              </v-col>
-              <v-col class="d-flex" cols="12" sm="12" md="8">
-                <div class="d-flex flex-column" style="width: 100%">
-                  <p class="text-subtitle-2 my-0">Year</p>
-                  <v-form ref="form" v-model="valid">
-                    <v-text-field
-                      placeholder="Ex: 2021"
-                      v-model="academicYear"
-                      disabled
-                      full-width
-                      outlined
-                      dense
-                    ></v-text-field>
-                  </v-form>
-                </div>
-              </v-col>
-            </v-row>
-
-            <v-divider></v-divider>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="primary"
-                depressed
-                class="px-5 my-1"
-                @click="handleNewSemester"
+          <!-- End date -->
+          <template v-slot:item.Access_Date_End="{ item, index }">
+            <!-- Date edit -->
+            <div v-if="editedIndex === index">
+              <v-menu
+                ref="editEndDateMenu"
+                v-model="item.endDateMenu"
+                :close-on-content-click="false"
+                :return-value.sync="editedItem.Access_Date_End"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
               >
-                Add
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
-    </template>
-  </v-card>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="editedItem.Access_Date_End"
+                    prepend-icon="mdi-calendar"
+                    hide-details
+                    dense
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="editedItem.Access_Date_End"
+                  no-title
+                  scrollable
+                >
+                  <v-spacer></v-spacer>
+                  <v-btn text color="primary" @click="item.endDateMenu = false">
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="
+                      $refs.editEndDateMenu.save(editedItem.Access_Date_End)
+                    "
+                  >
+                    OK
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+            </div>
+
+            <!-- Date preview -->
+            <div v-else>
+              {{ formatDisplayDatePreview(item.Access_Date_End) }}
+            </div>
+          </template>
+
+          <!-- Edit score criteria button -->
+          <template v-slot:item.action="{ item, index }">
+            <div v-if="!isEditing">
+              <v-btn color="primary" @click="editDate(item)" small
+                ><v-icon small> mdi-pencil </v-icon> Edit</v-btn
+              >
+            </div>
+            <div v-else class="flex" style="gap: 0.2rem">
+              <v-btn color="error" @click="closeEditDate" small
+                ><v-icon small> mdi-close </v-icon></v-btn
+              >
+              <v-btn color="success" @click="handleSubmitDate" small
+                ><v-icon small> mdi-check </v-icon></v-btn
+              >
+            </div>
+          </template>
+          <template v-slot:no-data>
+            <p>No data found, please contact admin</p>
+          </template>
+        </v-data-table>
+      </template>
+    </v-card>
+  </div>
 </template>
 
 <script>
 import utils from "@/mixins/utils";
+import dialog from "@/mixins/dialog";
 export default {
-  //asd
+  mixins: [utils, dialog],
   props: { academicYear: Number },
   data() {
     return {
-      newSemesterDateDialog: false,
-      availableSemesters: [1, 2, 3],
-      selectedSemester: null,
-      valid: true,
-      date: null,
-      dateData: [
+      showDateDialog: false,
+      editedItem: {},
+      editedIndex: -1,
+      isEditing: false,
+      selectedSemesterFilter: { year: 0, semester: 0 },
+      headers: [
         {
-          Project_on_term_ID: 1,
-          Academic_Term: "1",
-          selectedDate: [
-            new Date().toISOString().substr(0, 10),
-            new Date().toISOString().substr(0, 10),
-          ],
-          dateMenu: false,
+          text: "Name",
+          align: "center",
+          value: "Senior",
+          // sortable: false,
         },
         {
-          Project_on_term_ID: 2,
-          Academic_Term: "2",
-          selectedDate: [
-            new Date().toISOString().substr(0, 10),
-            new Date().toISOString().substr(0, 10),
-          ],
-          dateMenu: false,
-        },
-      ],
-      bindDate: [
-        {
-          Project_on_term_ID: 1,
-          Academic_Term: "1",
-          selectedDate: [
-            new Date().toISOString().substr(0, 10),
-            new Date().toISOString().substr(0, 10),
-          ],
-          dateMenu: false,
+          text: "Semester",
+          align: "center",
+          value: "Academic_Term",
+          // sortable: false,
         },
         {
-          Project_on_term_ID: 2,
-          Academic_Term: "2",
-          selectedDate: [
-            new Date().toISOString().substr(0, 10),
-            new Date().toISOString().substr(0, 10),
-          ],
-          dateMenu: false,
+          text: "Start Date",
+          align: "center",
+          value: "Access_Date_Start",
+          width: "24%",
+          // sortable: false,
+        },
+        {
+          text: "End Date",
+          align: "center",
+          value: "Access_Date_End",
+          width: "24%",
+          // sortable: false,
+        },
+        {
+          text: "Action",
+          value: "action",
+          align: "center",
+          sortable: false,
         },
       ],
+      allProjectOnTerms: [],
     };
   },
-  mixins: [utils],
   async fetch() {
-    // Reset avaliable semesters
-    this.availableSemesters = [1, 2, 3];
-    try {
-      // Get senior from state
-      const senior = this.$store.getters["auth/currentUser"].senior;
-
-      // Fetch latest project on term
-      this.dateData = await this.$axios.$post("/date/semester/get", {
-        year: this.academicYear,
-        senior: senior,
+    const initDate = this.$store.getters["auth/semesterData"];
+    if (!!Array.isArray(initDate) && !!initDate.length > 0) {
+      await this.handleFilterDate({
+        year: initDate[0].Academic_Year,
+        semester: initDate[0].Academic_Term,
       });
-      console.log("this.dateData: ", this.dateData);
-      if (this.dateData.length !== 0) {
-        // Sort by academic term
-        this.dateData.sort((a, b) => a.Academic_Term - b.Academic_Term);
-        // Offset date to the locale timezone, else it'll be one day different
-        this.dateData = this.dateData.map((itm) => {
-          const baseStart = new Date(itm.Access_Date_Start);
-          const baseEnd = new Date(itm.Access_Date_End);
-          return {
-            ...itm,
-            Access_Date_Start: new Date(
-              baseStart.getTime() - baseStart.getTimezoneOffset() * 60000
-            ).toISOString(),
-            Access_Date_End: new Date(
-              baseEnd.getTime() - baseEnd.getTimezoneOffset() * 60000
-            ).toISOString(),
-          };
-        });
-        // Extract start and end date into an array
-        this.dateData = this.dateData.map((itm) => ({
-          ...itm,
-          selectedDate: [
-            itm.Access_Date_Start.slice(0, 10),
-            itm.Access_Date_End.slice(0, 10),
-          ],
-        }));
-        // Check if semster alrady exists
-        const existsSemesters = this.dateData.map((el) => el.Academic_Term);
-        this.availableSemesters = this.availableSemesters.filter(
-          (el) => !existsSemesters.includes(el)
-        );
-
-        // data bind
-        this.bindDate = this.handleCloneDeep(this.dateData);
-      }
-      console.log("Fetched, Date data: ", this.dateData);
-    } catch (err) {
-      console.log(err);
     }
   },
-  watch: {
-    // When new academic year is created from the parent's function, this child component will re-fetch the semester date
-    academicYear(val) {
-      console.log("academicYear changed");
-      this.$nuxt.refresh();
-    },
-  },
   methods: {
-    async dateMenuSave(id, date, index) {
-      var sortDate = date.sort();
-      const res = await this.$axios.$post("/date/semester/update", {
-        data: [...date, id],
+    /**
+     * Format date for preview (not in edit mode)
+     * @param date - date string that needs to be format
+     */
+    formatDisplayDatePreview(date) {
+      if (!date) return;
+
+      // Format dates to locale date string
+      return this.formatLocaleDateString(date, {
+        createDate: true,
+        dateStyle: "medium",
+        displayTime: false,
       });
-      if (res.status === 200) {
-        // Update date picker UI
-        this.$swal.fire("Successed!", "", "success");
-        this.$refs["dateMenu" + id][0].save(date);
-        this.dateData[index] = this.bindDate[index];
-        // console.log(this.$refs["dateMenu" + id][0]);
-      }
     },
-    async handleNewSemester() {
+    editDate(item) {
+      this.editedIndex = this.allProjectOnTerms.indexOf(item);
+      this.isEditing = true;
+
+      // Set editedItem object (for submitting api)
+      this.editedItem = Object.assign({}, item);
+
+      // Substring the ISO date format to use in datepicker
+      this.editedItem.Access_Date_Start =
+        this.editedItem.Access_Date_Start.substring(0, 10);
+      this.editedItem.Access_Date_End =
+        this.editedItem.Access_Date_End.substring(0, 10);
+    },
+    closeEditDate() {
+      this.isEditing = false;
+      this.$nextTick(() => {
+        this.editedItem = {};
+        this.editedIndex = -1;
+      });
+      console.log("this.editedItem", this.editedItem);
+    },
+    async handleSubmitDate() {
+      const { Access_Date_Start, Access_Date_End, Project_on_term_ID } =
+        this.editedItem;
+
+      // Submit new semester using array for more secure ?
+      const data = [Access_Date_Start, Access_Date_End, Project_on_term_ID];
+      // Check if all data are there
+      if (data.some((item) => !item)) {
+        return;
+      }
+
       try {
-        const senior = this.$store.getters["auth/currentUser"].senior;
-        // If selected semster is invalid display error and return
-        if (
-          !this.availableSemesters.includes(this.selectedSemester) ||
-          this.selectedSemester < 0
-        ) {
-          this.$swal.fire(
-            "Invaid semester",
-            "Please make sure that you have select a semester",
-            "warning"
-          );
-          return;
-        }
-        const res = await this.$axios.$post("date/semester/new", {
-          // TODO: Refactor, this used to be multiple insertion, but now it's one at a time
-          data: [
-            {
-              year: this.academicYear,
-              term: this.selectedSemester,
-              dateStart: new Date().toISOString().substr(0, 10),
-              dateEnd: new Date().toISOString().substr(0, 10),
-              senior,
-            },
-          ],
-        });
-        // Close add new semester dialog
-        this.newSemesterDateDialog = false;
-        // Re-fetch new data
+        const updateSemesterCallback = () =>
+          this.$axios.post("/date/semester/update", {
+            data,
+          });
+
+        // Submit data using update semester API
+        const updateSemesterRes = await this.showLoading(
+          updateSemesterCallback,
+          { title: "Updating semester date" }
+        );
+
+        console.log("updateSemesterRes", updateSemesterRes);
+
+        // TODO: Add error handler here ?
+
+        this.closeEditDate();
         await this.$nuxt.refresh();
+        return;
       } catch (err) {
         console.log(err);
+        return;
       }
     },
-    allowedDates: (val) => val >= new Date().toISOString().slice(0, 10),
+    async handleFilterDate(dateFilter) {
+      try {
+        const fetchedProjectOnTerms = await this.$axios.post(
+          "/date/getProjectOnTerm",
+          {
+            Academic_Year: dateFilter.year,
+            Academic_Term: dateFilter.semester,
+          }
+        );
+        // console.log("allProjectOnTerms", fetchedProjectOnTerms.data);
+        this.allProjectOnTerms = fetchedProjectOnTerms.data;
+        return;
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+    },
   },
+  // computed: {
+  //   isEdit,
+  // },
 };
 </script>
 
