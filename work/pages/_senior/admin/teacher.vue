@@ -9,7 +9,7 @@
         class="mr-2 dark-blue--text"
         align="right"
         justify="right"
-        color="primary"
+        dark color="blue darken-4"
         @click="handleFileImport"
       >
         <v-icon dark-blue> mdi-application-import </v-icon>
@@ -28,7 +28,7 @@
         class="dark-blue--text"
         align="right"
         justify="right"
-        color="primary"
+        dark color="blue darken-4"
         @click="downloadtemplete"
       >
         <v-icon dark> mdi-application-import </v-icon>
