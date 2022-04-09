@@ -1,17 +1,9 @@
 <template>
   <v-container>
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Semester Date</h2>
-    <SelectSenior />
-
-    <div class="my-5 d-flex justify-end">
-      <!-- New academic year -->
-      <v-btn color="blue darken-4" dark @click="handleNewAcademicYear">
-        New academic year
-      </v-btn>
-    </div>
 
     <!-- Semester date card -->
-    <AdminSemesterDateCard :academicYear="academicYear" />
+    <AdminSemesterDateCard />
   </v-container>
 </template>
 
@@ -20,37 +12,7 @@
 
 export default {
   layout: "admin",
-  methods: {
-    async handleNewAcademicYear() {
-      if (this.academicYear === null || this.academicYear === undefined) return;
-      if (confirm("Add new academic year will stop all on-going progresses")) {
-        try {
-          const res = await this.$axios.$post("/date/academic/new", {
-            year: this.academicYear + 1,
-          });
-
-          // console.log(res);
-          // Update the UI
-          this.academicYear = this.academicYear + 1;
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    },
-  },
-  async asyncData({ $axios }) {
-    let data;
-    try {
-      data = await $axios.$get("/date/academic/get");
-      if (data.length === 0) data = "xxxx";
-    } catch (err) {
-      console.log(err);
-    }
-    // console.log(data);
-    return {
-      academicYear: parseInt(data[0].Academic_Year),
-    };
-  },
+  methods: {},
 };
 </script>
 
