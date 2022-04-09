@@ -129,17 +129,21 @@
 
           <!-- Edit score criteria button -->
           <template v-slot:item.action="{ item, index }">
-            <div v-if="!isEditing">
-              <v-btn color="primary" @click="editDate(item)" small
-                ><v-icon small> mdi-pencil </v-icon> Edit</v-btn
-              >
-            </div>
-            <div v-else class="flex" style="gap: 0.2rem">
+            <div
+              v-if="isEditing && index === editedIndex"
+              class="flex"
+              style="gap: 0.2rem"
+            >
               <v-btn color="error" @click="closeEditDate" small
                 ><v-icon small> mdi-close </v-icon></v-btn
               >
               <v-btn color="success" @click="handleSubmitDate" small
                 ><v-icon small> mdi-check </v-icon></v-btn
+              >
+            </div>
+            <div v-else>
+              <v-btn color="primary" @click="editDate(item)" small
+                ><v-icon small> mdi-pencil </v-icon> Edit</v-btn
               >
             </div>
           </template>
