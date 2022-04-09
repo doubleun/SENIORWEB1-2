@@ -851,7 +851,8 @@ export default {
     }
 
     // Check if current user is the head of the group
-    if (this.email[0] === this.$store.state.auth.currentUser.email) {
+    const headEmail = this.email[0] || ''
+    if (headEmail.toLowerCase() === this.$store.state.auth.currentUser.email) {
       this.headMember = true;
     } else if (this.$store.state.group.currentUserGroup.User_Status === 0) {
       // If the current user is not head of the group, check if he has user status of pending (ie. status of 0)
