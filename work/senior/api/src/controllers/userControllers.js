@@ -368,7 +368,7 @@ getUserAvailableSeniors = (req, res) => {
   try {
     // TODO: Re-check SQL query
     const getUserSeniorSql =
-      "SELECT MAX(pj.Project_on_term_ID) AS projectOnTerm, MAX(pj.Academic_Year) AS year, MAX(pj.Academic_Term) AS semester, pj.Senior FROM `projectonterm` as pj INNER JOIN `users` u ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email = ? GROUP BY pj.Senior ORDER BY pj.Senior ASC LIMIT 2";
+      "SELECT MAX(pj.Project_on_term_ID) AS projectOnTerm, (SELECT Academic_Year FROM projectonterm WHERE Project_on_term_ID =  MAX(pj.Project_on_term_ID)) AS year,(SELECT Academic_Term FROM projectonterm WHERE Project_on_term_ID =  MAX(pj.Project_on_term_ID)) AS semester, pj.Senior FROM `projectonterm` as pj INNER JOIN `users` u ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email = ? GROUP BY pj.Senior ORDER BY pj.Senior ASC LIMIT 2";
     con.query(getUserSeniorSql, [email], (err, result) => {
       if (err) throw err;
       res.status(200).json(result);

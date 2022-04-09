@@ -54,6 +54,7 @@
                   text
                   style="width: 300px; height: 100px"
                   class="buttonsenior1and2"
+                  :disabled="!senior"
                   @click="
                     () =>
                       route({
@@ -66,9 +67,12 @@
                   <v-card-text class="text--primary">
                     <center>
                       <div>
-                        <h3>SENIOR PROJECT {{ senior.Senior }}</h3>
+                        <h3>
+                          SENIOR PROJECT
+                          {{ !!senior ? senior.Senior : index + 1 }}
+                        </h3>
                       </div>
-                      <div>
+                      <div v-if="!!senior">
                         <h4>SEM {{ senior.semester }}/{{ senior.year }}</h4>
                       </div>
                     </center>
@@ -95,7 +99,14 @@ export default {
       const res = await $axios.get("/user/getUserAvailableSeniors");
       console.log("available seniors data: ", res.data);
       if (res.status === 200) {
-        return { availableSeniors: res.data };
+        const availableSeniors = new Array(2);
+        if (res.data?.length > 0) {
+          // If the result has 1 or more element, replace it in the previous array
+          const spliceArgs = [0, res.data.length].concat(res.data);
+          Array.prototype.splice.apply(availableSeniors, spliceArgs);
+        }
+        // console.log("new availableSeniors", availableSeniors);
+        return { availableSeniors };
       } else {
         throw new Error("Fail to fetch available seniors");
       }
@@ -106,6 +117,7 @@ export default {
     }
   },
   methods: {
+    // TODO: Delte this test()
     test() {
       console.log(this.$store.state.auth);
     },
@@ -174,6 +186,13 @@ export default {
 .v-btn *:hover {
   background-color: #1a237e; /* blue */
   color: white !important;
+}
+.v-btn--disabled {
+  background-color: #ececec;
+  color: red;
+}
+.v-btn--disabled * {
+  color: #828282;
 }
 .buttonsenior1and2 {
   /* padding-left: 20%; */
