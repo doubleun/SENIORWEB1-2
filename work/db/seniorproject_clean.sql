@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.2
+-- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
--- Host: db:3306
--- Generation Time: Mar 17, 2022 at 05:55 PM
--- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
--- PHP Version: 8.0.15
+-- Host: 127.0.0.1
+-- Generation Time: Apr 09, 2022 at 05:04 PM
+-- Server version: 10.4.17-MariaDB
+-- PHP Version: 7.4.15
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -33,7 +33,7 @@ CREATE TABLE `abstracts` (
   `Submit_Date` timestamp NOT NULL DEFAULT current_timestamp(),
   `Group_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -44,7 +44,7 @@ CREATE TABLE `abstracts` (
 CREATE TABLE `academicyear` (
   `Academic_Year` int(4) NOT NULL,
   `Created_Date` date NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -56,7 +56,8 @@ CREATE TABLE `announcements` (
   `Announcement_ID` int(11) NOT NULL,
   `Text` text NOT NULL,
   `Publish_Date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `Major_ID` int(11) NOT NULL
+  `Major_ID` int(11) NOT NULL,
+  `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -85,7 +86,7 @@ CREATE TABLE `evalcomment` (
   `Re_Eval` int(1) NOT NULL DEFAULT 0,
   `Group_Member_ID` int(11) NOT NULL,
   `Group_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -141,7 +142,7 @@ CREATE TABLE `groupmembers` (
 CREATE TABLE `groupmemberstatus` (
   `Member_Status_ID` int(1) NOT NULL,
   `Member_Status_Name` varchar(40) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `groupmemberstatus`
@@ -250,7 +251,7 @@ CREATE TABLE `projectonterm` (
 CREATE TABLE `roles` (
   `Role_ID` int(11) NOT NULL,
   `Role_Name` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `roles`
@@ -293,7 +294,7 @@ CREATE TABLE `scores` (
   `Comment` text NOT NULL,
   `Group_Member_ID` int(11) NOT NULL,
   `Assignment_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -304,7 +305,7 @@ CREATE TABLE `scores` (
 CREATE TABLE `subroles` (
   `Sub_Role_ID` int(11) NOT NULL,
   `Sub_Role_Name` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `subroles`
@@ -355,7 +356,8 @@ ALTER TABLE `academicyear`
 --
 ALTER TABLE `announcements`
   ADD PRIMARY KEY (`Announcement_ID`),
-  ADD KEY `Major_ID` (`Major_ID`);
+  ADD KEY `Major_ID` (`Major_ID`),
+  ADD KEY `Project_on_term_ID` (`Project_on_term_ID`);
 
 --
 -- Indexes for table `assignments`
@@ -482,49 +484,49 @@ ALTER TABLE `users` ADD FULLTEXT KEY `User_Identity_ID_2` (`User_Identity_ID`);
 -- AUTO_INCREMENT for table `abstracts`
 --
 ALTER TABLE `abstracts`
-  MODIFY `Abstract_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Abstract_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
-  MODIFY `Announcement_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Announcement_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `assignments`
 --
 ALTER TABLE `assignments`
-  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Assignment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `evalcomment`
 --
 ALTER TABLE `evalcomment`
-  MODIFY `Eval_Comment_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Eval_Comment_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `files`
 --
 ALTER TABLE `files`
-  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `File_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `gradecriterias`
 --
 ALTER TABLE `gradecriterias`
-  MODIFY `Grade_Criteria_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Grade_Criteria_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `groupmembers`
 --
 ALTER TABLE `groupmembers`
-  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Group_Member_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Group_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `majors`
@@ -542,7 +544,7 @@ ALTER TABLE `progressions`
 -- AUTO_INCREMENT for table `projectonterm`
 --
 ALTER TABLE `projectonterm`
-  MODIFY `Project_on_term_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Project_on_term_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -554,13 +556,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `scorecriterias`
 --
 ALTER TABLE `scorecriterias`
-  MODIFY `Score_criteria_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Score_criteria_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `scores`
 --
 ALTER TABLE `scores`
-  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Score_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `subroles`
@@ -583,7 +585,8 @@ ALTER TABLE `abstracts`
 -- Constraints for table `announcements`
 --
 ALTER TABLE `announcements`
-  ADD CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`Major_ID`) REFERENCES `majors` (`Major_ID`);
+  ADD CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`Major_ID`) REFERENCES `majors` (`Major_ID`),
+  ADD CONSTRAINT `announcements_ibfk_2` FOREIGN KEY (`Project_on_term_ID`) REFERENCES `projectonterm` (`Project_on_term_ID`);
 
 --
 -- Constraints for table `assignments`
