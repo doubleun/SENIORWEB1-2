@@ -73,7 +73,6 @@ export default {
 
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
-      console.log("Hi");
       this.loading = true;
       try {
         this.allGroups = await this.$axios.$post("group/getAllGroups", {
