@@ -24,3 +24,11 @@
 ### NOTE:
 - You have to change database password in ```.env``` file to ```DB_PASS='root'```
 - Also the port to ```DB_PORT=3308```
+
+# Other
+## Resourses:
+- [Trello board](https://trello.com/b/ZDRtliDP/senior)
+
+- [Project Doc (work in progress)](https://docs.google.com/document/u/1/d/1t9EwBr6hAleTO7v4ljuYS1nZ5FxNZsjD/edit?usp=sharing&ouid=112905365178969432939&rtpof=true&sd=true)
+
+- [How to setup eslint and prettier](https://medium.com/@gogl.alex/how-to-properly-set-up-eslint-with-prettier-for-vue-or-nuxt-in-vscode-e42532099a9c)
