@@ -55,13 +55,14 @@ export default {
       yearNSemsters = await $axios.$get("/date/allYearsSemester");
       /// Fetch initial group
       allGroups = await $axios.$post("/group/getAllGroups", {
-        Year: yearNSemsters[0].Academic_Year,
-        Semester: yearNSemsters[0].Academic_Term,
+        Academic_Year: store.getters["auth/currentUser"].academicYear,
+        Academic_Term: store.getters["auth/currentUser"].semester,
+        Senior: store.getters["auth/currentUser"].senior,
       });
 
       documents = await $axios.$get("/group/getAllFinalDoc");
-      console.log("allGroups", allGroups);
-      console.log("documents", documents);
+      // console.log("allGroups", allGroups);
+      // console.log("documents", documents);
     } catch (err) {
       console.log(err);
       return { yearNSemsters: [], allGroups: [] };
@@ -72,7 +73,6 @@ export default {
 
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
-      console.log("Hi");
       this.loading = true;
       try {
         this.allGroups = await this.$axios.$post("group/getAllGroups", {

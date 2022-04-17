@@ -236,6 +236,9 @@ export default {
           allSemesters.data
         );
 
+        // update available filter
+        this.academicData = this.$store.getters["auth/semesterData"];
+
         this.dialog = false;
         await this.$nuxt.refresh();
         return;

@@ -49,13 +49,23 @@ getUser = (req, res) => {
 
 // FIXME: get req.body be year sem senior
 countUser = (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  const { Academic_Year, Academic_Term, Senior } = req.body;
   const sql =
-    "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
+    "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) ) AS teacher,(SELECT COUNT(*) FROM  groups WHERE (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?)) AS groups";
 
   con.query(
     sql,
-    [Project_on_term_ID, Project_on_term_ID],
+    [
+      Academic_Year,
+      Academic_Term,
+      Senior,
+      Academic_Year,
+      Academic_Term,
+      Senior,
+      Academic_Year,
+      Academic_Term,
+      Senior,
+    ],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -72,6 +82,7 @@ countUser = (req, res) => {
   );
 };
 
+// FIXME: duplicate user
 getAllUserWithMajor = (req, res) => {
   const { Academic_Year, Academic_Term, Senior, User_Role, Major_ID } =
     req.body;
@@ -84,7 +95,7 @@ getAllUserWithMajor = (req, res) => {
 
   // user with role, year, semster, senior, major
   const sql =
-    "SELECT subquery.User_Identity_ID,subquery.User_Email,subquery.User_Name,subquery.User_Role,subquery.Major_ID,(SELECT Major_Name FROM majors WHERE Major_ID=subquery.Major_ID) AS Major_Name,subquery.Project_on_term_ID,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=0 AND Group_Member_ID=subquery.Group_Member_ID)AS Advisor,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=1 AND Group_Member_ID=subquery.Group_Member_ID)AS Committee FROM (SELECT gmb.Group_Member_ID,usr.User_Email,usr.User_Name,usr.User_Role,usr.Major_ID,usr.Project_on_term_ID,usr.User_Identity_ID FROM groupmembers gmb RIGHT JOIN users usr ON gmb.User_Email=usr.User_Email WHERE usr.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) AND usr.User_Role IN (?) AND usr.Major_ID=?)AS subquery ORDER BY User_Name ASC";
+    "SELECT subquery.User_Identity_ID,subquery.User_Email,subquery.User_Name,subquery.User_Role,subquery.Major_ID,(SELECT Major_Name FROM majors WHERE Major_ID=subquery.Major_ID) AS Major_Name,subquery.Project_on_term_ID,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=0 AND User_Email =subquery.User_Email)AS Advisor,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=1 AND User_Email =subquery.User_Email)AS Committee FROM (SELECT gmb.Group_Member_ID,usr.User_Email,usr.User_Name,usr.User_Role,usr.Major_ID,usr.Project_on_term_ID,usr.User_Identity_ID FROM groupmembers gmb RIGHT JOIN users usr ON gmb.User_Email=usr.User_Email WHERE usr.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) AND usr.User_Role IN (?) AND usr.Major_ID=? GROUP BY usr.User_Email ORDER BY usr.User_Email ASC)AS subquery ORDER BY User_Name ASC";
 
   console.log(req.body);
 
