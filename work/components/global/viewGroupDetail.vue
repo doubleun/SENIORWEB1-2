@@ -157,7 +157,7 @@
                         mdi-file
                       </v-icon>
                     </v-col>
-                    <v-col md="9" sm="10" class="text-center">
+                    <v-col md="9" sm="10" class="text-left">
                       {{ files.fileName }}
                     </v-col>
                   </v-row>
@@ -251,13 +251,16 @@ export default {
       this.finalDoc = this.documents.filter(
         (el) => el.Group_ID == item.Group_ID
       );
-      console.log("group", item.Group_ID);
-      console.log("doc", this.documents);
-      console.log("finalDoc", this.finalDoc.length);
+      // console.log("group", item.Group_ID);
+      // console.log("doc", this.documents);
+      // console.log("finalDoc", this.finalDoc.length);
       this.viewDocDialog = true;
     },
 
     download(item) {
+      if (item.type === "Link") {
+        window.open(item["path"]);
+      }
       window.open("/api/" + item["path"]);
     },
   },
