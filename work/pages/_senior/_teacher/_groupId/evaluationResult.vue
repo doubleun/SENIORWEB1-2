@@ -225,12 +225,15 @@ export default {
       // If re-eval is checked (graded I) assign grade I to the 'selectedGrade'
       if (this.gradeI) this.selectedGrade = "I";
 
-      console.log(this.selectedGrade);
+      // console.log(this.selectedGrade);
       // If no grade has been selected, warn the user
-      if (this.groupAdvisor && this.selectedGrade === null) {
+      if (
+        (this.groupAdvisor && this.selectedGrade === null) ||
+        !validateComment
+      ) {
         this.$swal.fire(
           "Missing data",
-          "Please select Grade before submit.",
+          "Please select Grade or comment before submit.",
           "info"
         );
         return;

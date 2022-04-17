@@ -6,12 +6,12 @@ export default {
       await state.commit("SET_USER", res);
     } else {
       console.log("User not found");
-      await this.$axios.$get("http://localhost:3000/api/auth/logout");
+      await this.$axios.$get("/auth/logout");
       await state.commit("SET_USER", false);
     }
   },
   async logout(state) {
-    const res = await this.$axios.$get("http://localhost:3000/api/auth/logout");
+    const res = await this.$axios.$get("/auth/logout");
     await state.commit("SET_USER_INIT");
   },
   async storeProjectOnTerm(state, payload) {

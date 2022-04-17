@@ -20,7 +20,7 @@
           color="indigo darken-2"
           dark
           @click="handleMoveGroups"
-          v-if="$store.getters['auth/currentUser'].senior === 1"
+          v-if="$store.getters['auth/currentUser'].senior === 2"
           ><v-icon>mdi-microsoft-excel</v-icon>Move group to senior 2</v-btn
         >
       </div>
@@ -122,6 +122,9 @@ export default {
         const projectOnTerm = await this.$axios.$post("date/getProjectOnTerm", {
           Academic_Year: this.selectedYear,
           Academic_Term: this.selectedSemester,
+          /**
+           * @deprecated This API do not use senior in SQL Query anymore! Please, refactor.
+           */
           Senior: 2,
         });
         // console.log("projectOnTerm: ", projectOnTerm);

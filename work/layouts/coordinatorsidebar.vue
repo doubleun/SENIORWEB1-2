@@ -89,8 +89,13 @@ export default {
         {
           icon: "mdi-clipboard-text",
           title: "Doucment",
-          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/viewAssignment`,
-          role: 0,
+          // title: "All Group",
+          to: `/senior${this.$store.state.auth.currentUser.senior}/${
+            this.$store.state.auth.currentUser.role === 2
+              ? "coordinator"
+              : "teacher"
+          }/viewAssignment`,
+          role: 2,
         },
       ],
     };

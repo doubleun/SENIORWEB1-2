@@ -2,25 +2,6 @@
   <div>
     <div class="announcement">
       <v-form>
-        <!-- 
-        //* Snack bar (success dialog) *//
-      -->
-        <v-snackbar v-model="submitSnackbar" right top light>
-          {{ snackbarText }}
-
-          <template v-slot:action="{ attrs }">
-            <v-btn
-              color="pink"
-              text
-              v-bind="attrs"
-              @click="submitSnackbar = false"
-            >
-              Dismiss
-            </v-btn>
-          </template>
-        </v-snackbar>
-        <!-- Add announcement button -->
-
         <v-row class="justify-end pr-5 pt-5 pb-2">
           <!-- Dialog -->
           <v-dialog v-model="dialog" max-width="600px">
@@ -47,27 +28,29 @@
                       required
                       outlined
                     ></v-textarea>
-                    <h3>Major</h3>
-                    <v-select
-                      v-model="selectedMajorAdd"
-                      label="Select Major"
-                      name="selectAdd"
-                      ref="selectAdd"
-                      :items="majors"
-                      :rules="[(val) => isSelectMajorAdd(val, allMajorAdd)]"
-                      item-text="Major_Name"
-                      item-value="Major_ID"
-                      return-object
-                      outlined
-                      @change="handleSelectMajorAdd"
-                    ></v-select>
-                    <v-checkbox
-                      v-model="allMajorAdd"
-                      label="All major"
-                      name="checkAdd"
-                      ref="checkAdd"
-                      @change="handleCheckboxAdd"
-                    ></v-checkbox>
+                    <div v-if="isAdmin">
+                      <h3>Major</h3>
+                      <v-select
+                        v-model="selectedMajorAdd"
+                        label="Select Major"
+                        name="selectAdd"
+                        ref="selectAdd"
+                        :items="majors"
+                        :rules="[(val) => isSelectMajorAdd(val, allMajorAdd)]"
+                        item-text="Major_Name"
+                        item-value="Major_ID"
+                        return-object
+                        outlined
+                        @change="handleSelectMajorAdd"
+                      ></v-select>
+                      <v-checkbox
+                        v-model="allMajorAdd"
+                        label="All major"
+                        name="checkAdd"
+                        ref="checkAdd"
+                        @change="handleCheckboxAdd"
+                      ></v-checkbox>
+                    </div>
                   </v-col>
                 </v-container>
               </v-card-text>
@@ -121,96 +104,26 @@
                   </div>
 
                   <!-- Edit and delete announcement buttons -->
-                  <div class="announceButtons">
+                  <div
+                    v-if="
+                      userRole === 0
+                        ? false
+                        : isAdmin
+                        ? true
+                        : !announcement.allMajor
+                        ? true
+                        : false
+                    "
+                    class="announceButtons"
+                  >
                     <!-- Edit announcement dialog -->
-                    <v-dialog v-model="announcement.modal" max-width="600px">
-                      <template v-slot:activator="{ on }">
-                        <v-icon large color="green darken-2" v-on="on">
-                          mdi-square-edit-outline
-                        </v-icon>
-                      </template>
-                      <v-card>
-                        <v-card-title>
-                          <span class="text-h6 font-weight-bold"
-                            >Edit Announcement</span
-                          >
-                        </v-card-title>
-                        <v-card-text>
-                          <v-container>
-                            <v-col>
-                              <h3>Detail Announcement</h3>
-                              <v-textarea
-                                v-model="bindAnnouncement[index].Text"
-                                label="Text"
-                                name="textEdit"
-                                ref="textEdit"
-                                :rules="[(v) => !!v || 'Text is required']"
-                                required
-                                outlined
-                              ></v-textarea>
-                              <h3>Major</h3>
-                              <v-select
-                                v-model="bindAnnouncement[index].major"
-                                label="Select Major"
-                                name="selectEdit"
-                                ref="selectEdit"
-                                :items="majors"
-                                :rules="[
-                                  (val) =>
-                                    isSelectMajorEdit(
-                                      val,
-                                      bindAnnouncement[index].allMajor
-                                    ),
-                                ]"
-                                @change="handleSelectMajorEdit(index)"
-                                item-text="Major_Name"
-                                item-value="Major_ID"
-                                return-object
-                                outlined
-                              >
-                              </v-select>
-                              <v-checkbox
-                                v-model="bindAnnouncement[index].allMajor"
-                                label="All major"
-                                name="checkEdit"
-                                ref="checkEdit"
-                                @change="
-                                  handleCheckboxEdit(
-                                    index,
-                                    bindAnnouncement[index].major
-                                  )
-                                "
-                              ></v-checkbox>
-                            </v-col>
-                          </v-container>
-                        </v-card-text>
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn
-                            color="red"
-                            text
-                            @click="announcement.modal = false"
-                          >
-                            Cancel
-                          </v-btn>
-                          <v-btn
-                            color="green"
-                            text
-                            @click="
-                              handleUpdateAnnouncement(
-                                bindAnnouncement[index].Announcement_ID,
-                                bindAnnouncement[index].Text,
-                                bindAnnouncement[index].major,
-                                bindAnnouncement[index].allMajor,
-                                index
-                              )
-                            "
-                          >
-                            Save
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-dialog>
+                    <v-icon
+                      large
+                      color="green darken-2"
+                      @click="editItem(announcement)"
+                    >
+                      mdi-square-edit-outline
+                    </v-icon>
 
                     <!-- Delete announcement -->
                     <v-icon
@@ -224,6 +137,75 @@
                   </div>
                 </v-card-text>
               </v-card>
+
+              <!-- edit dialog -->
+              <v-dialog v-model="editedItem.modal" max-width="600px">
+                <!-- <template v-slot:activator="{ on }">
+                  <v-icon large color="green darken-2" v-on="on">
+                    mdi-square-edit-outline
+                  </v-icon>
+                </template> -->
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h6 font-weight-bold"
+                      >Edit Announcement</span
+                    >
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container>
+                      <v-col>
+                        <h3>Detail Announcement</h3>
+                        <v-textarea
+                          v-model="editedItem.Text"
+                          label="Text"
+                          name="textEdit"
+                          ref="textEdit"
+                          :rules="[(v) => !!v || 'Text is required']"
+                          required
+                          outlined
+                        ></v-textarea>
+                        <div v-if="isAdmin ? true : false">
+                          <h3>Major</h3>
+                          <v-select
+                            v-model="editedItem.major"
+                            label="Select Major"
+                            name="selectEdit"
+                            ref="selectEdit"
+                            :items="majors"
+                            :rules="[
+                              (val) =>
+                                isSelectMajorEdit(val, editedItem.allMajor),
+                            ]"
+                            @change="handleSelectMajorEdit()"
+                            item-text="Major_Name"
+                            item-value="Major_ID"
+                            return-object
+                            outlined
+                          >
+                          </v-select>
+                          <v-checkbox
+                            v-model="editedItem.allMajor"
+                            label="All major"
+                            name="checkEdit"
+                            ref="checkEdit"
+                            @change="handleCheckboxEdit(editedItem.major)"
+                          ></v-checkbox>
+                        </div>
+                      </v-col>
+                    </v-container>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="red" text @click="editedItem.modal = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn color="green" text @click="handleUpdateAnnouncement">
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+
               <div class="cardPagination">
                 <v-row class="justify-end">
                   <v-pagination
@@ -245,7 +227,7 @@
 import utils from "@/mixins/utils";
 
 export default {
-  props: ["dataUi", "majors", "bindingData"],
+  props: { dataUi: Object, majors: Array, isAdmin: Boolean },
   data: () => ({
     date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
@@ -261,7 +243,8 @@ export default {
     selectedMajorAdd: {},
     selectedMajorEdit: {},
     Text: "",
-    editedText: "",
+    editedItem: {},
+    userRole: null,
   }),
   mixins: [utils],
 
@@ -275,11 +258,12 @@ export default {
     pageLength() {
       return Math.ceil(this.dataUi.announcements.length / 4);
     },
-    bindAnnouncement() {
-      const startIndex = 4 * (this.page - 1);
-      const endIndex = startIndex + 4;
-      return this.bindingData.slice(startIndex, endIndex);
-    },
+  },
+
+  mounted() {
+    // console.log(this.dataUi);
+    this.$emit("on-update-announcements");
+    this.userRole = this.$store.state.auth.currentUser.role;
   },
 
   methods: {
@@ -289,11 +273,9 @@ export default {
         (selectedMajor == null || selectedMajor.Major_ID == null) &&
         allmajor == false
       ) {
-        // console.log("add");
         return "Please select Major";
       }
 
-      // console.log("have selected major");
       return true;
     },
     isSelectMajorEdit(selectedMajor, allmajor) {
@@ -304,9 +286,9 @@ export default {
         return "Please select Major";
       }
 
-      // console.log("have selected major");
       return true;
     },
+    
     // offset date
     offsetDate(date) {
       // console.log("offsetdate", date);
@@ -324,22 +306,38 @@ export default {
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
 
       let validateText = this.$refs.textAdd.validate("textAdd");
-      let validateSelectMajor = this.$refs.selectAdd.validate("selectAdd");
-      let validateCheckAllMajor = this.allMajorAdd;
+
+      // Check only admin role because other role not render ui to input
+      let validateSelectMajor = true;
+      let validateCheckAllMajor = true;
+      let selectedMajor;
+      if (this.isAdmin) {
+        validateSelectMajor = this.$refs.selectAdd.validate("selectAdd");
+        validateCheckAllMajor = this.allMajorAdd;
+
+        selectedMajor = this.allMajorAdd ? 99 : this.selectedMajorAdd.Major_ID;
+      }
 
       // If there is no text or the selected major ID is not in the available ones stop the function
       if (!validateText || (!validateSelectMajor && !validateCheckAllMajor)) {
         return;
       }
 
-      const selectedMajor = this.allMajorAdd
-        ? 99
-        : this.selectedMajorAdd.Major_ID;
-
       // Send axios request to add new announcement
       const res = await this.$axios.$post("/announc/add", {
         Text: this.Text.trim(),
-        MajorID: selectedMajor,
+        MajorID: this.isAdmin
+          ? selectedMajor
+          : this.$store.state.auth.currentUser.major,
+        Academic_Year: this.isAdmin
+          ? this.$store.getters["auth/currentUser"].academicYear
+          : null,
+        Academic_Term: this.isAdmin
+          ? this.$store.getters["auth/currentUser"].semester
+          : null,
+        Senior: this.isAdmin
+          ? this.$store.getters["auth/currentUser"].senior
+          : null,
       });
       if (res.status === 200) {
         this.dialog = false;
@@ -356,17 +354,17 @@ export default {
         // Clear text
         this.Text = "";
         this.MajorID = 0;
-        this.$refs.textAdd.reset();
-        this.$refs.selectAdd.reset();
-        this.$refs.checkAdd.reset();
+        if (this.isAdmin) {
+          this.$refs.textAdd.reset();
+          this.$refs.selectAdd.reset();
+          this.$refs.checkAdd.reset();
+        }
       } else {
-        // this.snackbarText =
-        //   "Failed to add new announcement, please try again later";
-        // this.submitSnackbar = true;
         this.dialog = false;
         this.$swal.fire("Something wrong", res, "error");
       }
     },
+
     // === Handle delete announcement from database === //
     async handleDeleteAnnouncement(id) {
       this.$swal
@@ -393,52 +391,55 @@ export default {
                 "success"
               );
               // Update UI items
-              this.dataUi.announcements = this.dataUi.announcements.filter(
-                (itm) => itm.Announcement_ID !== parseInt(id)
-              );
-              this.bindingData = this.bindingData.filter(
-                (itm) => itm.Announcement_ID !== parseInt(id)
-              );
+              this.$emit("on-update-announcements");
             } else {
               this.$swal.fire("Something wrong", res, "error");
             }
           }
         });
     },
+
+    // editItem
+    editItem(item) {
+      // this.editedIndex = this.desserts.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.editedItem.modal = true;
+      console.log(this.editedItem);
+    },
+
     // === Handle update announcement === //
-    async handleUpdateAnnouncement(
-      announcementId,
-      text,
-      majorId,
-      allMajor,
-      index
-    ) {
-      // console.log(id, text, majorId, allMajor);
+    async handleUpdateAnnouncement() {
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
 
-      let validateText = this.$refs.textEdit[index].validate("textEdit");
-      let validateSelectMajor =
-        this.$refs.selectEdit[index].validate("selectEdit");
+      let validateText = this.$refs.textEdit.validate();
+
+      let validateSelectMajor = true;
+      let selectedMajor;
+      if (this.isAdmin) {
+        validateSelectMajor = this.$refs.selectEdit.validate();
+        selectedMajor = this.editedItem.allMajor
+          ? 99
+          : this.editedItem.major.Major_ID;
+      }
 
       // If there is no text or the selected major ID is not in the available ones stop the function
 
-      if (!validateText || (!validateSelectMajor && !allMajor)) {
+      if (
+        !validateText ||
+        (!validateSelectMajor && !this.editedItem.allMajor)
+      ) {
         return;
       }
 
-      const selectedMajor = allMajor ? 99 : majorId.Major_ID;
-      // console.log(selectedMajor);
-      // return;
-
-      // // Send axios request to edit an announcement
+      // Send axios request to edit an announcement
       const res = await this.$axios.$post("announc/edit", {
-        AnnouncementID: announcementId,
-        Text: text.trim(),
-        MajorID: selectedMajor,
+        AnnouncementID: this.editedItem.Announcement_ID,
+        Text: this.editedItem.Text.trim(),
+        MajorID: this.isAdmin ? selectedMajor : this.editedItem.major.Major_ID,
       });
 
       if (res.status === 200) {
-        this.dataUi.announcements[index].modal = false;
+        this.editedItem.modal = false;
         this.$emit("on-update-announcements");
 
         this.$swal.fire(
@@ -447,15 +448,11 @@ export default {
           "success"
         );
       } else {
-        // this.snackbarText =
-        //   "Failed to update an announcement, please try again later";
-        // this.submitSnackbar = true;
-        this.dataUi.announcements[index].modal = false;
+        this.editedItem.modal = false;
         this.$swal.fire("Something wrong", res, "error");
       }
     },
     handleSelectMajorAdd() {
-      // this.$refs.selectAdd.reset();
       this.$refs.selectAdd.resetValidation();
       this.$refs.checkAdd.resetValidation();
       this.allMajorAdd = null;
@@ -466,23 +463,17 @@ export default {
       }
       this.$refs.selectAdd.resetValidation();
     },
-    handleSelectMajorEdit(index) {
-      // this.$refs.selectAdd.reset();
-      // console.log("index", this.announcements[index]);
-
-      this.$refs.selectEdit[index].resetValidation();
-      this.$refs.checkEdit[index].resetValidation();
-      this.bindAnnouncement[index].allMajor = false;
+    handleSelectMajorEdit() {
+      this.$refs.selectEdit.resetValidation();
+      this.$refs.checkEdit.resetValidation();
+      this.editedItem.allMajor = false;
     },
-    handleCheckboxEdit(index, major) {
-      // console.log("index", index);
-
+    handleCheckboxEdit(major) {
       if (major != null) {
-        // this.announcements[index].major = null;
-        this.$refs.selectEdit[index].reset();
+        this.$refs.selectEdit.reset();
         return;
       }
-      this.$refs.selectEdit[index].resetValidation();
+      this.$refs.selectEdit.resetValidation();
     },
   },
 };

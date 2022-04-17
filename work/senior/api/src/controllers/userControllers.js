@@ -49,13 +49,23 @@ getUser = (req, res) => {
 
 // FIXME: get req.body be year sem senior
 countUser = (req, res) => {
-  const { Project_on_term_ID } = req.body;
+  const { Academic_Year, Academic_Term, Senior } = req.body;
   const sql =
-    "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = ? ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = ? ) AS teacher,(SELECT COUNT(*) FROM  groups) AS groups";
+    "SELECT (SELECT COUNT(*) FROM users WHERE User_Role=1 AND Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) ) AS student,(SELECT COUNT(*) FROM users WHERE User_Role=0 AND Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) ) AS teacher,(SELECT COUNT(*) FROM  groups WHERE (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?)) AS groups";
 
   con.query(
     sql,
-    [Project_on_term_ID, Project_on_term_ID],
+    [
+      Academic_Year,
+      Academic_Term,
+      Senior,
+      Academic_Year,
+      Academic_Term,
+      Senior,
+      Academic_Year,
+      Academic_Term,
+      Senior,
+    ],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -72,17 +82,26 @@ countUser = (req, res) => {
   );
 };
 
+// FIXME: duplicate user
 getAllUserWithMajor = (req, res) => {
-  const { Major_ID, Academic_Year, Academic_Term, Senior, User_Role } =
+  const { Academic_Year, Academic_Term, Senior, User_Role, Major_ID } =
     req.body;
+  // const sql =
+  //   "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+
+  // user with role, year, semster, senior, major
+  // const sql =
+  //   "SELECT subquery.User_Email,subquery.User_Name,subquery.User_Identity_ID,subquery.User_Role,subquery.Major_ID,(SELECT Major_Name FROM majors WHERE Major_ID=subquery.Major_ID) AS Major_Name FROM (SELECT usr.User_Email,usr.User_Identity_ID,usr.User_Name,usr.User_Role,usr.Course_code,usr.Major_ID,usr.Project_on_term_ID FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?))AS subquery";
+
+  // user with role, year, semster, senior, major
   const sql =
-    "SELECT * FROM users usr INNER JOIN projectonterm pj ON usr.Project_on_term_ID=pj.Project_on_term_ID WHERE usr.Major_ID=? AND pj.Academic_Year=? AND pj.Academic_Term=? AND pj.Senior=? AND usr.User_Role!=99 AND usr.User_Role IN (?)";
+    "SELECT subquery.User_Identity_ID,subquery.User_Email,subquery.User_Name,subquery.User_Role,subquery.Major_ID,(SELECT Major_Name FROM majors WHERE Major_ID=subquery.Major_ID) AS Major_Name,subquery.Project_on_term_ID,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=0 AND User_Email =subquery.User_Email)AS Advisor,(SELECT COUNT(Group_Role) FROM groupmembers WHERE Group_Role=1 AND User_Email =subquery.User_Email)AS Committee FROM (SELECT gmb.Group_Member_ID,usr.User_Email,usr.User_Name,usr.User_Role,usr.Major_ID,usr.Project_on_term_ID,usr.User_Identity_ID FROM groupmembers gmb RIGHT JOIN users usr ON gmb.User_Email=usr.User_Email WHERE usr.Project_on_term_ID=(SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) AND usr.User_Role IN (?) AND usr.Major_ID=? GROUP BY usr.User_Email ORDER BY usr.User_Email ASC)AS subquery ORDER BY User_Name ASC";
 
   console.log(req.body);
 
   con.query(
     sql,
-    [Major_ID, Academic_Year, Academic_Term, Senior, User_Role],
+    [Academic_Year, Academic_Term, Senior, User_Role, Major_ID],
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -349,7 +368,7 @@ getUserAvailableSeniors = (req, res) => {
   try {
     // TODO: Re-check SQL query
     const getUserSeniorSql =
-      "SELECT MAX(pj.Project_on_term_ID) AS projectOnTerm, MAX(pj.Academic_Year) AS year, MAX(pj.Academic_Term) AS semester, pj.Senior FROM `projectonterm` as pj INNER JOIN `users` u ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email = ? GROUP BY pj.Senior ORDER BY pj.Senior ASC LIMIT 2";
+      "SELECT MAX(pj.Project_on_term_ID) AS projectOnTerm, (SELECT Academic_Year FROM projectonterm WHERE Project_on_term_ID =  MAX(pj.Project_on_term_ID)) AS year,(SELECT Academic_Term FROM projectonterm WHERE Project_on_term_ID =  MAX(pj.Project_on_term_ID)) AS semester, pj.Senior FROM `projectonterm` as pj INNER JOIN `users` u ON pj.Project_on_term_ID = u.Project_on_term_ID WHERE u.User_Email = ? GROUP BY pj.Senior ORDER BY pj.Senior ASC LIMIT 2";
     con.query(getUserSeniorSql, [email], (err, result) => {
       if (err) throw err;
       res.status(200).json(result);

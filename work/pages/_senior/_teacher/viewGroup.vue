@@ -19,6 +19,7 @@
     <ViewGroupDetail
       :yearNSemsters="yearNSemsters"
       :allGroups="allGroups"
+      :title="'Group'"
       @on-filtering="handleChangeRenderGroups"
     />
     <!-- </main> -->
@@ -43,6 +44,7 @@ export default {
     let yearNSemsters, allGroups;
 
     const senior = store.getters["auth/currentUser"].senior;
+    const role = store.getters["auth/currentUser"].role;
 
     try {
       if (!senior) throw new Error("Cannot find senior");
@@ -61,7 +63,7 @@ export default {
       return { yearNSemsters: [], allGroups: [] };
     }
 
-    return { yearNSemsters, allGroups };
+    return { yearNSemsters, allGroups, role };
   },
 
   methods: {

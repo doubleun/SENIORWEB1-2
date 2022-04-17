@@ -48,7 +48,23 @@
           height="90%"
         ></object>
         <v-container v-else>
-          {{ !selectedFile.fileName ? "" : "This file can not preview" }}
+          <!-- {{ !selectedFile.fileName ? "" : "This file can not preview" }} -->
+
+          <v-row v-if="selectedFile.fileName" style="margin-top: 20%">
+            <v-col cols="12" sm="12" class="d-flex justify-center text-center">
+              <div>
+                <v-img
+                  src="/fileNotShow.png"
+                  class="ml-8 mb-3"
+                  max-width="150"
+                ></v-img>
+                <h3>THIS FILE DO NOT SUPPORT</h3>
+                <h5>CAN NOT PREVIEW</h5>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- <v-layout class="justify-center"> </v-layout> -->
         </v-container>
       </div>
     </v-card>
@@ -471,7 +487,7 @@ export default {
       // Initiate download
       link.click();
       // Revoke donwload link element from DOM
-      URL.revokeObjectURL(link.href);
+      // URL.revokeObjectURL(link.href);
     },
     handleScoreInput() {
       this.givenScore = this.givenScore;
@@ -479,8 +495,15 @@ export default {
       // console.log('given score',this.givenScore)
     },
     handleCheckValidScore() {
+      let checkDecimal = String(this.givenScore).includes(".")
+        ? String(this.givenScore).split(".")[1].length > 1
+          ? true
+          : false
+        : false;
       return this.givenScore > this.maxScore || this.givenScore < 0
         ? "Invalid score"
+        : checkDecimal
+        ? "Only one deimal point"
         : true;
     },
     handleValidateFile() {

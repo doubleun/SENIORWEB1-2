@@ -1,10 +1,10 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.2
+-- version 5.1.3
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Mar 20, 2022 at 08:51 AM
--- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
+-- Generation Time: Apr 17, 2022 at 03:26 PM
+-- Server version: 10.7.3-MariaDB-1:10.7.3+maria~focal
 -- PHP Version: 8.0.15
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -38,24 +38,6 @@ CREATE TABLE `abstracts` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `academicyear`
---
-
-CREATE TABLE `academicyear` (
-  `Academic_Year` int(4) NOT NULL,
-  `Created_Date` date NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Dumping data for table `academicyear`
---
-
-INSERT INTO `academicyear` (`Academic_Year`, `Created_Date`) VALUES
-(2021, '2021-05-12');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `announcements`
 --
 
@@ -63,7 +45,8 @@ CREATE TABLE `announcements` (
   `Announcement_ID` int(11) NOT NULL,
   `Text` text NOT NULL,
   `Publish_Date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `Major_ID` int(11) NOT NULL
+  `Major_ID` int(11) NOT NULL,
+  `Project_on_term_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -351,6 +334,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID`, `Project_on_term_ID`) VALUES
+('6131302001@lamduan.mfu.ac.th', '6131302001', 'Chumphon Aekwarodom', 1, NULL, 1, 15),
 ('6131302005@lamduan.mfu.ac.th', '6131302005', 'pipat massri', 1, NULL, 1, 15),
 ('6131501026@lamduan.mfu.ac.th', '6131501026', 'Nuttapong Samipak', 1, NULL, 6, 15),
 ('6131501037@lamduan.mfu.ac.th', '6131501037', 'Pronpom Kumthong', 1, NULL, 6, 15),
@@ -360,9 +344,10 @@ INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`,
 ('basketcasey44@gmail.com', NULL, 'Admin Two', 99, NULL, 1, 15),
 ('cickpoo0121@gmail.com', NULL, 'Cickpool', 2, NULL, 1, 15),
 ('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 15),
+('cickpooshop@gmail.com', NULL, 'Cickpool', 0, NULL, 2, 15),
 ('kiwlom093@gmail.com', '6131501097', 'Coordinator Kiwlom', 2, NULL, 2, 15),
 ('nitsomboon77@gmail.com', NULL, 'Ajarn Nitsomboon', 0, NULL, 1, 15),
-('oscarstones093@gmail.com', NULL, 'Admin Guy', 1, NULL, 1, 15),
+('oscarstones093@gmail.com', NULL, 'Admin Guy', 99, NULL, 1, 15),
 ('sootarin@gmail.com', NULL, 'Sootarin Noopap', 0, NULL, 7, 15),
 ('surapol_mfu@gmail.com', NULL, 'Surapol Vorapatratorn', 0, NULL, 6, 15),
 ('wachirachai.n@appman.co.th', '6131501055', 'Student Nitsomboon', 1, '1302492', 1, 15);
@@ -380,17 +365,12 @@ ALTER TABLE `abstracts`
   ADD KEY `Project_on_term_ID` (`Project_on_term_ID`);
 
 --
--- Indexes for table `academicyear`
---
-ALTER TABLE `academicyear`
-  ADD PRIMARY KEY (`Academic_Year`);
-
---
 -- Indexes for table `announcements`
 --
 ALTER TABLE `announcements`
   ADD PRIMARY KEY (`Announcement_ID`),
-  ADD KEY `Major_ID` (`Major_ID`);
+  ADD KEY `Major_ID` (`Major_ID`),
+  ADD KEY `Project_on_term_ID` (`Project_on_term_ID`);
 
 --
 -- Indexes for table `assignments`
@@ -571,7 +551,7 @@ ALTER TABLE `majors`
 -- AUTO_INCREMENT for table `progressions`
 --
 ALTER TABLE `progressions`
-  MODIFY `Progress_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `Progress_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `projectonterm`
@@ -583,7 +563,7 @@ ALTER TABLE `projectonterm`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
+  MODIFY `Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
 
 --
 -- AUTO_INCREMENT for table `scorecriterias`
@@ -601,7 +581,7 @@ ALTER TABLE `scores`
 -- AUTO_INCREMENT for table `subroles`
 --
 ALTER TABLE `subroles`
-  MODIFY `Sub_Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `Sub_Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -618,7 +598,8 @@ ALTER TABLE `abstracts`
 -- Constraints for table `announcements`
 --
 ALTER TABLE `announcements`
-  ADD CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`Major_ID`) REFERENCES `majors` (`Major_ID`);
+  ADD CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`Major_ID`) REFERENCES `majors` (`Major_ID`),
+  ADD CONSTRAINT `announcements_ibfk_2` FOREIGN KEY (`Project_on_term_ID`) REFERENCES `projectonterm` (`Project_on_term_ID`);
 
 --
 -- Constraints for table `assignments`
@@ -665,12 +646,6 @@ ALTER TABLE `groups`
   ADD CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`Major`) REFERENCES `majors` (`Major_ID`),
   ADD CONSTRAINT `groups_ibfk_2` FOREIGN KEY (`Project_on_term_ID`) REFERENCES `projectonterm` (`Project_on_term_ID`),
   ADD CONSTRAINT `groups_ibfk_3` FOREIGN KEY (`Group_Progression`) REFERENCES `progressions` (`Progress_ID`);
-
---
--- Constraints for table `projectonterm`
---
-ALTER TABLE `projectonterm`
-  ADD CONSTRAINT `projectonterm_ibfk_1` FOREIGN KEY (`Academic_Year`) REFERENCES `academicyear` (`Academic_Year`);
 
 --
 -- Constraints for table `scorecriterias`
