@@ -1,4 +1,4 @@
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2'
 export default {
   methods: {
     /**
@@ -10,41 +10,39 @@ export default {
      * @param {string} options.successMsg - Success message
      * @returns undefined
      */
-    async showLoading(callback, options) {
+    showLoading: async (callback, options) => {
       const {
-        title = "Loading...",
+        title = 'Loading...',
         timer = 2000,
-        successMsg = "Success",
-      } = options;
+        successMsg = 'Success'
+      } = options
       Swal.fire({
         title,
         timer,
         timerProgressBar: true,
         showConfirmButton: false,
         didRender: async () => {
-          Swal.showLoading();
+          Swal.showLoading()
           try {
-            const res = await callback();
-            console.log("dialiog res: ", res);
+            const res = await callback()
+            console.log('dialiog res: ', res)
             if (!res || res.status !== 200) {
               throw new Error(
-                "Request status is invalid, please try again later"
-              );
+                'Request status is invalid, please try again later'
+              )
             } else {
-              Swal.fire(successMsg, "", "success");
-              return res;
+              Swal.fire(successMsg, '', 'success')
+              return res
             }
           } catch (err) {
-            console.log(err);
-            Swal.showValidationMessage(
-              "Request failed, please try again later"
-            );
-            return;
+            console.log(err)
+            Swal.showValidationMessage('Request failed, please try again later')
+            return
           }
         },
         backdrop: true,
-        allowOutsideClick: () => !Swal.isLoading(),
-      });
-    },
-  },
-};
+        allowOutsideClick: () => !Swal.isLoading()
+      })
+    }
+  }
+}

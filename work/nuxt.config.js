@@ -1,44 +1,44 @@
-import colors from "vuetify/es5/util/colors";
+import colors from 'vuetify/es5/util/colors'
 
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: "%s - work",
-    title: "work",
+    titleTemplate: '%s - work',
+    title: 'work',
     htmlAttrs: {
-      lang: "en",
+      lang: 'en'
     },
     meta: [
-      { charset: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { hid: "description", name: "description", content: "" },
-      { name: "format-detection", content: "telephone=no" },
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { hid: 'description', name: 'description', content: '' },
+      { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/icon?family=Material+Icons",
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/icon?family=Material+Icons'
       },
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css?family=Montserrat&display=swap",
-      },
-    ],
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css?family=Montserrat&display=swap'
+      }
+    ]
   },
   env: {
-    baseUrl: process.env.BASE_URL || "http://localhost:3000",
+    baseUrl: process.env.BASE_URL || 'http://localhost:3000'
   },
 
   build: {
-    publicPath: "public_senior",
+    publicPath: 'public_senior'
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: ["~/plugins/axios.js"],
+  plugins: ['~/plugins/axios.js'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -46,20 +46,20 @@ export default {
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
-    "@nuxtjs/vuetify",
+    '@nuxtjs/vuetify'
   ],
 
   axios: {
-    baseURL: process.env.BASE_URL + "/api",
-    credentials: true,
+    baseURL: process.env.BASE_URL + '/api',
+    credentials: true
   },
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ["@nuxtjs/axios", "vue-sweetalert2/nuxt"],
+  modules: ['@nuxtjs/axios', 'vue-sweetalert2/nuxt'],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
-    customVariables: ["~/assets/variables.scss"],
+    customVariables: ['~/assets/variables.scss'],
     theme: {
       options: { customProperties: true },
       dark: false,
@@ -71,16 +71,16 @@ export default {
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
-          success: colors.green.accent3,
-        },
-      },
-    },
+          success: colors.green.accent3
+        }
+      }
+    }
   },
 
   router: {
-    middleware: "authenticated",
+    middleware: 'authenticated'
   },
-  serverMiddleware: [{ path: "/api", handler: "~/senior/api/app.js" }],
+  serverMiddleware: [{ path: '/api', handler: '~/senior/api/app.js' }]
 
   // // Auth
   // //! The commented out is an alternative, to use the backend redirect needs to be rewrote
@@ -113,4 +113,4 @@ export default {
   // build: {
   //   watch: ["/senior/api/src/"]
   // }
-};
+}
