@@ -2,10 +2,10 @@
 -- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Apr 09, 2022 at 04:56 PM
--- Server version: 10.4.17-MariaDB
--- PHP Version: 7.4.15
+-- Host: db:3306
+-- Generation Time: Apr 17, 2022 at 11:36 AM
+-- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
+-- PHP Version: 8.0.15
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -41,25 +41,6 @@ CREATE TABLE `abstracts` (
 
 INSERT INTO `abstracts` (`Abstract_ID`, `Abstract_Name`, `Submit_Date`, `Group_ID`, `Project_on_term_ID`) VALUES
 (1, '1648653236086-InvoiceForm2564-2_6131302001.pdf', '2022-03-30 15:13:56', 1, 15);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `academicyear`
---
-
-CREATE TABLE `academicyear` (
-  `Academic_Year` int(4) NOT NULL,
-  `Created_Date` date NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `academicyear`
---
-
-INSERT INTO `academicyear` (`Academic_Year`, `Created_Date`) VALUES
-(2020, '2020-05-01'),
-(2021, '2021-05-12');
 
 -- --------------------------------------------------------
 
@@ -462,7 +443,7 @@ INSERT INTO `users` (`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`,
 ('6131501052@lamduan.mfu.ac.th', '6131501052', 'Wachirachai Nitsomboon', 1, NULL, 2, 15),
 ('basketcasey44@gmail.com', NULL, 'Admin Two', 99, NULL, 1, 15),
 ('cickpoo0121@gmail.com', NULL, 'Cickpool', 2, NULL, 1, 15),
-('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 16),
+('cickpoo0123@gmail.com', NULL, 'Cickpool2', 99, NULL, 1, 15),
 ('cickpooshop@gmail.com', NULL, 'Cickpool', 0, NULL, 2, 15),
 ('kiwlom093@gmail.com', '6131501097', 'Coordinator Kiwlom', 2, NULL, 2, 15),
 ('nitsomboon77@gmail.com', NULL, 'Ajarn Nitsomboon', 0, NULL, 1, 15),
@@ -482,12 +463,6 @@ ALTER TABLE `abstracts`
   ADD PRIMARY KEY (`Abstract_ID`),
   ADD KEY `Group_ID` (`Group_ID`),
   ADD KEY `Project_on_term_ID` (`Project_on_term_ID`);
-
---
--- Indexes for table `academicyear`
---
-ALTER TABLE `academicyear`
-  ADD PRIMARY KEY (`Academic_Year`);
 
 --
 -- Indexes for table `announcements`
@@ -676,7 +651,7 @@ ALTER TABLE `majors`
 -- AUTO_INCREMENT for table `progressions`
 --
 ALTER TABLE `progressions`
-  MODIFY `Progress_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `Progress_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `projectonterm`
@@ -688,7 +663,7 @@ ALTER TABLE `projectonterm`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
+  MODIFY `Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
 
 --
 -- AUTO_INCREMENT for table `scorecriterias`
@@ -706,7 +681,7 @@ ALTER TABLE `scores`
 -- AUTO_INCREMENT for table `subroles`
 --
 ALTER TABLE `subroles`
-  MODIFY `Sub_Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `Sub_Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -772,13 +747,7 @@ ALTER TABLE `groups`
   ADD CONSTRAINT `groups_ibfk_2` FOREIGN KEY (`Project_on_term_ID`) REFERENCES `projectonterm` (`Project_on_term_ID`),
   ADD CONSTRAINT `groups_ibfk_3` FOREIGN KEY (`Group_Progression`) REFERENCES `progressions` (`Progress_ID`);
 
---
--- Constraints for table `projectonterm`
---
-ALTER TABLE `projectonterm`
-  ADD CONSTRAINT `projectonterm_ibfk_1` FOREIGN KEY (`Academic_Year`) REFERENCES `academicyear` (`Academic_Year`);
-
---
+  --
 -- Constraints for table `scorecriterias`
 --
 ALTER TABLE `scorecriterias`

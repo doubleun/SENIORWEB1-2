@@ -2,10 +2,10 @@
 -- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Apr 09, 2022 at 05:04 PM
--- Server version: 10.4.17-MariaDB
--- PHP Version: 7.4.15
+-- Host: db:3306
+-- Generation Time: Apr 17, 2022 at 11:39 AM
+-- Server version: 10.6.5-MariaDB-1:10.6.5+maria~focal
+-- PHP Version: 8.0.15
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -33,17 +33,6 @@ CREATE TABLE `abstracts` (
   `Submit_Date` timestamp NOT NULL DEFAULT current_timestamp(),
   `Group_ID` int(11) NOT NULL,
   `Project_on_term_ID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `academicyear`
---
-
-CREATE TABLE `academicyear` (
-  `Academic_Year` int(4) NOT NULL,
-  `Created_Date` date NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -346,12 +335,6 @@ ALTER TABLE `abstracts`
   ADD KEY `Project_on_term_ID` (`Project_on_term_ID`);
 
 --
--- Indexes for table `academicyear`
---
-ALTER TABLE `academicyear`
-  ADD PRIMARY KEY (`Academic_Year`);
-
---
 -- Indexes for table `announcements`
 --
 ALTER TABLE `announcements`
@@ -538,7 +521,7 @@ ALTER TABLE `majors`
 -- AUTO_INCREMENT for table `progressions`
 --
 ALTER TABLE `progressions`
-  MODIFY `Progress_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `Progress_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `projectonterm`
@@ -550,7 +533,7 @@ ALTER TABLE `projectonterm`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
+  MODIFY `Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
 
 --
 -- AUTO_INCREMENT for table `scorecriterias`
@@ -568,7 +551,7 @@ ALTER TABLE `scores`
 -- AUTO_INCREMENT for table `subroles`
 --
 ALTER TABLE `subroles`
-  MODIFY `Sub_Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `Sub_Role_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -634,13 +617,7 @@ ALTER TABLE `groups`
   ADD CONSTRAINT `groups_ibfk_2` FOREIGN KEY (`Project_on_term_ID`) REFERENCES `projectonterm` (`Project_on_term_ID`),
   ADD CONSTRAINT `groups_ibfk_3` FOREIGN KEY (`Group_Progression`) REFERENCES `progressions` (`Progress_ID`);
 
---
--- Constraints for table `projectonterm`
---
-ALTER TABLE `projectonterm`
-  ADD CONSTRAINT `projectonterm_ibfk_1` FOREIGN KEY (`Academic_Year`) REFERENCES `academicyear` (`Academic_Year`);
-
---
+  --
 -- Constraints for table `scorecriterias`
 --
 ALTER TABLE `scorecriterias`
