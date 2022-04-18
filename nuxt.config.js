@@ -31,7 +31,8 @@ export default {
   },
 
   build: {
-    publicPath: 'public_senior'
+    publicPath: 'public_senior',
+    watch:["/senior/api/app.js"]
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
