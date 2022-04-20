@@ -110,7 +110,7 @@
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="6">
                 <div class="login" align="center" justify="center">
-                  <v-row><h4>Study Programes</h4></v-row>
+                  <v-row><h4>Major</h4></v-row>
                   <v-row>
                     <v-select
                       v-model="selectedMajor"

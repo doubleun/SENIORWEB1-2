@@ -17,39 +17,39 @@
 // import Sidebar from "@/components/Student/stuSidebar";
 
 export default {
-  middleware: "checkRole",
+  middleware: 'checkRole',
   data() {
     return {
       items: [
         {
-          icon: "mdi-home",
-          title: "Home",
-          to: "/senior/admin/",
+          icon: 'mdi-home',
+          title: 'Home',
+          to: '/senior/admin/'
         },
         {
-          icon: "mdi-clipboard-text-clock",
-          title: "Semester Date",
-          to: "/senior/admin/semesterDate",
+          icon: 'mdi-clipboard-text-clock',
+          title: 'Semester Date',
+          to: '/senior/admin/semesterDate'
         },
         {
-          icon: "mdi-office-building-cog",
-          title: "Manage Teacher",
-          to: "/senior/admin/teacher",
+          icon: 'mdi-office-building-cog',
+          title: 'Manage Teacher',
+          to: '/senior/admin/teacher'
         },
         {
-          icon: "mdi-account-cog",
-          title: "Manage Student",
-          to: "/senior/admin/student",
+          icon: 'mdi-account-cog',
+          title: 'Manage Student',
+          to: '/senior/admin/student'
         },
         {
-          icon: "mdi-account-group",
-          title: "Group",
-          to: "/senior/admin/group",
+          icon: 'mdi-account-group',
+          title: 'Group',
+          to: '/senior/admin/group'
         },
         {
-          icon: "mdi-clipboard-check-multiple",
-          title: "Criteria",
-          to: "/senior/admin/criteria",
+          icon: 'mdi-clipboard-check-multiple',
+          title: 'Criteria',
+          to: '/senior/admin/criteria'
         },
         // {
         //   icon: "mdi-account-search ",
@@ -57,26 +57,31 @@ export default {
         //   to: "/senior/admin/teacherGroup",
         // },
         {
-          icon: "mdi-clipboard-list",
-          title: "Manage Majors",
-          to: "/senior/admin/majorManage",
+          icon: 'mdi-clipboard-text',
+          title: 'Doucment',
+          to: '/senior/admin/viewAssignment'
         },
-      ],
-    };
+        {
+          icon: 'mdi-clipboard-list',
+          title: 'Manage Majors',
+          to: '/senior/admin/majorManage'
+        }
+      ]
+    }
   },
   async fetch() {
     try {
-      const res = await this.$axios.get("/date/allYearsSemester");
+      const res = await this.$axios.get('/date/allYearsSemester')
       if (res.status !== 200) {
-        throw new Error("Failed to fetch academic date data");
+        throw new Error('Failed to fetch academic date data')
       }
-      await this.$store.commit("auth/SET_USER_SEMESTER_DATA", res.data);
+      await this.$store.commit('auth/SET_USER_SEMESTER_DATA', res.data)
     } catch (err) {
-      console.log(err);
-      return;
+      console.log(err)
+      return
     }
-  },
-};
+  }
+}
 </script>
 <style scoped>
 .it-background {
@@ -84,8 +89,8 @@ export default {
 }
 .it-background::before {
   position: absolute;
-  content: "";
-  background-image: url("@/static/bg.png");
+  content: '';
+  background-image: url('@/static/bg.png');
   background-repeat: no-repeat;
   background-size: cover;
   height: 30rem;

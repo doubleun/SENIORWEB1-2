@@ -4,9 +4,13 @@
     <!-- <v-row class="col-6 pb-12" style="color: #fff"
       ><p style="font-size: 28px; font-weight: bold">Group</p></v-row
     > -->
-    <h2 class="header-title mb-2 mt-5 mb-10 white--text">Document</h2>
-    <!-- <button @click="test">test</button> -->
-    <SelectSenior v-if="role === 99" />
+    <h2
+      class="header-title mb-2 mt-5"
+      :class="role === 1 ? 'black--text' : 'white--text mb-10'"
+    >
+      Document
+    </h2>
+    <v-divider v-if="role === 1" class="mb-5"></v-divider>
 
     <ViewGroupDetail
       :yearNSemsters="yearNSemsters"
@@ -25,7 +29,7 @@ import dialog from '@/mixins/dialog'
 
 export default {
   mixins: [dialog],
-  layout: 'coordinatorsidebar',
+
   data() {
     return {
       loading: false,

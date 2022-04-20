@@ -79,7 +79,7 @@ export default {
     headers: [
       { text: "NAME", align: "center", value: "User_Name" },
       { text: "EMAIL", align: "center", value: "User_Email" },
-      { text: "STUDY PROGRAM", align: "center", value: "Major_Name" },
+      { text: "MAJOR", align: "center", value: "Major_Name" },
       { text: "ADVISOR", align: "center", value: "Advisor" },
       { text: "COMMITTEE", align: "center", value: "Committee" },
       { text: "ROLE", align: "center", value: "User_Role_Name", width: "25%" },

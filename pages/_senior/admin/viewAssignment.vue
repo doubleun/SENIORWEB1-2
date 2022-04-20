@@ -13,6 +13,7 @@
       :allGroups="allGroups"
       :documents="documents"
       :majors="majors"
+      isAdmin
       :title="'Document'"
       @on-filtering="handleChangeRenderGroups"
     />
@@ -25,7 +26,7 @@ import dialog from '@/mixins/dialog'
 
 export default {
   mixins: [dialog],
-  layout: 'coordinatorsidebar',
+  layout: 'admin',
   data() {
     return {
       loading: false,

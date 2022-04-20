@@ -96,7 +96,7 @@ export default {
         },
         { text: "MEMBER", align: "center", value: "Students" },
         { text: "ADVISOR", align: "center", value: "Advisor" },
-        { text: "PROGRAM", align: "center", value: "Major" },
+        { text: "MAJOR", align: "center", value: "Major" },
         { text: "COMMITTEE", align: "center", value: "Committees" },
         {
           text: "Actions",
@@ -127,15 +127,15 @@ export default {
         Semester: this.$store.getters["auth/currentUser"].semester,
         Group_Role: this.Group_Role,
       });
-      console.log("groups", this.groups);
+      // console.log("groups", this.groups);
     } catch (err) {
       console.log(err);
     }
   },
   mounted() {
     // Set the default value
-    console.log("test test", this.yearNSemsters);
-    console.log("Group role", this.Group_Role);
+    // console.log("test test", this.yearNSemsters);
+    // console.log("Group role", this.Group_Role);
   },
   methods: {
     // TODO: keep group id to state for scoring of group
@@ -164,7 +164,7 @@ export default {
           }
         });
         this.loading = false;
-        console.log(this.groups);
+        // console.log(this.groups);
       } catch (error) {
         console.log(error);
       }
