@@ -508,10 +508,6 @@ export default {
 
                 if (res.status === 409) {
                   // If the response status is 409 then assignment already submitted (possibly by his teammate)
-                  this.$swal.fire({
-                    title: 'This progress has already been submitted',
-                    icon: 'info'
-                  })
                   // Update UI
                   await this.$nuxt.refresh()
                   await this.handleRenderSubmittedFiles()
