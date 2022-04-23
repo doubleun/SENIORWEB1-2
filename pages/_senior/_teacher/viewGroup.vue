@@ -10,7 +10,7 @@
     <!-- Action buttons -->
     <div class="my-5 d-flex justify-end" style="gap: 0.5rem; flex-wrap: wrap">
       <div>
-        <v-btn color="success" @click="handleExports(selected, allGroups)"
+        <v-btn color="success" @click="handleExports(allGroups)"
           ><v-icon>mdi-microsoft-excel</v-icon>Export to Excel</v-btn
         >
       </div>
@@ -27,56 +27,56 @@
 </template>
 
 <script>
-import exportXLSX from "@/mixins/exportXLSX";
-import dialog from "@/mixins/dialog";
+import exportXLSX from '@/mixins/exportXLSX'
+import dialog from '@/mixins/dialog'
 
 export default {
   mixins: [exportXLSX, dialog],
-  layout: "coordinatorsidebar",
+  layout: 'coordinatorsidebar',
   data() {
     return {
       loading: false,
-      manageTeacher: false,
-    };
+      manageTeacher: false
+    }
   },
 
   async asyncData({ $axios, store }) {
-    let yearNSemsters, allGroups;
+    let yearNSemsters, allGroups
 
-    const senior = store.getters["auth/currentUser"].senior;
-    const role = store.getters["auth/currentUser"].role;
+    const senior = store.getters['auth/currentUser'].senior
+    const role = store.getters['auth/currentUser'].role
 
     try {
-      if (!senior) throw new Error("Cannot find senior");
+      if (!senior) throw new Error('Cannot find senior')
 
       // Fetch all years and semesters
-      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+      yearNSemsters = await $axios.$get('/date/allYearsSemester')
       /// Fetch initial group
-      allGroups = await $axios.$post("/group/getAllAdmin", {
+      allGroups = await $axios.$post('/group/getAllAdmin', {
         Major: store.state.auth.currentUser.major,
         Year: yearNSemsters[0].Academic_Year,
         Semester: yearNSemsters[0].Academic_Term,
-        Senior: senior,
-      });
+        Senior: senior
+      })
     } catch (err) {
-      console.log(err);
-      return { yearNSemsters: [], allGroups: [] };
+      console.log(err)
+      return { yearNSemsters: [], allGroups: [] }
     }
 
-    return { yearNSemsters, allGroups, role };
+    return { yearNSemsters, allGroups, role }
   },
 
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
-      this.loading = true;
-      this.allGroups = await this.$axios.$post("group/getAllAdmin", {
+      this.loading = true
+      this.allGroups = await this.$axios.$post('group/getAllAdmin', {
         Major: major,
         Year: year,
         Semester: semester,
-        Senior: senior,
-      });
-      this.loading = false;
-    },
-  },
-};
+        Senior: senior
+      })
+      this.loading = false
+    }
+  }
+}
 </script>
