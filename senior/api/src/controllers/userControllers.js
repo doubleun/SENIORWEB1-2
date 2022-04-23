@@ -231,8 +231,9 @@ uploadfile = async (req, res) => {
 
 uploadfileteacher = async (req, res) => {
   try {
-    console.log(req.files[0])
-    if (!req.files) {
+    console.log('File: ', req.file)
+    // TODO: Fix this error handling
+    if (!req.file) {
       res.send({
         status: false,
         message: 'No file uploaded'
@@ -244,13 +245,13 @@ uploadfileteacher = async (req, res) => {
       const { senior } = req.body
 
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
-      let name = req.files[0]['filename']
+      let name = req.file.filename
       // avatar.mv("uploads/excel/" + name);
       // console.log(req.files[0]['filename'])
       var sql =
         'INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,(SELECT Major_ID FROM majors WHERE Acronym = ?),(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior = ? )) '
 
-      var obj = readXlsxFile(req.files[0]['path']).then((rows) => {
+      var obj = readXlsxFile(req.file.path).then((rows) => {
         let semester
         let term
         let coursec = null
