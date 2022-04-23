@@ -1,43 +1,43 @@
-require("dotenv").config();
-const express = require("express");
-const fileUpload = require("express-fileupload");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const morgan = require("morgan");
-const path = require("path");
-const passport = require("passport");
-const cookieSession = require("cookie-session");
-const passportSetup = require("./src/config/passport");
-const multer = require("multer");
+require('dotenv').config()
+const express = require('express')
+const fileUpload = require('express-fileupload')
+const cors = require('cors')
+const bodyParser = require('body-parser')
+const morgan = require('morgan')
+const path = require('path')
+const passport = require('passport')
+const cookieSession = require('cookie-session')
+const passportSetup = require('./src/config/passport')
+const multer = require('multer')
 // const mysql = require("mysql");
-const config = require("./src/config/db");
-var _ = require("lodash");
+const config = require('./src/config/db')
+var _ = require('lodash')
 
-const authRoutes = require("./src/routes/authRoutes");
-const userRoutes = require("./src/routes/userRoutes");
-const announcRoutes = require("./src/routes/announcementRoutes");
-const groupRoutes = require("./src/routes/groupRoutes");
-const criteriaRoutes = require("./src/routes/criteriaRoutes");
-const assignmentRoutes = require("./src/routes/assignmentRoutes");
-const dateRoutes = require("./src/routes/dateRoutes");
-const majorRoutes = require("./src/routes/majorRoutes");
+const authRoutes = require('./src/routes/authRoutes')
+const userRoutes = require('./src/routes/userRoutes')
+const announcRoutes = require('./src/routes/announcementRoutes')
+const groupRoutes = require('./src/routes/groupRoutes')
+const criteriaRoutes = require('./src/routes/criteriaRoutes')
+const assignmentRoutes = require('./src/routes/assignmentRoutes')
+const dateRoutes = require('./src/routes/dateRoutes')
+const majorRoutes = require('./src/routes/majorRoutes')
 
-const app = express();
+const app = express()
 
 // ============ Middleware ============
 //cookie
 app.use(
   cookieSession({
     maxAge: 60 * 60 * 1000,
-    keys: [process.env.COOKIEKEY],
+    keys: [process.env.COOKIEKEY]
   })
-);
+)
 
-app.use(express.static(path.join(__dirname, "backend")));
+app.use(express.static(path.join(__dirname, 'backend')))
 // app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(morgan("dev"));
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(morgan('dev'))
 // enable files upload
 
 // app.use(
@@ -49,30 +49,30 @@ app.use(morgan("dev"));
 // console.log(path.join(__dirname, "/../../public_senior"));
 
 app.use(
-  "/public_senior",
-  express.static(path.join(__dirname, "/../../public_senior"))
-);
+  '/public_senior',
+  express.static(path.join(__dirname, '/../../public_senior'))
+)
 
 //initialize passportt for se/deserialization
-app.use(passport.initialize());
+app.use(passport.initialize())
 
 //session
-app.use(passport.session());
+app.use(passport.session())
 
 // app.use(cors);
 
 // ============ Routes ============
-app.use("/user", userRoutes);
-app.use("/auth", authRoutes);
-app.use("/announc", announcRoutes);
-app.use("/group", groupRoutes);
-app.use("/criteria", criteriaRoutes);
-app.use("/assignment", assignmentRoutes);
-app.use("/date", dateRoutes);
-app.use("/major", majorRoutes);
-app.get("/test", (req, res) => {
-  res.send("test");
-});
+app.use('/user', userRoutes)
+app.use('/auth', authRoutes)
+app.use('/announc', announcRoutes)
+app.use('/group', groupRoutes)
+app.use('/criteria', criteriaRoutes)
+app.use('/assignment', assignmentRoutes)
+app.use('/date', dateRoutes)
+app.use('/major', majorRoutes)
+app.get('/test', (req, res) => {
+  res.send('test')
+})
 
 // ============ Starting server ============
 // const PORT = process.env.PORT || 3500;
@@ -81,4 +81,4 @@ app.get("/test", (req, res) => {
 // });
 
 // ============ export server ============
-module.exports = app;
+module.exports = app
