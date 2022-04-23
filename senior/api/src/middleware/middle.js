@@ -1,18 +1,31 @@
+const { createErrorJSON } = require('../utility')
+
 //Check authen login or not for all user
 const checkAuthenticated = (req, res, next) => {
-  console.log("start check authenticate");
+  console.log('start check authenticate')
   if (!req.isAuthenticated()) {
     // res.status(403).end();
     // res.redirect("/logout");
     // res.status(403).json({ status: 403, msg: "Unauthorized" }).end();
     // res.end();
 
-    console.log("Unauthorized");
-    res.status(403).send("Unauthorized").end();
+    console.log('Unauthorized')
+    // res.status(403).send('Unauthorized').end()
+    res.status(403).json(
+      createErrorJSON({
+        msg: 'Unauthorized',
+        errDialog: {
+          enabled: true,
+          redirect: true
+        },
+        status: 403
+      })
+    )
+    return
   } else {
-    next();
+    next()
   }
-};
+}
 
 // check role ex: accepted = [1, 99]
 var checkRole = (accepted = []) => {
@@ -24,19 +37,19 @@ var checkRole = (accepted = []) => {
   // });
 
   return (req, res, next) => {
-    console.log("start check role");
+    console.log('start check role')
     if (!accepted.includes(req.user.role)) {
       // res.status(403).end();
       // res.redirect("http://localhost:3000/api/auth/logout");
       // res.status(403).json({ status: 404, msg: "access api error" }).end();
 
-      console.log("Invalid role");
-      res.status(403).send("Invalid role").end();
+      console.log('Invalid role')
+      res.status(403).send('Invalid role').end()
     } else {
-      next();
+      next()
     }
-  };
-};
+  }
+}
 
 // check access date
 const checkAccessDate = (req, res, next) => {
@@ -52,7 +65,7 @@ const checkAccessDate = (req, res, next) => {
   // );
 
   if (req.user.role === 99) {
-    return next();
+    return next()
   }
 
   if (new Date(req.user.accessDateEnd).getTime() < new Date().getTime()) {
@@ -60,15 +73,15 @@ const checkAccessDate = (req, res, next) => {
     // res.redirect(403, "/logout");
     // res.status(403).json({ status: 404, msg: "access api error" }).end();
 
-    console.log("Invalid access");
-    res.status(403).send("Invalid access").end();
+    console.log('Invalid access')
+    res.status(403).send('Invalid access').end()
   } else {
-    next();
+    next()
   }
-};
+}
 
 module.exports = {
   checkAuthenticated,
   checkRole,
-  checkAccessDate,
-};
+  checkAccessDate
+}
