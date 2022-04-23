@@ -21,7 +21,7 @@
         <p :key="grade.Grade_Criteria_Name + 2">
           {{
             index === gradeCriterias.length - 1
-              ? "0 - " +
+              ? '0 - ' +
                 (dataUI.gradeCriterias[dataUI.gradeCriterias.length - 2]
                   .Grade_Criteria_Pass -
                   1)
@@ -75,7 +75,7 @@
                     v-model="grade.Grade_Criteria_Pass"
                     :rules="[
                       !!grade.Grade_Criteria_Pass || 'This field is required',
-                      (val) => handleCheckValidScore(val),
+                      (val) => handleCheckValidScore(val)
                     ]"
                     v-else
                     outlined
@@ -105,51 +105,51 @@
 </template>
 
 <script>
-import utils from "@/mixins/utils";
+import utils from '@/mixins/utils'
 
 export default {
   mixins: [utils],
   props: {
     dataUI: {
       type: Object,
-      default: { gradeCriterias: [] },
+      default: { gradeCriterias: [] }
     },
     gradeCriterias: {
       type: Array,
-      default: [],
+      default: []
     },
     noGradeCriteriasProp: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   data: () => ({
     // Available option, used only for showing user in v-select
-    options: ["S/U", "A-F"],
+    options: ['S/U', 'A-F'],
     // Keep track of selected option, default is options[0]
-    selectedGradeOption: "S/U",
+    selectedGradeOption: 'S/U',
     // Grade criteria option A and B
-    criteriasOptionA: ["S", "U"],
-    criteriasOptionB: ["A", "B+", "B", "C+", "C", "D+", "D", "F"],
+    criteriasOptionA: ['S', 'U'],
+    criteriasOptionB: ['A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'],
     addGradeDialog: false,
     noGradeCriterias: false,
-    valid: true,
+    valid: true
   }),
   computed: {
     // Return criterias option (S/U or A-F) based on the 'selectedGradeOption'
     criteriasTemplate() {
       if (this.selectedGradeOption === this.options[0]) {
-        return this.criteriasOptionA;
+        return this.criteriasOptionA
       } else {
-        return this.criteriasOptionB;
+        return this.criteriasOptionB
       }
-    },
+    }
   },
   mounted() {
     // ! This could be improve by using array of objects ([optionA, optionB]) and loop through when adding the template to each option object
     // Avoid overriding the prop value Vue suggest using data and assign prop value to the data instead
     // 'noGradeCriterias' is used for checking if coordinator has set the criteria yet
-    this.noGradeCriterias = this.noGradeCriteriasProp;
+    this.noGradeCriterias = this.noGradeCriteriasProp
 
     // Set criteria option to the object template that we can use to send to database
     // Criterias option A which are S and U
@@ -157,93 +157,93 @@ export default {
       Grade_Criteria_Name: criteria,
       Grade_Criteria_Pass: 0,
       Major_ID: this.$store.state.auth.currentUser.major,
-      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-    }));
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+    }))
 
     // Criterias option B which are A to F
     this.criteriasOptionB = this.criteriasOptionB.map((criteria) => ({
       Grade_Criteria_Name: criteria,
       Grade_Criteria_Pass: 0,
       Major_ID: this.$store.state.auth.currentUser.major,
-      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
-    }));
+      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
+    }))
   },
   methods: {
     // Handle adding grade criterias to the database
     async handleAddGradeCriterias() {
       // Check if there's a criterias template to send, and if the grade criterias have already been fetched
       // Validate form
-      this.$refs.form.validate();
-      console.log("Valid form: ", this.valid);
+      this.$refs.form.validate()
+      console.log('Valid form: ', this.valid)
       if (
         !this.criteriasTemplate ||
         this.noGradeCriterias === false ||
         !this.valid
       )
-        return;
+        return
 
       try {
         this.$swal
           .fire({
-            title: "Please, confirm your choice.",
-            text: "You cannot change grade criterias template after save",
-            icon: "warning",
+            title: 'Please, confirm your choice.',
+            text: 'You cannot change grade criterias template after save',
+            icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Confirm",
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirm'
           })
           .then(async (result) => {
             try {
               if (result.isConfirmed) {
                 // Post new grade criterias
                 const addGradeCriteriaRes = await this.$axios.$post(
-                  "/criteria/gradeAdd",
+                  '/criteria/gradeAdd',
                   {
-                    data: this.criteriasTemplate,
+                    data: this.criteriasTemplate
                   }
-                );
+                )
                 if (addGradeCriteriaRes.status !== 200)
                   throw new Error(
-                    "Failed to add grade criterias, please try again later"
-                  );
+                    'Failed to add grade criterias, please try again later'
+                  )
                 // Update UI
                 // Emit event for refresh and update UI
-                this.$emit("add-grade-criterias");
-                this.noGradeCriterias = false;
+                this.$emit('add-grade-criterias')
+                this.noGradeCriterias = false
                 this.$swal.fire(
-                  "Grade criterias saved",
-                  "You can edit the score of each grade criteria",
-                  "success"
-                );
-                return;
+                  'Grade criterias saved',
+                  'You can edit the score of each grade criteria',
+                  'success'
+                )
+                return
               }
-              return;
+              return
             } catch (err) {
-              console.log(err);
-              return;
+              console.log(err)
+              return
             }
-          });
-        return;
+          })
+        return
       } catch (err) {
-        console.log(err);
-        return;
+        console.log(err)
+        return
       }
     },
     handleCheckValidScore(val) {
       return this.handleValidateTextField(
         {
           string: val,
-          option: "onlyNumberFloat",
-          errorMsg: "Invalid score",
+          option: 'onlyNumberFloat',
+          errorMsg: 'Invalid score'
         },
         parseFloat(val) > 100,
         parseFloat(val) < 1,
         val?.length > 4
-      );
-    },
-  },
-};
+      )
+    }
+  }
+}
 </script>
 
 <style>

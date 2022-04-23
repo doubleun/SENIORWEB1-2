@@ -40,7 +40,7 @@
             !selectedFile.fileName
               ? false
               : handelCheckInputFile({
-                  fileName: selectedFile.fileName,
+                  fileName: selectedFile.fileName
                 }) === true
           "
           :data="selectedFile.src"
@@ -90,7 +90,7 @@
               target="_blank"
               v-for="(link, index) in links"
               :key="index"
-              >{{ "Link " + (index + 1) }}</a
+              >{{ 'Link ' + (index + 1) }}</a
             >
           </div>
         </div>
@@ -107,7 +107,7 @@
                     :disabled="showSubmitted"
                     :rules="[
                       () => givenScore !== null || 'This field is required',
-                      handleCheckValidScore,
+                      handleCheckValidScore
                     ]"
                     placeholder="Score:"
                     outlined
@@ -160,7 +160,7 @@
             :clearable="false"
             :disabled="showSubmitted || haveGrade"
             :rules="[
-              (file) => !file || !(file.size > maxSize) || 'File is too large',
+              (file) => !file || !(file.size > maxSize) || 'File is too large'
             ]"
             @change="handleValidateFile"
             outlined
@@ -192,58 +192,58 @@
 </template>
 
 <script>
-import utils from "@/mixins/utils";
+import utils from '@/mixins/utils'
 export default {
   props: {
     noWorkSubmitted: {
       type: Boolean,
-      default: () => false,
+      default: () => false
     },
     progressId: {
       type: Number,
-      default: () => 1,
+      default: () => 1
     },
     submittedFiles: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     maxScore: {
       type: Number,
-      default: () => 0,
+      default: () => 0
     },
     Assignment_ID: {
       type: Number,
-      default: () => 0,
+      default: () => 0
     },
     scoreInfo: {
       type: null,
-      default: () => null,
+      default: () => null
     },
     progressionDueDate: {
       type: Object,
-      default: () => {},
+      default: () => {}
     },
     groupAdvisor: {
       type: Boolean,
-      default: () => false,
+      default: () => false
     },
     gradeNameArr: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     fetchScoresRes: {
       type: Object,
       default: () => {
-        suggestGrade: null;
-      },
-    },
+        suggestGrade: null
+      }
+    }
   },
   data() {
     return {
       valid: true,
       showSubmitted: false,
       submitOnTime: false,
-      submitDate: "",
+      submitDate: '',
       selectScores: [1, 2, 3, 4, 5],
       teacherFile: null,
       // 5242880 byte => 5 Mb
@@ -253,10 +253,10 @@ export default {
       uploadSrcs: [],
       files: [],
       links: [],
-      selectedFile: { src: "" },
-      selectedGrade: "",
-      haveGrade: false,
-    };
+      selectedFile: { src: '' },
+      selectedGrade: '',
+      haveGrade: false
+    }
   },
   mixins: [utils],
   computed: {
@@ -265,7 +265,7 @@ export default {
       // Starting at 1/3rd position to 2/3rd position
       return this.files.map((file) => {
         // Remove time stamp in front of each file name
-        const nameNoTime = file.file.name.replace(/(^\d+-)/, "");
+        const nameNoTime = file.file.name.replace(/(^\d+-)/, '')
         return nameNoTime.length > 16
           ? nameNoTime.replace(
               nameNoTime.substring(
@@ -274,56 +274,56 @@ export default {
                 // 2/3rd position index
                 (nameNoTime.length / 3) * 2
               ),
-              "..."
+              '...'
             )
-          : nameNoTime;
-      });
-    },
+          : nameNoTime
+      })
+    }
   },
   async mounted() {
     // If no work submitted then set show submitted to true (ie. lock all fields and submit button)
     if (this.noWorkSubmitted) {
-      this.showSubmitted = true;
+      this.showSubmitted = true
     }
     // console.log(!this.noWorkSubmitted && !!this.scoreInfo?.Score);
     // * === Sets teacher submitted score and file if exists === * //
     // If there is score to display or score is zero (in case of 0 score or proposal which score will always be zero)
     // Then set the UI of submitted score
-    console.log("Score info: ", this.scoreInfo);
+    console.log('Score info: ', this.scoreInfo)
     if (!!this.scoreInfo?.Score || this.scoreInfo?.Score === 0) {
-      console.log("score info:", this.scoreInfo);
-      this.showSubmitted = true;
+      console.log('score info:', this.scoreInfo)
+      this.showSubmitted = true
 
       // Sets score
-      this.givenScore = this.scoreInfo.Score;
+      this.givenScore = this.scoreInfo.Score
 
       // Sets comment
-      this.comment = this.scoreInfo.Comment;
+      this.comment = this.scoreInfo.Comment
 
       // If there's file teacher submitted in this progress, then create a blob
       if (this.scoreInfo.File_Name) {
         // Sets file
         const blob = await this.$axios.$get(
-          "/public_senior/uploads/assignments/" + this.scoreInfo.File_Name,
+          '/public_senior/uploads/assignments/' + this.scoreInfo.File_Name,
           {
-            responseType: "blob",
+            responseType: 'blob'
           }
-        );
+        )
         this.teacherFile = new File(
           [blob],
           // Remove time stamp in front of each file name
-          this.scoreInfo.File_Name.replace(/(^\d+-)/, ""),
+          this.scoreInfo.File_Name.replace(/(^\d+-)/, ''),
           {
-            type: blob.type,
+            type: blob.type
           }
-        );
+        )
       } else {
-        this.teacherFile = null;
+        this.teacherFile = null
       }
     }
 
     // Create new date object from progress due date, set by coordinator
-    const assignmentDueDate = new Date(this.progressionDueDate?.DueDate_End);
+    const assignmentDueDate = new Date(this.progressionDueDate?.DueDate_End)
 
     // * === Render student's files === * //
     // If there are submitted files get them from static folder
@@ -331,20 +331,20 @@ export default {
       // Create new date object from student submission time
       const assignmentSubmissionDate = new Date(
         this.submittedFiles[0].Submit_Date
-      );
+      )
 
       // First we check if work submission date is more than due date, if it is then student submit work late
       if (assignmentSubmissionDate > assignmentDueDate) {
-        this.submitOnTime = false;
+        this.submitOnTime = false
       } else {
-        this.submitOnTime = true;
+        this.submitOnTime = true
       }
 
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentSubmissionDate.toLocaleString("en-US", {
-        dateStyle: "full",
-        timeStyle: "medium",
-      });
+      this.submitDate = assignmentSubmissionDate.toLocaleString('en-US', {
+        dateStyle: 'full',
+        timeStyle: 'medium'
+      })
 
       // Create File object for "Download" button on the right (use for downloading student's work)
       // Get all submitted files as file object
@@ -352,58 +352,58 @@ export default {
         // Filter all submitted files and only get type of "File" and it's a student's file (role 2 and 3 are for students)
         .filter(
           (file) =>
-            (file.Type === "File" || file.Type === "Abstract") &&
+            (file.Type === 'File' || file.Type === 'Abstract') &&
             [2, 3].includes(file.Group_Role)
         )
         // Then, map each file and send axios get request to fetch the file from static folder in server
         .map(async (file) => {
           // Request response type to be 'blob'
           const blob = await this.$axios.$get(
-            "/public_senior/uploads/assignments/" +
+            '/public_senior/uploads/assignments/' +
               encodeURIComponent(file.File_Name),
             {
-              "Content-Type": "application/json;charset=utf-8",
-              responseType: "blob",
+              'Content-Type': 'application/json;charset=utf-8',
+              responseType: 'blob'
             }
-          );
+          )
           return {
             // Convert blob to File object
             file: new File([blob], file.File_Name, { type: blob.type }),
-            date: new Date(file.Submit_Date).toLocaleString(),
-          };
-        });
+            date: new Date(file.Submit_Date).toLocaleString()
+          }
+        })
       // Since, each loop is a promise, promise.all is needed
-      this.files = await Promise.all(files);
+      this.files = await Promise.all(files)
 
       // TODO: Delete this !
-      console.log("Files: ", this.files);
+      console.log('Files: ', this.files)
     } else {
       // * === If no files submitted, due date will be shown * === //
       // Format work submission date (according to `assignments` data table)
-      this.submitDate = assignmentDueDate.toLocaleString("en-US", {
-        dateStyle: "full",
-        timeStyle: "medium",
-      });
+      this.submitDate = assignmentDueDate.toLocaleString('en-US', {
+        dateStyle: 'full',
+        timeStyle: 'medium'
+      })
     }
 
     // Create object string on all files
     this.files.forEach((file) => {
-      this.uploadSrcs.push(URL.createObjectURL(file.file));
-    });
+      this.uploadSrcs.push(URL.createObjectURL(file.file))
+    })
 
     // Sets initial selected src
     this.selectedFile = {
       src: this.uploadSrcs[0],
       index: 0,
-      fileName: this.files[0]?.file.name,
-    };
-    console.log("uploadSrcs", this.selectedFile);
+      fileName: this.files[0]?.file.name
+    }
+    console.log('uploadSrcs', this.selectedFile)
 
     // Set links array
-    this.links = this.submittedFiles.filter((file) => file.Type === "Link");
+    this.links = this.submittedFiles.filter((file) => file.Type === 'Link')
 
-    console.log(this.progressId);
-    console.log(this.$store.state.group.currentUserGroup.Received_New_Grade);
+    console.log(this.progressId)
+    console.log(this.$store.state.group.currentUserGroup.Received_New_Grade)
 
     // * ANCHOR: FOR RE-EVAL
     // If there's given score on the assignment then that means this group already got the new grade
@@ -412,155 +412,155 @@ export default {
       !!this.$store.state.group.currentUserGroup?.Received_New_Grade
     ) {
       // Fetch given evaluation grade and comment
-      const evalInfo = await this.$axios.$post("/group/getTeachersEval", {
+      const evalInfo = await this.$axios.$post('/group/getTeachersEval', {
         Email: this.$store.state.auth.currentUser.email,
         Group_ID: this.$store.state.group.currentUserGroup.Group_ID,
         Single: true,
         reEvalComment: true,
-        filterTeachersRole: false,
-      });
-      console.log("Eval Info: ", evalInfo);
+        filterTeachersRole: false
+      })
+      console.log('Eval Info: ', evalInfo)
 
       // Check if this teacher given grade and comment yet
       if (!!evalInfo?.eval && evalInfo?.eval.length !== 0) {
-        this.haveGrade = true;
+        this.haveGrade = true
 
-        this.comment = evalInfo.eval[0].Comment;
-        this.selectedGrade = this.$store.state.group.currentUserGroup.Grade;
+        this.comment = evalInfo.eval[0].Comment
+        this.selectedGrade = this.$store.state.group.currentUserGroup.Grade
 
         // If there's file teacher submitted in this progress, then create a blob
         if (
           !!evalInfo.eval[0]?.File_Name &&
-          evalInfo.eval[0]?.File_Name !== ""
+          evalInfo.eval[0]?.File_Name !== ''
         ) {
           // Sets file
           const blob = await this.$axios.$get(
-            "/public_senior/uploads/assignments/" + evalInfo.eval[0].File_Name,
+            '/public_senior/uploads/assignments/' + evalInfo.eval[0].File_Name,
             {
-              responseType: "blob",
+              responseType: 'blob'
             }
-          );
+          )
           this.teacherFile = new File(
             [blob],
             // Remove time stamp in front of each file name
-            evalInfo.eval[0].File_Name.replace(/(^\d+-)/, ""),
+            evalInfo.eval[0].File_Name.replace(/(^\d+-)/, ''),
             {
-              type: blob.type,
+              type: blob.type
             }
-          );
+          )
         } else {
-          this.teacherFile = null;
+          this.teacherFile = null
         }
       }
     }
   },
   beforeDestroy() {
     // Clean up
-    this.uploadSrcs.forEach((src) => URL.revokeObjectURL(src));
+    this.uploadSrcs.forEach((src) => URL.revokeObjectURL(src))
   },
   methods: {
     handleChangeFilePreview(fileIndex) {
       this.selectedFile = {
         src: this.uploadSrcs[fileIndex],
         index: fileIndex,
-        fileName: this.files[fileIndex].file.name,
-      };
+        fileName: this.files[fileIndex].file.name
+      }
       // console.log("uploadSrcs", this.selectedFile);
     },
     handleDownloadFile() {
       // If no files, return
-      if (this.submittedFiles.length < 1) return;
+      if (this.submittedFiles.length < 1) return
 
       // Attach new 'a' tag element to DOM
-      const link = document.createElement("a");
+      const link = document.createElement('a')
       // Create link from selected object string
-      link.href = this.selectedFile.src;
+      link.href = this.selectedFile.src
 
       // Download with the file name
       // Remove time stamp in front of the file name
       const nameNoTime = this.files[this.selectedFile.index].file.name.replace(
         /(^\d+-)/,
-        ""
-      );
+        ''
+      )
       // Create download with the file name that has time stamp removed
-      link.download = nameNoTime;
+      link.download = nameNoTime
       // Initiate download
-      link.click();
+      link.click()
       // Revoke donwload link element from DOM
       // URL.revokeObjectURL(link.href);
     },
     handleScoreInput() {
-      this.givenScore = this.givenScore;
+      this.givenScore = this.givenScore
       // Math.trunc(this.givenScore);
       // console.log('given score',this.givenScore)
     },
     handleCheckValidScore() {
-      let checkDecimal = String(this.givenScore).includes(".")
-        ? String(this.givenScore).split(".")[1].length > 1
+      let checkDecimal = String(this.givenScore).includes('.')
+        ? String(this.givenScore).split('.')[1].length > 1
           ? true
           : false
-        : false;
+        : false
       return this.givenScore > this.maxScore || this.givenScore < 0
-        ? "Invalid score"
+        ? 'Invalid score'
         : checkDecimal
-        ? "Only one deimal point"
-        : true;
+        ? 'Only one deimal point'
+        : true
     },
     handleValidateFile() {
       // Validate when teacher upload a file
       if (!!this.teacherFile && this.teacherFile?.size > this.maxSize) {
         // If the file teacher is uploading is larger than 5MB (maximum size) Then fire an alert
         this.$swal.fire(
-          "File size is larger than 5MB",
-          "Please re-upload the file",
-          "warning"
-        );
+          'File size is larger than 5MB',
+          'Please re-upload the file',
+          'warning'
+        )
 
         // // Also reset the teacherFile back to null
         // this.teacherFile = null;
-        return;
+        return
       }
-      return;
+      return
     },
     async handleSubmitScore() {
       // console.log(this.showSubmitted)
-      console.log("Submitting score...");
+      console.log('Submitting score...')
       try {
         // If already submitted score or no work has been submitted this function won't run
-        if (this.showSubmitted || this.noWorkSubmitted) return;
+        if (this.showSubmitted || this.noWorkSubmitted) return
 
         // Validate form
-        this.$refs.form.validate();
-        if (!this.valid) return;
+        this.$refs.form.validate()
+        if (!this.valid) return
 
-        const formData = new FormData();
+        const formData = new FormData()
 
         // Append form data with file
-        formData.append("file", this.teacherFile);
+        formData.append('file', this.teacherFile)
 
         // Append the rest of the data
-        formData.append("Score", this.givenScore || 0);
-        formData.append("Max_Score", this.maxScore);
-        formData.append("Comment", this.comment);
+        formData.append('Score', this.givenScore || 0)
+        formData.append('Max_Score', this.maxScore)
+        formData.append('Comment', this.comment)
         formData.append(
-          "Group_Member_ID",
+          'Group_Member_ID',
           this.$store.state.group.currentUserGroup.Current_Member_ID
-        );
+        )
         formData.append(
-          "Group_ID",
+          'Group_ID',
           this.$store.state.group.currentUserGroup.Group_ID
-        );
-        formData.append("Assignment_ID", this.Assignment_ID);
+        )
+        formData.append('Assignment_ID', this.Assignment_ID)
 
         // If this progress is proposal, skip finding the next progress id and simply use the current one
         if (this.progressId === 2) {
-          formData.append("Next_Progress_ID", 3);
+          formData.append('Next_Progress_ID', 3)
         } else {
           // Else get current progress index from all avaialble progresses
           const currentProgressIndex =
             this.$store.state.group.availableProgress.findIndex(
               (progress) => progress.Progress_ID === this.progressId
-            );
+            )
           // // The next progress id will be in the current progress id (ie. mark that current progress is finished)
           // // More info: each group progression marks if it's done yet. So by updating group progression to current ones, we mark that it's done
           // Check if this is the last progress in the availableProgress
@@ -569,163 +569,167 @@ export default {
             this.$store.state.group.availableProgress.at(-1)
           ) {
             formData.append(
-              "Next_Progress_ID",
+              'Next_Progress_ID',
               this.$store.state.group.availableProgress[currentProgressIndex]
                 .Progress_ID + 1
-            );
+            )
           } else {
             // The next progress id will be in the next element in the availableProgress array
             formData.append(
-              "Next_Progress_ID",
+              'Next_Progress_ID',
               this.$store.state.group.availableProgress[
                 currentProgressIndex + 1
               ].Progress_ID
-            );
+            )
           }
         }
 
         // Shows confirm upload file(s) dialog
         this.$swal
           .fire({
-            title: "Confirm submit score",
+            title: 'Confirm submit score',
             text: "You won't be able to change given score, file or comment",
-            icon: "info",
+            icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Confirm",
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirm'
           })
           .then(async (result) => {
             try {
               if (result.isConfirmed) {
                 // Submit file, score and comment
                 const res = await this.$axios.$post(
-                  "/assignment/giveProgressScore",
+                  '/assignment/giveProgressScore',
                   formData
-                );
+                )
 
                 if (res.status !== 200) {
                   throw new Error(
-                    "Failed to submit score, please try again later."
-                  );
+                    'Failed to submit score, please try again later.'
+                  )
                 }
 
-                this.showSubmitted = true;
+                this.showSubmitted = true
                 // Show submitted score sucessfully
                 this.$swal.fire({
-                  title: "Submit score sucessfully",
-                  icon: "success",
-                });
-                return;
+                  title: 'Submit score sucessfully',
+                  icon: 'success'
+                })
+                return
               } else {
-                return;
+                return
               }
             } catch (err) {
-              console.log(err);
+              console.log(err)
             }
-          });
+          })
       } catch (err) {
-        console.log(err);
-        return;
+        console.log(err)
+        return
       }
     },
     async handleSubmitGrade() {
       try {
         // Get current member id
         const currentMemberId =
-          this.$store.state.group.currentUserGroup?.Current_Member_ID;
+          this.$store.state.group.currentUserGroup?.Current_Member_ID
         // If group alrady has a grade, teacher can't give them again
         // If no current group member id also return
-        if (this.haveGrade || !currentMemberId) return;
+        if (this.haveGrade || !currentMemberId) return
 
-        console.log(this.selectedGrade);
+        console.log(this.selectedGrade)
+        // Validate form
+        this.$refs.form.validate()
+        if (!this.valid) return
+
         // If no grade has been selected, warn the user
         if (this.groupAdvisor && this.selectedGrade === null) {
           this.$swal.fire(
-            "Missing data",
-            "Please select Grade before submit.",
-            "info"
-          );
-          return;
+            'Missing data',
+            'Please select Grade before submit.',
+            'info'
+          )
+          return
         }
 
         // If no suggest grade throw error
         if (!this.fetchScoresRes?.suggestGrade)
-          throw new Error("No suggestion grade error");
+          throw new Error('No suggestion grade error')
 
         const submitGrade =
-          this.selectedGrade === "As system suggested"
+          this.selectedGrade === 'As system suggested'
             ? this.fetchScoresRes.suggestGrade
-            : this.selectedGrade;
+            : this.selectedGrade
 
         // Create form data
-        const formData = new FormData();
+        const formData = new FormData()
 
         // Append all data
         formData.append(
-          "Group_ID",
+          'Group_ID',
           this.$store.state.group.currentUserGroup.Group_ID
-        );
-        formData.append("Grade", submitGrade);
-        formData.append("isReEval", submitGrade === "I" ? true : false);
-        formData.append("isAdvisor", this.groupAdvisor);
-        formData.append("Comment", this.comment);
-        formData.append("Assignment_ID", this.Assignment_ID);
-        formData.append("Group_Member_ID", currentMemberId);
+        )
+        formData.append('Grade', submitGrade)
+        formData.append('isReEval', submitGrade === 'I' ? true : false)
+        formData.append('isAdvisor', this.groupAdvisor)
+        formData.append('Comment', this.comment)
+        formData.append('Assignment_ID', this.Assignment_ID)
+        formData.append('Group_Member_ID', currentMemberId)
 
         // If re-eval create form data
         if (this.progressId === 10) {
           // Append form data with file
-          formData.append("file", this.teacherFile);
-          formData.append("newEvalScore", true);
-          formData.append("reEvalComment", true);
+          formData.append('file', this.teacherFile)
+          formData.append('newEvalScore', true)
+          formData.append('reEvalComment', true)
         }
 
         this.$swal
           .fire({
-            icon: "info",
-            title: "Submit Evaluation",
-            text: "You can submit evaluation only once.",
+            icon: 'info',
+            title: 'Submit Evaluation',
+            text: 'You can submit evaluation only once.',
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes",
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
           })
           .then(async (result) => {
             try {
               if (result.isConfirmed) {
-                const res = await this.$axios.$post("/group/grading", formData);
+                const res = await this.$axios.$post('/group/grading', formData)
 
                 if (res.status == 200) {
                   this.$swal.fire(
-                    "Successed",
-                    "Grade has been saved.",
-                    "success"
-                  );
+                    'Successed',
+                    'Grade has been saved.',
+                    'success'
+                  )
                   // Update UI
-                  this.fetchScoresRes.normalGrade = submitGrade;
-                  this.haveGrade = true;
+                  this.fetchScoresRes.normalGrade = submitGrade
+                  this.haveGrade = true
 
-                  return;
+                  return
                 } else {
-                  this.$swal.fire("Error", res.msg, "error");
-                  return;
+                  this.$swal.fire('Error', res.msg, 'error')
+                  return
                 }
               }
             } catch (err) {
-              console.log(err);
-              this.$swal.fire("Error", err.message, "error");
-              return;
+              console.log(err)
+              this.$swal.fire('Error', err.message, 'error')
+              return
             }
-          });
+          })
       } catch (err) {
-        console.log(err);
-        this.$swal.fire("Error", err.message, "error");
-        return;
+        console.log(err)
+        this.$swal.fire('Error', err.message, 'error')
+        return
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style>

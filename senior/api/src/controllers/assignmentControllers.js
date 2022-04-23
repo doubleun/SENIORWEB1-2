@@ -2,7 +2,7 @@ const con = require('../config/db')
 const promisePool = con.promise()
 const fs = require('fs')
 const { result } = require('lodash')
-const { formatDateIso } = require('../utility')
+const { formatDateIso, createErrorJSON } = require('../utility')
 // // Upload one file
 // uploadFile = async (req, res) => {
 //   let assignment = req.files.assignment;
@@ -51,22 +51,13 @@ uploadAssignments = async (req, res) => {
 
         // 1.2) Check if affectedRows is 0, if not then ignore inserting file and responsd with error already exists.
         if (assignmentResult.affectedRows === 0) {
-          // TODO: Implement this NEW error handling to all other responses in API
-          /**
-           * @todo - Implement this NEW error handling to all other responses in API
-           * @param {string} - msg: Message to display
-           * @param {boolean} errorPopup: Sweet alert popup (if possible)
-           * @param {boolean} errorPage: Redirect to Nuxt error page
-           * @param {boolean} logoutRedirect: Logout user and redirect to '/'
-           * @param {number} status: Status to display
-           */
-          res.status(409).json({
-            msg: 'Conflict',
-            errorPopup: true,
-            errorPage: false,
-            logoutRedirect: false,
-            status: 409
-          })
+          res.status(409).json(
+            createErrorJSON({
+              msg: 'This progress has already been submitted',
+              errDialog: { enabled: true, redirect: false },
+              status: 409
+            })
+          )
           return
         }
 

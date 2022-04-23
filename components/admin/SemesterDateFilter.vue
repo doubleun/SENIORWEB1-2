@@ -55,6 +55,8 @@
               <v-col cols="12">
                 <v-select
                   label="Senior name"
+                  item-text="text"
+                  item-value="senior"
                   :items="selectableSeniors"
                   v-model="addNewSemesterData.Senior"
                 ></v-select>
@@ -113,19 +115,22 @@
 </template>
 
 <script>
-import DatePicker from "../common/DataPicker.vue";
-import utils from "../../mixins/utils";
-import dialog from "../../mixins/dialog";
+import DatePicker from '../common/DataPicker.vue'
+import utils from '../../mixins/utils'
+import dialog from '../../mixins/dialog'
 export default {
   mixins: [utils, dialog],
   components: {
-    DatePicker,
+    DatePicker
   },
   data: () => ({
     academicData: [],
     selectedAcademicData: { year: 0, semester: 0 },
     dialog: false,
-    selectableSeniors: [1, 2],
+    selectableSeniors: [
+      { senior: 1, text: 'Senior Project 1' },
+      { senior: 2, text: 'Senior Project 2' }
+    ],
     selectableSemesters: [1, 2, 3],
     // Selectable yars will be filled in on mounted
     selectableYears: [],
@@ -133,122 +138,123 @@ export default {
     addNewSemesterData: {
       Academic_Year: 0,
       Academic_Term: 1,
-      Senior: 1,
+      Senior: 1
     },
     addNewSemesterDates: {
       startDate: null,
-      endDate: null,
-    },
+      endDate: null
+    }
   }),
   mounted() {
-    this.academicData = this.$store.getters["auth/semesterData"];
+    this.academicData = this.$store.getters['auth/semesterData']
     // console.log(this.$store.getters["auth/currentUser"].semesterData);
-    const currentYear = new Date().getFullYear();
+    const currentYear = new Date().getFullYear()
 
     if (!!Array.isArray(this.academicData) && !!this.academicData.length > 0) {
       // Gets all existed years from state and fill the selectableYears array
-      this.selectableYears = this.academicData.map(
-        (item) => item.Academic_Year
-      );
+      this.selectableYears = this.academicData.map((item) => item.Academic_Year)
 
       // Set inital date start and date end for add new semester data
       this.addNewSemesterDates.startDate = new Date(
         Date.now() - new Date().getTimezoneOffset() * 60000
       )
         .toISOString()
-        .substring(0, 10);
+        .substring(0, 10)
       this.addNewSemesterDates.endDate = new Date(
         Date.now() - new Date().getTimezoneOffset() * 60000
       )
         .toISOString()
-        .substring(0, 10);
+        .substring(0, 10)
 
       // Set initial selected year in the add new semester dialog
-      this.addNewSemesterData.Academic_Year = currentYear;
+      this.addNewSemesterData.Academic_Year = currentYear
 
       // Set initial selected filters
-      this.selectedAcademicData.year = this.academicData[0].Academic_Year;
-      this.selectedAcademicData.semester = this.academicData[0].Academic_Term;
+      this.selectedAcademicData.year = this.academicData[0].Academic_Year
+      this.selectedAcademicData.semester = this.academicData[0].Academic_Term
     }
 
     // Add current year to the selectableYears
-    this.selectableYears = [currentYear, ...this.selectableYears];
+    this.selectableYears = [currentYear, ...this.selectableYears]
   },
   methods: {
+    renderSeniorInText(senior) {
+      return `Senior project ${senior}`
+    },
     handleEmitChangeFilter() {
       if (
         !!this.selectedAcademicData.year &&
         !!this.selectedAcademicData.semester
       ) {
-        this.$emit("filter-date", this.selectedAcademicData);
+        this.$emit('filter-date', this.selectedAcademicData)
       }
     },
     handleOpenDialog() {
-      console.log(this.dialog);
-      this.dialog = true;
+      console.log(this.dialog)
+      this.dialog = true
     },
     handleUpdateDate(date, newDate) {
-      this.addNewSemesterDates[date] = newDate;
+      this.addNewSemesterDates[date] = newDate
     },
     async handleAddNewSemester() {
       try {
-        console.log("this.addNewSemesterData", this.addNewSemesterData);
+        console.log('this.addNewSemesterData', this.addNewSemesterData)
         // Check if the semester is already exits
-        const existingSemesters = this.$store.getters["auth/semesterData"];
+        const existingSemesters = this.$store.getters['auth/semesterData']
         if (Array.isArray(existingSemesters) && existingSemesters.length > 0) {
           const isSemesterExists = existingSemesters.some((semester) =>
             this.isEqual(semester, this.addNewSemesterData)
-          );
+          )
           if (isSemesterExists) {
-            this.$swal.fire("This semester is already exists", "", "info");
-            return;
+            this.$swal.fire('This semester is already exists', '', 'info')
+            return
           }
         }
 
         // Combine date and new semster data together
         const combinedData = {
           ...this.addNewSemesterData,
-          ...this.addNewSemesterDates,
-        };
+          ...this.addNewSemesterDates
+        }
 
         // Convert to array
-        const data = Object.values(combinedData);
-        console.log("dataArr", data);
+        const data = Object.values(combinedData)
+        console.log('dataArr', data)
 
         // Check if one of the adding data object is null or undefined
         if (!data.every((item) => !!item))
-          throw new Error("Submitting data is insufficient");
+          throw new Error('Submitting data is insufficient')
 
         // Fire API to add new semester date
         const apiCallback = () =>
-          this.$axios.post("/date/semester/new", {
-            data,
-          });
+          this.$axios.post('/date/semester/new', {
+            data
+          })
         await this.showLoading(apiCallback, {
-          title: "Adding new semester date",
-        });
+          title: 'Adding new semester date'
+        })
 
         // Update available semsters in state
         // TODO: This is dup with the admin.vue (layout) Create action to dispatch is better !
-        const allSemesters = await this.$axios.get("/date/allYearsSemester");
+        const allSemesters = await this.$axios.get('/date/allYearsSemester')
         await this.$store.commit(
-          "auth/SET_USER_SEMESTER_DATA",
+          'auth/SET_USER_SEMESTER_DATA',
           allSemesters.data
-        );
+        )
 
         // update available filter
-        this.academicData = this.$store.getters["auth/semesterData"];
+        this.academicData = this.$store.getters['auth/semesterData']
 
-        this.dialog = false;
-        await this.$nuxt.refresh();
-        return;
+        this.dialog = false
+        await this.$nuxt.refresh()
+        return
       } catch (err) {
-        console.log(err);
-        return;
+        console.log(err)
+        return
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style></style>
