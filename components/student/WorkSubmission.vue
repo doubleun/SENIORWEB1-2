@@ -82,7 +82,7 @@
                   !!link.text.match('http') ||
                   'a link must includes http or https',
                 () =>
-                  !link.text.includes(' ') || 'a link must not contain spcace',
+                  !link.text.includes(' ') || 'a link must not contain spcace'
               ]"
               required
               placeholder="Submit link"
@@ -165,7 +165,7 @@
               <div class="progress-file-type" v-if="finalDocument">
                 <v-radio :value="index" :disabled="!showSubmission"></v-radio>
               </div>
-              <p v-else>{{ showSubmission ? "Not Submitted" : "Submitted" }}</p>
+              <p v-else>{{ showSubmission ? 'Not Submitted' : 'Submitted' }}</p>
             </div>
           </v-radio-group>
         </div>
@@ -175,7 +175,7 @@
 </template>
 
 <script>
-import utils from "@/mixins/utils";
+import utils from '@/mixins/utils'
 
 export default {
   mixins: [utils],
@@ -188,49 +188,49 @@ export default {
       showSubmission: true,
       uploadSrc: null,
       dropActive: false,
-      submitTypes: ["Abstract", "Document"],
-      submitDate: "",
+      submitTypes: ['Abstract', 'Document'],
+      submitDate: '',
       submitOnTime: false,
-      selectedAbstractIndex: 0,
-    };
+      selectedAbstractIndex: 0
+    }
   },
   props: {
     finalDocument: {
       type: Boolean,
-      default: false,
+      default: false
     },
     title: {
       type: String,
-      default: "Work submission",
+      default: 'Work submission'
     },
     progressId: {
       type: Number,
-      default: 2,
+      default: 2
     },
     submittedFiles: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     advisor: {
       type: Object,
-      default: () => ({}),
+      default: () => ({})
     },
     committees: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     progressionDueDate: {
       type: Object,
-      default: () => ({}),
-    },
+      default: () => ({})
+    }
   },
   computed: {
     // Change submit button text when files array changes
     handleChangeSubmitText() {
       if (this.files.length !== 0) {
-        return "Turn In";
+        return 'Turn In'
       } else {
-        return "Please, add file(s) to upload";
+        return 'Please, add file(s) to upload'
       }
     },
     totalUploadSize() {
@@ -238,139 +238,149 @@ export default {
       const totalSize = this.files.reduce(
         (prev, current) => current.file.size + prev,
         0
-      );
+      )
 
       // const i = Math.floor( Math.log(size) / Math.log(1024) );
       // const readableSize = ( totalSize / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
       return {
         percentage: ((totalSize / this.maxSize) * 100).toFixed(2),
         byte: totalSize,
-        stringSize: this.bytesToSize(totalSize),
-      };
-    },
+        stringSize: this.bytesToSize(totalSize)
+      }
+    }
   },
   async mounted() {
     // console.log(this.$store.state);
     // console.log(this.submittedFiles);
-    console.log("Advisor: ", this.advisor);
-    console.log("Coms: ", this.committees);
+    console.log('Advisor: ', this.advisor)
+    console.log('Coms: ', this.committees)
 
-    // Create new date object from progress due date, set by coordinator
-    const assignmentDueDate = new Date(this.progressionDueDate.DueDate_End);
-
-    // If there are submitted files, add files into UI
-    if (this.submittedFiles.length !== 0) {
-      // Create new date object from student submission time
-      const assignmentSubmissionDate = new Date(
-        this.submittedFiles[0].Submit_Date
-      );
-
-      // First we check if work submission date is more than due date, if it is then student submit work late
-      if (assignmentSubmissionDate > assignmentDueDate) {
-        this.submitOnTime = false;
-      } else {
-        this.submitOnTime = true;
-      }
-
-      // Format work submission date (according to `assignments` data table)
-      this.submitDate = this.formatLocaleDateString(assignmentSubmissionDate, {
-        dateStyle: "full",
-        timeStyle: "medium",
-      });
-
-      // Hide submission buttons
-      this.showSubmission = false;
-
-      // TODO: Too many loops ??
-
-      // Get only files
-      const allFiles = this.submittedFiles
-        // Filter all submitted files and only get type of "File" and it's a student's file
-        .filter(
-          (file) =>
-            (file.Type === "File" || file.Type === "Abstract") &&
-            [2, 3].includes(file.Group_Role)
-        );
-
-      // console.log(
-      //   this.submittedFiles.findIndex((file) => file.Type === "Abstract")
-      // );
-
-      // Set abbstract index to the right one
-      this.selectedAbstractIndex = allFiles.findIndex(
-        (file) => file.Type === "Abstract"
-      );
-
-      let files = allFiles
-        // Then, map each file and send axios get request to fetch the file from static folder in server
-        .map(async (file) => {
-          // Request response type to be 'blob'
-          const blob = await this.$axios.$get(
-            "/public_senior/uploads/assignments/" + file.File_Name,
-            {
-              responseType: "blob",
-            }
-          );
-          return {
-            // Convert blob to File object
-            file: new File([blob], file.File_Name, { type: blob.type }),
-            date: new Date(file.Submit_Date).toLocaleString(),
-          };
-        });
-      // Since, each loop is a promise, promise.all is needed
-      files = await Promise.all(files);
-      // Finally, replace files with the submitted ones
-      this.files = files;
-
-      // Now, links also needs to be put in to the UI
-      this.submittedFiles
-        // Filter to get only file with type 'Link'
-        .filter((file) => file.Type === "Link")
-        // For each link push it into the 'availableLinks' array
-        .forEach((file) =>
-          this.availableLinks.push({
-            // Get the last elememt's number in the array, if null fallback to zero
-            number: (this.availableLinks.slice(-1)[0]?.number || 0) + 1,
-            text: file.File_Name,
-          })
-        );
-    } else {
-      // * === If no files submitted, due date will be shown * === //
-      // Format work submission date (according to `assignments` data table)
-      this.submitDate = this.formatLocaleDateString(assignmentDueDate, {
-        dateStyle: "full",
-        timeStyle: "medium",
-      });
-    }
+    // Render submitted files on init
+    await this.handleRenderSubmittedFiles()
   },
   methods: {
-    toggleDropActive() {
-      this.dropActive = !this.dropActive;
+    async handleRenderSubmittedFiles() {
+      // Create new date object from progress due date, set by coordinator
+      const assignmentDueDate = new Date(this.progressionDueDate.DueDate_End)
+
+      // If there are submitted files, add files into UI
+      if (this.submittedFiles.length !== 0) {
+        // Create new date object from student submission time
+        const assignmentSubmissionDate = new Date(
+          this.submittedFiles[0].Submit_Date
+        )
+
+        // First we check if work submission date is more than due date, if it is then student submit work late
+        if (assignmentSubmissionDate > assignmentDueDate) {
+          this.submitOnTime = false
+        } else {
+          this.submitOnTime = true
+        }
+
+        // Format work submission date (according to `assignments` data table)
+        this.submitDate = this.formatLocaleDateString(
+          assignmentSubmissionDate,
+          {
+            dateStyle: 'full',
+            timeStyle: 'medium'
+          }
+        )
+
+        // Hide submission buttons
+        this.showSubmission = false
+
+        // TODO: Too many loops ??
+
+        // Get only files
+        const allFiles = this.submittedFiles
+          // Filter all submitted files and only get type of "File" and it's a student's file
+          .filter(
+            (file) =>
+              (file.Type === 'File' || file.Type === 'Abstract') &&
+              [2, 3].includes(file.Group_Role)
+          )
+
+        // console.log(
+        //   this.submittedFiles.findIndex((file) => file.Type === "Abstract")
+        // );
+
+        // Set abbstract index to the right one
+        this.selectedAbstractIndex = allFiles.findIndex(
+          (file) => file.Type === 'Abstract'
+        )
+
+        let files = allFiles
+          // Then, map each file and send axios get request to fetch the file from static folder in server
+          .map(async (file) => {
+            // Request response type to be 'blob'
+            const blob = await this.$axios.$get(
+              '/public_senior/uploads/assignments/' + file.File_Name,
+              {
+                responseType: 'blob'
+              }
+            )
+            return {
+              // Convert blob to File object
+              file: new File([blob], file.File_Name, { type: blob.type }),
+              date: new Date(file.Submit_Date).toLocaleString()
+            }
+          })
+        // Since, each loop is a promise, promise.all is needed
+        files = await Promise.all(files)
+        // Finally, replace files with the submitted ones
+        this.files = files
+
+        // Now, links also needs to be put in to the UI
+        this.submittedFiles
+          // Filter to get only file with type 'Link'
+          .filter((file) => file.Type === 'Link')
+          // For each link push it into the 'availableLinks' array
+          .forEach((file) =>
+            this.availableLinks.push({
+              // Get the last elememt's number in the array, if null fallback to zero
+              number: (this.availableLinks.slice(-1)[0]?.number || 0) + 1,
+              text: file.File_Name
+            })
+          )
+      } else {
+        // * === If no files submitted, due date will be shown * === //
+        // Format work submission date (according to `assignments` data table)
+        this.submitDate = this.formatLocaleDateString(assignmentDueDate, {
+          dateStyle: 'full',
+          timeStyle: 'medium'
+        })
+      }
     },
+    // Toggle file drop down effects
+    toggleDropActive() {
+      this.dropActive = !this.dropActive
+    },
+    // Handle upload file popup
     handleBrowseFile(e) {
       if (e?.target.files[0]) {
         //Check if total size (in byte) is exceeded
         if (e.target.files[0].size + this.totalUploadSize.byte > this.maxSize) {
           this.$swal.fire({
-            icon: "error",
-            title: "Large file size",
-            text: "A file size more than total file size 5 MB",
-          });
-          return;
+            icon: 'error',
+            title: 'Large file size',
+            text: 'A file size more than total file size 5 MB'
+          })
+          return
         }
 
         // Upload using "browse"
         // Get date
-        const d = new Date().toLocaleString();
+        const d = new Date().toLocaleString()
 
         // Update the files array
-        this.files = [...this.files, { file: e.target.files[0], date: d }];
+        this.files = [...this.files, { file: e.target.files[0], date: d }]
       }
     },
+    // Handle drop file
     handleDropFile(e) {
       // console.log(this.totalUploadSize);
       // Toggling the drop effect back to normal
-      this.toggleDropActive();
+      this.toggleDropActive()
 
       if (e?.dataTransfer.files[0]) {
         //Check if total size (in byte) is exceeded
@@ -379,28 +389,25 @@ export default {
           this.maxSize
         ) {
           this.$swal.fire({
-            icon: "error",
-            title: "Large file size",
-            text: "A file size more than total file size 5 MB",
-          });
-          return;
+            icon: 'error',
+            title: 'Large file size',
+            text: 'A file size more than total file size 5 MB'
+          })
+          return
         }
 
         // Upload using drag and drop file
         // Get date
-        const d = new Date().toLocaleString();
+        const d = new Date().toLocaleString()
 
         // Update the files array
-        this.files = [
-          ...this.files,
-          { file: e.dataTransfer.files[0], date: d },
-        ];
+        this.files = [...this.files, { file: e.dataTransfer.files[0], date: d }]
       }
     },
     handleRemoveFile(e) {
       this.files = this.files.filter(
         (file) => file.date !== e.target.dataset.date
-      );
+      )
     },
     addLinkField() {
       this.availableLinks = [
@@ -408,38 +415,39 @@ export default {
         {
           // Number can be null if the last element is poped, so a fallback of zero is needed
           number: (this.availableLinks.slice(-1)[0]?.number || 0) + 1,
-          text: "",
-        },
-      ];
+          text: ''
+        }
+      ]
     },
     removeLinkField() {
-      this.availableLinks.pop();
+      this.availableLinks.pop()
     },
+    // Handle upload assignment
     async handleUploadAssignment() {
       try {
         // Check if user input a link into the form
-        const valid = this.$refs.linksForm.validate();
-        if (!valid) return;
+        const valid = this.$refs.linksForm.validate()
+        if (!valid) return
 
         // Check if there are files to be submitted
-        if (!this.files || this.files.length === 0) return;
+        if (!this.files || this.files.length === 0) return
 
         // Append form data with files
-        const formData = new FormData();
+        const formData = new FormData()
         // formData.append("file", this.files[0].file);
-        this.files.map((file) => formData.append("files", file.file));
+        this.files.map((file) => formData.append('files', file.file))
 
         // Append form data with progress id, group id
         // Progress id is from '_progress.vue' page
-        formData.append("Progress_ID", this.progressId);
+        formData.append('Progress_ID', this.progressId)
         formData.append(
-          "Group_ID",
+          'Group_ID',
           this.$store.state.group.currentUserGroup.Group_ID
-        );
+        )
         formData.append(
-          "Group_Member_ID",
+          'Group_Member_ID',
           this.$store.state.group.currentUserGroup.Group_Member_ID
-        );
+        )
         // formData.append(
         //   "Project_on_term_ID",
         //   this.$store.state.auth.currentUser.projectOnTerm
@@ -450,124 +458,132 @@ export default {
           // If no abstract file is selected, show error and return
           if (!this.selectedAbstractIndex && this.selectedAbstractIndex !== 0) {
             this.$swal.fire({
-              title: "Please, select one file as abstract file",
-              text: "",
-              icon: "warning",
-            });
-            return;
+              title: 'Please, select one file as abstract file',
+              text: '',
+              icon: 'warning'
+            })
+            return
           }
           // console.log("Selected abstract index: ", this.selectedAbstractIndex);
 
           // If abstract file's file type is not pdf, shows error and return
           if (
             this.files[this.selectedAbstractIndex].file.type !==
-            "application/pdf"
+            'application/pdf'
           ) {
             this.$swal.fire({
               title: "Selected abstract file's extension must be pdf",
-              text: "",
-              icon: "warning",
-            });
-            return;
+              text: '',
+              icon: 'warning'
+            })
+            return
           }
 
-          formData.append("abstractIndex", this.selectedAbstractIndex);
+          formData.append('abstractIndex', this.selectedAbstractIndex)
         }
 
         // Append form data with links, if there are any
         this.availableLinks.length !== 0 &&
-          this.availableLinks.map((link) =>
-            formData.append("links", link.text)
-          );
+          this.availableLinks.map((link) => formData.append('links', link.text))
 
         // Shows confirm upload file(s) dialog
         this.$swal
           .fire({
             title: `Confirm upload files for ${this.title}`,
             text: "You won't be able to re-upload the files",
-            icon: "info",
+            icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Confirm",
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirm'
           })
           .then(async (result) => {
             try {
               if (result.isConfirmed) {
                 // Upload file to server
-                const res = await this.$axios.$post(
-                  "/assignment/uploadAssignments",
+                const res = await this.$axios.post(
+                  '/assignment/uploadAssignments',
                   formData
-                );
+                )
 
-                // If the response status is not 200 and axios has not thrown an error, this'll throw new error
-                if (res.status !== 200) {
+                if (res.status === 409) {
+                  // If the response status is 409 then assignment already submitted (possibly by his teammate)
+                  this.$swal.fire({
+                    title: 'This progress has already been submitted',
+                    icon: 'info'
+                  })
+                  // Update UI
+                  await this.$nuxt.refresh()
+                  await this.handleRenderSubmittedFiles()
+                  return
+                } else if (res.status !== 200) {
+                  // If the response status is not 200 and axios has not thrown an error, this'll throw new error
                   throw new Error(
-                    "Failed to upload file, please try again later."
-                  );
+                    'Failed to upload file, please try again later.'
+                  )
                 }
 
                 // Update the UI
-                this.showSubmission = false;
+                this.showSubmission = false
 
                 // Check if work submission date is more than due date, if it is then student submit work late
-                const submitTimeStamp = new Date();
+                const submitTimeStamp = new Date()
                 if (
                   submitTimeStamp >
                   new Date(this.progressionDueDate.DueDate_End)
                 ) {
-                  this.submitOnTime = false;
+                  this.submitOnTime = false
                 } else {
-                  this.submitOnTime = true;
+                  this.submitOnTime = true
                 }
 
                 this.submitDate = this.formatLocaleDateString(submitTimeStamp, {
-                  dateStyle: "full",
-                  timeStyle: "medium",
-                });
+                  dateStyle: 'full',
+                  timeStyle: 'medium'
+                })
 
                 // Showing upload succeed
-                this.$swal.fire({ title: "Files uploaded", icon: "success" });
-                return;
+                this.$swal.fire({ title: 'Files uploaded', icon: 'success' })
+                return
               } else {
-                return;
+                return
               }
             } catch (err) {
-              console.log(err);
-              return;
+              console.log(err)
+              return
             }
-          });
+          })
       } catch (err) {
-        console.log(err);
-        return;
+        console.log(err)
+        return
       }
     },
     handleDownloadSubmittedFile(fileIndex) {
       // Show submission is on this function will not run
-      if (this.showSubmission) return;
+      if (this.showSubmission) return
 
       // Create new blob from file
       const blob = new Blob([this.files[fileIndex].file], {
-        type: this.files[fileIndex].file.type,
-      });
+        type: this.files[fileIndex].file.type
+      })
       // Attach new 'a' tag element to DOM
-      const link = document.createElement("a");
+      const link = document.createElement('a')
       // Create object string
-      link.href = URL.createObjectURL(blob);
+      link.href = URL.createObjectURL(blob)
       // Download with the file name
-      link.download = this.files[fileIndex].file.name;
-      link.click();
+      link.download = this.files[fileIndex].file.name
+      link.click()
       // Revoke element from DOM
-      URL.revokeObjectURL(link.href);
+      URL.revokeObjectURL(link.href)
 
       // Down here is use for open up in new page
       // // window.open(
       // //   "/api/uploads/assignments/" + this.files[fileIndex].file.name,
       // //   "_blank"
       // // );
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style>
