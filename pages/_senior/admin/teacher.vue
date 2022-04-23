@@ -11,7 +11,8 @@
         justify="right"
         dark
         color="blue darken-4"
-        @click="handleFileImport"
+        :loading="isSelectingFile"
+        @click="handleBrowseFile"
       >
         <v-icon dark-blue> mdi-application-import </v-icon>
         Import
@@ -22,7 +23,7 @@
         id="fileBrowse"
         type="file"
         accept=".xlsx"
-        @change="handleBrowseFile"
+        @change="handleFileImport"
       />
 
       <v-btn
@@ -66,8 +67,9 @@ export default {
     selectedMajor: {},
     selectedYear: null,
     selectedSemester: null,
-    files: [],
+    selectedFile: null,
     selectedRole: null,
+    isSelectingFile: false,
     loading: false,
     dialog1: false,
     singleSelect: false,
@@ -124,12 +126,6 @@ export default {
 
   methods: {
     async handelchangeRenderTeachers(year, semester, senior, majorId, role) {
-      // console.log("majorId", majorId);
-      // console.log("year", year);
-      // console.log("semester", semester);
-      // console.log("senior", senior);
-      // console.log("role", role);
-
       this.loading = true
       try {
         this.teachers = await this.$axios.$post('/user/getAllUserWithMajor', {
@@ -154,33 +150,51 @@ export default {
     downloadtemplete() {
       window.location.href = '/api/public_senior/templete/teacherTemplete.xlsx'
     },
+    handleBrowseFile() {
+      // Display loading while selecting a file
+      this.isSelectingFile = true
 
-    handleFileImport() {
+      // After a file is selected the state of the input element will be in 'focus' Then we stop the loading
       window.addEventListener(
         'focus',
         () => {
-          this.isSelecting = false
+          this.isSelectingFile = false
         },
+        // Make listener invoke only once
         { once: true }
       )
       // Trigger click on the FileInput
       this.$refs.uploader.click()
     },
-    async handleBrowseFile(e) {
-      if (e?.target.files[0]) {
+    handleFileImport(e) {
+      try {
+        if (!!e.target.files[0]) {
+          this.selectedFile = e.target.files[0]
+          console.log('e.target', e.target)
+          console.log('e.target.val', e.target?.value)
+          console.log('e.target.files', e.target?.files)
+        } else {
+          console.log('no file selected')
+          return
+        }
         // Get date
-        const d = new Date().toLocaleString()
+        // TODO: Date should be create in server-side not on client-side
+        // const d = new Date().toLocaleString()
+
         const formData = new FormData()
+
         // Get senior from state
         const selectedSenior = this.$store.getters['auth/currentUser'].senior
         if (!selectedSenior) return
 
-        // Update the files array
-        this.files = [...this.files, { file: e.target.files[0], date: d }]
-        this.files.map((file) => formData.append('files', file.file))
+        formData.append('file', this.selectedFile)
+
         // Add senior to formData
         formData.append('senior', selectedSenior)
-        console.log('FormData', [...formData])
+
+        // console.log('FormData', [...formData])
+
+        // Fetch API for import teacher
         this.$swal
           .fire({
             title: 'Are you sure to import this file ? ',
@@ -192,41 +206,46 @@ export default {
           })
           .then(async (result) => {
             /* Read more about isConfirmed, isDenied below */
-            try {
-              if (result.isConfirmed) {
-                const res = await this.$axios.$post(
-                  'user/importteacher',
-                  formData
-                )
-                console.log(res)
-                if (!res) {
-                  this.$swal.fire('Error! some thing went wrong', '', 'warning')
+
+            if (result.isConfirmed) {
+              const res = await this.$axios.$post(
+                'user/importteacher',
+                formData
+              )
+              // console.log(res)
+              if (!res) {
+                this.$swal.fire('Error! some thing went wrong', '', 'warning')
+              } else {
+                if (res === 'success') {
+                  this.$swal.fire('Saved!', '', 'success')
+                  // Update UI
+                  await this.$nuxt.refresh()
+                } else if (res === 'someproblem') {
+                  this.$swal.fire(
+                    'Success',
+                    'Success with condition some field are not inserted',
+                    'warning'
+                  )
+                  // Update UI
+                  await this.$nuxt.refresh()
                 } else {
-                  if (res === 'success') {
-                    this.$swal.fire('Saved!', '', 'success')
-                    // Update UI
-                    await this.$nuxt.refresh()
-                  } else if (res === 'someproblem') {
-                    this.$swal.fire(
-                      'Success',
-                      'Success with condition some field are not inserted',
-                      'warning'
-                    )
-                    // Update UI
-                    await this.$nuxt.refresh()
-                  } else {
-                    this.$swal.fire(
-                      'Error! some thing went wrong',
-                      'User will not inserted',
-                      'warning'
-                    )
-                  }
+                  this.$swal.fire(
+                    'Error! some thing went wrong',
+                    'User will not inserted',
+                    'warning'
+                  )
                 }
               }
-            } catch (error) {
-              this.$swal.fire('Error! some thing went wrong', '', 'warning')
             }
           })
+        // Reset target input value to null to allow @change to trigger more than once
+        e.target.value = null
+        return
+      } catch (err) {
+        console.log(err)
+        this.$swal.fire('Error! some thing went wrong', err, 'warning')
+        e.target.value = null
+        return
       }
     }
   }
