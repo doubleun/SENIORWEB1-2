@@ -50,27 +50,39 @@
 export default {
   data: () => ({
     items: [{ icon: 'mdi-logout', title: 'Logout' }],
-    userName: ''
+    userName: '',
+    userInitial: '',
+    userImage: null
   }),
   mounted() {
     this.userName = this.$store.getters['auth/currentUser'].name
-  },
-  computed: {
-    userInitial() {
-      // Get user name
-      const fullName = this.$store.getters['auth/currentUser'].name
-      // Get user's initial
-      const userNameArr = fullName.split(' ')
+    this.userImage = this.$store.getters['auth/currentUser'].photo
 
-      // If cannot get an array, then use the first two letters
-      return userNameArr.length > 0
+    // Get user's initial
+    const userNameArr = this.userName.split(' ')
+
+    // If cannot get an array, then use the first two letters
+    this.userInitial =
+      userNameArr.length > 0
         ? `${userNameArr[0][0]}${userNameArr[1][0]}`
         : `${fullName[0]}${fullName[1]}`
-    },
-    userImage() {
-      return this.$store.getters['auth/currentUser'].photo
-    }
   },
+  // computed: {
+  // userInitial() {
+  //   // Get user name
+  //   const fullName = this.$store.getters['auth/currentUser'].name
+  //   // Get user's initial
+  //   const userNameArr = fullName.split(' ')
+
+  //   // If cannot get an array, then use the first two letters
+  //   return userNameArr.length > 0
+  //     ? `${userNameArr[0][0]}${userNameArr[1][0]}`
+  //     : `${fullName[0]}${fullName[1]}`
+  // }
+  // userImage() {
+  //   return this.$store.getters['auth/currentUser'].photo
+  // }
+  // },
   props: ['theme'],
   methods: {
     // toggleDrawer() {
