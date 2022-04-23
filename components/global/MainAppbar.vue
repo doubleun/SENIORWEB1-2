@@ -19,7 +19,19 @@
           <h3 style="margin-inline-end: 1rem">
             {{ userName }}
           </h3>
-          <v-avatar><img :src="userImage" :alt="userImage" /></v-avatar>
+          <v-avatar color="brown">
+            <!-- Display user image if possible -->
+            <img
+              :src="userImage"
+              :alt="userInitial"
+              referrerpolicy="no-referrer"
+              v-if="!!userImage"
+            />
+            <!-- Else, display user's inital -->
+            <span v-else class="white--text text-h5">
+              {{ userInitial }}
+            </span>
+          </v-avatar>
           <v-icon right>mdi-chevron-down</v-icon>
         </v-btn>
       </template>
@@ -37,29 +49,43 @@
 <script>
 export default {
   data: () => ({
-    items: [{ icon: "mdi-logout", title: "Logout" }],
-    userName: "",
-    userImage: null,
+    items: [{ icon: 'mdi-logout', title: 'Logout' }],
+    userName: ''
   }),
-  created() {
-    this.userName = this.$store.getters["auth/currentUser"].name;
-    this.userImage = this.$store.getters["auth/currentUser"].photo;
+  mounted() {
+    this.userName = this.$store.getters['auth/currentUser'].name
   },
-  props: ["theme"],
+  computed: {
+    userInitial() {
+      // Get user name
+      const fullName = this.$store.getters['auth/currentUser'].name
+      // Get user's initial
+      const userNameArr = fullName.split(' ')
+
+      // If cannot get an array, then use the first two letters
+      return userNameArr.length > 0
+        ? `${userNameArr[0][0]}${userNameArr[1][0]}`
+        : `${fullName[0]}${fullName[1]}`
+    },
+    userImage() {
+      return this.$store.getters['auth/currentUser'].photo
+    }
+  },
+  props: ['theme'],
   methods: {
     // toggleDrawer() {
     //   this.$store.commit("set_drawer", !this.$store.state.drawer);
     // }
     test() {
-      console.log(this.$store.state.auth.currentUser);
+      console.log(this.$store.state.auth.currentUser)
     },
     async logout() {
-      await this.$store.dispatch("auth/logout");
-      console.log("re routing back");
-      window.location.reload();
-    },
-  },
-};
+      await this.$store.dispatch('auth/logout')
+      console.log('re routing back')
+      window.location.reload()
+    }
+  }
+}
 </script>
 
 <style scoped>

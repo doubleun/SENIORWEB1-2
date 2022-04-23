@@ -2,14 +2,15 @@
   <v-container>
     <!-- <main class="admin-teacher-manage-main"> -->
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Manage Teacher</h2>
-    <SelectSenior></SelectSenior>
+    <SelectSenior />
 
     <div class="my-5 d-flex justify-end">
       <v-btn
         class="mr-2 dark-blue--text"
         align="right"
         justify="right"
-        dark color="blue darken-4"
+        dark
+        color="blue darken-4"
         @click="handleFileImport"
       >
         <v-icon dark-blue> mdi-application-import </v-icon>
@@ -28,7 +29,8 @@
         class="dark-blue--text"
         align="right"
         justify="right"
-        dark color="blue darken-4"
+        dark
+        color="blue darken-4"
         @click="downloadtemplete"
       >
         <v-icon dark> mdi-application-import </v-icon>
@@ -59,7 +61,7 @@
 // import AdminDataTable from "@/components/admin/adminDataTable";
 
 export default {
-  layout: "admin",
+  layout: 'admin',
   data: () => ({
     selectedMajor: {},
     selectedYear: null,
@@ -73,37 +75,37 @@ export default {
     teachers: [],
     // Attributes that will show in the 'Edit dialog'
     attrs: [
-      { lable: "NAME", value: "User_Name" },
-      { lable: "EMAIL", value: "User_Email" },
+      { lable: 'NAME', value: 'User_Name' },
+      { lable: 'EMAIL', value: 'User_Email' }
     ],
     headers: [
-      { text: "NAME", align: "center", value: "User_Name" },
-      { text: "EMAIL", align: "center", value: "User_Email" },
-      { text: "STUDY PROGRAM", align: "center", value: "Major_Name" },
-      { text: "ADVISOR", align: "center", value: "Advisor" },
-      { text: "COMMITTEE", align: "center", value: "Committee" },
-      { text: "ROLE", align: "center", value: "User_Role_Name", width: "25%" },
+      { text: 'NAME', align: 'center', value: 'User_Name' },
+      { text: 'EMAIL', align: 'center', value: 'User_Email' },
+      { text: 'STUDY PROGRAM', align: 'center', value: 'Major_Name' },
+      { text: 'ADVISOR', align: 'center', value: 'Advisor' },
+      { text: 'COMMITTEE', align: 'center', value: 'Committee' },
+      { text: 'ROLE', align: 'center', value: 'User_Role_Name', width: '25%' }
       // { text: "ACTION", align: "center", value: "actions", sortable: false },
       // { text: "SEM", align: "center", value: "Committee" },
-    ],
+    ]
   }),
 
   async asyncData({ $axios, store }) {
-    let majors, yearNSemsters, roles;
+    let majors, yearNSemsters, roles
     try {
       // Fetch all majors
-      majors = await $axios.$get("/major/getAllActiveMajors");
+      majors = await $axios.$get('/major/getAllActiveMajors')
 
       // Fetch all years and semesters
-      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+      yearNSemsters = await $axios.$get('/date/allYearsSemester')
 
       // Fetch teacher's roles
-      roles = await $axios.$get("/user/getTeacherRole");
+      roles = await $axios.$get('/user/getTeacherRole')
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
 
-    return { majors, yearNSemsters, roles };
+    return { majors, yearNSemsters, roles }
   },
 
   async fetch() {
@@ -112,12 +114,12 @@ export default {
      * @todo Refactor use a more universal way of fetching initial data
      */
     this.handelchangeRenderTeachers(
-      this.$store.getters["auth/currentUser"].academicYear,
-      this.$store.getters["auth/currentUser"].semester,
-      this.$store.getters["auth/currentUser"].senior,
+      this.$store.getters['auth/currentUser'].academicYear,
+      this.$store.getters['auth/currentUser'].semester,
+      this.$store.getters['auth/currentUser'].senior,
       this.majors[0].Major_ID,
       this.roles[0].Role_ID
-    );
+    )
   },
 
   methods: {
@@ -128,102 +130,107 @@ export default {
       // console.log("senior", senior);
       // console.log("role", role);
 
-      this.loading = true;
+      this.loading = true
       try {
-        this.teachers = await this.$axios.$post("/user/getAllUserWithMajor", {
+        this.teachers = await this.$axios.$post('/user/getAllUserWithMajor', {
           Major_ID: majorId,
           Academic_Year: year,
           Academic_Term: semester,
           Senior: senior,
-          User_Role: role,
-        });
+          User_Role: role
+        })
         // Add user_role_name based on user_role (Should fetch role name from the database ?)
         this.teachers = this.teachers.map((teacher) => ({
           ...teacher,
-          User_Role_Name: teacher.User_Role === 0 ? "Teacher" : "Coordinator",
-        }));
+          User_Role_Name: teacher.User_Role === 0 ? 'Teacher' : 'Coordinator'
+        }))
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
 
-      this.loading = false;
+      this.loading = false
     },
 
     downloadtemplete() {
-      window.location.href = "/api/public_senior/templete/teacherTemplete.xlsx";
+      window.location.href = '/api/public_senior/templete/teacherTemplete.xlsx'
     },
 
     handleFileImport() {
       window.addEventListener(
-        "focus",
+        'focus',
         () => {
-          this.isSelecting = false;
+          this.isSelecting = false
         },
         { once: true }
-      );
+      )
       // Trigger click on the FileInput
-      this.$refs.uploader.click();
+      this.$refs.uploader.click()
     },
-    handleBrowseFile(e) {
+    async handleBrowseFile(e) {
       if (e?.target.files[0]) {
         // Get date
-        const d = new Date().toLocaleString();
-        const formData = new FormData();
+        const d = new Date().toLocaleString()
+        const formData = new FormData()
+        // Get senior from state
+        const selectedSenior = this.$store.getters['auth/currentUser'].senior
+        if (!selectedSenior) return
 
         // Update the files array
-        this.files = [...this.files, { file: e.target.files[0], date: d }];
-        this.files.map((file) => formData.append("files", file.file));
-        console.log(formData);
+        this.files = [...this.files, { file: e.target.files[0], date: d }]
+        this.files.map((file) => formData.append('files', file.file))
+        // Add senior to formData
+        formData.append('senior', selectedSenior)
+        console.log('FormData', [...formData])
         this.$swal
           .fire({
-            title: "Are you sure to import this file ? ",
-            text: "Please make sure file is correct you can import once per semister!!!",
+            title: 'Are you sure to import this file ? ',
+            text: 'Please make sure file is correct you can import once per semister!!!',
             showDenyButton: true,
             // showCancelButton: true,
-            confirmButtonText: "OK",
-            denyButtonText: `Cancel`,
+            confirmButtonText: 'OK',
+            denyButtonText: `Cancel`
           })
           .then(async (result) => {
             /* Read more about isConfirmed, isDenied below */
             try {
               if (result.isConfirmed) {
                 const res = await this.$axios.$post(
-                  "user/importteacher",
+                  'user/importteacher',
                   formData
-                );
-                console.log(res);
+                )
+                console.log(res)
                 if (!res) {
-                  this.$swal.fire(
-                    "Error! some thing went wrong",
-                    "",
-                    "warning"
-                  );
+                  this.$swal.fire('Error! some thing went wrong', '', 'warning')
                 } else {
-                  if (res === "success") {
-                    this.$swal.fire("Saved!", "", "success");
-                  } else if (res === "someproblem") {
+                  if (res === 'success') {
+                    this.$swal.fire('Saved!', '', 'success')
+                    // Update UI
+                    await this.$nuxt.refresh()
+                  } else if (res === 'someproblem') {
                     this.$swal.fire(
-                      "Success",
-                      "Success with condition some field are not inserted",
-                      "warning"
-                    );
+                      'Success',
+                      'Success with condition some field are not inserted',
+                      'warning'
+                    )
+                    // Update UI
+                    await this.$nuxt.refresh()
                   } else {
                     this.$swal.fire(
-                      "Error! some thing went wrong",
-                      "User will not inserted",
-                      "warning"
-                    );
+                      'Error! some thing went wrong',
+                      'User will not inserted',
+                      'warning'
+                    )
                   }
                 }
               }
             } catch (error) {
-              this.$swal.fire("Error! some thing went wrong", "", "warning");
+              this.$swal.fire('Error! some thing went wrong', '', 'warning')
             }
-          });
+          })
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style>
