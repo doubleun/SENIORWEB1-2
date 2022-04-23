@@ -33,4 +33,8 @@
 
 - [Project Doc (work in progress)](https://docs.google.com/document/u/1/d/1t9EwBr6hAleTO7v4ljuYS1nZ5FxNZsjD/edit?usp=sharing&ouid=112905365178969432939&rtpof=true&sd=true)
 
+- [Videos Guide](https://drive.google.com/drive/u/1/folders/1cCRHNwGQ-3NyUzqnkJv0Jtjbab3UzaF7?fbclid=IwAR0GkJW4TFsKe55B-L_NNHiyEasURQOJPxnMO38L15shL7Q2Bxou3BleT3Q)
+
+- [Test Result](https://docs.google.com/document/d/1YgUVU92XfDQD5lD_H-zSSyvBz2HhnjeOAJ6qB6IX4Mo/edit?fbclid=IwAR0BK5OkrcAgHlMcYuwz7LpEpQKrrODV5Qlhc73-s482l-ak3JHTyCFTIuk)
+
 - [How to setup eslint and prettier](https://medium.com/@gogl.alex/how-to-properly-set-up-eslint-with-prettier-for-vue-or-nuxt-in-vscode-e42532099a9c)
