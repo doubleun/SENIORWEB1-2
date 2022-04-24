@@ -183,21 +183,12 @@
                 <v-col class="mt-5">
                   <div v-for="(user, index) in advisor" :key="index">
                     <v-chip
+                      v-if="(!!user && groupCreated) || !headMember"
                       class="ma-2"
-                      :color="
-                        ((!!user && groupCreated) || !headMember) &&
-                        user.User_Status == 1
-                          ? 'green'
-                          : 'orange'
-                      "
+                      :color="user.User_Status == 1 ? 'green' : 'orange'"
                       text-color="white"
                     >
-                      {{
-                        ((!!user && groupCreated) || !headMember) &&
-                        user.User_Status == 1
-                          ? 'Accepted'
-                          : 'Pendding'
-                      }}
+                      {{ user.User_Status == 1 ? 'Accepted' : 'Pendding' }}
                     </v-chip>
 
                     <v-autocomplete
@@ -249,21 +240,12 @@
                 <v-col class="mt-5">
                   <div v-for="(user, index) in committee" :key="index">
                     <v-chip
+                      v-if="(!!user && groupCreated) || !headMember"
                       class="ma-2"
-                      :color="
-                        ((!!user && groupCreated) || !headMember) &&
-                        user.User_Status == 1
-                          ? 'green'
-                          : 'orange'
-                      "
+                      :color="user.User_Status == 1 ? 'green' : 'orange'"
                       text-color="white"
                     >
-                      {{
-                        ((!!user && groupCreated) || !headMember) &&
-                        user.User_Status == 1
-                          ? 'Accepted'
-                          : 'Pendding'
-                      }}
+                      {{ user.User_Status == 1 ? 'Accepted' : 'Pendding' }}
                     </v-chip>
                     <!-- {{ committee[index] }} -->
                     <v-autocomplete
@@ -425,10 +407,7 @@ export default {
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
     // And assign value into name and email array
-    selectedStudent(val) {
-      this.name = val.map((itm) => itm?.User_Name)
-      this.email = val.map((itm) => itm?.User_Email)
-    }
+    student(val) {}
   },
   mounted() {
     console.log('Group members: ', this.groupMembers)
@@ -461,15 +440,15 @@ export default {
       // If no groups, set group created to false
       this.groupCreated = false
       // And insert the current user as head of the group (ie. first member)
-      this.student[0].User_Email = this.$store.state.auth.currentUser.email
-      this.student[0].User_Identity_ID =
-        this.$store.state.auth.currentUser.userId
-      this.student[0].User_Name = this.$store.state.auth.currentUser.name
-      this.student[0].User_Role = this.$store.state.auth.currentUser.role
-      this.student[0].Group_Role = 3
-      this.student[0].User_Major = this.$store.state.auth.currentUser.major
-      this.student[0].User_Status = 1
-      // this.student[0].User_Phone = 0
+      this.student[0] = {
+        User_Email: this.$store.state.auth.currentUser.email,
+        User_Identity_ID: this.$store.state.auth.currentUser.userId,
+        User_Name: this.$store.state.auth.currentUser.name,
+        User_Role: this.$store.state.auth.currentUser.role,
+        Group_Role: 3,
+        User_Major: this.$store.state.auth.currentUser.major,
+        User_Status: 1
+      }
 
       console.log('inital student', this.student)
     }
