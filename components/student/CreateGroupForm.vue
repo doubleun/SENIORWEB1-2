@@ -138,8 +138,16 @@
                         member.User_Status === 1 ||
                         groupCreated
                       "
-                      :rules="[(val) => selectMemberRules('student', val)]"
-                      @input="student[index] = $event || {}"
+                      :rules="[
+                        () => selectMemberRules('student', student[index])
+                      ]"
+                      @input="
+                        student[index] = handelAddGroupRole(
+                          $event,
+                          student[index],
+                          'student'
+                        )
+                      "
                       item-text="User_Identity_ID"
                       item-value="User_Identity_ID"
                       placeholder="Search student ID"
@@ -197,7 +205,7 @@
                     >
                       {{ user.User_Status == 1 ? 'Accepted' : 'Pendding' }}
                     </v-chip>
-
+                    {{ user }}
                     <v-autocomplete
                       v-model="advisor[index]"
                       :items="allTeachersInSchool"
@@ -207,6 +215,13 @@
                         !headMember
                       "
                       :rules="[(val) => selectMemberRules('teacher', val)]"
+                      @input="
+                        advisor[index] = handelAddGroupRole(
+                          $event,
+                          advisor[index],
+                          'advisor'
+                        )
+                      "
                       outlined
                       dense
                       color="blue"
@@ -254,7 +269,7 @@
                     >
                       {{ user.User_Status == 1 ? 'Accepted' : 'Pendding' }}
                     </v-chip>
-                    <!-- {{ committee[index] }} -->
+                    {{ user }}
                     <v-autocomplete
                       v-model="committee[index]"
                       :items="allTeachersInSchool"
@@ -267,6 +282,13 @@
                         (val) =>
                           index !== 0 ? true : selectMemberRules('teacher', val)
                       ]"
+                      @input="
+                        committee[index] = handelAddGroupRole(
+                          $event,
+                          committee[index],
+                          'committee'
+                        )
+                      "
                       outlined
                       dense
                       color="blue"
@@ -335,28 +357,19 @@ export default {
   data: () => ({
     // Flag for setting disabled field, this is for when group is created (some field can't be change if this is ture)
     groupCreated: false,
+
     // Flag for checking if current user is head of the group
     headMember: true,
-    // TODO: By the way there's more efficient way of doing this using object
-    // Array containing each student info as object (after select one in the auto complete, it'll add into this array)
-    // selectedStudent: [null, null, null, null],
-    // For loading (currently not use)
+
     studentLoading: false,
     // All students and teachers in major fecthed from database (see 'async fetch' down below)
     allStudentsInSchool: [],
     allTeachersInSchool: [],
-    // Object contains advisor info as object (after select one in the auto complete, it'll assign to this variable)
-    // selectedAdvisor: null,
-    // selectedAdvisorstatus: 3,
-    // selectedCoAdvisor: null,
     coadvisorName: '',
-    // selectedCommittee1: null,
-    // selectedCommittee2: null,
-    // selectedCommittee1status: 3,
-    // selectedCommittee2status: 3,
     valid: true,
     thaiName: '',
     engName: '',
+    // email still importance or not cus email filed always disable
     emailRules: [
       (v) => !!v || 'E-mail is required',
       (v) =>
@@ -364,13 +377,6 @@ export default {
           v
         ) || 'E-mail must be valid'
     ],
-    // projectMembers: [1],
-    // memberStatus: [],
-    // name: ['', '', '', '', '', '', '', '', '', ''],
-    // phone: ['', '', '', '', '', '', '', '', '', ''],
-    // idstu: ["", "", "", "", "","", "", "", "", ""],
-    // email: ['', '', '', '', '', '', '', '', '', ''],
-    // major: '1',
     showResposeBtn: false,
     isHaveAssignment: false,
     student: [],
@@ -401,16 +407,16 @@ export default {
     this.isHaveAssignment = isHaveAssignment.length > 0 ? true : false
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students
-    // console.log("Students: ", res.students);
-    this.allTeachersInSchool = res.teachers
+    console.log('Students: ', res.students)
 
-    // console.log("Teachers: ", res.teachers);
+    this.allTeachersInSchool = res.teachers
+    console.log('Teachers: ', res.teachers)
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
     // And assign value into name and email array
     student(val) {
-      // console.log(val)
+      console.log(val)
     }
   },
   mounted() {
@@ -471,12 +477,25 @@ export default {
     }
   },
   methods: {
+    // add group role when selected member
+    handelAddGroupRole(event, user, role) {
+      if (event) {
+        user = {
+          ...event,
+          Group_Role: role === 'student' ? 2 : role === 'advisor' ? 0 : 1
+        }
+      } else {
+        user = {}
+      }
+      return user
+    },
+
     // student selected rules
     selectMemberRules(role, val) {
       // console.log('check duplicate member', val)
       let errorMsg = true
-      if (!val) {
-        return 'This field is required'
+      if (!val || Object.keys(val).length === 0) {
+        return (errorMsg = 'This field is required')
       }
 
       switch (role) {
@@ -519,8 +538,9 @@ export default {
 
     // Add member fields
     addMemberFields() {
-      this.student = [...this.student, this.student.slice(-1)[0] + 1]
-      console.log('add student', this.student)
+      // this.student = [...this.student, this.student.slice(-1)[0]]
+      this.student.push({})
+      // console.log('add student', this.student)
     },
 
     // Remove member fields
@@ -554,6 +574,11 @@ export default {
       // console.log('advisor', this.advisor.length === 0)
       if (this.$refs.form.validate() === false) return
       let user = [...this.student, ...this.advisor, ...this.committee]
+
+      //   user=user.map((el) => ({
+      //   ...el,
+      //   el.Group_Role: 2
+      // }))
       console.log('member', user)
       return
 
