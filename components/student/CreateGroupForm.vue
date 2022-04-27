@@ -33,7 +33,7 @@
                         'This field is required / Not allow start and end with space / Not allow space, special character and only Thai characters.'
                     })
                 ]"
-                :disabled="!headMember"
+                :disabled="!headMember || isHaveAssignment"
                 required
                 class="mt-5"
                 label="Thai Name"
@@ -52,7 +52,7 @@
                         'This field is required / Not allow start and end with space / Not allow special character and only English characters.'
                     })
                 ]"
-                :disabled="!headMember"
+                :disabled="!headMember || isHaveAssignment"
                 required
                 label="English Name"
                 outlined
@@ -62,22 +62,34 @@
 
             <!-- Part : project member -->
             <div class="projectMember">
-              <h4 class="font-weight-bold">Project Member</h4>
+              <h4 class="font-weight-bold mb-5">Project Member</h4>
               <!-- Student -->
               <!-- Loop the "projectMembers" array and render each student fields -->
               <div v-for="(member, index) in student" :key="index">
-                <h5 class="font-weight-bold mt-5">
-                  Student {{ index + 1 }}
-                  <!-- Icon indicate if teacher submiited eval comment yet -->
+                <v-row class="container">
+                  <h5 class="font-weight-bold">
+                    Student {{ index + 1 }}
+                    <!-- Icon indicate if teacher submiited eval comment yet -->
+                    <v-chip
+                      class="mx-2"
+                      text-color="white"
+                      :color="member.User_Status === 1 ? 'green' : 'orange'"
+                      v-if="index === 0 || groupCreated || member.User_Status"
+                    >
+                      {{ member.User_Status === 1 ? 'Accepted' : 'Pendding' }}
+                    </v-chip>
+                  </h5>
+                  <v-spacer></v-spacer>
                   <v-chip
-                    class="ma-2"
-                    :color="member.User_Status === 1 ? 'green' : 'orange'"
-                    text-color="white"
+                    v-if="
+                      member.Group_Role !== 3 && headMember && !isHaveAssignment
+                    "
+                    color="error"
+                    @click="removeMemberFields(member)"
                   >
-                    {{ member.User_Status === 1 ? 'Accepted' : 'Pendding' }}
+                    <v-icon> mdi-delete </v-icon>
                   </v-chip>
-                </h5>
-                {{ member }}
+                </v-row>
 
                 <v-row>
                   <v-col cols="12" sm="6">
@@ -94,7 +106,6 @@
                       outlined
                       dense
                       disabled
-                      class="mt-5"
                     >
                     </v-text-field>
                     <v-text-field
@@ -118,7 +129,7 @@
                             ? 'Only 10 digit of number'
                             : true
                       ]"
-                      :disabled="!headMember"
+                      :disabled="!headMember || isHaveAssignment"
                       required
                       label="Student Phone Number"
                       outlined
@@ -133,10 +144,9 @@
                       :items="allStudentsInSchool"
                       :filter="customStudentFilter"
                       :disabled="
-                        index === 0 ||
-                        !headMember ||
+                        isHaveAssignment ||
                         member.User_Status === 1 ||
-                        groupCreated
+                        !headMember
                       "
                       :rules="[
                         () => selectMemberRules('student', student[index])
@@ -145,14 +155,14 @@
                         student[index] = handelAddGroupRole(
                           $event,
                           student[index],
-                          'student'
+                          'student',
+                          member.Group_Member_ID
                         )
                       "
                       item-text="User_Identity_ID"
                       item-value="User_Identity_ID"
                       placeholder="Search student ID"
                       label="Student ID"
-                      class="mt-5"
                       color="blue"
                       outlined
                       dense
@@ -164,7 +174,6 @@
                     <v-text-field
                       ref="stuEmail"
                       v-model="student[index].User_Email"
-                      :rules="emailRules"
                       required
                       label="Student Lamduan Mail"
                       outlined
@@ -177,17 +186,14 @@
               </div>
             </div>
             <!-- Add and remove member flex -->
-            <div class="d-flex flex-row" v-if="!groupCreated">
+            <div
+              class="d-flex justify-end"
+              v-if="headMember && !isHaveAssignment"
+            >
               <!-- Add member -->
               <div class="mb-5 mr-5" v-show="student.length < 10">
                 <a class="text-decoration-underline" @click="addMemberFields"
                   >+ Add Member</a
-                >
-              </div>
-              <!-- Remove member -->
-              <div class="mb-5" v-show="student.length > 1">
-                <a class="text-decoration-underline" @click="removeMemberFields"
-                  >- Remove Member</a
                 >
               </div>
             </div>
@@ -195,23 +201,24 @@
             <div class="projectAdvisor">
               <h4 class="font-weight-bold">Project Advisor</h4>
               <v-row>
-                <v-col class="mt-5">
+                <v-col>
                   <div v-for="(user, index) in advisor" :key="index">
                     <v-chip
-                      v-if="(!!user && groupCreated) || !headMember"
-                      class="ma-2"
-                      :color="user.User_Status == 1 ? 'green' : 'orange'"
+                      class="my-5 ml-2"
                       text-color="white"
+                      v-if="(!!user && groupCreated) || !headMember"
+                      :color="user.User_Status == 1 ? 'green' : 'orange'"
                     >
                       {{ user.User_Status == 1 ? 'Accepted' : 'Pendding' }}
                     </v-chip>
-                    {{ user }}
+
                     <v-autocomplete
                       v-model="advisor[index]"
                       :items="allTeachersInSchool"
                       :filter="customTeacherFilter"
                       :disabled="
-                        (!!user && user.User_Status !== 3 && groupCreated) ||
+                        isHaveAssignment ||
+                        user.User_Status === 1 ||
                         !headMember
                       "
                       :rules="[(val) => selectMemberRules('teacher', val)]"
@@ -236,7 +243,6 @@
                   </div>
                   <v-text-field
                     v-model="coadvisorName"
-                    label="Co-advisor Name"
                     :rules="[
                       () =>
                         handleValidateTextField({
@@ -247,7 +253,8 @@
                             'Not allow start and end with space / Not allow special character and only English characters.'
                         })
                     ]"
-                    :disabled="!headMember"
+                    :disabled="isHaveAssignment || !headMember"
+                    label="Co-advisor Name"
                     color="blue"
                     outlined
                     dense
@@ -269,13 +276,14 @@
                     >
                       {{ user.User_Status == 1 ? 'Accepted' : 'Pendding' }}
                     </v-chip>
-                    {{ user }}
+
                     <v-autocomplete
                       v-model="committee[index]"
                       :items="allTeachersInSchool"
                       :filter="customTeacherFilter"
                       :disabled="
-                        (!!user && user.User_Status !== 3 && groupCreated) ||
+                        isHaveAssignment ||
+                        user.User_Status === 1 ||
                         !headMember
                       "
                       :rules="[(val) => selectMemberRules('teacher', val)]"
@@ -320,8 +328,8 @@
                   dark
                   color="indigo"
                   v-if="groupMembers.length !== 0 && !isHaveAssignment"
+                  @click="submitInfo"
                 >
-                  <!-- @click="updateInfo" -->
                   Update
                 </v-btn>
               </v-col>
@@ -329,14 +337,22 @@
               <!-- If not head member, then shows accept and decline invite instead -->
               <template v-else>
                 <v-col cols="12" sm="6">
-                  <v-btn rounded dark color="success">
-                    <!-- @click="handleInviteResponse(1)" -->
+                  <v-btn
+                    rounded
+                    dark
+                    color="success"
+                    @click="handleInviteResponse(1)"
+                  >
                     Accept
                   </v-btn>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-btn rounded dark color="error">
-                    <!-- @click="handleInviteResponse(2)" -->
+                  <v-btn
+                    rounded
+                    dark
+                    color="error"
+                    @click="handleInviteResponse(2)"
+                  >
                     Decline
                   </v-btn>
                 </v-col>
@@ -362,8 +378,8 @@ export default {
     // All students and teachers in major fecthed from database (see 'async fetch' down below)
     allStudentsInSchool: [],
     allTeachersInSchool: [],
-    coadvisorName: '',
     valid: true,
+    coadvisorName: '',
     thaiName: '',
     engName: '',
     // email still importance or not cus email filed always disable
@@ -378,7 +394,8 @@ export default {
     isHaveAssignment: false,
     student: [],
     advisor: [{}],
-    committee: [{}, {}]
+    committee: [{}, {}],
+    deletedMember: []
   }),
   mixins: [utils],
 
@@ -404,27 +421,23 @@ export default {
     this.isHaveAssignment = isHaveAssignment.length > 0 ? true : false
     // Assign students and teachers to variables
     this.allStudentsInSchool = res.students
-    console.log('Students: ', res.students)
+    // console.log('Students: ', res.students)
 
     this.allTeachersInSchool = res.teachers
-    console.log('Teachers: ', res.teachers)
+    // console.log('Teachers: ', res.teachers)
 
-    console.log('groupCreated1', this.groupCreated)
     // Sets group created to true
     if (this.groupMembers.length !== 0) this.groupCreated = true
-
-    console.log('groupMembers', this.groupMembers.length)
-    console.log('groupCreated2', this.groupCreated)
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
     // And assign value into name and email array
     student(val) {
-      console.log(val)
+      // console.log(val)
     }
   },
   mounted() {
-    console.log('Group members: ', this.groupMembers)
+    // console.log('Group members: ', this.groupMembers)
     // Check if there are group members array before pass in value to text fields
 
     if (this.groupMembers.length !== 0) {
@@ -438,15 +451,25 @@ export default {
         this.coadvisorName = this.$store.state.group.currentUserGroup.Co_Advisor
       }
 
-      // set student
-      this.student = this.groupMembers.filter(
-        (el) => el.Group_Role === 3 || el.Group_Role === 2
+      // set student user clone deep because data come from store
+      this.student = this.handleCloneDeep(
+        this.groupMembers.filter(
+          (el) => el.Group_Role === 3 || el.Group_Role === 2
+        )
       )
-      // set advisor
-      this.advisor = this.groupMembers.filter((el) => el.Group_Role === 0)
 
-      // set committee
-      this.committee = this.groupMembers.filter((el) => el.Group_Role === 1)
+      // set advisor user clone deep because data come from store
+      this.advisor = this.handleCloneDeep(
+        this.groupMembers.filter((el) => el.Group_Role === 0)
+      )
+      if (this.advisor.length === 0) this.advisor = [{}]
+
+      // set committee user clone deep because data come from store
+      this.committee = this.handleCloneDeep(
+        this.groupMembers.filter((el) => el.Group_Role === 1)
+      )
+      if (this.committee.length < 2)
+        this.committee = Array(2 - this.committee.length).fill({})
     } else {
       // If no groups, set group created to false
       this.groupCreated = false
@@ -479,14 +502,15 @@ export default {
   },
   methods: {
     // add group role when selected member
-    handelAddGroupRole(event, user, role) {
+    handelAddGroupRole(event, user, role, groupMembersId) {
       if (event) {
         user = {
           ...event,
-          Group_Role: role === 'student' ? 2 : role === 'advisor' ? 0 : 1
+          Group_Role: role === 'student' ? 2 : role === 'advisor' ? 0 : 1,
+          Group_Member_ID: groupMembersId
         }
       } else {
-        user = {}
+        user = { Group_Member_ID: groupMembersId }
       }
       return user
     },
@@ -545,8 +569,14 @@ export default {
     },
 
     // Remove member fields
-    removeMemberFields() {
-      this.student.pop()
+    removeMemberFields(user) {
+      if (this.groupCreated) {
+        this.deletedMember.push(user.Group_Member_ID)
+        // console.log('deleted member', this.deletedMember)
+      }
+
+      this.student = this.student.filter((el) => el != user)
+      // this.student.pop()
     },
 
     // Student autocomplete filter
@@ -573,164 +603,101 @@ export default {
 
       if (this.$refs.form.validate() === false) return
       let member = [...this.student, ...this.advisor, ...this.committee]
-      console.log('member', member)
+      // console.log('member', member)
       // return
 
       this.$swal
         .fire({
           icon: 'info',
-          title: 'Create group',
-          text: 'Confirm create group.',
+          title: this.groupCreated ? 'Update group' : 'Create group',
+          text: this.groupCreated
+            ? 'Confirm update group.'
+            : 'Confirm create group.',
           showCancelButton: true,
           confirmButtonColor: '#3085d6',
           cancelButtonColor: '#d33',
           confirmButtonText: 'Yes'
         })
         .then(async (result) => {
-          //
+          let groupId = this.$store.state.group.currentUserGroup
+            ? this.$store.state.group.currentUserGroup.Group_ID
+            : null
           if (result.isConfirmed) {
-            const res = await this.$axios.$post('/group/createGroup', {
-              Group_Name_Thai: this.thaiName,
-              Group_Name_Eng: this.engName,
-              Co_Advisor: this.coadvisorName || '',
-              Major: this.$store.state.auth.currentUser.major,
-              member: member
-            })
-            console.log(res.status)
-            // if (res.status == 200) {
-            this.$swal
-              .fire('Successed', 'Group has been created.', 'success')
-              .then((result) => {
-                // alert(result)
-                if (result.isConfirmed) {
-                  // this.$emit('refresh')
-                  // this.$nuxt.refresh()
-                  window.location.reload()
-                }
+            try {
+              await this.$axios.$post('/group/createGroup', {
+                Group_Name_Thai: this.thaiName,
+                Group_Name_Eng: this.engName,
+                Co_Advisor: this.coadvisorName || '',
+                Major: this.$store.state.auth.currentUser.major,
+                member: member,
+                groupCreated: this.groupCreated,
+                deletedMember: this.deletedMember,
+                Group_ID: groupId
               })
-            // } else {
-            //   this.$swal.fire("Error", res.msg, "error");
-            // }
+
+              this.$swal
+                .fire(
+                  'Successed',
+                  `Group has been ${
+                    this.groupCreated ? 'updated' : 'created'
+                  }.`,
+                  'success'
+                )
+                .then((result) => {
+                  if (result.isConfirmed) {
+                    // this.$emit('refresh')
+                    // this.$nuxt.refresh()
+                    window.location.reload()
+                  }
+                })
+            } catch (error) {
+              console.log(error)
+            }
           }
         })
+    },
+
+    async handleInviteResponse(response) {
+      // Just in case, validate form to make sure that everything is filled
+      this.$refs.form.validate()
+      if (!this.valid) return
+
+      // Request invite response api
+      try {
+        // Show confirm dialog
+        this.$swal
+          .fire({
+            icon: 'info',
+            title: `Confirm ${
+              response === 1 ? 'accept' : 'decline'
+            } group invitation ?`,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirm'
+          })
+          .then(async (result) => {
+            if (result.isConfirmed) {
+              const res = await this.$axios.$post('/group/updateMemberStatus', {
+                User_Email: this.$store.state.auth.currentUser.email,
+                Group_Id: this.$store.state.group.currentUserGroup.Group_ID,
+                Status: response
+              })
+              if (res.status !== 200) throw err
+              // Update the UI
+              //! Cannot use 'this.$nuxt.refresh()' because the logic for updating member status is in mounted()
+              this.showResposeBtn = false
+              window.location.reload()
+              return
+            } else {
+              return
+            }
+          })
+      } catch (err) {
+        console.log(err)
+        this.$swal.fire('Error')
+      }
     }
-    //   async updateInfo() {
-    //     // Validate form to make sure that everything is filled
-    //     this.$refs.form.validate()
-
-    //     // Make sure that atleast one advisor and one committee is selected
-    //     if (
-    //       this.selectedAdvisor === null ||
-    //       this.selectedCommittee1 === null ||
-    //       this.selectedCommittee2 === null ||
-    //       this.thaiName === '' ||
-    //       this.thaiName === null ||
-    //       this.engName === '' ||
-    //       this.engName === null ||
-    //       this.$refs.form.validate() === false
-    //     )
-    //       return
-
-    //     if (this.isHaveAssignment) return
-
-    //     this.$swal
-    //       .fire({
-    //         icon: 'info',
-    //         title: 'Update group',
-    //         text: 'Confirm update group.',
-    //         showCancelButton: true,
-    //         confirmButtonColor: '#3085d6',
-    //         cancelButtonColor: '#d33',
-    //         confirmButtonText: 'Yes'
-    //       })
-    //       .then(async (result) => {
-    //         if (result.isConfirmed) {
-    //           const res = await this.$axios.$put('group/updateGroup', {
-    //             Project_NameTh: this.thaiName,
-    //             Project_NameEn: this.engName,
-    //             Studen_Number: this.projectMembers.length,
-    //             Advisor_Email: this.selectedAdvisor.User_Email,
-    //             CoAdvisor_Name: this.coadvisorName || '',
-    //             Committee1_Email: this.selectedCommittee1?.User_Email,
-    //             Committee2_Email: this.selectedCommittee2?.User_Email || '',
-    //             Student1_Tel: this.phone[0],
-    //             Student2_Tel: this.phone[1],
-    //             Student3_Tel: this.phone[2],
-    //             Student4_Tel: this.phone[3],
-    //             Student5_Tel: this.phone[4],
-    //             Student6_Tel: this.phone[5],
-    //             Student7_Tel: this.phone[6],
-    //             Student8_Tel: this.phone[7],
-    //             Student9_Tel: this.phone[8],
-    //             Student10_Tel: this.phone[9],
-    //             Email_Student1: this.email[0],
-    //             Email_Student2: this.email[1],
-    //             Email_Student3: this.email[2],
-    //             Email_Student4: this.email[3],
-    //             Email_Student5: this.email[4],
-    //             Email_Student6: this.email[5],
-    //             Email_Student7: this.email[6],
-    //             Email_Student8: this.email[7],
-    //             Email_Student9: this.email[8],
-    //             Email_Student10: this.email[9],
-    //             Group_ID: this.$store.state.group.currentUserGroup.Group_ID
-    //             // Project_on_term_ID:
-    //             //   this.$store.state.auth.currentUser.projectOnTerm,
-    //           })
-    //           console.log(res)
-    //           if (res.status == 200) {
-    //             this.$swal
-    //               .fire('Successed', 'Group has been created.', 'success')
-    //               .then((result) => {
-    //                 if (result.isConfirmed) window.location.reload()
-    //               })
-    //           } else {
-    //             this.$swal.fire('Error', res.msg, 'error')
-    //           }
-    //         }
-    //       })
-    //   },
-    //   async handleInviteResponse(response) {
-    //     // Just in case, validate form to make sure that everything is filled
-    //     this.$refs.form.validate()
-    //     if (!this.valid) return
-
-    //     // Request invite response api
-    //     try {
-    //       // Show confirm dialog
-    //       this.$swal
-    //         .fire({
-    //           icon: 'info',
-    //           title: `Confirm ${
-    //             response === 1 ? 'accept' : 'decline'
-    //           } group invitation ?`,
-    //           showCancelButton: true,
-    //           confirmButtonColor: '#3085d6',
-    //           cancelButtonColor: '#d33',
-    //           confirmButtonText: 'Confirm'
-    //         })
-    //         .then(async (result) => {
-    //           if (result.isConfirmed) {
-    //             const res = await this.$axios.$post('/group/updateMemberStatus', {
-    //               User_Email: this.$store.state.auth.currentUser.email,
-    //               Group_Id: this.$store.state.group.currentUserGroup.Group_ID,
-    //               Status: response
-    //             })
-    //             if (res.status !== 200) throw err
-    //             // Update the UI
-    //             //! Cannot use 'this.$nuxt.refresh()' because the logic for updating member status is in mounted()
-    //             this.showResposeBtn = false
-    //             window.location.reload()
-    //             return
-    //           } else {
-    //             return
-    //           }
-    //         })
-    //     } catch (err) {
-    //       console.log(err)
-    //       this.$swal.fire('Error')
-    //     }
-    //   }
   }
 }
 </script>
