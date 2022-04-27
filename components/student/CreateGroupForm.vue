@@ -278,10 +278,7 @@
                         (!!user && user.User_Status !== 3 && groupCreated) ||
                         !headMember
                       "
-                      :rules="[
-                        (val) =>
-                          index !== 0 ? true : selectMemberRules('teacher', val)
-                      ]"
+                      :rules="[(val) => selectMemberRules('teacher', val)]"
                       @input="
                         committee[index] = handelAddGroupRole(
                           $event,
@@ -411,6 +408,13 @@ export default {
 
     this.allTeachersInSchool = res.teachers
     console.log('Teachers: ', res.teachers)
+
+    console.log('groupCreated1', this.groupCreated)
+    // Sets group created to true
+    if (this.groupMembers.length !== 0) this.groupCreated = true
+
+    console.log('groupMembers', this.groupMembers.length)
+    console.log('groupCreated2', this.groupCreated)
   },
   watch: {
     // This will watch for changes in selected student (ie. run after click on auto complete student id)
@@ -443,9 +447,6 @@ export default {
 
       // set committee
       this.committee = this.groupMembers.filter((el) => el.Group_Role === 1)
-
-      // Sets group created to true
-      this.groupCreated = true
     } else {
       // If no groups, set group created to false
       this.groupCreated = false
@@ -569,18 +570,11 @@ export default {
 
     async submitInfo() {
       // Validate form to make sure that everything is filled
-      // this.$refs.form.validate()
-      // console.log(this.advisor)
-      // console.log('advisor', this.advisor.length === 0)
-      if (this.$refs.form.validate() === false) return
-      let user = [...this.student, ...this.advisor, ...this.committee]
 
-      //   user=user.map((el) => ({
-      //   ...el,
-      //   el.Group_Role: 2
-      // }))
-      console.log('member', user)
-      return
+      if (this.$refs.form.validate() === false) return
+      let member = [...this.student, ...this.advisor, ...this.committee]
+      console.log('member', member)
+      // return
 
       this.$swal
         .fire({
@@ -596,44 +590,23 @@ export default {
           //
           if (result.isConfirmed) {
             const res = await this.$axios.$post('/group/createGroup', {
-              Project_NameTh: this.thaiName,
-              Project_NameEn: this.engName,
-              Studen_Number: this.projectMembers.length,
-              Advisor_Email: this.selectedAdvisor.User_Email,
-              // CoAdvisor_Name: this.selectedCoAdvisor?.User_Name || "",
-              CoAdvisor_Name: this.coadvisorName || '',
-              Committee1_Email: this.selectedCommittee1?.User_Email,
-              Committee2_Email: this.selectedCommittee2?.User_Email || '',
-              Student1_Tel: this.phone[0],
-              Student2_Tel: this.phone[1],
-              Student3_Tel: this.phone[2],
-              Student4_Tel: this.phone[3],
-              Student5_Tel: this.phone[4],
-              Student6_Tel: this.phone[5],
-              Student7_Tel: this.phone[6],
-              Student8_Tel: this.phone[7],
-              Student9_Tel: this.phone[8],
-              Student10_Tel: this.phone[9],
-              Email_Student1: this.email[0],
-              Email_Student2: this.email[1],
-              Email_Student3: this.email[2],
-              Email_Student4: this.email[3],
-              Email_Student5: this.email[4],
-              Email_Student6: this.email[5],
-              Email_Student7: this.email[6],
-              Email_Student8: this.email[7],
-              Email_Student9: this.email[8],
-              Email_Student10: this.email[9],
-              Major: this.$store.state.auth.currentUser.major
-              // Project_on_term_ID:
-              //   this.$store.state.auth.currentUser.projectOnTerm,
+              Group_Name_Thai: this.thaiName,
+              Group_Name_Eng: this.engName,
+              Co_Advisor: this.coadvisorName || '',
+              Major: this.$store.state.auth.currentUser.major,
+              member: member
             })
             console.log(res.status)
             // if (res.status == 200) {
             this.$swal
               .fire('Successed', 'Group has been created.', 'success')
               .then((result) => {
-                if (result.isConfirmed) window.location.reload()
+                // alert(result)
+                if (result.isConfirmed) {
+                  // this.$emit('refresh')
+                  // this.$nuxt.refresh()
+                  window.location.reload()
+                }
               })
             // } else {
             //   this.$swal.fire("Error", res.msg, "error");

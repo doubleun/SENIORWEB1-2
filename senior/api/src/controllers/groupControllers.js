@@ -2,34 +2,73 @@ const { result } = require('lodash')
 const con = require('../config/db')
 const conPromise = con.promise()
 
-createGroup = (req, res) => {
-  const sql =
-    'INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) VALUES (?,?,?,?,?);'
-  const sql2 =
-    'INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID,User_Status, `Group_ID`) VALUES (?,(SELECT MAX(`Group_ID`) FROM `groups` WHERE`Group_Name_Eng` = ? AND`Project_on_term_ID` = ?))'
+createGroup = async (req, res) => {
+  let { Group_Name_Thai, Group_Name_Eng, Co_Advisor, Major, member } = req.body
 
-  con.query(
-    sql2,
-    [user[i], Project_NameEn, req.user.projectOnTerm],
-    (err, result2, fields) => {
-      console.log('user', user[i])
-      if (err) {
-        // console.log("err hear")
-        console.log(error)
-        res.status(500).send('Internal Server Error')
-        return
-      } else {
-        // console.log("hear")
-        // console.log(success + " com " + user.length);
-        success++
-        console.log(result2.affectedRows)
-        if (success == user.length) {
-          res.status(200).send('Success')
-          return
-        }
+  try {
+    // begin transaction
+    await conPromise.beginTransaction((err) => {
+      if (err) throw err
+    })
+
+    // throw if don't have project on term
+    if (!req.user.projectOnTerm) throw 'No project on term'
+
+    // task1: create group
+    const createGroup =
+      'INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) VALUES (?,?,?,?,?);'
+
+    const groupId = await conPromise.execute(
+      createGroup,
+      [
+        Group_Name_Thai,
+        Group_Name_Eng,
+        Co_Advisor,
+        Major,
+        req.user.projectOnTerm
+      ],
+      (err) => {
+        if (err) throw err
       }
+    )
+
+    // throw if don't have group id
+    if (!groupId[0].insertId || groupId[0].insertId == null) {
+      throw 'No group id'
     }
-  )
+
+    // map group id then insert member
+    member = member.map((el) => [
+      el.User_Email,
+      el.User_Phone,
+      el.Group_Role,
+      groupId[0].insertId,
+      req.user.projectOnTerm
+    ])
+    // ...el,
+    // Group_ID: groupId[0].insertId,
+    // Project_on_term_ID: req.user.projectOnTerm
+    console.log('member', member)
+
+    // task2: create group
+    const insetrMember =
+      'INSERT INTO groupmembers ( User_Email, User_Phone, Group_Role, Group_ID, Project_on_term_ID ) VALUES ?'
+
+    // 'INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID,User_Status, `Group_ID`) VALUES (?,(SELECT MAX(`Group_ID`) FROM `groups` WHERE`Group_Name_Eng` = ? AND`Project_on_term_ID` = ?))'
+
+    // excute method can not insert with array
+    await conPromise.query(insetrMember, [member], (err) => {
+      if (err) throw err
+    })
+
+    // commit all task
+    await conPromise.commit()
+    res.status(200).json({ msg: 'Create group successfully', status: 200 })
+  } catch (error) {
+    console.log(error)
+    conPromise.rollback()
+    res.status(500).json({ msg: 'Internal Server Error', status: 500 })
+  }
 
   // const {
   //   Project_NameTh,
@@ -158,8 +197,8 @@ createGroup = (req, res) => {
   //   res.status(200).json({ msg: "Create group Successed", status: 200 });
   // } else {
   // }
-  console.log('suss', success)
-  console.log('user.length', user.length)
+  // console.log('suss', success)
+  // console.log('user.length', user.length)
   // if (success == user.length) {
   //   console.log("successed");
   // }
