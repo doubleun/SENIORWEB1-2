@@ -82,7 +82,10 @@
                   <v-spacer></v-spacer>
                   <v-chip
                     v-if="
-                      member.Group_Role !== 3 && headMember && !isHaveAssignment
+                      member.Group_Role !== 3 &&
+                      headMember &&
+                      !isHaveAssignment &&
+                      member.User_Status != 1
                     "
                     color="error"
                     @click="removeMemberFields(member)"
@@ -468,6 +471,7 @@ export default {
       this.committee = this.handleCloneDeep(
         this.groupMembers.filter((el) => el.Group_Role === 1)
       )
+
       if (this.committee.length < 2)
         this.committee = Array(2 - this.committee.length).fill({})
     } else {
@@ -624,7 +628,7 @@ export default {
             : null
           if (result.isConfirmed) {
             try {
-              await this.$axios.$post('/group/createGroup', {
+              const res = await this.$axios.$post('/group/createGroup', {
                 Group_Name_Thai: this.thaiName,
                 Group_Name_Eng: this.engName,
                 Co_Advisor: this.coadvisorName || '',
@@ -635,21 +639,26 @@ export default {
                 Group_ID: groupId
               })
 
-              this.$swal
-                .fire(
-                  'Successed',
-                  `Group has been ${
-                    this.groupCreated ? 'updated' : 'created'
-                  }.`,
-                  'success'
-                )
-                .then((result) => {
-                  if (result.isConfirmed) {
-                    // this.$emit('refresh')
-                    // this.$nuxt.refresh()
-                    window.location.reload()
-                  }
-                })
+              if (res.status === 200) {
+                this.$swal
+                  .fire(
+                    'Successed',
+                    `Group has been ${
+                      this.groupCreated ? 'updated' : 'created'
+                    }.`,
+                    'success'
+                  )
+                  .then((result) => {
+                    if (result.isConfirmed) {
+                      // this.$emit('refresh')
+                      // this.$nuxt.refresh()
+                      window.location.reload()
+                    }
+                  })
+              }
+              else{
+                throw ''
+              }
             } catch (error) {
               console.log(error)
             }

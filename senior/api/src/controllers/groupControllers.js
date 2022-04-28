@@ -14,8 +14,6 @@ createGroup = async (req, res) => {
     groupCreated
   } = req.body
 
-  console.log('deletedMember', deletedMember)
-
   try {
     // begin transaction
     await conPromise.beginTransaction((err) => {
@@ -81,16 +79,14 @@ createGroup = async (req, res) => {
 
     // task3: delete member out
     if (deletedMember.length !== 0) {
-      const memberLeft =
-        'UPDATE groupmembers SET User_Status = 2 WHERE Group_Member_ID IN (?)'
+      console.log('deletedMember', deletedMember)
+      // const memberLeft =
+      //   'UPDATE groupmembers SET User_Status = 2 WHERE Group_Member_ID IN (?)'
+      const memberLeft = 'DELETE FROM groupmembers WHERE Group_Member_ID IN (?)'
 
-      await conPromise.execute(
-        memberLeft,
-        [deletedMember.toString()],
-        (err) => {
-          if (err) throw err
-        }
-      )
+      await conPromise.query(memberLeft, [deletedMember], (err) => {
+        if (err) throw err
+      })
     }
 
     // commit all task
