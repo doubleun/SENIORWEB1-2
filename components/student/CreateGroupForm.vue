@@ -606,7 +606,7 @@ export default {
       // Validate form to make sure that everything is filled
 
       if (this.$refs.form.validate() === false) return
-      let member = [...this.student, ...this.advisor, ...this.committee]
+      // let member = [...this.student, ...this.advisor, ...this.committee]
       // console.log('member', member)
       // return
 
@@ -633,7 +633,10 @@ export default {
                 Group_Name_Eng: this.engName,
                 Co_Advisor: this.coadvisorName || '',
                 Major: this.$store.state.auth.currentUser.major,
-                member: member,
+                // member: member,
+                student: this.student,
+                advisor: this.advisor,
+                committee: this.committee,
                 groupCreated: this.groupCreated,
                 deletedMember: this.deletedMember,
                 Group_ID: groupId
@@ -655,8 +658,7 @@ export default {
                       window.location.reload()
                     }
                   })
-              }
-              else{
+              } else {
                 throw ''
               }
             } catch (error) {

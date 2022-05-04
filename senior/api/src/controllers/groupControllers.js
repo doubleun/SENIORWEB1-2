@@ -1,6 +1,7 @@
 const { result } = require('lodash')
 const con = require('../config/db')
 const conPromise = con.promise()
+const { createErrorJSON } = require('../utility')
 
 createGroup = async (req, res) => {
   let {
@@ -9,10 +10,59 @@ createGroup = async (req, res) => {
     Co_Advisor,
     Major,
     Group_ID,
-    member,
+    // member,
+    student,
+    advisor,
+    committee,
     deletedMember,
     groupCreated
   } = req.body
+
+  if (!groupCreated) {
+    console.log('case not create')
+    const checkExistUser =
+      'SELECT User_Email FROM groupmembers WHERE User_Email IN (?) AND Project_on_term_ID = ?'
+    // const checkExistUser =
+    //   'SELECT User_Email FROM groupmembers WHERE User_Email IN (?)'
+
+    let studentEmail = student.map((el) => el.User_Email)
+    // .join(',')
+    // .split(',')
+    // console.log('studentEmail', studentEmail)
+    // console.log('studentEmail', studentEmail.join(',').split(','))
+
+    con.query(
+      checkExistUser,
+      [studentEmail, req.user.projectOnTerm],
+      (err, result) => {
+        if (err) {
+          res.status(500).json(
+            createErrorJSON({
+              msg: 'Interal server error',
+              errDialog: { enabled: true, redirect: false }
+            })
+          )
+          return
+        } else {
+          console.log('result', result)
+          if (result[0].length !== 0) {
+            res.status(400).json({msg:"Hello world"})
+            // res.status(400).json(
+            //   createErrorJSON({
+            //     msg: `${result
+            //       .map((el) => el.User_Email)
+            //       .join(',')} is/are already have groups`,
+            //     errDialog: { enabled: true, redirect: false }
+            //   })
+            // )
+            return
+          }
+        }
+      }
+    )
+
+    // console.log(result)
+  }
 
   try {
     // begin transaction
@@ -20,14 +70,18 @@ createGroup = async (req, res) => {
       if (err) throw err
     })
 
-    // throw if don't have project on term
-    // if (!req.user.projectOnTerm) throw 'No project on term'
+    // =========== check user have group =============
+    // spcial task * check student already have group or not
 
-    // task1: create group
-    // let groupId
+    let member = [...student, ...advisor, ...committee]
+
+    // ======== task1: create group ==========
+
+    // case create group
     const createGroup =
       'INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) VALUES (?,?,?,?,?);'
 
+    // case update group
     const updateGroup =
       'UPDATE `groups` SET `Group_Name_Thai` = ?, `Group_Name_Eng` = ?, `Co_Advisor` = ? WHERE Group_ID = ?'
 
@@ -66,9 +120,7 @@ createGroup = async (req, res) => {
       req.user.projectOnTerm
     ])
 
-    // console.log('member', member)
-
-    // task2: add member
+    // ========= task2: add member =============
     const insetrMember =
       'INSERT IGNORE INTO groupmembers ( User_Email, User_Status, User_Phone, Group_Role, Group_ID, Project_on_term_ID ) VALUES ? ON DUPLICATE KEY UPDATE  User_Status = VALUES(User_Status), User_Phone = VALUES(User_Phone)'
 
@@ -90,12 +142,20 @@ createGroup = async (req, res) => {
     }
 
     // commit all task
-    await conPromise.commit()
+    // await conPromise.commit()
+    conPromise.rollback()
+
     res.status(200).json({ msg: 'Create group successfully', status: 200 })
   } catch (error) {
     console.log(error)
     conPromise.rollback()
-    res.status(500).json({ msg: 'Internal Server Error', status: 500 })
+    // res.status(500).json({ msg: 'Internal Server Error', status: 500 })
+    res.status(500).json(
+      createErrorJSON({
+        msg: !groupCreated ? 'Create group fail' : 'Update group fail',
+        errDialog: { enabled: true, redirect: false }
+      })
+    )
   }
 }
 
