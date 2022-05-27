@@ -134,7 +134,7 @@ groupRouter.post(
 groupRouter.post(
   '/moveGroup',
   [middle.checkAuthenticated, middle.checkRole([99])],
-  groupController.addGroupToSeTwo
+  groupController.moveGroup
 )
 // === role not sure ===
 
