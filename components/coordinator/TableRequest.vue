@@ -29,12 +29,12 @@
       <template v-slot:item.actions="{ item }">
         <v-row class="mb-6 pa-5 justify-center" no-gutters>
           <v-col md="3">
-            <v-btn color="success" small @click="editItem(item)">
+            <v-btn color="success" small @click="acceptGroup(item)">
               <v-icon> mdi-check </v-icon>
             </v-btn>
           </v-col>
           <v-col md="4" offset-md="2">
-            <v-btn color="error" small @click="deleteItem(item)">
+            <v-btn color="error" small @click="declineGroup(item)">
               <v-icon> mdi-close </v-icon>
             </v-btn>
           </v-col>
@@ -45,61 +45,60 @@
 </template>
 
 <script>
-import utils from "@/mixins/utils";
+import utils from '@/mixins/utils'
 
 export default {
   mixins: [utils],
   data: () => ({
-    searchGroup: "",
+    searchGroup: '',
     dialog: false,
     dialogDelete: false,
     headers: [
       {
-        text: "GROUP NAME",
-        align: "center",
-        value: "groupName",
+        text: 'GROUP NAME',
+        align: 'center',
+        value: 'groupName'
       },
-      { text: "MEMBER", value: "member", align: "center" },
-      { text: "ADVISOR", value: "advisor", align: "center" },
-      { text: "COMMITTEE", value: "committee", align: "center" },
+      { text: 'MEMBER', value: 'member', align: 'center' },
+      { text: 'ADVISOR', value: 'advisor', align: 'center' },
+      { text: 'COMMITTEE', value: 'committee', align: 'center' },
       {
-        text: "Actions",
-        value: "actions",
+        text: 'Actions',
+        value: 'actions',
         sortable: false,
-        align: "center",
-        width: 200,
-      },
+        align: 'center',
+        width: 200
+      }
     ],
-    idgroup: "",
+    idgroup: '',
     groupInfo: [],
-    major: "",
     editedIndex: -1,
     editedItem: {
-      name: "",
+      name: '',
       calories: 0,
       fat: 0,
       carbs: 0,
-      protein: 0,
+      protein: 0
     },
     defaultItem: {
-      name: "",
+      name: '',
       calories: 0,
       fat: 0,
       carbs: 0,
-      protein: 0,
-    },
+      protein: 0
+    }
   }),
   async fetch() {
-    const res = await this.$axios.$post("/group/listrequestGroup", {
+    const res = await this.$axios.$post('/group/listrequestGroup', {
       User_Email: this.$store.state.auth.currentUser.email,
       // Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm,
       Group_Role: 1,
       Group_Role2: 0,
-      User_Status: 0,
-    });
+      User_Status: 0
+    })
 
     // set groupInfo to empty because nuxt.refect() does not reset variable
-    this.groupInfo = [];
+    this.groupInfo = []
 
     for (let i = 0; i < res.length; i++) {
       this.groupInfo.push({
@@ -107,175 +106,121 @@ export default {
         member: res[i].Students,
         advisor: res[i].Advisor,
         committee: res[i].Committees,
-        id: res[i].Group_ID,
-      });
+        id: res[i].Group_ID
+      })
     }
     // console.log("group info", this.groupInfo);
   },
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "New Item" : "Edit Item";
-    },
+      return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+    }
   },
   watch: {
     dialog(val) {
-      val || this.close();
+      val || this.close()
     },
     dialogDelete(val) {
-      val || this.closeDelete();
-    },
+      val || this.closeDelete()
+    }
   },
   methods: {
     handleValidateScore(val) {
       return this.handleValidateTextField({
         string: val,
-        option: "onlyNormalCharEng",
-        errorMsg: "Invalid search",
-      });
+        option: 'onlyNormalCharEng',
+        errorMsg: 'Invalid search'
+      })
     },
-    async editItem(item) {
-      var major = [];
-      const res = await this.$axios.$post("/group/getGroupMajor", {
-        Group_ID: item["id"],
-      });
+    async acceptGroup(item) {
+      // let major = []
+      let allGroupMajor = await this.$axios.$post('/group/getGroupMajor', {
+        Group_ID: item.id
+      })
 
-      var inputOptionsPromise = new Promise(function (resolve) {
-        // get your data and pass it to resolve()
+      allGroupMajor = new Map(
+        allGroupMajor.map((el) => [el.Major_ID, el.Major_Name])
+      )
 
-        for (let i = 0; i < res.length; i++) {
-          major.push(res[i]["Major_Name"]);
-        }
-        resolve(major);
-      });
-      this.idgroup = item["id"];
       this.$swal
         .fire({
           title: `Accept ${item.groupName} group?`,
-          text: " Once you have accepted to join the group, you cannot leave the group, but you can only leave if the student requests to disband the group.",
-          icon: "info",
+          text: ' Once you have accepted to join the group, you cannot leave the group, but you can only leave if the student requests to disband the group.',
+          icon: 'info',
           showCancelButton: true,
-          // confirmButtonColor: "#3085d6",
-          // cancelButtonColor: "#d33",
-          confirmButtonText: "Yes",
+          confirmButtonText: 'Yes'
         })
         .then(async (result) => {
           if (result.isConfirmed) {
             if (
-              this.$store.state.auth.currentUser.name === item["advisor"] &&
-              major.length !== 1
+              this.$store.state.auth.currentUser.name === item['advisor'] &&
+              allGroupMajor.size > 1
             ) {
               this.$swal
                 .fire({
-                  title: "Confirm Group Major",
-                  input: "select",
+                  title: 'Confirm Group Major',
+                  input: 'select',
+                  showCancelButton: true,
                   // inputLabel: "Majors",
-                  inputOptions: inputOptionsPromise,
+                  inputOptions: allGroupMajor,
                   inputValidator: (value) => {
-                    return !value && "You need to write something!";
-                  },
+                    return !value && 'You need to select some major!'
+                  }
                 })
                 .then(async (result) => {
                   if (result.isConfirmed) {
-                    let num = result["value"];
-                    this.major = major[num];
-                    const res = await this.save();
-                    if (res) {
-                      this.$nuxt.refresh();
-                      this.$swal.fire(
-                        "Accepted",
-                        `Your has been joined <b>${item.groupName}</b> group.`,
-                        "success"
-                      );
-                    } else {
-                      this.$swal.fire({
-                        icon: "error",
-                        title: "Join group Failed",
-                        text: "Something went wrong!",
-                      });
-                    }
+                    let majorID = result['value']
+                    this.save(item, 1, majorID)
                   }
-                });
+                })
             } else {
-              const res = await this.save();
-              if (res) {
-                this.$nuxt.refresh();
-
-                this.$swal.fire(
-                  "Accepted",
-                  `Your has been joined <b>${item.groupName}</b> group.`,
-                  "success"
-                );
-              } else {
-                this.$swal.fire({
-                  icon: "error",
-                  title: "Join group Failed",
-                  text: "Something went wrong!",
-                });
-              }
+              await this.save(item, 1)
             }
           }
-        });
+        })
     },
-    deleteItem(item) {
-      this.idgroup = item["id"];
+    async declineGroup(item) {
       this.$swal
         .fire({
           title: `Decline ${item.groupName} group?`,
-          text: "Confirmation of decline a group",
-          icon: "info",
+          text: 'Confirmation of decline a group',
+          icon: 'info',
           showCancelButton: true,
           // confirmButtonColor: "#3085d6",
           // cancelButtonColor: "#d33",
-          confirmButtonText: "Yes",
+          confirmButtonText: 'Yes'
         })
         .then(async (result) => {
           if (result.isConfirmed) {
-            const res = await this.deleteItemConfirm();
-            if (res) {
-              this.$nuxt.refresh();
-              this.$swal.fire(
-                "Declined",
-                `Your has been decline <b>${item.groupName}</b> group.`,
-                "success"
-              );
-            } else {
-              this.$swal.fire({
-                icon: "error",
-                title: "Decline group Failed",
-                text: "Something went wrong!",
-              });
-            }
+            this.save(item, 2)
           }
-        });
-    },
-    async deleteItemConfirm() {
-      try {
-        const res = await this.$axios.$post("/group/updateMemberStatus", {
-          User_Email: this.$store.state.auth.currentUser.email,
-          Group_Id: this.idgroup,
-          Status: 2,
-        });
-        return true;
-      } catch (err) {
-        console.log(err);
-        return false;
-      }
+        })
     },
 
-    async save() {
+    /**
+     * @param status - status = 1 is join, status = 2 is left
+     */
+    async save(item, status, majorID) {
       try {
-        const res = await this.$axios.$post("/group/updateMemberStatus", {
+        await this.$axios.$post('/group/updateMemberStatus', {
           User_Email: this.$store.state.auth.currentUser.email,
-          Group_Id: this.idgroup,
-          Status: 1,
-          Major: this.major,
-        });
-        return true;
+          Group_Id: item.id,
+          Status: status,
+          Major: majorID || null
+        })
+        // if (res) {
+        this.$nuxt.refresh()
+        this.$swal.fire(
+          'Accepted',
+          `Your has been ${status === 1 ? 'accept' : 'decline'} <b>${
+            item.groupName
+          }</b> group.`,
+          'success'
+        )
       } catch (err) {
-        console.log(err);
-        return false;
+        console.log(err)
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>

@@ -1,6 +1,7 @@
 const { result } = require('lodash')
 const con = require('../config/db')
 const conPromise = con.promise()
+const { createErrorJSON } = require('../utility')
 
 createGroup = async (req, res) => {
   let {
@@ -9,7 +10,9 @@ createGroup = async (req, res) => {
     Co_Advisor,
     Major,
     Group_ID,
-    member,
+    student,
+    advisor,
+    committee,
     deletedMember,
     groupCreated
   } = req.body
@@ -20,14 +23,48 @@ createGroup = async (req, res) => {
       if (err) throw err
     })
 
-    // throw if don't have project on term
-    // if (!req.user.projectOnTerm) throw 'No project on term'
+    // =========== check user have group =============
+    // spcial task * check student already have group or not
 
-    // task1: create group
-    // let groupId
+    if (!groupCreated) {
+      console.log('case not create')
+      const checkExistUser =
+        'SELECT User_Email FROM groupmembers WHERE User_Email IN (?) AND Project_on_term_ID = ?'
+
+      let studentEmail = student.map((el) => el.User_Email)
+
+      const duplicateUser = await conPromise.query(
+        checkExistUser,
+        [studentEmail, req.user.projectOnTerm],
+        (err) => {
+          if (err) {
+            throw err
+          }
+        }
+      )
+
+      if (duplicateUser[0].length !== 0) {
+        res.status(400).json(
+          createErrorJSON({
+            msg: `${duplicateUser[0]
+              .map((el) => el.User_Email)
+              .join(',')} is/are already have groups`,
+            errDialog: { enabled: true, redirect: false }
+          })
+        )
+        return
+      }
+    }
+
+    let member = [...student, ...advisor, ...committee]
+
+    // ======== task1: create group ==========
+
+    // case create group
     const createGroup =
       'INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) VALUES (?,?,?,?,?);'
 
+    // case update group
     const updateGroup =
       'UPDATE `groups` SET `Group_Name_Thai` = ?, `Group_Name_Eng` = ?, `Co_Advisor` = ? WHERE Group_ID = ?'
 
@@ -66,9 +103,7 @@ createGroup = async (req, res) => {
       req.user.projectOnTerm
     ])
 
-    // console.log('member', member)
-
-    // task2: add member
+    // ========= task2: add member =============
     const insetrMember =
       'INSERT IGNORE INTO groupmembers ( User_Email, User_Status, User_Phone, Group_Role, Group_ID, Project_on_term_ID ) VALUES ? ON DUPLICATE KEY UPDATE  User_Status = VALUES(User_Status), User_Phone = VALUES(User_Phone)'
 
@@ -95,7 +130,13 @@ createGroup = async (req, res) => {
   } catch (error) {
     console.log(error)
     conPromise.rollback()
-    res.status(500).json({ msg: 'Internal Server Error', status: 500 })
+    // res.status(500).json({ msg: 'Internal Server Error', status: 500 })
+    res.status(500).json(
+      createErrorJSON({
+        msg: !groupCreated ? 'Create group fail' : 'Update group fail',
+        errDialog: { enabled: true, redirect: false }
+      })
+    )
   }
 }
 
@@ -160,7 +201,7 @@ getGroupInfo = (req, res) => {
 getGroupMajor = (req, res) => {
   const { Group_ID } = req.body
   const sql =
-    'SELECT DISTINCT `Major_Name` FROM `majors` WHERE `Major_ID` IN (SELECT `Major_ID` FROM `users` WHERE `User_Email` IN (SELECT `User_Email` FROM `groupmembers` WHERE `Group_ID`= ? AND `User_Status` !=2 AND (`Group_Role` = 3 || `Group_Role` = 2)));'
+    'SELECT DISTINCT Major_ID, Major_Name FROM `majors` WHERE `Major_ID` IN (SELECT `Major_ID` FROM `users` WHERE `User_Email` IN (SELECT `User_Email` FROM `groupmembers` WHERE `Group_ID`= ? AND `User_Status` !=2 AND (`Group_Role` = 3 or `Group_Role` = 2)))'
   con.query(sql, [Group_ID], (err, result, fields) => {
     if (err) {
       console.log(err)
@@ -408,35 +449,54 @@ statusgroup = (req, res) => {
 }
 
 // Use for update group member status after user accept or decline group invitation
-updateMemberStatus = (req, res) => {
-  const { Status, User_Email, Group_Id, Major } = req.body
-  console.log(Status, User_Email, Group_Id, Major)
-  const sql =
-    'UPDATE `groupmembers` SET `User_Status`= ? WHERE Group_ID = ? AND User_Email = ?'
-  const updateGroup =
-    'UPDATE `groups` SET `Major`=(SELECT `Major_ID` FROM `majors` WHERE `Major_Name` = ? ) WHERE `Group_ID` = ?;'
+/**
+ * @param Status - status = 1 is join, status = 2 is left
+ */
+updateMemberStatus = async (req, res) => {
+  const { Status, Group_Id, Major, User_Email } = req.body
+  // console.log(Status, User_Email, Group_Id, Major)
+  // const updateStatus =
+  //   'UPDATE `groupmembers` SET `User_Status`= ? WHERE Group_ID = ? AND User_Email = ?'
+  // const memberJoin =
+  //   'UPDATE `groupmembers` SET `User_Status`= 1 WHERE Group_Member_ID = ?'
+  const memberJoin =
+    'UPDATE `groupmembers` SET `User_Status`= 1 WHERE Group_ID = ? AND User_Email = ?'
+  const memberLeft =
+    'DELETE FROM groupmembers WHERE Group_ID = ? AND User_Email = ?'
+  const updateGroup = 'UPDATE `groups` SET `Major`= ? WHERE `Group_ID` = ?;'
   try {
-    con.query(sql, [Status, Group_Id, User_Email], (err, result, fields) => {
-      if (err) {
-        throw err
-      } else {
-        if (Major != '' && Major != null) {
-          con.query(updateGroup, [Major, Group_Id], (err, result2, fields2) => {
-            if (err) {
-              throw err
-            } else {
-              res.status(200).json({ msg: 'Success', status: 200 })
-            }
-          })
-        } else {
-          res.status(200).json({ msg: 'Success', status: 200 })
-        }
-      }
+    await conPromise.beginTransaction((err) => {
+      if (err) throw err
     })
+
+    // ========== task 1: update group member status ============
+    await conPromise.query(
+      Status === 1 ? memberJoin : memberLeft,
+      [Group_Id, User_Email],
+      (err) => {
+        if (err) throw err
+      }
+    )
+
+    // ========== task 2: update group major ============
+
+    if (Major !== '' && Major !== null && Status === 1) {
+      con.query(updateGroup, [Major, Group_Id], (err) => {
+        if (err) throw err
+      })
+    }
+
+    await conPromise.commit()
+    res.status(200).json({ msg: 'Success', status: 200 })
   } catch (err) {
     console.log(err)
-    res.status(500).json({ msg: 'Interal Server Error', status: 500 })
-    return
+    conPromise.rollback()
+    res.status(500).json(
+      createErrorJSON({
+        msg: 'Join group fail',
+        errDialog: { enabled: true, redirect: false }
+      })
+    )
   }
 }
 

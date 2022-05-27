@@ -3,7 +3,7 @@
     <v-row>
       <v-col>
         <h2 class="header-title mb-2 mt-5">Create Group</h2>
-        <p v-if="groupMembers.length !== 0">
+        <p v-if="headMember">
           <strong style="color: red">*</strong>
           You can update group information until submit an assignment
         </p>
@@ -606,7 +606,7 @@ export default {
       // Validate form to make sure that everything is filled
 
       if (this.$refs.form.validate() === false) return
-      let member = [...this.student, ...this.advisor, ...this.committee]
+      // let member = [...this.student, ...this.advisor, ...this.committee]
       // console.log('member', member)
       // return
 
@@ -633,7 +633,10 @@ export default {
                 Group_Name_Eng: this.engName,
                 Co_Advisor: this.coadvisorName || '',
                 Major: this.$store.state.auth.currentUser.major,
-                member: member,
+                // member: member,
+                student: this.student,
+                advisor: this.advisor,
+                committee: this.committee,
                 groupCreated: this.groupCreated,
                 deletedMember: this.deletedMember,
                 Group_ID: groupId
@@ -641,13 +644,16 @@ export default {
 
               if (res.status === 200) {
                 this.$swal
-                  .fire(
-                    'Successed',
-                    `Group has been ${
+                  .fire({
+                    title: 'Successed',
+                    text: `Group has been ${
                       this.groupCreated ? 'updated' : 'created'
                     }.`,
-                    'success'
-                  )
+                    icon: 'success',
+                    // confirmButtonColor: '#3085d6',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                  })
                   .then((result) => {
                     if (result.isConfirmed) {
                       // this.$emit('refresh')
@@ -655,8 +661,7 @@ export default {
                       window.location.reload()
                     }
                   })
-              }
-              else{
+              } else {
                 throw ''
               }
             } catch (error) {
@@ -692,14 +697,30 @@ export default {
                 Group_Id: this.$store.state.group.currentUserGroup.Group_ID,
                 Status: response
               })
-              if (res.status !== 200) throw err
+              // if (res.status !== 200) throw err
               // Update the UI
               //! Cannot use 'this.$nuxt.refresh()' because the logic for updating member status is in mounted()
-              this.showResposeBtn = false
-              window.location.reload()
-              return
-            } else {
-              return
+              if (res.status === 200) {
+                this.$swal
+                  .fire({
+                    title: 'Successed',
+                    text: `${response === 1 ? 'Join' : 'Decline'} successfully`,
+                    icon: 'success',
+                    // confirmButtonColor: '#3085d6',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                  })
+                  .then((result) => {
+                    if (result.isConfirmed) {
+                      // this.$emit('refresh')
+                      // this.$nuxt.refresh()
+                      // this.showResposeBtn = false
+                      window.location.reload()
+                    }
+                  })
+              } else {
+                throw ''
+              }
             }
           })
       } catch (err) {
