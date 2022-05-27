@@ -26,35 +26,35 @@ createGroup = async (req, res) => {
     // =========== check user have group =============
     // spcial task * check student already have group or not
 
-    if (!groupCreated) {
-      console.log('case not create')
-      const checkExistUser =
-        'SELECT User_Email FROM groupmembers WHERE User_Email IN (?) AND Project_on_term_ID = ?'
+    // if (!groupCreated) {
+    console.log('case not create')
+    const checkExistUser =
+      'SELECT User_Email FROM groupmembers WHERE User_Email IN (?) AND Project_on_term_ID = ?'
 
-      let studentEmail = student.map((el) => el.User_Email)
+    let studentEmail = student.map((el) => el.User_Email)
 
-      const duplicateUser = await conPromise.query(
-        checkExistUser,
-        [studentEmail, req.user.projectOnTerm],
-        (err) => {
-          if (err) {
-            throw err
-          }
+    const duplicateUser = await conPromise.query(
+      checkExistUser,
+      [studentEmail, req.user.projectOnTerm],
+      (err) => {
+        if (err) {
+          throw err
         }
-      )
-
-      if (duplicateUser[0].length !== 0) {
-        res.status(400).json(
-          createErrorJSON({
-            msg: `${duplicateUser[0]
-              .map((el) => el.User_Email)
-              .join(',')} is/are already have groups`,
-            errDialog: { enabled: true, redirect: false }
-          })
-        )
-        return
       }
+    )
+
+    if (duplicateUser[0].length !== 0) {
+      res.status(400).json(
+        createErrorJSON({
+          msg: `${duplicateUser[0]
+            .map((el) => el.User_Email)
+            .join(',')} is/are already have groups`,
+          errDialog: { enabled: true, redirect: false }
+        })
+      )
+      return
     }
+    // }
 
     let member = [...student, ...advisor, ...committee]
 
@@ -841,46 +841,54 @@ getAllFinalDoc = (req, res) => {
 }
 
 // TODO: how font end send project on term id
-addGroupToSeTwo = (req, res) => {
-  let errors = 0
+moveGroup = (req, res) => {
+  const projectOnTerm = req.body.Project_on_term_ID
 
-  const addGroup =
-    "INSERT IGNORE INTO `groups`( `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`, `Project_on_term_ID`) SELECT `Group_Name_Thai`, `Group_Name_Eng`, `Co_Advisor`, `Major`,(SELECT`Project_on_term_ID` FROM projectonterm WHERE Senior = 2 and `Project_on_term_ID` NOT IN (SELECT `Project_on_term_ID` FROM `groups` WHERE `Grade` NOT IN('I','P','U','F'))) FROM `groups` WHERE `Grade` NOT IN('I','P','U','F') AND Project_on_term_ID = (SELECT MAX(Project_on_term_ID) FROM projectonterm WHERE Senior = 1 AND Project_on_term_ID IN (SELECT Project_on_term_ID from groupmembers) AND `Group_Name_Eng`NOT IN (SELECT  `Group_Name_Eng` FROM groups WHERE `Project_on_term_ID` =(SELECT`Project_on_term_ID` FROM projectonterm WHERE Senior = 2 and `Project_on_term_ID` NOT IN (SELECT MAX(`Project_on_term_ID`) FROM `groups` WHERE `Grade` NOT IN('I','P','U','F')))))"
+  // move group
+  const moveGroup =
+    'INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE'
 
-  const adduser =
-    'INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT  groupmembers .`User_Email`,groupmembers .`User_Phone`,groupmembers .`Group_Role`,(SELECT IF(groupmembers.`Group_Role` = 3 ,1,0) ),(SELECT MAX(`Group_ID`) FROM `groups` WHERE `Group_Name_Eng` = (SELECT `Group_Name_Eng` FROM groups WHERE Group_ID = groupmembers.Group_ID)),(SELECT MAX(Project_on_term_ID) FROM groups WHERE Project_on_term_ID IN(SELECT `Project_on_term_ID` FROM projectonterm WHERE Senior = 2)) FROM groupmembers WHERE  Project_on_term_ID <> (SELECT MAX(Project_on_term_ID) FROM groups WHERE Project_on_term_ID IN(SELECT `Project_on_term_ID` FROM projectonterm WHERE Senior = 2)) AND Group_ID IN (SELECT`Group_ID` FROM groups WHERE `Group_Name_Eng`IN(SELECT `Group_Name_Eng` FROM `groups` WHERE `Project_on_term_ID`= (SELECT MAX(Project_on_term_ID) FROM groups WHERE Project_on_term_ID IN(SELECT `Project_on_term_ID` FROM projectonterm WHERE Senior = 2))))  AND `Group_ID` NOT IN (SELECT`Group_ID` FROM groups WHERE `Group_Name_Eng`IN(SELECT `Group_Name_Eng` FROM `groups` WHERE `Group_ID` IN  (SELECT `Group_ID` FROM `groupmembers` WHERE `Project_on_term_ID` = (SELECT MAX(Project_on_term_ID) FROM groups WHERE Project_on_term_ID IN(SELECT `Project_on_term_ID` FROM projectonterm WHERE Senior = 2)))))'
+  // move groupmember
+  const moveGroupmember =
+    "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT gmb.User_Email, gmb.User_Phone, gmb.Group_Role, gmb.User_Status, (SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng = gp.Group_Name_Eng AND Group_Name_Thai=gp.Group_Name_Thai AND Co_Advisor = gp.Co_Advisor AND Major = gp.Major) AS newGroupID, ? FROM groupmembers gmb INNER JOIN groups gp ON gmb.Group_ID = gp.Group_ID WHERE gp.Grade NOT IN('I','U','F') AND gp.Group_Status=1"
 
-  con.query(addGroup, (err, resultadd, fields) => {
-    if (err) {
-      console.log(err)
-      errors++
-      //   res.status(422).json({ msg: "Query Error", status: 422 });
-      //   break;
-    } else {
-      //   console.log("ji")
+    try {
+       // begin transaction
+    await conPromise.beginTransaction((err) => {
+      if (err) throw err
+    })
+
+    // task 1 move group
+    await conPromise.query(moveGroup,[projectOnTerm], (err, resultadd, fields) => {
+      if (err) {
+       throw err
+      } 
+    })
+
+    // task 2 move groupmember
+
+    await conPromise.query(moveGroupmember,[projectOnTerm], (err, resultadd, fields) => {
+      if (err) {
+       throw err
+      } 
+    })
+
+    // commit all task
+    await conPromise.commit()
+    res.status(200).json({ msg: 'Move group successfully', status: 200 })
+
+    } catch (error) {
+      console.log(error)
+      conPromise.rollback()
+
+      res.status(500).json(
+        createErrorJSON({
+          msg: 'Move group fail' ,
+          errDialog: { enabled: true, redirect: false }
+        })
+      )
     }
-  })
 
-  // console.log(groupinfo)
-
-  // if (errors == 0) {
-
-  con.query(adduser, (err, resultAdd, fields1) => {
-    if (err1) {
-      errors++
-      console.log(err1)
-      // res.status(422).json({ msg: "Query Error", status: 422 });
-      // break;
-    } else {
-    }
-  })
-
-  // }
-  if (errors > 0) {
-    res.status(422).json({ msg: 'Query Error', status: 422 })
-  } else {
-    res.status(200).json({ msg: 'Success', status: 200 })
-  }
 }
 
 countOwnGroup = (req, res) => {
@@ -930,7 +938,7 @@ module.exports = {
   getOnlyGroupWithID,
   countTeachergroup,
   getAllFilesMajor,
-  addGroupToSeTwo,
+  moveGroup,
   countProgressGroup,
   getGroupMajor,
   countOwnGroup,
