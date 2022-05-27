@@ -179,65 +179,66 @@
 </template>
 
 <script>
-import itbackground from "../static/bg.png";
-import { version } from "../package.json";
+import itbackground from '../static/bg.png'
+import { version } from '../package.json'
 
 export default {
+  layout: 'empty',
   data: () => ({
-    isDev: process.env.NODE_ENV === "development",
+    isDev: process.env.NODE_ENV === 'development',
     version,
     image: itbackground,
     selectedMajor: {},
     textRule: [],
-    search: "",
+    search: '',
     isLoad: false,
     filterBtnActive: [false, false, false], // [0]=title button, [1]=authors button, [2]=advisor button,
     valid: true,
     headers: [
       {
-        text: "FILE",
-        value: "Abstract_Name",
-        align: "center",
-        width: "20%",
+        text: 'FILE',
+        value: 'Abstract_Name',
+        align: 'center',
+        width: '20%'
       },
-      { text: "CONTENT", value: "content", width: "80%" },
-    ],
+      { text: 'CONTENT', value: 'content', width: '80%' }
+    ]
   }),
   async asyncData({ $axios }) {
     // Get all major
-    var majors, abstracts;
+    var majors, abstracts
     try {
-      majors = await $axios.$get("/major/getAllActiveMajors");
-      abstracts = await $axios.$get("/assignment/abstracts");
-      console.log("abstarct", abstracts);
+      majors = await $axios.$get('/major/getAllActiveMajors')
+      abstracts = await $axios.$get('/assignment/abstracts')
+      console.log('abstarct', abstracts)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-    majors.unshift({ Major_ID: 0, Major_Name: "All" });
-    const rawAbstracts = abstracts;
-    return { majors, abstracts, rawAbstracts };
+    majors.unshift({ Major_ID: 0, Major_Name: 'All' })
+    const rawAbstracts = abstracts
+    return { majors, abstracts, rawAbstracts }
   },
   mounted() {
-    this.selectedMajor = this.majors[0];
+    this.selectedMajor = this.majors[0]
   },
   methods: {
     download(item) {
       // console.log("item", item);
       // return;
-      window.open("/api/" + item["Path"]);
+      window.open('/api/' + item['Path'])
       // window.location.href = "/api/" + item["Path"];
     },
     hancelClearSearch() {
-      console.log("reset");
-      this.textRule = [];
-      this.$refs.entryForm.reset();
+      console.log('reset')
+      this.textRule = []
+      this.$refs.entryForm.reset()
     },
     hancelChangeClearSearch() {
       // console.log("reset change", this.search == "", this.search == null);
-      if (this.search == "") {
-        this.textRule = [];
-        this.$refs.entryForm.reset();
-        return;
+      if (this.search == '') {
+        this.textRule = []
+        this.$refs.entryForm.reset()
+        return
       }
     },
 
@@ -246,24 +247,24 @@ export default {
       // this.filterBtnActive = [false, false, false];
       // console.log(this.selectedMajor.Major_ID);
       if (this.selectedMajor.Major_ID == 0) {
-        return (this.abstracts = this.rawAbstracts);
+        return (this.abstracts = this.rawAbstracts)
       }
       this.abstracts = this.rawAbstracts.filter(
         (el) => el.Major == this.selectedMajor.Major_ID
-      );
-      console.log(this.rawAbstracts);
+      )
+      console.log(this.rawAbstracts)
     },
 
     handelSearch(event) {
-      this.textRule = [(v) => !!v || "This field is required"];
-      let self = this;
+      this.textRule = [(v) => !!v || 'This field is required']
+      let self = this
 
       setTimeout(function () {
         if (self.$refs.entryForm.validate()) {
           // (event click)filter by click buton(Title, Authors, Advisor)
-          if (typeof event == "number") {
-            self.filterBtnActive = self.filterBtnActive.map((el) => false);
-            self.filterBtnActive[event] = true;
+          if (typeof event == 'number') {
+            self.filterBtnActive = self.filterBtnActive.map((el) => false)
+            self.filterBtnActive[event] = true
           } else {
             // (event press enter)filter by press Enter key
 
@@ -283,7 +284,7 @@ export default {
                   (self.selectedMajor.Major_ID == 0
                     ? true
                     : el.Major == self.selectedMajor.Major_ID)
-              ));
+              ))
             }
 
             // press Enter and cilck button before
@@ -307,12 +308,12 @@ export default {
                 (self.selectedMajor.Major_ID == 0
                   ? true
                   : el.Major == self.selectedMajor.Major_ID)
-            );
-            return;
+            )
+            return
           }
 
           // ==== (event click button)
-          const index = self.filterBtnActive.indexOf(true);
+          const index = self.filterBtnActive.indexOf(true)
 
           // filter title (group name)
           if (index == 0) {
@@ -324,7 +325,7 @@ export default {
                 (self.selectedMajor.Major_ID == 0
                   ? true
                   : el.Major == self.selectedMajor.Major_ID)
-            ));
+            ))
           }
 
           // filter student
@@ -335,7 +336,7 @@ export default {
                 (self.selectedMajor.Major_ID == 0
                   ? true
                   : el.Major == self.selectedMajor.Major_ID)
-            ));
+            ))
           }
 
           // filter advisor
@@ -346,21 +347,20 @@ export default {
                 (self.selectedMajor.Major_ID == 0
                   ? true
                   : el.Major == self.selectedMajor.Major_ID)
-            ));
+            ))
           }
           // }
         }
-      });
-    },
-  },
-  layout: "empty",
-};
+      })
+    }
+  }
+}
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Acme&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Acme&display=swap');
 #app {
-  font-family: "Kanit", sans-serif;
+  font-family: 'Kanit', sans-serif;
 }
 
 h1 {
@@ -387,7 +387,7 @@ h3 {
 }*/
 
 #app {
-  font-family: "Kanit", sans-serif;
+  font-family: 'Kanit', sans-serif;
 }
 .v-application {
   background-color: #e2dcdc;

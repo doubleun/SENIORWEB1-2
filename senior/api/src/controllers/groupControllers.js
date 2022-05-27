@@ -2,376 +2,101 @@ const { result } = require('lodash')
 const con = require('../config/db')
 const conPromise = con.promise()
 
-createGroup = (req, res) => {
-  const {
-    Project_NameTh,
-    Project_NameEn,
-    Studen_Number,
-    Advisor_Email,
-    CoAdvisor_Name,
-    Committee1_Email,
-    Committee2_Email,
-    Student1_Tel,
-    Student2_Tel,
-    Student3_Tel,
-    Student4_Tel,
-    Student5_Tel,
-    Student6_Tel,
-    Student7_Tel,
-    Student8_Tel,
-    Student9_Tel,
-    Student10_Tel,
-    Email_Student1,
+createGroup = async (req, res) => {
+  let {
+    Group_Name_Thai,
+    Group_Name_Eng,
+    Co_Advisor,
     Major,
-    email,
-    Email_Student2,
-    Email_Student3,
-    Email_Student4,
-    Email_Student5,
-    Email_Student6,
-    Email_Student7,
-    Email_Student8,
-    Email_Student9,
-    Email_Student10
-    // Project_on_term_ID,
-  } = req.body
-  console.log(req.body)
-  const sql =
-    'INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) VALUES (?,?,?,?,?);'
-  const sql2 =
-    'INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID,User_Status, `Group_ID`) VALUES (?,(SELECT MAX(`Group_ID`) FROM `groups` WHERE`Group_Name_Eng` = ? AND`Project_on_term_ID` = ?))'
-  let user = []
-  let group = []
-  let error = 0
-  let success = 0
-  user.push([Email_Student1, Student1_Tel, 3, req.user.projectOnTerm, 1])
-
-  if (Studen_Number > 1) {
-    user.push([Email_Student2, Student2_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  if (Studen_Number > 2) {
-    user.push([Email_Student3, Student3_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  if (Studen_Number > 3) {
-    user.push([Email_Student4, Student4_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  if (Studen_Number > 4) {
-    user.push([Email_Student5, Student5_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  if (Studen_Number > 5) {
-    user.push([Email_Student6, Student6_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  if (Studen_Number > 6) {
-    user.push([Email_Student7, Student7_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  if (Studen_Number > 7) {
-    user.push([Email_Student8, Student8_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  if (Studen_Number > 8) {
-    user.push([Email_Student9, Student9_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  if (Studen_Number > 9) {
-    user.push([Email_Student10, Student10_Tel, 2, req.user.projectOnTerm, 0])
-  }
-  user.push([Advisor_Email, '', 0, req.user.projectOnTerm, 0])
-  user.push([Committee1_Email, '', 1, req.user.projectOnTerm, 0])
-  user.push([Committee2_Email, '', 1, req.user.projectOnTerm, 0])
-  if (CoAdvisor_Name == '' || CoAdvisor_Name == null) {
-    group.push([
-      Project_NameTh,
-      Project_NameEn,
-      '',
-      Major,
-      req.user.projectOnTerm
-    ])
-  } else {
-    group.push([
-      Project_NameTh,
-      Project_NameEn,
-      CoAdvisor_Name,
-      Major,
-      req.user.projectOnTerm
-    ])
-  }
-
-  con.query(sql, group[0], (err, result, fields) => {
-    if (err) {
-      console.log('error code first is ' + err.code)
-      error++
-    } else {
-      for (let i = 0; i < user.length; i++) {
-        con.query(
-          sql2,
-          [user[i], Project_NameEn, req.user.projectOnTerm],
-          (err, result2, fields) => {
-            console.log('user', user[i])
-            if (err) {
-              // console.log("err hear")
-              console.log(error)
-              res.status(500).send('Internal Server Error')
-              return
-            } else {
-              // console.log("hear")
-              // console.log(success + " com " + user.length);
-              success++
-              console.log(result2.affectedRows)
-              if (success == user.length) {
-                res.status(200).send('Success')
-                return
-              }
-            }
-          }
-        )
-      }
-    }
-  })
-
-  // if (sucess == user.length) {
-  //   res.status(200).json({ msg: "Create group Successed", status: 200 });
-  // } else {
-  // }
-  console.log('suss', success)
-  console.log('user.length', user.length)
-  // if (success == user.length) {
-  //   console.log("successed");
-  // }
-  // if (error > 0) {
-  //   res.status(500).json({ msg: "Internal Server Error", status: 500 });
-  // }
-}
-
-updateGroup = (req, res) => {
-  const {
-    Project_NameTh,
-    Project_NameEn,
-    Studen_Number,
-    Advisor_Email,
     Group_ID,
-    CoAdvisor_Name,
-    Committee1_Email,
-    Committee2_Email,
-    Student1_Tel,
-    Student2_Tel,
-    Student3_Tel,
-    Student4_Tel,
-    Student5_Tel,
-    Student6_Tel,
-    Student7_Tel,
-    Student8_Tel,
-    Student9_Tel,
-    Student10_Tel,
-    Email_Student1,
-    Email_Student2,
-    Email_Student3,
-    Email_Student4,
-    Email_Student5,
-    Email_Student6,
-    Email_Student7,
-    Email_Student8,
-    Email_Student9,
-    Email_Student10
-    // Project_on_term_ID,
-    // Group_Member_ID,
+    member,
+    deletedMember,
+    groupCreated
   } = req.body
-  console.log(req.body)
-  const sql =
-    'UPDATE `groups` SET `Group_Name_Thai`=?,`Group_Name_Eng`=?,`Co_Advisor`=? WHERE `Group_ID`=?'
-  const sql2 =
-    'UPDATE `groupmembers` SET `User_Email`=?,`User_Phone`=?,`Group_Role`=?,`Project_on_term_ID`=?, `User_Status` = IF(`User_Status` = 2, 0, `User_Status`) WHERE `User_Email`=? AND `Group_ID`=?'
-  const insert =
-    'INSERT INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`,Project_on_term_ID, `Group_ID`) VALUES (?,?,?,?,?)'
-  let user = []
-  let group = []
-  let error = 0
-  let success = 0
-  user.push([
-    Email_Student1,
-    Student1_Tel,
-    3,
-    req.user.projectOnTerm,
-    Email_Student1,
-    Group_ID
-  ])
 
-  if (Studen_Number > 1) {
-    user.push([
-      Email_Student2,
-      Student2_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student2,
-      Group_ID
-    ])
-  }
-  if (Studen_Number > 2) {
-    user.push([
-      Email_Student3,
-      Student3_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student3,
-      Group_ID
-    ])
-  }
-  if (Studen_Number > 3) {
-    user.push([
-      Email_Student4,
-      Student4_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student4,
-      Group_ID
-    ])
-  }
-  if (Studen_Number > 4) {
-    user.push([
-      Email_Student5,
-      Student5_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student5,
-      Group_ID
-    ])
-  }
-  if (Studen_Number > 5) {
-    user.push([
-      Email_Student6,
-      Student6_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student6,
-      Group_ID
-    ])
-  }
-  if (Studen_Number > 6) {
-    user.push([
-      Email_Student7,
-      Student7_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student7,
-      Group_ID
-    ])
-  }
-  if (Studen_Number > 7) {
-    user.push([
-      Email_Student8,
-      Student8_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student8,
-      Group_ID
-    ])
-  }
-  if (Studen_Number > 8) {
-    user.push([
-      Email_Student9,
-      Student9_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student9,
-      Group_ID
-    ])
-  }
-  if (Studen_Number > 9) {
-    user.push([
-      Email_Student10,
-      Student10_Tel,
-      2,
-      req.user.projectOnTerm,
-      Email_Student10,
-      Group_ID
-    ])
-  }
+  try {
+    // begin transaction
+    await conPromise.beginTransaction((err) => {
+      if (err) throw err
+    })
 
-  user.push([
-    Advisor_Email,
-    '',
-    0,
-    req.user.projectOnTerm,
-    Advisor_Email,
-    Group_ID
-  ])
-  user.push([
-    Committee1_Email,
-    '',
-    1,
-    req.user.projectOnTerm,
-    Committee1_Email,
-    Group_ID
-  ])
-  user.push([
-    Committee2_Email,
-    '',
-    1,
-    req.user.projectOnTerm,
-    Committee2_Email,
-    Group_ID
-  ])
-  if (CoAdvisor_Name == '' || CoAdvisor_Name == null) {
-    group.push([Project_NameTh, Project_NameEn, ''])
-  } else {
-    group.push([Project_NameTh, Project_NameEn, CoAdvisor_Name])
-  }
+    // throw if don't have project on term
+    // if (!req.user.projectOnTerm) throw 'No project on term'
 
-  con.query(
-    sql,
-    [group[0][0], group[0][1], group[0][2], Group_ID],
-    (err, result, fields) => {
-      console.log(user)
-      if (err) {
-        console.log('error code first is ' + err.sqlMessage)
-        error++
-      } else {
-        for (let i = 0; i < user.length; i++) {
-          con.query(
-            sql2,
-            [
-              user[i][0],
-              user[i][1],
-              user[i][2],
-              user[i][3],
-              user[i][4],
-              user[i][5]
-            ],
-            (err, result, fields) => {
-              console.log('success', result['affectedRows'])
-              if (result['affectedRows'] == 0) {
-                con.query(
-                  insert,
-                  [user[i][0], user[i][1], user[i][2], user[i][3], user[i][5]],
-                  (err, result, fields) => {
-                    if (err) {
-                      console.log('error code third is ' + err.sqlMessage)
-                    } else {
-                      success++
-                    }
-                  }
-                )
-              } else {
-                success++
-              }
-              if (err) {
-                console.log('hear err' + error)
-                res
-                  .status(500)
-                  .json({ msg: 'Internal Server Error', status: 500 })
-              }
-            }
-          )
-        }
-        res.status(200).json({ msg: 'Create group Successed', status: 200 })
+    // task1: create group
+    // let groupId
+    const createGroup =
+      'INSERT INTO groups (Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) VALUES (?,?,?,?,?);'
+
+    const updateGroup =
+      'UPDATE `groups` SET `Group_Name_Thai` = ?, `Group_Name_Eng` = ?, `Co_Advisor` = ? WHERE Group_ID = ?'
+
+    const groupId = await conPromise.execute(
+      !groupCreated ? createGroup : updateGroup,
+      !groupCreated
+        ? [
+            Group_Name_Thai,
+            Group_Name_Eng,
+            Co_Advisor,
+            Major,
+            req.user.projectOnTerm
+          ]
+        : [Group_Name_Thai, Group_Name_Eng, Co_Advisor, Group_ID],
+      (err) => {
+        if (err) throw err
       }
+    )
+
+    if (!groupCreated) {
+      Group_ID = groupId[0].insertId
     }
-  )
-  console.log('suss', success)
-  console.log('user.length', user.length)
-  // if (success == user.length) {
-  //   console.log("successed");
-  // }
-  // if (error > 0) {
-  //   res.status(500).json({ msg: "Internal Server Error", status: 500 });
-  // }
+
+    // throw if don't have group id
+    if (!Group_ID && !groupCreated) {
+      throw 'No group id'
+    }
+
+    // map group id then insert member
+    member = member.map((el) => [
+      el.User_Email,
+      el.User_Status ? el.User_Status : 0,
+      el.User_Phone,
+      el.Group_Role,
+      Group_ID,
+      req.user.projectOnTerm
+    ])
+
+    // console.log('member', member)
+
+    // task2: add member
+    const insetrMember =
+      'INSERT IGNORE INTO groupmembers ( User_Email, User_Status, User_Phone, Group_Role, Group_ID, Project_on_term_ID ) VALUES ? ON DUPLICATE KEY UPDATE  User_Status = VALUES(User_Status), User_Phone = VALUES(User_Phone)'
+
+    // excute method can not insert with array
+    await conPromise.query(insetrMember, [member], (err) => {
+      if (err) throw err
+    })
+
+    // task3: delete member out
+    if (deletedMember.length !== 0) {
+      console.log('deletedMember', deletedMember)
+      // const memberLeft =
+      //   'UPDATE groupmembers SET User_Status = 2 WHERE Group_Member_ID IN (?)'
+      const memberLeft = 'DELETE FROM groupmembers WHERE Group_Member_ID IN (?)'
+
+      await conPromise.query(memberLeft, [deletedMember], (err) => {
+        if (err) throw err
+      })
+    }
+
+    // commit all task
+    await conPromise.commit()
+    res.status(200).json({ msg: 'Create group successfully', status: 200 })
+  } catch (error) {
+    console.log(error)
+    conPromise.rollback()
+    res.status(500).json({ msg: 'Internal Server Error', status: 500 })
+  }
 }
 
 // Get group based on ID (for my advisee, comittee pages)
@@ -449,7 +174,7 @@ getGroupMajor = (req, res) => {
 getGroupMembers = (req, res) => {
   const { Group_ID } = req.body
   const sql =
-    'SELECT u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Phone, gm.User_Status FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email AND gm.Project_on_term_ID = u.Project_on_term_ID WHERE gm.Group_ID = ? AND NOT gm.User_Status = 2 ORDER BY gm.Group_Role DESC'
+    'SELECT gm.Group_Member_ID, u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Phone, gm.User_Status FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email AND gm.Project_on_term_ID = u.Project_on_term_ID WHERE gm.Group_ID = ? AND NOT gm.User_Status = 2 ORDER BY gm.Group_Role DESC'
   con.query(sql, [Group_ID], (err, result, fields) => {
     if (err) {
       console.log(err)
@@ -464,7 +189,7 @@ getGroupMembers = (req, res) => {
 getAllGroupsAdmin = (req, res) => {
   const { Year, Semester, Major, Senior } = req.body
   const sql =
-    'SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name FROM majors WHERE Major_ID = ?)AS Major_Name, (SELECT Major_ID FROM majors WHERE Major_ID = ?)AS Major_ID, (SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?) AND Major = ? AND Group_Status = 1'
+    'SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name FROM majors WHERE Major_Id = ?)AS Major, (SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?) AND Major = ? AND Group_Status = 1'
   con.query(
     sql,
     [Major, Major, Year, Semester, Senior, Major],
@@ -482,7 +207,7 @@ getAllGroupsAdmin = (req, res) => {
 getAllGroups = (req, res) => {
   const { Academic_Year, Academic_Term, Senior } = req.body
   const sql =
-    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name from majors WHERE Major_ID=gp.Major)AS Major_Name,(SELECT Major_ID from majors WHERE Major_ID=gp.Major)AS Major_ID, gp.Grade,(SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ? ) AND Group_Status = 1 AND gp.Grade!='U' AND gp.Grade!='F' AND gp.Grade!='I' AND gp.Grade!='P'"
+    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name from majors WHERE Major_ID=gp.Major)AS Major, gp.Grade,(SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ? ) AND Group_Status = 1 AND gp.Grade!='U' AND gp.Grade!='F' AND gp.Grade!='I' AND gp.Grade!='P'"
   con.query(
     sql,
     [Academic_Year, Academic_Term, Senior],
@@ -1142,7 +867,6 @@ module.exports = {
   getMyGroup,
   grading,
   deleteById,
-  updateGroup,
   getOnlyGroupWithID,
   countTeachergroup,
   getAllFilesMajor,

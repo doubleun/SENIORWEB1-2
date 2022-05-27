@@ -1,77 +1,77 @@
-const UserControllers = require("../controllers/userControllers");
-const multer = require("../controllers/multer");
-const middle = require("../middleware/middle");
+const UserControllers = require('../controllers/userControllers')
+const multer = require('../controllers/multer')
+const middle = require('../middleware/middle')
 
-var userRouter = require("express").Router();
+var userRouter = require('express').Router()
 
 // accept role = all
-userRouter.get("/", UserControllers.getUser);
+userRouter.get('/', UserControllers.getUser)
 
 // accept role = admin, coordinator
 userRouter.post(
-  "/getAllUserWithMajor",
+  '/getAllUserWithMajor',
   [middle.checkAuthenticated, middle.checkRole([2, 99])],
   UserControllers.getAllUserWithMajor
-);
+)
 
 // accept role = student
 userRouter.post(
-  "/getAllUsersInSchool",
+  '/getAllUsersInSchool',
   [middle.checkAuthenticated],
   UserControllers.getAllUsersInSchool
-);
+)
 
 // accept role = all
 userRouter.post(
-  "/getUserProjectOnTerm",
+  '/getUserProjectOnTerm',
   [middle.checkAuthenticated],
   UserControllers.getUserProjectOnTerm
-);
+)
 
 // accept role = student, co, teacher
 userRouter.get(
-  "/getUserAvailableSeniors",
+  '/getUserAvailableSeniors',
   [middle.checkAuthenticated],
   UserControllers.getUserAvailableSeniors
-);
+)
 
 // userRouter.post("/gettacherwithrole", UserControllers.getTachersWithRole);
 
 // accept role = admin
 userRouter.post(
-  "/amount",
+  '/amount',
   [middle.checkAuthenticated, middle.checkRole([99])],
   UserControllers.countUser
-);
+)
 
 // accept role = coordinator
 userRouter.post(
-  "/importstudent",
+  '/importstudent',
   [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],
-  multer.uploadUser.array("files", 10),
+  multer.uploadUser.array('files', 10),
   UserControllers.uploadfile
-);
+)
 
 // accept role = admin
 userRouter.post(
-  "/importteacher",
+  '/importteacher',
   [middle.checkAuthenticated, middle.checkRole([99])],
-  multer.uploadUser.array("files", 10),
+  multer.upload.single('file'),
   UserControllers.uploadfileteacher
-);
+)
 
 // accept role = admin
 userRouter.get(
-  "/getTeacherRole",
+  '/getTeacherRole',
   [middle.checkAuthenticated, middle.checkRole([99])],
   UserControllers.getTeacherRole
-);
+)
 
 // accept role = admin
 userRouter.post(
-  "/updateUserRole",
+  '/updateUserRole',
   [middle.checkAuthenticated, middle.checkRole([99])],
   UserControllers.updateUserRole
-);
+)
 
-module.exports = userRouter;
+module.exports = userRouter

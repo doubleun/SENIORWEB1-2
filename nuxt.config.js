@@ -31,7 +31,8 @@ export default {
   },
 
   build: {
-    publicPath: 'public_senior'
+    publicPath: 'public_senior',
+    watch:["/senior/api/app.js"]
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -65,13 +66,16 @@ export default {
       dark: false,
       themes: {
         dark: {
-          primary: colors.blue.darken2,
+          primary: '#004FAB',
           accent: colors.grey.darken3,
           secondary: colors.amber.darken3,
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3
+        },
+        light: {
+          primary: '#004FAB'
         }
       }
     }

@@ -8,6 +8,15 @@
     <!-- <button @click="test">test</button> -->
     <SelectSenior v-if="role === 99" />
 
+    <!-- Action buttons -->
+    <div class="my-5 d-flex justify-end" style="gap: 0.5rem; flex-wrap: wrap">
+      <div>
+        <v-btn color="success" @click="handleExports(allGroups)"
+          ><v-icon>mdi-microsoft-excel</v-icon>Export to Excel</v-btn
+        >
+      </div>
+    </div>
+
     <ViewGroupDetail
       :yearNSemsters="yearNSemsters"
       :allGroups="allGroups"
@@ -21,10 +30,11 @@
 </template>
 
 <script>
+import exportXLSX from '@/mixins/exportXLSX'
 import dialog from '@/mixins/dialog'
 
 export default {
-  mixins: [dialog],
+  mixins: [exportXLSX, dialog],
   layout: 'coordinatorsidebar',
   data() {
     return {
@@ -34,7 +44,7 @@ export default {
   },
 
   async asyncData({ $axios, store }) {
-    let yearNSemsters, allGroups, documents, majors
+    let yearNSemsters, allGroups, documents
 
     const senior = store.getters['auth/currentUser'].senior
     const role = store.getters['auth/currentUser'].role
@@ -42,46 +52,37 @@ export default {
     try {
       if (!senior) throw new Error('Cannot find senior')
 
-      // Fetch all majors
-      majors = await $axios.$get('/major/getAllActiveMajors')
-
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
-
-      // Fetch initial group
+      /// Fetch initial group
       allGroups = await $axios.$post('/group/getAllGroups', {
         Academic_Year: store.getters['auth/currentUser'].academicYear,
         Academic_Term: store.getters['auth/currentUser'].semester,
         Senior: store.getters['auth/currentUser'].senior
       })
 
-      // Fetch all finaldoc
       documents = await $axios.$get('/group/getAllFinalDoc')
+      // console.log("allGroups", allGroups);
+      // console.log("documents", documents);
     } catch (err) {
       console.log(err)
       return { yearNSemsters: [], allGroups: [] }
     }
 
-    return { yearNSemsters, allGroups, role, documents, majors }
+    return { yearNSemsters, allGroups, role, documents }
   },
 
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
       this.loading = true
       try {
-        // TODO: if do not need to fetch data from data every time while filter can you allGroups variable that fetch data in asyncData()
-
-        let data = await this.$axios.$post('group/getAllGroups', {
-          Academic_Year: year,
-          Academic_Term: semester,
+        this.allGroups = await this.$axios.$post('group/getAllGroups', {
+          Major: major,
+          Year: year,
+          Semester: semester,
           Senior: senior
         })
-
-        if (major === 0) {
-          this.allGroups = data
-        } else {
-          this.allGroups = data.filter((el) => el.Major_ID == major)
-        }
+        // this.documents = await this.$axios.$get("/group/getAllFinalDoc");
       } catch (error) {
         console.log(error)
       }

@@ -1,147 +1,141 @@
-const groupRouter = require("express").Router();
-const groupController = require("../controllers/groupControllers");
-const multer = require("../controllers/multer");
-const middle = require("../middleware/middle");
+const groupRouter = require('express').Router()
+const groupController = require('../controllers/groupControllers')
+const multer = require('../controllers/multer')
+const middle = require('../middleware/middle')
 
 groupRouter.post(
-  "/getGroupWithID",
+  '/getGroupWithID',
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.getGroupWithID
-); // coordinator, teacher
+) // coordinator, teacher
 
 groupRouter.post(
-  "/getTeachersEval",
+  '/getTeachersEval',
   [middle.checkAuthenticated, middle.checkRole([0, 1, 2])],
   groupController.getTeachersEval
-); // coordinator, teacher, student
+) // coordinator, teacher, student
 
 groupRouter.post(
-  "/getTeachersWithGroupID",
+  '/getTeachersWithGroupID',
   [middle.checkAuthenticated, middle.checkRole([1])],
   groupController.getTeachersWithGroupID
-); // student
+) // student
 
 groupRouter.post(
-  "/listOwnGroup",
+  '/listOwnGroup',
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.listOwnGroup
-); // coordinator, teacher
+) // coordinator, teacher
 
 groupRouter.post(
-  "/getScoreCoor",
+  '/getScoreCoor',
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.getScoreCoor
-); // coordinator
+) // coordinator
 
 groupRouter.post(
-  "/socre",
+  '/socre',
   [middle.checkAuthenticated, middle.checkRole([1])],
   groupController.getGroupScore
-); // student
+) // student
 
 groupRouter.post(
-  "/getAllAdmin",
+  '/getAllAdmin',
   [middle.checkAuthenticated, middle.checkRole([2, 99])],
   groupController.getAllGroupsAdmin
-); // admin, coordinator
+) // admin, coordinator
 groupRouter.post(
-  "/getAllGroups",
+  '/getAllGroups',
   [middle.checkAuthenticated, middle.checkRole([0, 1, 2, 99])],
   groupController.getAllGroups
-); // all
+) // all
 
 groupRouter.post(
-  "/listrequestGroup",
+  '/listrequestGroup',
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.listrequestGroup
-); // coordinator, teacher
+) // coordinator, teacher
 
 groupRouter.post(
-  "/updateMemberStatus",
+  '/updateMemberStatus',
   [
     middle.checkAuthenticated,
     middle.checkRole([0, 1, 2]),
-    middle.checkAccessDate,
+    middle.checkAccessDate
   ],
   groupController.updateMemberStatus
-); // coordinator, student, teacher
+) // coordinator, student, teacher
 
 groupRouter.post(
-  "/grading",
-  multer.upload.single("file"),
+  '/grading',
+  multer.upload.single('file'),
   [middle.checkAuthenticated, middle.checkRole([0, 2]), middle.checkAccessDate],
   groupController.grading
-); // coordinator, teacher
+) // coordinator, teacher
 
 groupRouter.post(
-  "/createGroup",
+  '/createGroup',
   [middle.checkAuthenticated, middle.checkRole([1]), middle.checkAccessDate],
   groupController.createGroup
-); // student
-
-groupRouter.put(
-  "/updateGroup",
-  [middle.checkAuthenticated, middle.checkRole([1]), middle.checkAccessDate],
-  groupController.updateGroup
-); //student
+) // student
 
 groupRouter.post(
-  "/getGroupMajor",
+  '/getGroupMajor',
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.getGroupMajor
-); // coordinator, teacher
+) // coordinator, teacher
 
 groupRouter.put(
-  "/delete/one",
+  '/delete/one',
   [middle.checkAuthenticated, middle.checkRole([0, 2]), middle.checkAccessDate],
   groupController.deleteById
-); // coordinator, teacher
+) // coordinator, teacher
 
 groupRouter.post(
-  "/countMyGroup",
+  '/countMyGroup',
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.countTeachergroup
-); // coordinator, teacher
+) // coordinator, teacher
 
 groupRouter.post(
-  "/getAllFilesMajor",
+  '/getAllFilesMajor',
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.getAllFilesMajor
-); // coordinator
+) // coordinator
 
 groupRouter.get(
-  "/getAllFinalDoc",
+  '/getAllFinalDoc',
   [middle.checkAuthenticated, middle.checkRole([0, 1, 2, 99])],
   groupController.getAllFinalDoc
-); // all
+) // all
 
 groupRouter.post(
-  "/countOwnGroup",
+  '/countOwnGroup',
   [middle.checkAuthenticated, middle.checkRole([99])],
   groupController.countOwnGroup
-); // admin
+) // admin
 
 // =======================================================>
 
 // === role not sure ===
 groupRouter.get(
-  "/getGroupInfo",
+  '/getGroupInfo',
   [middle.checkAuthenticated, middle.checkRole([0, 1, 2])],
   groupController.getGroupInfo
-); // student, coordinator, teacher
+) // student, coordinator, teacher
 
 groupRouter.post(
-  "/getGroupMembers",
+  '/getGroupMembers',
   [middle.checkAuthenticated, middle.checkRole([1])],
   groupController.getGroupMembers
-); // student
+) // student
 
 // FIXME: not sure == pendding
 groupRouter.post(
-  "/moveGroup",
+  '/moveGroup',
   [middle.checkAuthenticated, middle.checkRole([99])],
   groupController.addGroupToSeTwo
-);
+)
 // === role not sure ===
 
 // =======================================================>
@@ -150,38 +144,38 @@ groupRouter.post(
 
 // FIXME: this api doesn't use?
 groupRouter.put(
-  "/delete",
+  '/delete',
   [middle.checkAuthenticated, middle.checkRole([0, 2])],
   groupController.deletes
-); // coordinator, teacher
+) // coordinator, teacher
 
 // FIXME: this api doesn't use?
-groupRouter.get("/all", groupController.getAll);
+groupRouter.get('/all', groupController.getAll)
 
 // FIXME: this api doesn't use?
-groupRouter.put("/statusgroup", groupController.statusgroup);
+groupRouter.put('/statusgroup', groupController.statusgroup)
 
 // FIXME: this api doesn't use?
-groupRouter.post("/getByRole", groupController.getByRole);
+groupRouter.post('/getByRole', groupController.getByRole)
 
 // FIXME: this api doesn't use?
-groupRouter.post("/getMyGroup", groupController.getMyGroup);
+groupRouter.post('/getMyGroup', groupController.getMyGroup)
 
 // FIXME: this api doesn't use?
-groupRouter.post("/countprogress", groupController.countProgressGroup);
+groupRouter.post('/countprogress', groupController.countProgressGroup)
 
 // FIXME: this api doesn't use?
 groupRouter.get(
-  "/getByMajor",
+  '/getByMajor',
   [middle.checkAuthenticated, middle.checkRole([0, 99, 2])],
   groupController.getByMajor
-); // addmin, co, advisor, committee
+) // addmin, co, advisor, committee
 
 // FIXME: this api doesn't use?
-groupRouter.post("/getOnlyGroupWithID", groupController.getOnlyGroupWithID); // teacher
+groupRouter.post('/getOnlyGroupWithID', groupController.getOnlyGroupWithID) // teacher
 
 // === this api doesn't use? ===
 
 // =======================================================>
 
-module.exports = groupRouter;
+module.exports = groupRouter

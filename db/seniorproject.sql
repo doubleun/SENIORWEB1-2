@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db:3306
--- Generation Time: Apr 17, 2022 at 03:26 PM
+-- Generation Time: Apr 23, 2022 at 01:16 PM
 -- Server version: 10.7.3-MariaDB-1:10.7.3+maria~focal
 -- PHP Version: 8.0.15
 
@@ -377,6 +377,7 @@ ALTER TABLE `announcements`
 --
 ALTER TABLE `assignments`
   ADD PRIMARY KEY (`Assignment_ID`),
+  ADD UNIQUE KEY `Progress_ID_2` (`Progress_ID`,`Group_ID`),
   ADD KEY `Progress_ID` (`Progress_ID`),
   ADD KEY `Group_ID` (`Group_ID`);
 
