@@ -4,7 +4,7 @@
       <v-form>
         <v-row class="justify-end pr-5 pt-5 pb-2">
           <!-- Dialog -->
-          <v-dialog v-model="dialog" max-width="600px">
+          <v-dialog v-if="userRole !== 0" v-model="dialog" max-width="600px">
             <template v-slot:activator="{ on }">
               <v-btn rounded dark color="indigo" v-on="on">
                 Add announcement
@@ -97,7 +97,7 @@
                       Major :
                       {{
                         announcement.allMajor == true
-                          ? "All"
+                          ? 'All'
                           : announcement.major.Major_Name
                       }}
                     </div>
@@ -174,7 +174,7 @@
                             :items="majors"
                             :rules="[
                               (val) =>
-                                isSelectMajorEdit(val, editedItem.allMajor),
+                                isSelectMajorEdit(val, editedItem.allMajor)
                             ]"
                             @change="handleSelectMajorEdit()"
                             item-text="Major_Name"
@@ -224,10 +224,14 @@
   </div>
 </template>
 <script>
-import utils from "@/mixins/utils";
+import utils from '@/mixins/utils'
 
 export default {
-  props: { dataUi: Object, majors: Array, isAdmin: Boolean },
+  props: {
+    dataUi: Object,
+    majors: Array,
+    isAdmin: Boolean
+  },
   data: () => ({
     date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
@@ -237,33 +241,33 @@ export default {
     dialog: false,
     page: 1,
     submitSnackbar: false,
-    snackbarText: "Add new announcement successfully",
+    snackbarText: 'Add new announcement successfully',
     allMajorAdd: false,
     allMajorEdit: false,
     selectedMajorAdd: {},
     selectedMajorEdit: {},
-    Text: "",
+    Text: '',
     editedItem: {},
-    userRole: null,
+    userRole: null
   }),
   mixins: [utils],
 
   computed: {
     displayAnnounce() {
       // 4 is the maximum rows
-      const startIndex = 4 * (this.page - 1);
-      const endIndex = startIndex + 4;
-      return this.dataUi.announcements.slice(startIndex, endIndex);
+      const startIndex = 4 * (this.page - 1)
+      const endIndex = startIndex + 4
+      return this.dataUi.announcements.slice(startIndex, endIndex)
     },
     pageLength() {
-      return Math.ceil(this.dataUi.announcements.length / 4);
-    },
+      return Math.ceil(this.dataUi.announcements.length / 4)
+    }
   },
 
   mounted() {
     // console.log(this.dataUi);
-    this.$emit("on-update-announcements");
-    this.userRole = this.$store.state.auth.currentUser.role;
+    this.$emit('on-update-announcements')
+    this.userRole = this.$store.state.auth.currentUser.role
   },
 
   methods: {
@@ -273,95 +277,95 @@ export default {
         (selectedMajor == null || selectedMajor.Major_ID == null) &&
         allmajor == false
       ) {
-        return "Please select Major";
+        return 'Please select Major'
       }
 
-      return true;
+      return true
     },
     isSelectMajorEdit(selectedMajor, allmajor) {
       if (
         (selectedMajor == null || selectedMajor.Major_ID == 99) &&
         allmajor == false
       ) {
-        return "Please select Major";
+        return 'Please select Major'
       }
 
-      return true;
+      return true
     },
-    
+
     // offset date
     offsetDate(date) {
       // console.log("offsetdate", date);
       let offsetDate = new Date(
         new Date(date).getTime() - new Date(date).getTimezoneOffset() * 60000
-      ).toISOString();
+      ).toISOString()
 
       return (
-        offsetDate.split("T")[0] + "\t" + offsetDate.split("T")[1].split(".")[0]
-      );
+        offsetDate.split('T')[0] + '\t' + offsetDate.split('T')[1].split('.')[0]
+      )
     },
 
     // === Handle add new announcement === //
     async handleAddNewAnnounce() {
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
 
-      let validateText = this.$refs.textAdd.validate("textAdd");
+      let validateText = this.$refs.textAdd.validate('textAdd')
 
       // Check only admin role because other role not render ui to input
-      let validateSelectMajor = true;
-      let validateCheckAllMajor = true;
-      let selectedMajor;
+      let validateSelectMajor = true
+      let validateCheckAllMajor = true
+      let selectedMajor
       if (this.isAdmin) {
-        validateSelectMajor = this.$refs.selectAdd.validate("selectAdd");
-        validateCheckAllMajor = this.allMajorAdd;
+        validateSelectMajor = this.$refs.selectAdd.validate('selectAdd')
+        validateCheckAllMajor = this.allMajorAdd
 
-        selectedMajor = this.allMajorAdd ? 99 : this.selectedMajorAdd.Major_ID;
+        selectedMajor = this.allMajorAdd ? 99 : this.selectedMajorAdd.Major_ID
       }
 
       // If there is no text or the selected major ID is not in the available ones stop the function
       if (!validateText || (!validateSelectMajor && !validateCheckAllMajor)) {
-        return;
+        return
       }
 
       // Send axios request to add new announcement
-      const res = await this.$axios.$post("/announc/add", {
+      const res = await this.$axios.$post('/announc/add', {
         Text: this.Text.trim(),
         MajorID: this.isAdmin
           ? selectedMajor
           : this.$store.state.auth.currentUser.major,
         Academic_Year: this.isAdmin
-          ? this.$store.getters["auth/currentUser"].academicYear
+          ? this.$store.getters['auth/currentUser'].academicYear
           : null,
         Academic_Term: this.isAdmin
-          ? this.$store.getters["auth/currentUser"].semester
+          ? this.$store.getters['auth/currentUser'].semester
           : null,
         Senior: this.isAdmin
-          ? this.$store.getters["auth/currentUser"].senior
-          : null,
-      });
+          ? this.$store.getters['auth/currentUser'].senior
+          : null
+      })
       if (res.status === 200) {
-        this.dialog = false;
+        this.dialog = false
 
         this.$swal.fire(
-          "Successed!",
-          "A announcement has been added.",
-          "success"
-        );
+          'Successed!',
+          'A announcement has been added.',
+          'success'
+        )
 
         // Update UI
-        this.$emit("on-update-announcements");
+        this.$emit('on-update-announcements')
 
         // Clear text
-        this.Text = "";
-        this.MajorID = 0;
+        this.Text = ''
+        this.MajorID = 0
         if (this.isAdmin) {
-          this.$refs.textAdd.reset();
-          this.$refs.selectAdd.reset();
-          this.$refs.checkAdd.reset();
+          this.$refs.textAdd.reset()
+          this.$refs.selectAdd.reset()
+          this.$refs.checkAdd.reset()
         }
       } else {
-        this.dialog = false;
-        this.$swal.fire("Something wrong", res, "error");
+        this.dialog = false
+        this.$swal.fire('Something wrong', res, 'error')
       }
     },
 
@@ -369,57 +373,57 @@ export default {
     async handleDeleteAnnouncement(id) {
       this.$swal
         .fire({
-          title: "Are you sure?",
-          text: "Are you sure to delete this announcement.",
-          icon: "warning",
+          title: 'Are you sure?',
+          text: 'Are you sure to delete this announcement.',
+          icon: 'warning',
           showCancelButton: true,
           // confirmButtonColor: "#d33",
           // cancelButtonColor: "#3085d6",
-          confirmButtonText: "Yes",
+          confirmButtonText: 'Yes'
         })
         .then(async (result) => {
           if (result.isConfirmed) {
-            const res = await this.$axios.$delete("/announc/delete", {
+            const res = await this.$axios.$delete('/announc/delete', {
               data: {
-                Announcement_ID: id,
-              },
-            });
+                Announcement_ID: id
+              }
+            })
             if (res.status === 200) {
               this.$swal.fire(
-                "Deleted!",
-                "A announcement has been deleted.",
-                "success"
-              );
+                'Deleted!',
+                'A announcement has been deleted.',
+                'success'
+              )
               // Update UI items
-              this.$emit("on-update-announcements");
+              this.$emit('on-update-announcements')
             } else {
-              this.$swal.fire("Something wrong", res, "error");
+              this.$swal.fire('Something wrong', res, 'error')
             }
           }
-        });
+        })
     },
 
     // editItem
     editItem(item) {
       // this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.editedItem.modal = true;
-      console.log(this.editedItem);
+      this.editedItem = Object.assign({}, item)
+      this.editedItem.modal = true
+      console.log(this.editedItem)
     },
 
     // === Handle update announcement === //
     async handleUpdateAnnouncement() {
       // Check if all major is selected, if it is set selected major to 99 else set selected major to what ever the number user input
 
-      let validateText = this.$refs.textEdit.validate();
+      let validateText = this.$refs.textEdit.validate()
 
-      let validateSelectMajor = true;
-      let selectedMajor;
+      let validateSelectMajor = true
+      let selectedMajor
       if (this.isAdmin) {
-        validateSelectMajor = this.$refs.selectEdit.validate();
+        validateSelectMajor = this.$refs.selectEdit.validate()
         selectedMajor = this.editedItem.allMajor
           ? 99
-          : this.editedItem.major.Major_ID;
+          : this.editedItem.major.Major_ID
       }
 
       // If there is no text or the selected major ID is not in the available ones stop the function
@@ -428,55 +432,55 @@ export default {
         !validateText ||
         (!validateSelectMajor && !this.editedItem.allMajor)
       ) {
-        return;
+        return
       }
 
       // Send axios request to edit an announcement
-      const res = await this.$axios.$post("announc/edit", {
+      const res = await this.$axios.$post('announc/edit', {
         AnnouncementID: this.editedItem.Announcement_ID,
         Text: this.editedItem.Text.trim(),
-        MajorID: this.isAdmin ? selectedMajor : this.editedItem.major.Major_ID,
-      });
+        MajorID: this.isAdmin ? selectedMajor : this.editedItem.major.Major_ID
+      })
 
       if (res.status === 200) {
-        this.editedItem.modal = false;
-        this.$emit("on-update-announcements");
+        this.editedItem.modal = false
+        this.$emit('on-update-announcements')
 
         this.$swal.fire(
-          "Successed!",
-          "A announcement has been added.",
-          "success"
-        );
+          'Successed!',
+          'A announcement has been added.',
+          'success'
+        )
       } else {
-        this.editedItem.modal = false;
-        this.$swal.fire("Something wrong", res, "error");
+        this.editedItem.modal = false
+        this.$swal.fire('Something wrong', res, 'error')
       }
     },
     handleSelectMajorAdd() {
-      this.$refs.selectAdd.resetValidation();
-      this.$refs.checkAdd.resetValidation();
-      this.allMajorAdd = null;
+      this.$refs.selectAdd.resetValidation()
+      this.$refs.checkAdd.resetValidation()
+      this.allMajorAdd = null
     },
     handleCheckboxAdd() {
       if (this.selectedMajorAdd != null) {
-        this.selectedMajorAdd = null;
+        this.selectedMajorAdd = null
       }
-      this.$refs.selectAdd.resetValidation();
+      this.$refs.selectAdd.resetValidation()
     },
     handleSelectMajorEdit() {
-      this.$refs.selectEdit.resetValidation();
-      this.$refs.checkEdit.resetValidation();
-      this.editedItem.allMajor = false;
+      this.$refs.selectEdit.resetValidation()
+      this.$refs.checkEdit.resetValidation()
+      this.editedItem.allMajor = false
     },
     handleCheckboxEdit(major) {
       if (major != null) {
-        this.$refs.selectEdit.reset();
-        return;
+        this.$refs.selectEdit.reset()
+        return
       }
-      this.$refs.selectEdit.resetValidation();
-    },
-  },
-};
+      this.$refs.selectEdit.resetValidation()
+    }
+  }
+}
 </script>
 <style>
 .announcementRowContainer {

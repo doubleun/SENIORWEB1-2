@@ -83,13 +83,12 @@ export default {
         {
           icon: "mdi-account-group",
           title: "Group",
-          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/viewGroup`,
+          to: `/senior${this.$store.state.auth.currentUser.senior}/coordinator/group`,
           role: 0,
         },
         {
           icon: "mdi-clipboard-text",
           title: "Doucment",
-          // title: "All Group",
           to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"

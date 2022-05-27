@@ -24,7 +24,7 @@
               <v-card-text>
                 <v-row v-if="majors">
                   <v-col md="3">
-                    <p>Study Program</p>
+                    <p>Major</p>
                   </v-col>
                   <v-col md="9">
                     <v-select

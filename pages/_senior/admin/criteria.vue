@@ -3,10 +3,10 @@
     <h2 class="header-title mb-2 mt-5 mb-10 white--text">Criteria</h2>
     <SelectSenior />
 
-    <!-- Select score study program -->
+    <!-- Select score Major-->
     <div class="admin-criteria-score-actions">
       <div>
-        <p class="white--text">Study Program</p>
+        <p class="white--text">Major</p>
         <v-select
           v-model="selectedMajor"
           :items="majors"
@@ -27,10 +27,10 @@
 
     <div class="grade-criteria-dialog-card"></div>
 
-    <!-- Select grade study program -->
+    <!-- Select grade Major -->
     <!-- <div class="admin-criteria-score-actions">
         <div>
-          <h4>Study Program</h4>
+          <h4>Major</h4>
           <v-select
             v-model="selectedMajor"
             :items="majors"
@@ -176,7 +176,7 @@ export default {
   /* width: 9rem; */
 }
 
-/* Score select study program */
+/* Score select Major */
 .admin-criteria-score-actions {
   display: flex;
   gap: 0.5rem;
