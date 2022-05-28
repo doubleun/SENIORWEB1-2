@@ -840,14 +840,14 @@ getAllFinalDoc = (req, res) => {
   })
 }
 
-// TODO: how font end send project on term id
+// TODO: Check if affected row (when move group and insert memeber is zero)
 moveGroup = async (req, res) => {
   // const projectOnTerm = req.body.Project_on_term_ID
-  const { Academic_Year } = req.body
+  let { Academic_Year, Semester } = req.body
 
-  // get project on term ids of previous semester and current
-  const getProjectOnTermIds =
-    'SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = Senior ORDER BY Academic_Year, Academic_Term ASC'
+  // get project on term id
+  const getProjectOnTermId =
+    'SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?'
 
   // move group
   const moveGroup =
@@ -864,51 +864,64 @@ moveGroup = async (req, res) => {
     })
 
     // task 1 fetch project on term ids and verify
-    const proejctOnTermIds = await conPromise.query(
-      getProjectOnTermIds,
-      [Academic_Year],
+    // current project on term id
+    let currentProjectOnTerm = await conPromise.query(
+      getProjectOnTermId,
+      [Academic_Year, Semester, 2],
       (err) => {
         if (err) {
           throw err
         }
       }
     )
+    const [{ Project_on_term_ID: currentId }] = currentProjectOnTerm[0]
 
-    console.log('=============== fetched project on term ids ===============')
-
-    // verify project on term ids
-    if (proejctOnTermIds[0].length !== 2) {
-      throw new Error('Cannot find previous semester')
+    // if it's semester 1 then go back 1 semester
+    if (Semester - 1 === 0) {
+      Academic_Year = Academic_Year - 1
+      Semester = Semester + 1
+    } else {
+      Semester = Semester - 1
     }
 
-    const [
-      { Project_on_term_ID: prevProjectOnTerm },
-      { Project_on_term_ID: currentProjectOnTerm }
-    ] = proejctOnTermIds[0]
-
-    // task 2 move group
-    await conPromise.query(
-      moveGroup,
-      [currentProjectOnTerm, prevProjectOnTerm],
-      (err, resultadd, fields) => {
+    // previous project on term id
+    console.log(Academic_Year, Semester)
+    const prevProjectOnTerm = await conPromise.query(
+      getProjectOnTermId,
+      [Academic_Year, Semester, 1],
+      (err) => {
         if (err) {
           throw err
         }
       }
     )
+    console.log('prevProjectOnTerm[0]', prevProjectOnTerm[0].length)
+    // check if previous project on term exists
+    if (prevProjectOnTerm[0].length === 0) {
+      throw new Error(
+        `Cannot find previous semester, please check if ${Semester}/${Academic_Year} exists`
+      )
+    }
+
+    const [{ Project_on_term_ID: previousId }] = prevProjectOnTerm[0]
+
+    console.log(currentId, previousId)
+
+    // task 2 move group
+    await conPromise.query(moveGroup, [currentId, previousId], (err) => {
+      if (err) {
+        throw err
+      }
+    })
 
     console.log('=============== group inserted ===============')
 
     // task 3 move groupmember
-    await conPromise.query(
-      moveGroupmember,
-      [currentProjectOnTerm],
-      (err, resultadd, fields) => {
-        if (err) {
-          throw err
-        }
+    await conPromise.query(moveGroupmember, [currentId], (err) => {
+      if (err) {
+        throw err
       }
-    )
+    })
 
     console.log('=============== members inserted ===============')
 
@@ -916,16 +929,11 @@ moveGroup = async (req, res) => {
     await conPromise.commit()
     res.status(200).json({ msg: 'Move group successfully', status: 200 })
   } catch (error) {
-    console.log(error)
-    let errorMessage = 'Move group fail'
+    console.log('Error log:', error)
     conPromise.rollback()
-    if (typeof error === string) {
-      errorMessage = error
-    }
-
     res.status(500).json(
       createErrorJSON({
-        msg: errorMessage,
+        msg: String(error),
         errDialog: { enabled: true, redirect: false }
       })
     )
