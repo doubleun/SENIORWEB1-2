@@ -1,22 +1,12 @@
 {
   "version": 2,
-  "routes": [
-    {
-      "src": "senior/api/app",
-      "dest": "senior/api/app.js"
-    }
-  ],
   "builds": [
-    {
-      "src": "senior/api/app.js",
-      "use": "@vercel/node"
-    },
     {
       "src": "nuxt.config.js",
       "use": "@nuxtjs/vercel-builder",
       "config": {
         "serverFiles": [
-          "senior/**"
+          "server-middleware/**"
         ]
       }
     }
