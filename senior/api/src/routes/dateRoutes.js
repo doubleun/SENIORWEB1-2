@@ -1,53 +1,53 @@
-const dateRoutes = require("express").Router();
-const dateControllers = require("../controllers/dateControllers");
-const middle = require("../middleware/middle");
+const dateRoutes = require('express').Router()
+const dateControllers = require('../controllers/dateControllers')
+const middle = require('../middleware/middle')
 
 dateRoutes.get(
-  "/getLatestProjectOnTerm",
+  '/getLatestProjectOnTerm',
   [middle.checkAuthenticated, middle.checkRole([99])],
   dateControllers.getLatestProjectOnTerm
-); // admin
+) // admin
 
 dateRoutes.post(
-  "/getProjectOnTerm",
+  '/getProjectOnTerm',
   [middle.checkAuthenticated, middle.checkRole([99])],
   dateControllers.getProjectOnTerm
-); // admin
+) // admin
 
 dateRoutes.get(
-  "/academic/get",
+  '/academic/get',
   [middle.checkAuthenticated, middle.checkRole([99])],
   dateControllers.getAcademicYear
-); // admin
+) // admin
 
 dateRoutes.post(
-  "/academic/new",
+  '/academic/new',
   [middle.checkAuthenticated, middle.checkRole([99])],
   dateControllers.newAcademicYear
-); // admin
+) // admin
 
 dateRoutes.post(
-  "/semester/get",
+  '/semester/get',
   [middle.checkAuthenticated, middle.checkRole([99])],
   dateControllers.getSemesterDate
-); // admin
+) // admin
 
 dateRoutes.post(
-  "/semester/new",
+  '/semester/new',
   [middle.checkAuthenticated, middle.checkRole([99])],
   dateControllers.newSemesterDate
-); // admin
+) // admin
 
 dateRoutes.post(
-  "/semester/update",
+  '/semester/update',
   [middle.checkAuthenticated, middle.checkRole([99])],
   dateControllers.updateSemesterDate
-); // admin
+) // admin
 
 dateRoutes.get(
-  "/allYearsSemester",
-  [middle.checkAuthenticated, middle.checkRole([0, 2, 99])],
+  '/allYearsSemester',
+  [middle.checkAuthenticated, middle.checkRole([0, 1, 2, 99])],
   dateControllers.getYearsSemester
-); // admin, coordinator, teacher
+) // admin, coordinator, teacher
 
-module.exports = dateRoutes;
+module.exports = dateRoutes

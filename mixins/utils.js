@@ -93,6 +93,11 @@ export default {
       return errorMsg
     },
 
+    // Check if the array is valid
+    isValidArray(array) {
+      return Array.isArray(array) && !_.isEmpty(array)
+    },
+
     // Lodash isEqual
     isEqual(el1, el2) {
       return _.isEqual(el1, el2)

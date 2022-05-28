@@ -49,9 +49,9 @@
             label="Advisor"
           ></v-checkbox></v-row
       ></v-col>
-      <!-- Study Programmes checkbox -->
+      <!-- Major checkbox -->
       <v-col
-        ><v-row class="mb-1"><h5>Study Programmes</h5></v-row>
+        ><v-row class="mb-1"><h5>Major</h5></v-row>
       </v-col>
       <v-col
         ><v-row
