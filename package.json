@@ -33,6 +33,7 @@
     "xlsx": "^0.17.4"
   },
   "devDependencies": {
+    "@nuxtjs/vercel-builder": "^0.22.1",
     "@nuxtjs/vuetify": "^1.12.1",
     "babel-eslint": "^10.1.0",
     "eslint": "^8.13.0",
