@@ -15,12 +15,12 @@
           ><v-icon>mdi-microsoft-excel</v-icon>Export to Excel</v-btn
         >
       </div>
-      <div>
+      <div v-if="$store.getters['auth/currentUser'].senior === 2">
         <v-btn
           color="indigo darken-2"
           dark
           @click="handleMoveGroups"
-          v-if="$store.getters['auth/currentUser'].senior === 2"
+          :disabled="isValidArray(allGroups)"
           ><v-icon>mdi-microsoft-excel</v-icon>Move group to senior 2</v-btn
         >
       </div>
@@ -42,10 +42,11 @@
 // import LongTableCard from "@/components/admin/longTableCard";
 import exportXLSX from '@/mixins/exportXLSX'
 import dialog from '@/mixins/dialog'
+import utils from '@/mixins/utils'
 
 export default {
   layout: 'admin',
-  mixins: [exportXLSX, dialog],
+  mixins: [exportXLSX, dialog, utils],
   data() {
     return {
       searchGroup: '',
@@ -118,24 +119,18 @@ export default {
       }
     },
     async handleMoveGroups() {
-      const moveGroups = async () => {
-        // Fetch project on term id for the group's next senior (ie. senior 2 projectOnTermId based on this group year and semster)
-        const projectOnTerm = await this.$axios.$post('date/getProjectOnTerm', {
-          Academic_Year: this.selectedYear,
-          Academic_Term: this.selectedSemester,
-          /**
-           * @deprecated This API do not use senior in SQL Query anymore! Please, refactor.
-           */
-          Senior: 2
-        })
-        // console.log("projectOnTerm: ", projectOnTerm);
-
-        return this.$axios.$post('group/moveGroup', {
-          // FIXME: This seems like a bad idea ?
-          Project_on_term_ID: projectOnTerm.Project_on_term_ID
-        })
+      const currentYear = this.$store.getters['auth/currentUser']?.academicYear
+      if (!currentYear) {
+        throw new Error('Cannot get the currently selected year')
       }
-      await this.showLoading(moveGroups)
+
+      const moveGroup = () =>
+        this.$axios.post('group/moveGroup', {
+          Academic_Year: currentYear
+        })
+
+      const res = await this.showLoading(moveGroup)
+      console.log('move group res: ', res)
     },
     async handleChangeRenderGroups(year, semester, major, senior) {
       this.loading = true

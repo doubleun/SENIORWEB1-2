@@ -233,7 +233,7 @@ getAllGroupsAdmin = (req, res) => {
     'SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name FROM majors WHERE Major_Id = ?)AS Major, (SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?) AND Major = ? AND Group_Status = 1'
   con.query(
     sql,
-    [Major, Major, Year, Semester, Senior, Major],
+    [Major, Year, Semester, Senior, Major],
     (err, result, fields) => {
       if (err) {
         console.log(err)
@@ -841,54 +841,95 @@ getAllFinalDoc = (req, res) => {
 }
 
 // TODO: how font end send project on term id
-moveGroup = (req, res) => {
-  const projectOnTerm = req.body.Project_on_term_ID
+moveGroup = async (req, res) => {
+  // const projectOnTerm = req.body.Project_on_term_ID
+  const { Academic_Year } = req.body
+
+  // get project on term ids of previous semester and current
+  const getProjectOnTermIds =
+    'SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = Senior ORDER BY Academic_Year, Academic_Term ASC'
 
   // move group
   const moveGroup =
-    'INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE'
+    'INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE Project_on_term_ID = ?'
 
   // move groupmember
   const moveGroupmember =
     "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT gmb.User_Email, gmb.User_Phone, gmb.Group_Role, gmb.User_Status, (SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng = gp.Group_Name_Eng AND Group_Name_Thai=gp.Group_Name_Thai AND Co_Advisor = gp.Co_Advisor AND Major = gp.Major) AS newGroupID, ? FROM groupmembers gmb INNER JOIN groups gp ON gmb.Group_ID = gp.Group_ID WHERE gp.Grade NOT IN('I','U','F') AND gp.Group_Status=1"
 
-    try {
-       // begin transaction
+  try {
+    // begin transaction
     await conPromise.beginTransaction((err) => {
       if (err) throw err
     })
 
-    // task 1 move group
-    await conPromise.query(moveGroup,[projectOnTerm], (err, resultadd, fields) => {
-      if (err) {
-       throw err
-      } 
-    })
+    // task 1 fetch project on term ids and verify
+    const proejctOnTermIds = await conPromise.query(
+      getProjectOnTermIds,
+      [Academic_Year],
+      (err) => {
+        if (err) {
+          throw err
+        }
+      }
+    )
 
-    // task 2 move groupmember
+    console.log('=============== fetched project on term ids ===============')
 
-    await conPromise.query(moveGroupmember,[projectOnTerm], (err, resultadd, fields) => {
-      if (err) {
-       throw err
-      } 
-    })
+    // verify project on term ids
+    if (proejctOnTermIds[0].length !== 2) {
+      throw new Error('Cannot find previous semester')
+    }
+
+    const [
+      { Project_on_term_ID: prevProjectOnTerm },
+      { Project_on_term_ID: currentProjectOnTerm }
+    ] = proejctOnTermIds[0]
+
+    // task 2 move group
+    await conPromise.query(
+      moveGroup,
+      [currentProjectOnTerm, prevProjectOnTerm],
+      (err, resultadd, fields) => {
+        if (err) {
+          throw err
+        }
+      }
+    )
+
+    console.log('=============== group inserted ===============')
+
+    // task 3 move groupmember
+    await conPromise.query(
+      moveGroupmember,
+      [currentProjectOnTerm],
+      (err, resultadd, fields) => {
+        if (err) {
+          throw err
+        }
+      }
+    )
+
+    console.log('=============== members inserted ===============')
 
     // commit all task
     await conPromise.commit()
     res.status(200).json({ msg: 'Move group successfully', status: 200 })
-
-    } catch (error) {
-      console.log(error)
-      conPromise.rollback()
-
-      res.status(500).json(
-        createErrorJSON({
-          msg: 'Move group fail' ,
-          errDialog: { enabled: true, redirect: false }
-        })
-      )
+  } catch (error) {
+    console.log(error)
+    let errorMessage = 'Move group fail'
+    conPromise.rollback()
+    if (typeof error === string) {
+      errorMessage = error
     }
 
+    res.status(500).json(
+      createErrorJSON({
+        msg: errorMessage,
+        errDialog: { enabled: true, redirect: false }
+      })
+    )
+  }
 }
 
 countOwnGroup = (req, res) => {
