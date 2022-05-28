@@ -120,13 +120,15 @@ export default {
     },
     async handleMoveGroups() {
       const currentYear = this.$store.getters['auth/currentUser']?.academicYear
+      const currentSemester = this.$store.getters['auth/currentUser']?.semester
       if (!currentYear) {
         throw new Error('Cannot get the currently selected year')
       }
 
       const moveGroup = () =>
         this.$axios.post('group/moveGroup', {
-          Academic_Year: currentYear
+          Academic_Year: currentYear,
+          Semester: currentSemester
         })
 
       const res = await this.showLoading(moveGroup)
