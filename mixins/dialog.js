@@ -10,12 +10,12 @@ export default {
      * @param {string} options.successMsg - Success message
      * @returns undefined
      */
-    showLoading: async (callback, options) => {
-      const {
-        title = 'Loading...',
-        timer = 2000,
-        successMsg = 'Success'
-      } = options
+    showLoading: async (
+      callback,
+      title = 'Loading...',
+      timer = 2000,
+      successMsg = 'Success'
+    ) => {
       Swal.fire({
         title,
         timer,
