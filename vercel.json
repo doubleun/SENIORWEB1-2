@@ -8,7 +8,7 @@
   ],
   "builds": [
     {
-      "src": "senior/**/*.js",
+      "src": "senior/api/app.js",
       "use": "@vercel/node"
     },
     {
