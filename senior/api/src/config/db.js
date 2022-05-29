@@ -18,4 +18,4 @@ const pool = mysql.createPool({
   database: process.env.DB_DATABASE || 3308 ,
 });
 
-module.exports = connection;
+module.exports = pool;
