@@ -7,7 +7,6 @@
           v-model="selectedAcademicData.year"
           item-value="Academic_Year"
           item-text="Academic_Year"
-          @change="handelChangeSenior"
           label="Year"
           dark
           filled
@@ -47,55 +46,75 @@ export default {
     return {
       selectedAcademicData: { year: 0, semester: 0, senior: 0 },
       academicData: [],
-      selectedSenior: 1,
-      senior: [1, 2],
+      senior: [1, 2]
       // loading: false,
-    };
+    }
   },
   mounted() {
-    this.academicData = this.$store.getters["auth/semesterData"];
-    console.log(!this.$store.getters["auth/currentUser"]?.year);
+    this.academicData = this.$store.getters['auth/semesterData']
+    console.log(!this.$store.getters['auth/currentUser']?.year)
     if (
       !!this.academicData &&
-      !this.$store.getters["auth/currentUser"]?.academicYear
+      !this.$store.getters['auth/currentUser']?.academicYear
     ) {
-      console.log("SET DEFAULT DATA");
+      console.log('SET DEFAULT DATA')
       this.selectedAcademicData = {
         year: this.academicData[0].Academic_Year,
         semester: this.academicData[0].Academic_Term,
-        senior: this.academicData[0].Senior,
-      };
-      this.handelChangeSenior();
+        senior: this.academicData[0].Senior
+      }
+      this.handelChangeSenior()
     } else {
       this.selectedAcademicData.year =
-        this.$store.getters["auth/currentUser"].academicYear;
+        this.$store.getters['auth/currentUser'].academicYear
       this.selectedAcademicData.semester =
-        this.$store.getters["auth/currentUser"].semester;
+        this.$store.getters['auth/currentUser'].semester
       this.selectedAcademicData.senior =
-        this.$store.getters["auth/currentUser"].senior;
+        this.$store.getters['auth/currentUser'].senior
     }
   },
   computed: {
     academicDataOptions() {
       return (
-        !!Array.isArray(this.academicData) &&
+        Array.isArray(this.academicData) &&
         this.academicData?.filter(
           (data) => data.Academic_Year === this.selectedAcademicData.year
         )
-      );
-    },
+      )
+    }
+  },
+  watch: {
+    // Sets default filter for year, semester and senior, when year is changed
+    async academicDataOptions(newOptions) {
+      console.log('Watcher')
+      this.selectedAcademicData.semester = newOptions[0].Academic_Term
+      this.selectedAcademicData.senior = newOptions[0].Senior
+
+      this.$store.commit('auth/SET_USER_SENIOR', {
+        academicYear: this.selectedAcademicData.year,
+        semester: this.selectedAcademicData.semester,
+        senior: this.selectedAcademicData.senior
+      })
+
+      await this.$nuxt.refresh()
+    }
   },
   methods: {
     async handelChangeSenior() {
-      // this.loading = true;
-      this.$store.commit("auth/SET_USER_SENIOR", {
+      // Use for setting semester and senior
+      if (!this.selectedAcademicData.year) {
+        return
+      }
+      console.log('ON CHANGE')
+
+      this.$store.commit('auth/SET_USER_SENIOR', {
         academicYear: this.selectedAcademicData.year,
         semester: this.selectedAcademicData.semester,
-        senior: this.selectedAcademicData.senior,
-      });
+        senior: this.selectedAcademicData.senior
+      })
 
-      await this.$nuxt.refresh();
-    },
-  },
-};
+      await this.$nuxt.refresh()
+    }
+  }
+}
 </script>

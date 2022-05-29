@@ -874,6 +874,11 @@ moveGroup = async (req, res) => {
         }
       }
     )
+
+    if (currentProjectOnTerm[0].length === 0) {
+      throw new Error('Cannot find the current semester in the database')
+    }
+
     const [{ Project_on_term_ID: currentId }] = currentProjectOnTerm[0]
 
     // if it's semester 1 then go back 1 semester
