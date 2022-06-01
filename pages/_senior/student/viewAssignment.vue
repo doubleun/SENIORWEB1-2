@@ -53,7 +53,7 @@ export default {
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
 
       // Fetch initial group
-      allGroups = await $axios.$post('/group/getAllGroups', {
+      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
         Academic_Year: store.getters['auth/currentUser'].academicYear,
         Academic_Term: store.getters['auth/currentUser'].semester,
         Senior: store.getters['auth/currentUser'].senior
@@ -75,7 +75,7 @@ export default {
       try {
         // TODO: if do not need to fetch data from data every time while filter can you allGroups variable that fetch data in asyncData()
 
-        let data = await this.$axios.$post('group/getAllGroups', {
+        let data = await this.$axios.$post('group/getGroupsFinalDoc', {
           Academic_Year: year,
           Academic_Term: semester,
           Senior: senior

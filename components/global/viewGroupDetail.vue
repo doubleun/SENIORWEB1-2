@@ -207,7 +207,12 @@ export default {
     }
   },
   mounted() {
-    this.documents && this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
+    if (this.documents) {
+      this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
+    }
+    this.isAdmin &&
+      this.documents &&
+      this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
     this.selectedMajor =
       this.isAdmin || this.documents
         ? this.majors[0]
@@ -215,9 +220,11 @@ export default {
     this.selectedYear = this.yearNSemsters[0].Academic_Year
     this.selectedSemester = this.yearNSemsters[0].Academic_Term
 
-    this.documents
-      ? this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
-      : null
+    console.log('selectedMajor', this.selectedMajor)
+
+    // this.documents
+    //   ? this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
+    //   : null
 
     this.handleChangeRenderGroups()
   },
