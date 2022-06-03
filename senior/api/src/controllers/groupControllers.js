@@ -833,7 +833,7 @@ getAllFinalDoc = (req, res) => {
 
   con.query(finalDco, (err, result, fields) => {
     if (err) {
-      res.status(422).json({ msg: 'Query Error', status: 422 })
+      res.status(500).json({ msg: 'Interal error', status: 500 })
     } else {
       res.status(200).json(result)
     }

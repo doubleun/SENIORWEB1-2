@@ -59,15 +59,13 @@ export default {
       majors = await $axios.$get('/major/getAllActiveMajors')
 
       /// Fetch initial group
-      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
-        Academic_Year: store.getters['auth/currentUser'].academicYear,
-        Academic_Term: store.getters['auth/currentUser'].semester,
-        Senior: store.getters['auth/currentUser'].senior
-      })
+      // allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
+      //   Academic_Year: store.getters['auth/currentUser'].academicYear,
+      //   Academic_Term: store.getters['auth/currentUser'].semester,
+      //   Senior: store.getters['auth/currentUser'].senior
+      // })
 
       documents = await $axios.$get('/group/getAllFinalDoc')
-      // console.log("allGroups", allGroups);
-      // console.log("documents", documents);
     } catch (err) {
       console.log(err)
       return { yearNSemsters: [], allGroups: [] }
@@ -79,14 +77,22 @@ export default {
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
       this.loading = true
+      console.log(year, semester, major, senior)
+
       try {
-        this.allGroups = await this.$axios.$post('group/getGroupsFinalDoc', {
-          Major: major,
-          Year: year,
-          Semester: semester,
+        let data = await this.$axios.$post('group/getGroupsFinalDoc', {
+          Academic_Year: year,
+          Academic_Term: semester,
           Senior: senior
         })
-        // this.documents = await this.$axios.$get("/group/getAllFinalDoc");
+
+        if (major === 0) {
+          // this.allGroups = []
+          this.allGroups = data
+        } else {
+          // this.allGroups = []
+          this.allGroups = data.filter((el) => el.Major_ID === major)
+        }
       } catch (error) {
         console.log(error)
       }

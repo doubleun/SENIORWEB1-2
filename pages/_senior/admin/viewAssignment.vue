@@ -43,20 +43,19 @@ export default {
     try {
       if (!senior) throw new Error('Cannot find senior')
 
-      // Fetch all majors
-      majors = await $axios.$get('/major/getAllActiveMajors')
-
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
 
-      // Fetch initial group
-      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
-        Academic_Year: store.getters['auth/currentUser'].academicYear,
-        Academic_Term: store.getters['auth/currentUser'].semester,
-        Senior: store.getters['auth/currentUser'].senior
-      })
+      // Fetch all majors
+      majors = await $axios.$get('/major/getAllActiveMajors')
 
-      // Fetch all finaldoc
+      // Fetch initial group
+      // allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
+      //   Academic_Year: store.getters['auth/currentUser'].academicYear,
+      //   Academic_Term: store.getters['auth/currentUser'].semester,
+      //   Senior: store.getters['auth/currentUser'].senior
+      // })
+
       documents = await $axios.$get('/group/getAllFinalDoc')
     } catch (err) {
       console.log(err)
@@ -69,9 +68,9 @@ export default {
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
       // this.loading = true
+      console.log(year, semester, major, senior)
       try {
         // TODO: if do not need to fetch data from data every time while filter can you allGroups variable that fetch data in asyncData()
-        console.log('major', major)
         let data = await this.$axios.$post('group/getGroupsFinalDoc', {
           Academic_Year: year,
           Academic_Term: semester,
@@ -79,12 +78,13 @@ export default {
         })
 
         if (major === 0) {
+          // this.allGroups = []
           this.allGroups = data
-          console.log('all major')
         } else {
+          // this.allGroups = []
           this.allGroups = data.filter((el) => el.Major_ID === major)
-          console.log('major')
         }
+        console.log('allGroups', this.allGroups)
       } catch (error) {
         console.log(error)
       }
