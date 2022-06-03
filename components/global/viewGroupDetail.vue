@@ -38,7 +38,6 @@
                         solo
                         hide-details
                         off
-                        @change="onChange"
                       />
                     </v-col>
                   </v-row>
@@ -226,10 +225,10 @@ export default {
   mounted() {
     if (this.documents) {
       this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
-      this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
+      // this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
     }
 
-    this.selectedMajor = this.documents 
+    this.selectedMajor = this.documents
       ? this.majors[0]
       : this.$store.state.auth.currentUser.major
     this.selectedYear = this.yearNSemsters[0].Academic_Year
@@ -238,9 +237,6 @@ export default {
     this.handleChangeRenderGroups()
   },
   methods: {
-    onChange(event) {
-      console.log(event)
-    },
     handleChangeRenderGroups() {
       this.$emit(
         'on-filtering',

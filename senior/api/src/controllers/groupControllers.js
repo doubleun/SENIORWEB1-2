@@ -851,11 +851,11 @@ moveGroup = async (req, res) => {
 
   // move group
   const moveGroup =
-    'INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE Project_on_term_ID = ?'
+    "INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE Project_on_term_ID = ? AND Grade NOT IN('I','U','F')"
 
   // move groupmember
   const moveGroupmember =
-    "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT gmb.User_Email, gmb.User_Phone, gmb.Group_Role, gmb.User_Status, (SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng = gp.Group_Name_Eng AND Group_Name_Thai=gp.Group_Name_Thai AND Co_Advisor = gp.Co_Advisor AND Major = gp.Major) AS newGroupID, ? FROM groupmembers gmb INNER JOIN groups gp ON gmb.Group_ID = gp.Group_ID WHERE gp.Grade NOT IN('I','U','F') AND gp.Group_Status=1"
+    "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT gmb.User_Email, gmb.User_Phone, gmb.Group_Role, IF(gmb.Group_Role=3, 1, 0), (SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng = gp.Group_Name_Eng AND Group_Name_Thai=gp.Group_Name_Thai AND Co_Advisor = gp.Co_Advisor AND Major = gp.Major) AS newGroupID, ? FROM groupmembers gmb INNER JOIN groups gp ON gmb.Group_ID = gp.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gp.Grade NOT IN('I','U','F') AND gp.Group_Status=1 AND usr.Project_on_term_ID = ?"
 
   try {
     // begin transaction
@@ -922,7 +922,7 @@ moveGroup = async (req, res) => {
     console.log('=============== group inserted ===============')
 
     // task 3 move groupmember
-    await conPromise.query(moveGroupmember, [currentId], (err) => {
+    await conPromise.query(moveGroupmember, [currentId, currentId], (err) => {
       if (err) {
         throw err
       }

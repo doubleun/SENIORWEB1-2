@@ -48,6 +48,7 @@ export default {
 
       // Fetch all majors
       majors = await $axios.$get('/major/getAllActiveMajors')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
 
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')

@@ -48,13 +48,14 @@ export default {
 
       // Fetch all majors
       majors = await $axios.$get('/major/getAllActiveMajors')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
 
       // Fetch initial group
-      // allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
-      //   Academic_Year: store.getters['auth/currentUser'].academicYear,
-      //   Academic_Term: store.getters['auth/currentUser'].semester,
-      //   Senior: store.getters['auth/currentUser'].senior
-      // })
+      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
+        Academic_Year: store.getters['auth/currentUser'].academicYear,
+        Academic_Term: store.getters['auth/currentUser'].semester,
+        Senior: store.getters['auth/currentUser'].senior
+      })
 
       documents = await $axios.$get('/group/getAllFinalDoc')
     } catch (err) {
@@ -68,7 +69,7 @@ export default {
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
       // this.loading = true
-      console.log(year, semester, major, senior)
+      console.log(year, semester, major, senior, 'fucntion')
       try {
         // TODO: if do not need to fetch data from data every time while filter can you allGroups variable that fetch data in asyncData()
         let data = await this.$axios.$post('group/getGroupsFinalDoc', {

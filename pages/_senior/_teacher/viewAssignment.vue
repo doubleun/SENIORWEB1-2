@@ -57,13 +57,14 @@ export default {
 
       // Fetch all majors
       majors = await $axios.$get('/major/getAllActiveMajors')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
 
       /// Fetch initial group
-      // allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
-      //   Academic_Year: store.getters['auth/currentUser'].academicYear,
-      //   Academic_Term: store.getters['auth/currentUser'].semester,
-      //   Senior: store.getters['auth/currentUser'].senior
-      // })
+      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
+        Academic_Year: store.getters['auth/currentUser'].academicYear,
+        Academic_Term: store.getters['auth/currentUser'].semester,
+        Senior: store.getters['auth/currentUser'].senior
+      })
 
       documents = await $axios.$get('/group/getAllFinalDoc')
     } catch (err) {
