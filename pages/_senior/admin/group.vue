@@ -135,8 +135,8 @@ export default {
           Semester: currentSemester
         })
 
-      const res = await this.showLoading(moveGroup)
-      console.log('move group res: ', res)
+      await this.showLoading(moveGroup)
+      await this.$nuxt.refresh()
     },
     async handleChangeRenderGroups(year, semester, major, senior) {
       this.loading = true
