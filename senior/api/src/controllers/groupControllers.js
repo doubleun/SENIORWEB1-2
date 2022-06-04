@@ -923,17 +923,27 @@ moveGroup = async (req, res) => {
     console.log('=============== group inserted ===============')
 
     // task 3 move groupmember
-    await conPromise.query(moveGroupmember, [currentId, currentId], (err) => {
-      if (err) {
-        throw err
+    let [{ affectedRows: moveGroupResult }] = await conPromise.query(
+      moveGroupmember,
+      [currentId, currentId],
+      (err) => {
+        if (err) {
+          throw err
+        }
       }
-    })
+    )
 
     console.log('=============== members inserted ===============')
 
     // commit all task
     await conPromise.commit()
-    res.status(200).json({ msg: 'Move group successfully', status: 200 })
+    if (moveGroupResult === 0) {
+      res
+        .status(200)
+        .json({ msg: 'Move group successfully with 0 user', status: 200 })
+    } else {
+      res.status(200).json({ msg: 'Move group successfully', status: 200 })
+    }
   } catch (error) {
     console.log('Error log:', error)
     conPromise.rollback()

@@ -31,7 +31,7 @@ export default {
                 'Request status is invalid, please try again later'
               )
             } else {
-              Swal.fire(successMsg, '', 'success')
+              Swal.fire(res.data.msg, '', 'success')
               return res
             }
           } catch (err) {
