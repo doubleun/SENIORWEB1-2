@@ -106,7 +106,9 @@
                     v-model="givenScore"
                     :disabled="showSubmitted"
                     :rules="[
-                      () => givenScore !== null || 'This field is required',
+                      () =>
+                        ((!showSubmitted || !haveGrade) && !!givenScore) ||
+                        'This field is required',
                       handleCheckValidScore
                     ]"
                     placeholder="Score:"
@@ -115,6 +117,7 @@
                     type="number"
                     min="0"
                     step="1"
+                    :max="maxScore"
                     @keyup="handleScoreInput"
                   ></v-text-field>
                 </v-col>
