@@ -164,7 +164,7 @@ editScoreCriteria = (req, res) => {
     } else {
       // Insert new score criteria
       const insertScoreCriteria =
-        "INSERT INTO `scorecriterias`(`Advisor_Score`, `Committee_Score`,`DueDate_Start`, `DueDate_End`, `Major_ID`, `Progress_ID`, `Project_on_term_ID`) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO `scorecriterias`(`Advisor_Score`, `Committee_Score`,`DueDate_Start`, `DueDate_End`, `Major_ID`, `Progress_ID`, `Project_on_term_ID`, `Status`) VALUES(?, ?, ?, ?, ?, ?, ?, 1)";
       con.query(
         insertScoreCriteria,
         [...dataPayload, Project_on_term_ID],

@@ -43,20 +43,20 @@ export default {
     try {
       if (!senior) throw new Error('Cannot find senior')
 
-      // Fetch all majors
-      majors = await $axios.$get('/major/getAllActiveMajors')
-
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
 
+      // Fetch all majors
+      majors = await $axios.$get('/major/getAllActiveMajors')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
+
       // Fetch initial group
-      allGroups = await $axios.$post('/group/getAllGroups', {
+      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
         Academic_Year: store.getters['auth/currentUser'].academicYear,
         Academic_Term: store.getters['auth/currentUser'].semester,
         Senior: store.getters['auth/currentUser'].senior
       })
 
-      // Fetch all finaldoc
       documents = await $axios.$get('/group/getAllFinalDoc')
     } catch (err) {
       console.log(err)
@@ -68,25 +68,28 @@ export default {
 
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
-      this.loading = true
+      // this.loading = true
+      console.log(year, semester, major, senior, 'fucntion')
       try {
         // TODO: if do not need to fetch data from data every time while filter can you allGroups variable that fetch data in asyncData()
-
-        let data = await this.$axios.$post('group/getAllGroups', {
+        let data = await this.$axios.$post('group/getGroupsFinalDoc', {
           Academic_Year: year,
           Academic_Term: semester,
           Senior: senior
         })
 
         if (major === 0) {
+          // this.allGroups = []
           this.allGroups = data
         } else {
-          this.allGroups = data.filter((el) => el.Major_ID == major)
+          // this.allGroups = []
+          this.allGroups = data.filter((el) => el.Major_ID === major)
         }
+        console.log('allGroups', this.allGroups)
       } catch (error) {
         console.log(error)
       }
-      this.loading = false
+      // this.loading = false
     }
   }
 }

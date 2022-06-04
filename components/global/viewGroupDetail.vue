@@ -69,6 +69,20 @@
                       />
                     </v-col>
                   </v-row>
+                  <v-row v-if="!isAdmin && documents">
+                    <v-col md="3">
+                      <p>Senior</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedSenior"
+                        :items="senior"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
                 </v-card-text>
 
                 <v-card-actions>
@@ -192,6 +206,8 @@ export default {
       searchGroup: '',
       viewDocDialog: false,
       finalDoc: [],
+      senior: [1, 2, 3],
+      selectedSenior: 1,
       headers: [
         {
           text: 'GROUP NAME',
@@ -207,17 +223,16 @@ export default {
     }
   },
   mounted() {
-    this.documents && this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
-    this.selectedMajor =
-      this.isAdmin || this.documents
-        ? this.majors[0]
-        : this.$store.state.auth.currentUser.major
+    if (this.documents) {
+      this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
+      // this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
+    }
+
+    this.selectedMajor = this.documents
+      ? this.majors[0]
+      : this.$store.state.auth.currentUser.major
     this.selectedYear = this.yearNSemsters[0].Academic_Year
     this.selectedSemester = this.yearNSemsters[0].Academic_Term
-
-    this.documents
-      ? this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
-      : null
 
     this.handleChangeRenderGroups()
   },
@@ -234,7 +249,9 @@ export default {
         this.isAdmin || this.documents
           ? this.selectedMajor.Major_ID
           : this.$store.state.auth.currentUser.major,
-        this.$store.getters['auth/currentUser'].senior
+        this.isAdmin
+          ? this.$store.getters['auth/currentUser'].senior
+          : this.selectedSenior
       )
       this.dialogFilter = false
     },

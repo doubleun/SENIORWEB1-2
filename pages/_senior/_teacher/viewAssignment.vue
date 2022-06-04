@@ -44,7 +44,7 @@ export default {
   },
 
   async asyncData({ $axios, store }) {
-    let yearNSemsters, allGroups, documents
+    let yearNSemsters, allGroups, documents, majors
 
     const senior = store.getters['auth/currentUser'].senior
     const role = store.getters['auth/currentUser'].role
@@ -54,35 +54,46 @@ export default {
 
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
+
+      // Fetch all majors
+      majors = await $axios.$get('/major/getAllActiveMajors')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
+
       /// Fetch initial group
-      allGroups = await $axios.$post('/group/getAllGroups', {
+      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
         Academic_Year: store.getters['auth/currentUser'].academicYear,
         Academic_Term: store.getters['auth/currentUser'].semester,
         Senior: store.getters['auth/currentUser'].senior
       })
 
       documents = await $axios.$get('/group/getAllFinalDoc')
-      // console.log("allGroups", allGroups);
-      // console.log("documents", documents);
     } catch (err) {
       console.log(err)
       return { yearNSemsters: [], allGroups: [] }
     }
 
-    return { yearNSemsters, allGroups, role, documents }
+    return { yearNSemsters, allGroups, role, documents, majors }
   },
 
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
       this.loading = true
+      console.log(year, semester, major, senior)
+
       try {
-        this.allGroups = await this.$axios.$post('group/getAllGroups', {
-          Major: major,
-          Year: year,
-          Semester: semester,
+        let data = await this.$axios.$post('group/getGroupsFinalDoc', {
+          Academic_Year: year,
+          Academic_Term: semester,
           Senior: senior
         })
-        // this.documents = await this.$axios.$get("/group/getAllFinalDoc");
+
+        if (major === 0) {
+          // this.allGroups = []
+          this.allGroups = data
+        } else {
+          // this.allGroups = []
+          this.allGroups = data.filter((el) => el.Major_ID === major)
+        }
       } catch (error) {
         console.log(error)
       }

@@ -36,6 +36,8 @@ export default {
             }
           } catch (err) {
             console.log(err)
+            // User timer stop when have error for client can read error
+            Swal.stopTimer()
             Swal.showValidationMessage('Request failed, please try again later')
             return
           }

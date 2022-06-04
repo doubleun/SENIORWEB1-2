@@ -157,8 +157,8 @@
 </template>
 
 <script>
-import utils from "@/mixins/utils";
-import dialog from "@/mixins/dialog";
+import utils from '@/mixins/utils'
+import dialog from '@/mixins/dialog'
 export default {
   mixins: [utils, dialog],
   props: { academicYear: Number },
@@ -171,48 +171,48 @@ export default {
       selectedSemesterFilter: { year: 0, semester: 0 },
       headers: [
         {
-          text: "Name",
-          align: "center",
-          value: "Senior",
+          text: 'Name',
+          align: 'center',
+          value: 'Senior'
           // sortable: false,
         },
         {
-          text: "Semester",
-          align: "center",
-          value: "Academic_Term",
+          text: 'Semester',
+          align: 'center',
+          value: 'Academic_Term'
           // sortable: false,
         },
         {
-          text: "Start Date",
-          align: "center",
-          value: "Access_Date_Start",
-          width: "24%",
+          text: 'Start Date',
+          align: 'center',
+          value: 'Access_Date_Start',
+          width: '24%'
           // sortable: false,
         },
         {
-          text: "End Date",
-          align: "center",
-          value: "Access_Date_End",
-          width: "24%",
+          text: 'End Date',
+          align: 'center',
+          value: 'Access_Date_End',
+          width: '24%'
           // sortable: false,
         },
         {
-          text: "Action",
-          value: "action",
-          align: "center",
-          sortable: false,
-        },
+          text: 'Action',
+          value: 'action',
+          align: 'center',
+          sortable: false
+        }
       ],
-      allProjectOnTerms: [],
-    };
+      allProjectOnTerms: []
+    }
   },
   async fetch() {
-    const initDate = this.$store.getters["auth/semesterData"];
+    const initDate = this.$store.getters['auth/semesterData']
     if (!!Array.isArray(initDate) && !!initDate.length > 0) {
       await this.handleFilterDate({
         year: initDate[0].Academic_Year,
-        semester: initDate[0].Academic_Term,
-      });
+        semester: initDate[0].Academic_Term
+      })
     }
   },
   methods: {
@@ -221,93 +221,93 @@ export default {
      * @param date - date string that needs to be format
      */
     formatDisplayDatePreview(date) {
-      if (!date) return;
+      if (!date) return
 
       // Format dates to locale date string
       return this.formatLocaleDateString(date, {
         createDate: true,
-        dateStyle: "medium",
-        displayTime: false,
-      });
+        dateStyle: 'medium',
+        displayTime: false
+      })
     },
     editDate(item) {
-      this.editedIndex = this.allProjectOnTerms.indexOf(item);
-      this.isEditing = true;
+      this.editedIndex = this.allProjectOnTerms.indexOf(item)
+      this.isEditing = true
 
       // Set editedItem object (for submitting api)
-      this.editedItem = Object.assign({}, item);
+      this.editedItem = Object.assign({}, item)
 
       // Substring the ISO date format to use in datepicker
       this.editedItem.Access_Date_Start =
-        this.editedItem.Access_Date_Start.substring(0, 10);
+        this.editedItem.Access_Date_Start.substring(0, 10)
       this.editedItem.Access_Date_End =
-        this.editedItem.Access_Date_End.substring(0, 10);
+        this.editedItem.Access_Date_End.substring(0, 10)
     },
     closeEditDate() {
-      this.isEditing = false;
+      this.isEditing = false
       this.$nextTick(() => {
-        this.editedItem = {};
-        this.editedIndex = -1;
-      });
-      console.log("this.editedItem", this.editedItem);
+        this.editedItem = {}
+        this.editedIndex = -1
+      })
+      console.log('this.editedItem', this.editedItem)
     },
     async handleSubmitDate() {
       const { Access_Date_Start, Access_Date_End, Project_on_term_ID } =
-        this.editedItem;
+        this.editedItem
 
       // Submit new semester using array for more secure ?
-      const data = [Access_Date_Start, Access_Date_End, Project_on_term_ID];
+      const data = [Access_Date_Start, Access_Date_End, Project_on_term_ID]
       // Check if all data are there
       if (data.some((item) => !item)) {
-        return;
+        return
       }
 
       try {
         const updateSemesterCallback = () =>
-          this.$axios.post("/date/semester/update", {
-            data,
-          });
+          this.$axios.post('/date/semester/update', {
+            data
+          })
 
         // Submit data using update semester API
         const updateSemesterRes = await this.showLoading(
           updateSemesterCallback,
-          { title: "Updating semester date" }
-        );
+          'Updating semester date'
+        )
 
-        console.log("updateSemesterRes", updateSemesterRes);
+        console.log('updateSemesterRes', updateSemesterRes)
 
         // TODO: Add error handler here ?
 
-        this.closeEditDate();
-        await this.$nuxt.refresh();
-        return;
+        this.closeEditDate()
+        await this.$nuxt.refresh()
+        return
       } catch (err) {
-        console.log(err);
-        return;
+        console.log(err)
+        return
       }
     },
     async handleFilterDate(dateFilter) {
       try {
         const fetchedProjectOnTerms = await this.$axios.post(
-          "/date/getProjectOnTerm",
+          '/date/getProjectOnTerm',
           {
             Academic_Year: dateFilter.year,
-            Academic_Term: dateFilter.semester,
+            Academic_Term: dateFilter.semester
           }
-        );
+        )
         // console.log("allProjectOnTerms", fetchedProjectOnTerms.data);
-        this.allProjectOnTerms = fetchedProjectOnTerms.data;
-        return;
+        this.allProjectOnTerms = fetchedProjectOnTerms.data
+        return
       } catch (err) {
-        console.log(err);
-        return;
+        console.log(err)
+        return
       }
-    },
-  },
+    }
+  }
   // computed: {
   //   isEdit,
   // },
-};
+}
 </script>
 
 <style>
