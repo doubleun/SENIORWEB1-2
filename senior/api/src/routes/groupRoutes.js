@@ -45,9 +45,9 @@ groupRouter.post(
   groupController.getAllGroupsAdmin
 ) // admin, coordinator
 groupRouter.post(
-  '/getAllGroups',
+  '/getGroupsFinalDoc',
   [middle.checkAuthenticated, middle.checkRole([0, 1, 2, 99])],
-  groupController.getAllGroups
+  groupController.getGroupsFinalDoc
 ) // all
 
 groupRouter.post(

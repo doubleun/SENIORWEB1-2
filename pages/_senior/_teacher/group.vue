@@ -51,6 +51,7 @@ export default {
 
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
+      
       /// Fetch initial group
       allGroups = await $axios.$post('/group/getAllAdmin', {
         Major: store.state.auth.currentUser.major,

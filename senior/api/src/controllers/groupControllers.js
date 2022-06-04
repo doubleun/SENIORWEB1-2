@@ -230,10 +230,10 @@ getGroupMembers = (req, res) => {
 getAllGroupsAdmin = (req, res) => {
   const { Year, Semester, Major, Senior } = req.body
   const sql =
-    'SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name FROM majors WHERE Major_Id = ?)AS Major, (SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?) AND Major = ? AND Group_Status = 1'
+    'SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name FROM majors WHERE Major_ID = ?)AS Major_Name,(SELECT Major_ID FROM majors WHERE Major_ID = ?)AS Major_ID, (SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?) AND Major = ? AND Group_Status = 1'
   con.query(
     sql,
-    [Major, Year, Semester, Senior, Major],
+    [Major, Major, Year, Semester, Senior, Major],
     (err, result, fields) => {
       if (err) {
         console.log(err)
@@ -245,10 +245,10 @@ getAllGroupsAdmin = (req, res) => {
   )
 }
 
-getAllGroups = (req, res) => {
+getGroupsFinalDoc = (req, res) => {
   const { Academic_Year, Academic_Term, Senior } = req.body
   const sql =
-    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name from majors WHERE Major_ID=gp.Major)AS Major, gp.Grade,(SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ? ) AND Group_Status = 1 AND gp.Grade!='U' AND gp.Grade!='F' AND gp.Grade!='I' AND gp.Grade!='P'"
+    "SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name from majors WHERE Major_ID=gp.Major)AS Major_Name, gp.Major as Major_ID, gp.Grade,(SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3 AND gm.Group_ID=gp.Group_ID)) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ? ) AND Group_Status = 1 AND gp.Grade!='U' AND gp.Grade!='F' AND gp.Grade!='I' AND gp.Grade!='P'"
   con.query(
     sql,
     [Academic_Year, Academic_Term, Senior],
@@ -829,11 +829,11 @@ getAllFinalDoc = (req, res) => {
   // console.log(req.body);
 
   const finalDco =
-    'SELECT  fl.File_Name AS fileName, fl.Path AS path, fl.Type AS type,ass.Group_ID FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8'
+    'SELECT gp.Group_ID, gp.Group_Name_Eng,gp.Group_Name_Thai, fl.File_Name,fl.Path,ass.Submit_Date,fl.Type, ass.Assignment_ID FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE ass.Progress_ID = IF(gp.Is_Re_Eval=0, 8 , 10)'
 
   con.query(finalDco, (err, result, fields) => {
     if (err) {
-      res.status(422).json({ msg: 'Query Error', status: 422 })
+      res.status(500).json({ msg: 'Interal error', status: 500 })
     } else {
       res.status(200).json(result)
     }
@@ -851,11 +851,11 @@ moveGroup = async (req, res) => {
 
   // move group
   const moveGroup =
-    'INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE Project_on_term_ID = ?'
+    "INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE Project_on_term_ID = ? AND Grade NOT IN('I','U','F')"
 
   // move groupmember
   const moveGroupmember =
-    "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT gmb.User_Email, gmb.User_Phone, gmb.Group_Role, gmb.User_Status, (SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng = gp.Group_Name_Eng AND Group_Name_Thai=gp.Group_Name_Thai AND Co_Advisor = gp.Co_Advisor AND Major = gp.Major) AS newGroupID, ? FROM groupmembers gmb INNER JOIN groups gp ON gmb.Group_ID = gp.Group_ID WHERE gp.Grade NOT IN('I','U','F') AND gp.Group_Status=1"
+    "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT gmb.User_Email, gmb.User_Phone, gmb.Group_Role, IF(gmb.Group_Role=3, 1, 0), (SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng = gp.Group_Name_Eng AND Group_Name_Thai=gp.Group_Name_Thai AND Co_Advisor = gp.Co_Advisor AND Major = gp.Major) AS newGroupID, ? FROM groupmembers gmb INNER JOIN groups gp ON gmb.Group_ID = gp.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gp.Grade NOT IN('I','U','F') AND gp.Group_Status=1 AND usr.Project_on_term_ID = ?"
 
   try {
     // begin transaction
@@ -922,7 +922,7 @@ moveGroup = async (req, res) => {
     console.log('=============== group inserted ===============')
 
     // task 3 move groupmember
-    await conPromise.query(moveGroupmember, [currentId], (err) => {
+    await conPromise.query(moveGroupmember, [currentId, currentId], (err) => {
       if (err) {
         throw err
       }
@@ -983,7 +983,7 @@ module.exports = {
   getScoreCoor,
   getGroupScore,
   getAllGroupsAdmin,
-  getAllGroups,
+  getGroupsFinalDoc,
   listrequestGroup,
   updateMemberStatus,
   getMyGroup,

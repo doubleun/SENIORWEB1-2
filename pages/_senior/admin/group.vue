@@ -50,7 +50,7 @@ export default {
   data() {
     return {
       searchGroup: '',
-      allGroups: [],
+      // allGroups: [],
       // selectedMajor: {},
       // selectedYear: null,
       // selectedSemester: null,
@@ -69,41 +69,45 @@ export default {
     // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
   async asyncData({ $axios, store }) {
-    let majors, yearNSemsters
+    let majors, yearNSemsters, allGroups
 
     const senior = store.getters['auth/currentUser'].senior
     try {
       if (!senior) throw new Error('Cannot find senior')
       // Fetch all majors
       majors = await $axios.$get('/major/getAllActiveMajors')
+
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
-      // /// Fetch initial group
-      // allGroups = await $axios.$post("/group/getAllAdmin", {
-      //   Major: majors[0].Major_ID,
-      //   Year: yearNSemsters[0].Academic_Year,
-      //   Semester: yearNSemsters[0].Academic_Term,
-      //   Senior: senior,
-      // });
+
+      console.log('yearNSemsters', yearNSemsters)
+
+      // Fetch initial group
+      allGroups = await $axios.$post('/group/getAllAdmin', {
+        Major: majors[0].Major_ID,
+        Year: store.getters['auth/currentUser'].academicYear,
+        Semester: store.getters['auth/currentUser'].semester,
+        Senior: senior
+      })
     } catch (err) {
       console.log(err)
-      return { majors: [], yearNSemsters: [] }
+      return { majors: [], yearNSemsters: [], allGroups: [] }
     }
 
-    return { majors, yearNSemsters }
+    return { majors, yearNSemsters, allGroups }
   },
-  async fetch() {
-    /**
-     * Set inital value from state
-     * @todo Refactor use a more universal way of fetching initial data
-     */
-    this.handleChangeRenderGroups(
-      this.$store.getters['auth/currentUser'].academicYear,
-      this.$store.getters['auth/currentUser'].semester,
-      this.majors[0].Major_ID,
-      this.$store.getters['auth/currentUser'].senior
-    )
-  },
+  // async fetch() {
+  //   /**
+  //    * Set inital value from state
+  //    * @todo Refactor use a more universal way of fetching initial data
+  //    */
+  //   this.handleChangeRenderGroups(
+  //     this.$store.getters['auth/currentUser'].academicYear,
+  //     this.$store.getters['auth/currentUser'].semester,
+  //     this.majors[0].Major_ID,
+  //     this.$store.getters['auth/currentUser'].senior
+  //   )
+  // },
 
   methods: {
     checkdia() {
