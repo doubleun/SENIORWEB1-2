@@ -850,10 +850,6 @@ moveGroup = async (req, res) => {
   const getProjectOnTermId =
     'SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?'
 
-  // move group
-  const moveGroup =
-    "INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE Project_on_term_ID = ? AND Grade NOT IN('I','U','F')"
-
   // move groupmember
   const moveGroupmember =
     "INSERT IGNORE INTO `groupmembers`( `User_Email`, `User_Phone`, `Group_Role`, `User_Status`, `Group_ID`, `Project_on_term_ID`) SELECT gmb.User_Email, gmb.User_Phone, gmb.Group_Role, IF(gmb.Group_Role=3, 1, 0), (SELECT MAX(Group_ID) FROM groups WHERE Group_Name_Eng = gp.Group_Name_Eng AND Group_Name_Thai=gp.Group_Name_Thai AND Co_Advisor = gp.Co_Advisor AND Major = gp.Major) AS newGroupID, ? FROM groupmembers gmb INNER JOIN groups gp ON gmb.Group_ID = gp.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email WHERE gp.Grade NOT IN('I','U','F') AND gp.Group_Status=1 AND usr.Project_on_term_ID = ?"
@@ -864,7 +860,7 @@ moveGroup = async (req, res) => {
       if (err) throw err
     })
 
-    // task 1 fetch project on term ids and verify
+    // task 1.1 fetch project on term ids and verify
     // current project on term id
     let currentProjectOnTerm = await conPromise.query(
       getProjectOnTermId,
@@ -890,7 +886,7 @@ moveGroup = async (req, res) => {
       Semester = Semester - 1
     }
 
-    // previous project on term id
+    // task 1.2 get previous project on term id
     console.log(Academic_Year, Semester)
     const prevProjectOnTerm = await conPromise.query(
       getProjectOnTermId,
@@ -913,7 +909,40 @@ moveGroup = async (req, res) => {
 
     console.log(currentId, previousId)
 
+    // task 1.3 get summer project on term if exists
+    let summerProjectOnTerm
+    if (Semester === 2) {
+      summerProjectOnTerm = await conPromise.query(
+        getProjectOnTermId,
+        [Academic_Year, 3, 1],
+        (err) => {
+          if (err) {
+            throw err
+          }
+        }
+      )
+    }
+
+    // Check if summer semester exists
+    const isSummerExists =
+      Array.isArray(summerProjectOnTerm[0]) && summerProjectOnTerm[0].length > 0
+
+    let summerId
+    if (isSummerExists) {
+      console.log('Found summer semester!')
+      // Destructure summer id
+      const [{ Project_on_term_ID: id }] = summerProjectOnTerm[0]
+      summerId = id
+    }
+
+    console.log('summerId', summerId)
+
     // task 2 move group
+    // move group
+    const moveGroup = `INSERT INTO groups ( Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,Project_on_term_ID) SELECT Group_Name_Thai,Group_Name_Eng,Co_Advisor,Major,? FROM groups WHERE Project_on_term_ID = ? ${
+      isSummerExists ? 'OR Project_on_term_ID = ' + summerId : ''
+    } AND Grade NOT IN('I','U','F')`
+
     await conPromise.query(moveGroup, [currentId, previousId], (err) => {
       if (err) {
         throw err
