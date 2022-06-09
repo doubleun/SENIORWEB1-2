@@ -1,9 +1,11 @@
 const con = require('../config/db')
+const conPromise = con.promise()
 var xlsx = require('node-xlsx')
 const fs = require('fs')
 const readXlsxFile = require('read-excel-file/node')
 const { result } = require('lodash')
 const { createErrorJSON } = require('../utility')
+const e = require('express')
 
 // TODO: Move this to its own route ?
 getTeacherRole = (req, res) => {
@@ -230,128 +232,106 @@ uploadfile = async (req, res) => {
   }
 }
 
-uploadfileteacher = (req, res) => {
+uploadfileteacher = async (req, res) => {
+  const { year, semester, senior } = req.body
   try {
-    console.log('File: ', req.file)
+    // begin transaction
+    await conPromise.beginTransaction((err) => {
+      if (err) throw err
+    })
+    // console.log('File: ', req.file)
     // TODO: Fix this error handling
     if (!req.file) {
-      res.send({
-        status: false,
-        message: 'No file uploaded'
-      })
-    } else {
-      //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
-      // let avatar = req.files;
-      console.log('Body', req.body)
-      // const { senior } = req.body
-      const { year, semester, senior } = req.body
-
-      //Use the mv() method to place the file in upload directory (i.e. "uploads")
-      let name = req.file.filename
-      // avatar.mv("uploads/excel/" + name);
-      // console.log(req.files[0]['filename'])
-      var sql =
-        'INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,(SELECT Major_ID FROM majors WHERE Acronym = ?),(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior = ? )) '
-
-      var obj = readXlsxFile(req.file.path).then((rows) => {
-        // let semester
-        // let term
-        let coursec = null
-        let errorcou = 0
-        console.log(rows)
-        for (let i = 4; i < rows.length; i++) {
-          console.log(rows[i])
-          // rows[i][0] = rows[i][1] + "@lamduan.mfu.ac.th";
-          if (
-            rows[0][0] ==
-            'รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง'
-          ) {
-            // term = rows[1][0].split(' ')[4]
-            // semester = rows[1][0].split(' ')[6]
-            // if (term == 'FIRST') {
-            //   term = 1
-            // } else if (term == 'SECOND') {
-            //   term = 2
-            // }
-            con.query(
-              sql,
-              [
-                rows[i][3],
-                rows[i][1],
-                rows[i][2],
-                '0',
-                coursec,
-                rows[i][4],
-                year,
-                semester,
-                senior
-              ],
-              (err, result, fields) => {
-                if (err) {
-                  console.log(err.code)
-                  if (err.code == 'ER_DUP_ENTRY') {
-                    throw { msg: 'Duplicate data', status: 500 }
-                    // res.status(500).send('Duplicate data')
-                  } else {
-                    throw {
-                      msg: 'Internal Server Error',
-                      status: 500
-                    }
-                    // res.status(500).send('Internal Server Error')
-                  }
-                } else {
-                  // console.log(result.affectedRows)
-                  // count row taht not insert
-                  if (result.affectedRows == 0) {
-                    errorcou++
-                  }
-                  if (i == rows.length - 1) {
-                    if (errorcou == 0) {
-                      res.status(200).json({
-                        msg: 'Import teachers successfully'
-                      })
-
-                      // res.status(200).send('success')
-                    } else if (errorcou == rows.length - 1) {
-                      throw {
-                        msg: 'No teachers imported',
-                        status: 400
-                      }
-                      // res.status(400).send('noeffect')
-                    } else {
-                      res.status(200).json({
-                        msg: 'Some teachers not imported'
-                      })
-                      // res.status(200).send('someproblem')
-                    }
-                  }
-                }
-              }
-            )
-          } else {
-            throw { msg: 'Wrong data', status: 400 }
-            // break
-
-            // res.status(400).send('Wrong data')
-            // break
-          }
-        }
-      })
+      throw { message: 'No file uploaded', status: 400 }
     }
+
+    // let importUsers =
+    //   'INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,(SELECT Major_ID FROM majors WHERE Acronym = ?),(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior = ? )) '
+    let coursec = null
+
+    // read excel file
+    let rows = await readXlsxFile(req.file.path)
+    if (
+      rows[0][0] !==
+      'รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง'
+    ) {
+      throw { msg: 'Wrong data', status: 400 }
+    }
+
+    // get majors to mapping with excel
+    let queryMajors = 'SELECT * FROM `majors`'
+    let [majors] = await conPromise.query(queryMajors).catch((err) => {
+      throw { message: 'Interal server error', status: 500 }
+    })
+
+    // get project_on_term_ID to mapping with excel
+    let queryProjectOnTerm =
+      'SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior = ?'
+    let [project_on_term_ID] = await conPromise.query(
+      queryProjectOnTerm,
+      [year, semester, senior],
+      (err) => {
+        if (err) {
+          throw { message: 'Interal server error', status: 500 }
+        }
+      }
+    )
+
+    // use start index with 4 because user information start at index 4
+    rows = rows.slice(4)
+
+    // map major to object
+    majors = majors.reduce(
+      (obj, el) => ({ ...obj, [el.Acronym]: el.Major_ID }),
+      {}
+    )
+
+    let users = rows.map((el) => [
+      el[3], // email
+      el[1], // identity
+      el[2], // name
+      0, // role
+      coursec, // course
+      majors[el[4]], // major id
+      project_on_term_ID[0].Project_on_term_ID // projcet on term id
+    ])
+
+    // insert users
+    let importUsers =
+      'INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES ?'
+
+    const [{ affectedRows }] = await conPromise.query(
+      importUsers,
+      [users],
+      (err) => {
+        if (err) throw { message: 'Interal server error', status: 500 }
+      }
+    )
+
+    // console.log('affectedRows', affectedRows)
+
+    // console.log('rows', rows)
+    // console.log('majors', majors)
+    // console.log('users', users)
+    // console.log('project_on_term_ID', project_on_term_ID[0].project_on_term_ID)
+
+    await conPromise.commit()
+    res.status(200).json({
+      msg: `Import teachers successfully with ${affectedRows} users`,
+      status: 200
+    })
   } catch (err) {
-    // res.status(err.status).json(
-    //   createErrorJSON({
-    //     msg: err.msg,
-    //     errDialog: { enabled: true, redirect: false }
-    //   })
-    // )
-    console.log(err + '555')
+    res.status(err.status).json(
+      createErrorJSON({
+        msg: err.msg,
+        errDialog: { enabled: true, redirect: false }
+      })
+    )
+    console.log(err)
     // console.log(err.status)
     // console.log(err.msg)
 
-    res.status(500).json({ msg: err, status: 500 })
-
-    // return
+    // res.status(500).json({ msg: err.msg, status: 500 })
   }
 }
 
