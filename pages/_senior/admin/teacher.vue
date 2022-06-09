@@ -218,41 +218,11 @@ export default {
                 formData
               )
               // console.log('res', res)
-              if (res.status == 200) {
+              if (res && res.status == 200) {
                 this.$swal.fire('Saved!', res.msg, 'success')
                 // Update UI
                 await this.$nuxt.refresh()
               }
-
-              // if (!res) {
-              //   this.$swal.fire('Error! some thing went wrong', '', 'warning')
-              // } else {
-              //   this.$swal
-              //     .fire('Saved!', res.msg, 'success')
-              //     .then(async (result) => {
-              //       await this.$nuxt.refresh()
-              //     })
-
-              //   // if (res === 'success') {
-              //   //   this.$swal.fire('Saved!', '', 'success')
-              //   //   // Update UI
-              //   //   await this.$nuxt.refresh()
-              //   // } else if (res === 'someproblem') {
-              //   //   this.$swal.fire(
-              //   //     'Success',
-              //   //     'Success with condition some field are not inserted',
-              //   //     'warning'
-              //   //   )
-              //   //   // Update UI
-              //   //   await this.$nuxt.refresh()
-              //   // } else {
-              //   //   this.$swal.fire(
-              //   //     'Error! some thing went wrong',
-              //   //     'User will not inserted',
-              //   //     'warning'
-              //   //   )
-              //   // }
-              // }
             }
           })
         // Reset target input value to null to allow @change to trigger more than once
