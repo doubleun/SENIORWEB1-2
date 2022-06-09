@@ -11,8 +11,8 @@
         justify="right"
         dark
         color="blue darken-4"
-        :loading="isSelectingFile"
         @click="handleBrowseFile"
+        :loading="isSelectingFile"
       >
         <v-icon dark-blue> mdi-application-import </v-icon>
         Import
@@ -64,9 +64,7 @@
 export default {
   layout: 'admin',
   data: () => ({
-    selectedMajor: {},
-    selectedYear: null,
-    selectedSemester: null,
+
     selectedFile: null,
     selectedRole: null,
     isSelectingFile: false,
@@ -192,7 +190,7 @@ export default {
 
         formData.append('file', this.selectedFile)
 
-        // Add senior to formData
+        // Add year, semester, senior to formData
         formData.append('senior', selectedSenior)
         formData.append('year', year)
         formData.append('semester', semester)
@@ -230,7 +228,7 @@ export default {
         return
       } catch (err) {
         console.log(err)
-        this.$swal.fire('Error! some thing went wrong1212', err, 'warning')
+        this.$swal.fire('Error! some thing went wrong', err, 'warning')
         e.target.value = null
         return
       }

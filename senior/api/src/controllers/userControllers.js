@@ -154,103 +154,99 @@ getAllUsersInSchool = async (req, res) => {
 }
 
 uploadfile = async (req, res) => {
+  const { Major } = req.body
+  const { projectOnTerm } = req.user
   try {
-    if (!req.files) {
-      res.send({
-        status: false,
-        message: 'No file uploaded'
-      })
-    } else {
-      //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
+    // begin transaction
+    await conPromise.beginTransaction((err) => {
+      if (err) throw { message: 'Interal server error', status: 500 }
+    })
 
-      let name = req.files[0]['filename']
-      const { Major } = req.body
-      var sql =
-        'INSERT IGNORE INTO users ( User_Email , User_Identity_ID , User_Name , User_Role , Course_code , Major_ID ,  Project_on_term_ID ) VALUES (?,?,?,?,?,?,(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? )) '
-
-      var obj = readXlsxFile(req.files[0]['path']).then((rows) => {
-        let semester
-        let term
-        let coursec
-        let errorcou = 0
-        for (let i = 8; i < rows.length; i++) {
-          rows[i][0] = rows[i][1] + '@lamduan.mfu.ac.th'
-          term = rows[1][0].split(' ')[4]
-          semester = rows[1][0].split(' ')[6]
-          if (term == 'FIRST') {
-            term = 1
-          } else if (term == 'SECOND') {
-            term = 2
-          }
-          coursec = rows[4][0].split(' ')[4]
-
-          con.query(
-            sql,
-            [
-              rows[i][0],
-              rows[i][1],
-              rows[i][2],
-              1,
-              coursec,
-              req.body['Major'],
-              semester,
-              term,
-
-              rows[i][2],
-              coursec
-            ],
-            (err, result, fields) => {
-              if (err) {
-                console.log(err.code)
-                if (err.code == 'ER_DUP_ENTRY') {
-                  res.status(500).send('Duplicate data')
-                } else {
-                  res.status(500).send('Internal Server Error')
-                }
-              } else {
-                if (result.affectedRows == 0) {
-                  errorcou++
-                }
-                if (i == rows.length - 1) {
-                  if (errorcou == 0) {
-                    res.status(200).send('success')
-                  } else if (errorcou == rows.length - 1) {
-                    res.status(200).send('noeffect')
-                  } else {
-                    res.status(200).send('someproblem')
-                  }
-                }
-              }
-            }
-          )
-        }
-      })
+    if (!req.file) {
+      throw { message: 'No file uploaded', status: 400 }
     }
+
+    let rows = await readXlsxFile(req.file.path).catch((err) => {
+      console.log('real excel file failed')
+      throw { message: 'Interal server error', status: 500 }
+    })
+
+    if (rows[0][0] !== 'MAE FAH LUANG UNIVERSITY') {
+      throw { msg: 'Wrong data', status: 400 }
+    }
+
+    let coursec = rows[4][0].split(' ')[4]
+
+    // use start index with 8 because user information start at index 8
+    rows = rows.slice(8)
+
+    console.log('raw rows', rows)
+    console.log('new rows', rows)
+
+    // map rows to users
+    let users = rows.map((el) => [
+      el[1] + '@lamduan.mfu.ac.th', // email
+      el[1], // id
+      el[2], // name
+      1, // role
+      coursec, // course id
+      Major, // major id
+      projectOnTerm // projcet on term id
+    ])
+    // console.log('user', users)
+
+    // insert users
+    let importUsers =
+      'INSERT IGNORE INTO users ( User_Email , User_Identity_ID , User_Name , User_Role , Course_code , Major_ID ,  Project_on_term_ID ) VALUES ?'
+
+    const [{ affectedRows }] = await conPromise.query(
+      importUsers,
+      [users],
+      (err) => {
+        if (err) {
+          console.log('insert error')
+          throw { message: 'Interal server error', status: 500 }
+        }
+      }
+    )
+
+    await conPromise.commit()
+    res.status(200).json({
+      msg: `Import students successfully with ${affectedRows} users`,
+      status: 200
+    })
   } catch (err) {
-    res.status(500).send(err)
     console.log(err)
+    conPromise.rollback()
+    res.status(err.status).json(
+      createErrorJSON({
+        msg: err.msg,
+        errDialog: { enabled: true, redirect: false }
+      })
+    )
   }
 }
 
 uploadfileteacher = async (req, res) => {
   const { year, semester, senior } = req.body
+  let coursec = null
   try {
     // begin transaction
     await conPromise.beginTransaction((err) => {
-      if (err) throw err
+      if (err) throw { message: 'Interal server error', status: 500 }
     })
+
     // console.log('File: ', req.file)
-    // TODO: Fix this error handling
     if (!req.file) {
       throw { message: 'No file uploaded', status: 400 }
     }
 
-    // let importUsers =
-    //   'INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,(SELECT Major_ID FROM majors WHERE Acronym = ?),(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior = ? )) '
-    let coursec = null
-
     // read excel file
-    let rows = await readXlsxFile(req.file.path)
+    let rows = await readXlsxFile(req.file.path).catch((err) => {
+      console.log('real excel file failed')
+      throw { message: 'Interal server error', status: 500 }
+    })
+
     if (
       rows[0][0] !==
       'รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง'
@@ -286,12 +282,13 @@ uploadfileteacher = async (req, res) => {
       {}
     )
 
+    // map rows to users
     let users = rows.map((el) => [
       el[3], // email
       el[1], // identity
       el[2], // name
       0, // role
-      coursec, // course
+      coursec, // course id
       majors[el[4]], // major id
       project_on_term_ID[0].Project_on_term_ID // projcet on term id
     ])
@@ -321,13 +318,13 @@ uploadfileteacher = async (req, res) => {
       status: 200
     })
   } catch (err) {
+    console.log(err)
     res.status(err.status).json(
       createErrorJSON({
         msg: err.msg,
         errDialog: { enabled: true, redirect: false }
       })
     )
-    console.log(err)
     // console.log(err.status)
     // console.log(err.msg)
 
