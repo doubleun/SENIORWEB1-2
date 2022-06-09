@@ -3,6 +3,7 @@ var xlsx = require('node-xlsx')
 const fs = require('fs')
 const readXlsxFile = require('read-excel-file/node')
 const { result } = require('lodash')
+const { createErrorJSON } = require('../utility')
 
 // TODO: Move this to its own route ?
 getTeacherRole = (req, res) => {
@@ -229,7 +230,7 @@ uploadfile = async (req, res) => {
   }
 }
 
-uploadfileteacher = async (req, res) => {
+uploadfileteacher = (req, res) => {
   try {
     console.log('File: ', req.file)
     // TODO: Fix this error handling
@@ -242,7 +243,8 @@ uploadfileteacher = async (req, res) => {
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
       // let avatar = req.files;
       console.log('Body', req.body)
-      const { senior } = req.body
+      // const { senior } = req.body
+      const { year, semester, senior } = req.body
 
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
       let name = req.file.filename
@@ -252,8 +254,8 @@ uploadfileteacher = async (req, res) => {
         'INSERT IGNORE INTO `users`(`User_Email`, `User_Identity_ID`, `User_Name`, `User_Role`, `Course_code`, `Major_ID` , `Project_on_term_ID`) VALUES (?,?,?,?,?,(SELECT Major_ID FROM majors WHERE Acronym = ?),(SELECT `Project_on_term_ID` FROM `projectonterm` WHERE Academic_Year =? AND Academic_Term = ? AND Senior = ? )) '
 
       var obj = readXlsxFile(req.file.path).then((rows) => {
-        let semester
-        let term
+        // let semester
+        // let term
         let coursec = null
         let errorcou = 0
         console.log(rows)
@@ -264,13 +266,13 @@ uploadfileteacher = async (req, res) => {
             rows[0][0] ==
             'รายชื่อบุคคลากร สำนักวิชาเทคโนโลยีสารสนเทศ มหาวิทยาลัยแม่ฟ้าหลวง'
           ) {
-            term = rows[1][0].split(' ')[4]
-            semester = rows[1][0].split(' ')[6]
-            if (term == 'FIRST') {
-              term = 1
-            } else if (term == 'SECOND') {
-              term = 2
-            }
+            // term = rows[1][0].split(' ')[4]
+            // semester = rows[1][0].split(' ')[6]
+            // if (term == 'FIRST') {
+            //   term = 1
+            // } else if (term == 'SECOND') {
+            //   term = 2
+            // }
             con.query(
               sql,
               [
@@ -280,46 +282,76 @@ uploadfileteacher = async (req, res) => {
                 '0',
                 coursec,
                 rows[i][4],
+                year,
                 semester,
-                term,
                 senior
               ],
               (err, result, fields) => {
                 if (err) {
                   console.log(err.code)
                   if (err.code == 'ER_DUP_ENTRY') {
-                    res.status(500).send('Duplicate data')
+                    throw { msg: 'Duplicate data', status: 500 }
+                    // res.status(500).send('Duplicate data')
                   } else {
-                    res.status(500).send('Internal Server Error')
+                    throw {
+                      msg: 'Internal Server Error',
+                      status: 500
+                    }
+                    // res.status(500).send('Internal Server Error')
                   }
                 } else {
-                  console.log(result.affectedRows)
+                  // console.log(result.affectedRows)
+                  // count row taht not insert
                   if (result.affectedRows == 0) {
                     errorcou++
                   }
                   if (i == rows.length - 1) {
                     if (errorcou == 0) {
-                      res.status(200).send('success')
+                      res.status(200).json({
+                        msg: 'Import teachers successfully'
+                      })
+
+                      // res.status(200).send('success')
                     } else if (errorcou == rows.length - 1) {
-                      res.status(200).send('noeffect')
+                      throw {
+                        msg: 'No teachers imported',
+                        status: 400
+                      }
+                      // res.status(400).send('noeffect')
                     } else {
-                      res.status(200).send('someproblem')
+                      res.status(200).json({
+                        msg: 'Some teachers not imported'
+                      })
+                      // res.status(200).send('someproblem')
                     }
                   }
                 }
               }
             )
           } else {
-            res.status(400).send('Wrong data')
-            break
+            throw { msg: 'Wrong data', status: 400 }
+            // break
+
+            // res.status(400).send('Wrong data')
+            // break
           }
         }
       })
     }
   } catch (err) {
+    // res.status(err.status).json(
+    //   createErrorJSON({
+    //     msg: err.msg,
+    //     errDialog: { enabled: true, redirect: false }
+    //   })
+    // )
+    console.log(err + '555')
+    // console.log(err.status)
+    // console.log(err.msg)
+
     res.status(500).json({ msg: err, status: 500 })
-    console.log(err)
-    return
+
+    // return
   }
 }
 

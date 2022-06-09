@@ -170,11 +170,11 @@ export default {
       try {
         if (!!e.target.files[0]) {
           this.selectedFile = e.target.files[0]
-          console.log('e.target', e.target)
-          console.log('e.target.val', e.target?.value)
-          console.log('e.target.files', e.target?.files)
+          // console.log('e.target', e.target)
+          // console.log('e.target.val', e.target?.value)
+          // console.log('e.target.files', e.target?.files)
         } else {
-          console.log('no file selected')
+          // console.log('no file selected')
           return
         }
         // Get date
@@ -185,12 +185,17 @@ export default {
 
         // Get senior from state
         const selectedSenior = this.$store.getters['auth/currentUser'].senior
+        const year = this.$store.getters['auth/currentUser'].academicYear
+        const semester = this.$store.getters['auth/currentUser'].semester
+
         if (!selectedSenior) return
 
         formData.append('file', this.selectedFile)
 
         // Add senior to formData
         formData.append('senior', selectedSenior)
+        formData.append('year', year)
+        formData.append('semester', semester)
 
         // console.log('FormData', [...formData])
 
@@ -216,25 +221,31 @@ export default {
               if (!res) {
                 this.$swal.fire('Error! some thing went wrong', '', 'warning')
               } else {
-                if (res === 'success') {
-                  this.$swal.fire('Saved!', '', 'success')
-                  // Update UI
-                  await this.$nuxt.refresh()
-                } else if (res === 'someproblem') {
-                  this.$swal.fire(
-                    'Success',
-                    'Success with condition some field are not inserted',
-                    'warning'
-                  )
-                  // Update UI
-                  await this.$nuxt.refresh()
-                } else {
-                  this.$swal.fire(
-                    'Error! some thing went wrong',
-                    'User will not inserted',
-                    'warning'
-                  )
-                }
+                this.$swal
+                  .fire('Saved!', res.msg, 'success')
+                  .then(async (result) => {
+                    await this.$nuxt.refresh()
+                  })
+
+                // if (res === 'success') {
+                //   this.$swal.fire('Saved!', '', 'success')
+                //   // Update UI
+                //   await this.$nuxt.refresh()
+                // } else if (res === 'someproblem') {
+                //   this.$swal.fire(
+                //     'Success',
+                //     'Success with condition some field are not inserted',
+                //     'warning'
+                //   )
+                //   // Update UI
+                //   await this.$nuxt.refresh()
+                // } else {
+                //   this.$swal.fire(
+                //     'Error! some thing went wrong',
+                //     'User will not inserted',
+                //     'warning'
+                //   )
+                // }
               }
             }
           })
@@ -243,7 +254,7 @@ export default {
         return
       } catch (err) {
         console.log(err)
-        this.$swal.fire('Error! some thing went wrong', err, 'warning')
+        this.$swal.fire('Error! some thing went wrong1212', err, 'warning')
         e.target.value = null
         return
       }
