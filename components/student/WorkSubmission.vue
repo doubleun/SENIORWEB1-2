@@ -37,7 +37,7 @@
             :value="totalUploadSize.percentage"
             :height="10"
           ></v-progress-linear>
-          <p>{{ totalUploadSize.stringSize }} / 5MB</p>
+          <p>{{ totalUploadSize.stringSize }} / 10MB</p>
         </div>
       </div>
 
@@ -67,7 +67,7 @@
               @change="handleBrowseFile"
             />
           </p>
-          <p>ONLY PDF,DOC,PPT, FILEMAX UPLOAD FILE SIZE 5 MB</p>
+          <p>ONLY PDF,DOC,PPT, FILEMAX UPLOAD FILE SIZE 10 MB</p>
         </div>
 
         <!-- Link text field -->
@@ -109,6 +109,64 @@
           >
         </div>
 
+        <!-- Submitted file dispaly -->
+        <div
+          class="progress-file-display-container"
+          v-show="files.length !== 0"
+        >
+          <!-- <v-radio-group v-model="selectedAbstractIndex"> -->
+          <div class="progress-file-display attributes">
+            <!-- Table attributes -->
+            <p>Name</p>
+            <p>Date</p>
+            <p v-if="finalDocument">File type</p>
+            <p v-else>Status</p>
+          </div>
+
+          <!-- Table instance(s) -->
+          <div
+            class="progress-file-display"
+            v-for="(file, index) in files"
+            :key="index"
+          >
+            <div class="progress-file-input-container">
+              <v-icon
+                @click="handleRemoveFile"
+                :data-date="file.date"
+                v-if="showSubmission"
+                >mdi-close</v-icon
+              >
+              <v-file-input
+                :clearable="false"
+                outlined
+                dense
+                :show-size="showSubmission"
+                prepend-icon=""
+                class="progress-file-input"
+                @click.prevent="handleDownloadSubmittedFile(index)"
+                :value="file.file"
+              ></v-file-input>
+            </div>
+            <p>
+              {{ file.date }}
+            </p>
+
+            <!-- If type is needed it'll be display here, otherwise it's a status -->
+            <div class="progress-file-type" v-if="finalDocument">
+              <!-- <v-radio :value="index" :disabled="!showSubmission"></v-radio> -->
+              <v-select
+                :items="submitTypes"
+                v-model="file.selectedType"
+                @input="(v) => handleCheckRepeatFileType(v, file, index)"
+                outlined
+                hide-selected
+                dense
+              ></v-select>
+            </div>
+            <p v-else>{{ showSubmission ? 'Not Submitted' : 'Submitted' }}</p>
+          </div>
+        </div>
+
         <!-- Turn in button -->
         <v-btn
           class="btn-theme-blue"
@@ -118,57 +176,6 @@
           :disabled="!files || files.length === 0"
           >{{ handleChangeSubmitText }}</v-btn
         >
-
-        <!-- Submitted file dispaly -->
-        <div
-          class="progress-file-display-container"
-          v-show="files.length !== 0"
-        >
-          <v-radio-group v-model="selectedAbstractIndex">
-            <div class="progress-file-display attributes">
-              <!-- Table attributes -->
-              <p>Name</p>
-              <p>Date</p>
-              <p v-if="finalDocument">Abstract</p>
-              <p v-else>Status</p>
-            </div>
-
-            <!-- Table instance(s) -->
-            <div
-              class="progress-file-display"
-              v-for="(file, index) in files"
-              :key="index"
-            >
-              <div class="progress-file-input-container">
-                <v-icon
-                  @click="handleRemoveFile"
-                  :data-date="file.date"
-                  v-if="showSubmission"
-                  >mdi-close</v-icon
-                >
-                <v-file-input
-                  :clearable="false"
-                  outlined
-                  dense
-                  :show-size="showSubmission"
-                  prepend-icon=""
-                  class="progress-file-input"
-                  @click.prevent="handleDownloadSubmittedFile(index)"
-                  :value="file.file"
-                ></v-file-input>
-              </div>
-              <p>
-                {{ file.date }}
-              </p>
-
-              <!-- If type is needed it'll be display here, otherwise it's a status -->
-              <div class="progress-file-type" v-if="finalDocument">
-                <v-radio :value="index" :disabled="!showSubmission"></v-radio>
-              </div>
-              <p v-else>{{ showSubmission ? 'Not Submitted' : 'Submitted' }}</p>
-            </div>
-          </v-radio-group>
-        </div>
       </div>
     </v-card>
   </main>
@@ -183,12 +190,12 @@ export default {
     return {
       availableLinks: [],
       files: [],
-      // 5242880 byte => 5 Mb
-      maxSize: 5242880,
+      // 10485760 byte => 10 Mb
+      maxSize: 10485760,
       showSubmission: true,
       uploadSrc: null,
       dropActive: false,
-      submitTypes: ['Abstract', 'Document'],
+      submitTypes: ['Abstract', 'Document', 'Other'],
       submitDate: '',
       submitOnTime: false,
       selectedAbstractIndex: 0
@@ -248,6 +255,17 @@ export default {
         stringSize: this.bytesToSize(totalSize)
       }
     }
+  },
+  watch: {
+    files(val) {
+      const latestFile = val.at(-1)
+      const latestFileIndex = val.findIndex((file) => file === latestFile)
+      const selectedType = latestFileIndex === 0 ? 'Abstract' : latestFileIndex === 1 ? 'Document' : 'Other'
+
+      const prevObject = this.files.at(latestFileIndex)
+      // Use this.$set to make new property "reactive"
+      this.$set(prevObject, 'selectedType', selectedType)
+    },
   },
   async mounted() {
     // console.log(this.$store.state);
@@ -350,6 +368,22 @@ export default {
           timeStyle: 'medium'
         })
       }
+    },
+    handleCheckRepeatFileType(val, file, index) {
+      if (!Array.isArray(this.files)) 
+        return
+      const allSelectedTypes = this.files.filter(v => v !== file).map(v => v.selectedType)      
+
+      if (allSelectedTypes.includes(val)) {
+        this.$swal.fire('Cannot select twice')
+        // Needs set time out, or value will not change back
+        setTimeout(() => {
+          // TODO: When changing back to previous value check what is the previous value, don't just change based on index !
+          file.selectedType = index < 2 ? this.submitTypes[index] : 'Other'
+        }, 100)
+      }
+
+      return
     },
     // Toggle file drop down effects
     toggleDropActive() {
@@ -660,7 +694,6 @@ export default {
 /* Files grid display */
 .progress-file-display-container {
   width: max(18rem, 65%);
-  margin-block-start: 2rem;
 }
 /* .progress-file-display-container.submitted {
   display: flex;
@@ -713,7 +746,7 @@ export default {
 @media only screen and (max-width: 768px) {
   .progress-file-display-container {
     width: 100%;
-    margin-block-start: 1.4rem;
+    margin-block-start: 0.2rem;
   }
   .progress-file-display {
     display: grid;
