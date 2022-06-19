@@ -114,7 +114,6 @@
           class="progress-file-display-container"
           v-show="files.length !== 0"
         >
-          <!-- <v-radio-group v-model="selectedAbstractIndex"> -->
           <div class="progress-file-display attributes">
             <!-- Table attributes -->
             <p>Name</p>
@@ -156,7 +155,9 @@
               <!-- <v-radio :value="index" :disabled="!showSubmission"></v-radio> -->
               <v-select
                 :items="submitTypes"
+                :disabled="!showSubmission"
                 v-model="file.selectedType"
+                @click="handleSaveCurrentVal(file.selectedType)"
                 @input="(v) => handleCheckRepeatFileType(v, file, index)"
                 outlined
                 hide-selected
@@ -196,9 +197,9 @@ export default {
       uploadSrc: null,
       dropActive: false,
       submitTypes: ['Abstract', 'Document', 'Other'],
+      previousSelectedType: '',
       submitDate: '',
-      submitOnTime: false,
-      selectedAbstractIndex: 0
+      submitOnTime: false
     }
   },
   props: {
@@ -259,19 +260,29 @@ export default {
   watch: {
     files(val) {
       const latestFile = val.at(-1)
+
+      // If the latest file alrady have a selected type (like when render after submit files) do not re-set the default type
+      if (latestFile?.selectedType) 
+        return
+
       const latestFileIndex = val.findIndex((file) => file === latestFile)
-      const selectedType = latestFileIndex === 0 ? 'Abstract' : latestFileIndex === 1 ? 'Document' : 'Other'
+      const selectedType =
+        latestFileIndex === 0
+          ? 'Abstract'
+          : latestFileIndex === 1
+          ? 'Document'
+          : 'Other'
 
       const prevObject = this.files.at(latestFileIndex)
       // Use this.$set to make new property "reactive"
       this.$set(prevObject, 'selectedType', selectedType)
-    },
+    }
   },
   async mounted() {
     // console.log(this.$store.state);
     // console.log(this.submittedFiles);
-    console.log('Advisor: ', this.advisor)
-    console.log('Coms: ', this.committees)
+    // console.log('Advisor: ', this.advisor)
+    // console.log('Coms: ', this.committees)
 
     // Render submitted files on init
     await this.handleRenderSubmittedFiles()
@@ -314,22 +325,15 @@ export default {
           // Filter all submitted files and only get type of "File" and it's a student's file
           .filter(
             (file) =>
-              (file.Type === 'File' || file.Type === 'Abstract') &&
+              (file.Type !== 'Link') &&
               [2, 3].includes(file.Group_Role)
           )
 
-        // console.log(
-        //   this.submittedFiles.findIndex((file) => file.Type === "Abstract")
-        // );
-
-        // Set abbstract index to the right one
-        this.selectedAbstractIndex = allFiles.findIndex(
-          (file) => file.Type === 'Abstract'
-        )
-
+        // Get docuemnt and abstractIndex
+        const [documentIndex, abstractIndex] = this.handleGetDocumentAbstractIndex(allFiles, 'Type')
         let files = allFiles
           // Then, map each file and send axios get request to fetch the file from static folder in server
-          .map(async (file) => {
+          .map(async (file, index) => {
             // Request response type to be 'blob'
             const blob = await this.$axios.$get(
               '/public_senior/uploads/assignments/' + file.File_Name,
@@ -340,7 +344,9 @@ export default {
             return {
               // Convert blob to File object
               file: new File([blob], file.File_Name, { type: blob.type }),
-              date: new Date(file.Submit_Date).toLocaleString()
+              date: new Date(file.Submit_Date).toLocaleString(),
+              // Set file type
+              selectedType: index === documentIndex ? 'Document' : index === abstractIndex ? 'Abstract' : 'Other'
             }
           })
         // Since, each loop is a promise, promise.all is needed
@@ -370,20 +376,24 @@ export default {
       }
     },
     handleCheckRepeatFileType(val, file, index) {
-      if (!Array.isArray(this.files)) 
-        return
-      const allSelectedTypes = this.files.filter(v => v !== file).map(v => v.selectedType)      
+      if (!Array.isArray(this.files)) return
+      const allSelectedTypes = this.files
+        .filter((v) => v !== file)
+        .map((v) => v.selectedType)
 
-      if (allSelectedTypes.includes(val)) {
-        this.$swal.fire('Cannot select twice')
+      if (allSelectedTypes.includes(val) && val !== 'Other') {
+        this.$swal.fire(`You can only submit 1 ${val} file type.`)
         // Needs set time out, or value will not change back
         setTimeout(() => {
-          // TODO: When changing back to previous value check what is the previous value, don't just change based on index !
-          file.selectedType = index < 2 ? this.submitTypes[index] : 'Other'
+          file.selectedType = this.previousSelectedType || 'Other'
         }, 100)
       }
 
       return
+    },
+    handleSaveCurrentVal(oldType) {
+      //TODO: weird..
+      this.previousSelectedType = oldType
     },
     // Toggle file drop down effects
     toggleDropActive() {
@@ -456,6 +466,21 @@ export default {
     removeLinkField() {
       this.availableLinks.pop()
     },
+    /**
+     * @param files - files array
+     * @param customPath - custom object path to get to the file type value
+     */
+    handleGetDocumentAbstractIndex(files, customPath) {
+      if (!Array.isArray(files)) return []
+      const path = customPath || 'selectedType'
+      const documentIndex = files.findIndex(
+        (v) => v[path] === 'Document'
+      )
+      const abstractIndex = files.findIndex(
+        (v) => v[path] === 'Abstract'
+      )
+      return [documentIndex, abstractIndex]
+    },
     // Handle upload assignment
     async handleUploadAssignment() {
       try {
@@ -489,31 +514,35 @@ export default {
 
         // If it is final document there must be abstract files
         if (this.finalDocument) {
-          // If no abstract file is selected, show error and return
-          if (!this.selectedAbstractIndex && this.selectedAbstractIndex !== 0) {
-            this.$swal.fire({
-              title: 'Please, select one file as abstract file',
-              text: '',
-              icon: 'warning'
-            })
+          // Get document and abstract files index
+          const [documentIndex, abstractIndex] =
+            this.handleGetDocumentAbstractIndex(this.files)
+
+          // If no document or abstract
+          if (documentIndex === -1 || abstractIndex === -1) {
+            this.$swal.fire(
+              'Please select all required file types',
+              '',
+              'warning'
+            )
             return
           }
-          // console.log("Selected abstract index: ", this.selectedAbstractIndex);
 
-          // If abstract file's file type is not pdf, shows error and return
+          // If document file's file type is not pdf, shows error and return
           if (
-            this.files[this.selectedAbstractIndex].file.type !==
-            'application/pdf'
+            this.files[documentIndex].file.type !== 'application/pdf' ||
+            this.files[abstractIndex].file.type !== 'application/pdf'
           ) {
             this.$swal.fire({
-              title: "Selected abstract file's extension must be pdf",
+              title: "Document and abstract file's extension must be pdf",
               text: '',
               icon: 'warning'
             })
             return
           }
 
-          formData.append('abstractIndex', this.selectedAbstractIndex)
+          formData.append('documentIndex', documentIndex)
+          formData.append('abstractIndex', abstractIndex)
         }
 
         // Append form data with links, if there are any
@@ -579,12 +608,12 @@ export default {
                 return
               }
             } catch (err) {
-              console.log(err)
+              console.error(err)
               return
             }
           })
       } catch (err) {
-        console.log(err)
+        console.error(err)
         return
       }
     },

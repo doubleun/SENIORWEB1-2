@@ -355,7 +355,7 @@ export default {
         // Filter all submitted files and only get type of "File" and it's a student's file (role 2 and 3 are for students)
         .filter(
           (file) =>
-            (file.Type === 'File' || file.Type === 'Abstract') &&
+            (file.Type !== 'Link') &&
             [2, 3].includes(file.Group_Role)
         )
         // Then, map each file and send axios get request to fetch the file from static folder in server

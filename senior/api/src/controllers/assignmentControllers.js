@@ -23,7 +23,8 @@ uploadAssignments = async (req, res) => {
     Group_ID,
     links,
     Group_Member_ID,
-    abstractIndex
+    abstractIndex,
+    documentIndex
     // Project_on_term_ID,
   } = req.body
   // If no link then assign empty array
@@ -31,7 +32,11 @@ uploadAssignments = async (req, res) => {
   // If there's only one link put it in an array
   if (typeof links === 'string') links = [links]
 
-  console.log('Abstract index: ', abstractIndex)
+  if (!!abstractIndex || !!documentIndex) {
+    console.log('Abstract index: ', abstractIndex)
+    console.log('Document index: ', documentIndex)
+  }
+
   // Get current date as submit date
   const submitDate = formatDateIso(new Date(Date.now()), { asDate: true })
   console.log('submitDate: ', submitDate)
@@ -83,7 +88,11 @@ uploadAssignments = async (req, res) => {
             [
               current.filename,
               current.path,
-              index === parseInt(abstractIndex) ? 'Abstract' : 'File',
+              index === parseInt(abstractIndex)
+                ? 'Abstract'
+                : index === parseInt(documentIndex)
+                ? 'Document'
+                : 'File',
               assignmentResult.insertId,
               Group_Member_ID
             ]
