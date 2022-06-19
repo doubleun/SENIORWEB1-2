@@ -193,7 +193,7 @@ toggleScoreCriteriaStatus = (req, res) => {
 
   try {
     const toggleScoreCriteria =
-      "UPDATE scorecriterias SET `Status`=? WHERE `Score_criteria_ID` = ? AND `Project_on_term_ID` = ?";
+      "UPDATE scorecriterias SET `Status`= ? WHERE `Score_criteria_ID` = ? AND `Project_on_term_ID` = ?";
     con.query(
       toggleScoreCriteria,
       [Status, Score_criteria_ID, Project_on_term_ID],
@@ -209,7 +209,14 @@ toggleScoreCriteriaStatus = (req, res) => {
     return;
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Internal Server Error", status: 422 });
+    res.status(500).json(createErrorJSON({
+      msg: 'Internal server error',
+      errDialog: {
+        enabled: true,
+        redirect: true
+      },
+      status: 403
+    }));
     return;
   }
 };
