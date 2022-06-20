@@ -155,7 +155,7 @@
                       </v-icon>
                     </v-col>
                     <v-col md="9" sm="10" class="text-left">
-                      {{ files.fileName }}
+                      {{ files.File_Name }}
                     </v-col>
                   </v-row>
                   <!-- </div> -->
@@ -256,6 +256,8 @@ export default {
       this.dialogFilter = false
     },
     showDoc(item) {
+      console.log(this.documents)
+      console.log('item', item)
       this.finalDoc = this.documents.filter(
         (el) => el.Group_ID == item.Group_ID
       )
