@@ -480,7 +480,7 @@ updateMemberStatus = async (req, res) => {
 
     // ========== task 2: update group major ============
 
-    if (Major !== '' && Major !== null && Status === 1) {
+    if (Major && Status === 1) {
       con.query(updateGroup, [Major, Group_Id], (err) => {
         if (err) throw err
       })

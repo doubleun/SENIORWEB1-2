@@ -126,6 +126,8 @@
       :item-key="itemKey"
       class="elevation-1"
       :search="search"
+      :loading="!items"
+      loading-text="Loading...data"
     >
       <!-- Edit teacher dialog -->
       <!-- <template v-slot:top>
@@ -208,7 +210,7 @@ export default {
     majors: Array,
     yearNSemsters: Array,
     roles: Array,
-    filterFromState: Boolean,
+    filterFromState: Boolean
   },
   data: () => ({
     selectedMajor: {},
@@ -216,101 +218,99 @@ export default {
     selectedSemester: null,
     dialog: false,
     selectedTeacher: {
-      User_Name: "",
-      User_Email: "",
-      User_Role: { label: "", value: 0 },
-      Project_on_term_ID: 0,
+      User_Name: '',
+      User_Email: '',
+      User_Role: { label: '', value: 0 },
+      Project_on_term_ID: 0
     },
     availableRoles: [
-      { label: "Teacher", value: 0 },
-      { label: "Coordinator", value: 2 },
+      { label: 'Teacher', value: 0 },
+      { label: 'Coordinator', value: 2 }
     ],
-    search: "",
+    search: '',
     dialogFilter: false,
     selectedMajor: {},
     selectedYear: null,
     selectedSemester: null,
-    selectedRole: null,
+    selectedRole: null
   }),
 
   mounted() {
     // console.log(this.items);
-    this.majors ? (this.selectedMajor = this.majors[0]) : null;
+    this.majors ? (this.selectedMajor = this.majors[0]) : null
     if (!!this.filterFromState) {
-      this.selectedYear = this.$store.getters["auth/currentUser"].academicYear;
-      this.selectedSemester = this.$store.getters["auth/currentUser"].semester;
+      this.selectedYear = this.$store.getters['auth/currentUser'].academicYear
+      this.selectedSemester = this.$store.getters['auth/currentUser'].semester
     } else {
-      this.selectedYear = this.yearNSemsters[0].Academic_Year;
-      this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+      this.selectedYear = this.yearNSemsters[0].Academic_Year
+      this.selectedSemester = this.yearNSemsters[0].Academic_Term
     }
 
     // selectedRole.Role_ID = null for co and admin manage student
-    this.selectedRole = this.manageTeacher ? this.roles[0] : null;
+    this.selectedRole = this.manageTeacher ? this.roles[0] : null
 
-    this.handelchangeRenderUser();
+    this.handelchangeRenderUser()
   },
   methods: {
     handelchangeRenderUser() {
       if (!!this.filterFromState) {
-        this.selectedYear =
-          this.$store.getters["auth/currentUser"].academicYear;
-        this.selectedSemester =
-          this.$store.getters["auth/currentUser"].semester;
+        this.selectedYear = this.$store.getters['auth/currentUser'].academicYear
+        this.selectedSemester = this.$store.getters['auth/currentUser'].semester
       }
       this.$emit(
-        "on-filtering",
+        'on-filtering',
         this.selectedYear,
         this.selectedSemester,
-        this.$store.getters["auth/currentUser"]?.senior || 1,
+        this.$store.getters['auth/currentUser']?.senior || 1,
         this.majors ? this.selectedMajor.Major_ID : null,
 
         // selectedRole.Role_ID = null for co and admin manage student
         this.manageTeacher ? this.selectedRole.Role_ID : null
-      );
-      this.dialogFilter = false;
+      )
+      this.dialogFilter = false
     },
     editItem(e) {
-      console.log("New e: ", e);
-      this.selectedTeacher.User_Name = e.User_Name;
-      this.selectedTeacher.User_Email = e.User_Email;
+      console.log('New e: ', e)
+      this.selectedTeacher.User_Name = e.User_Name
+      this.selectedTeacher.User_Email = e.User_Email
       this.selectedTeacher.User_Role = {
-        label: e.User_Role === 0 ? "Teacher" : "Coordinator",
-        value: e.User_Role,
-      };
-      this.selectedTeacher.Project_on_term_ID = e.Project_on_term_ID;
-      this.dialog = true;
-      console.log("Selected teacher: ", this.selectedTeacher);
+        label: e.User_Role === 0 ? 'Teacher' : 'Coordinator',
+        value: e.User_Role
+      }
+      this.selectedTeacher.Project_on_term_ID = e.Project_on_term_ID
+      this.dialog = true
+      console.log('Selected teacher: ', this.selectedTeacher)
     },
     close() {
-      this.selectedTeacherName = "";
-      this.selectedTeacherEmail = "";
-      this.selectedTeacher.User_Role = { label: "", value: 0 };
-      this.dialog = false;
+      this.selectedTeacherName = ''
+      this.selectedTeacherEmail = ''
+      this.selectedTeacher.User_Role = { label: '', value: 0 }
+      this.dialog = false
     },
     async handelchangeUserRole(user) {
-      console.log(user);
+      console.log(user)
       try {
-        await this.$axios.$post("/user/updateUserRole", {
+        await this.$axios.$post('/user/updateUserRole', {
           User_Role: user.User_Role.value,
           User_Email: user.User_Email,
-          Project_on_term_ID: user.Project_on_term_ID,
-        });
+          Project_on_term_ID: user.Project_on_term_ID
+        })
         if (!!this.filterFromState) {
           this.selectedYear =
-            this.$store.getters["auth/currentUser"].academicYear;
+            this.$store.getters['auth/currentUser'].academicYear
           this.selectedSemester =
-            this.$store.getters["auth/currentUser"].semester;
+            this.$store.getters['auth/currentUser'].semester
         }
-        this.handelchangeRenderUser();
+        this.handelchangeRenderUser()
         this.$swal.fire(
-          "Success",
+          'Success',
           `Update teacher role to ${user.User_Role.label}`,
-          "success"
-        );
+          'success'
+        )
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    },
+    }
 
     // async save() {
     //   try {
@@ -356,8 +356,8 @@ export default {
     //     return;
     //   }
     // },
-  },
-};
+  }
+}
 </script>
 
 <style scoped>

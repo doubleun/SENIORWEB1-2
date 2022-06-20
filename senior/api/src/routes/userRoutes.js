@@ -48,7 +48,7 @@ userRouter.post(
 userRouter.post(
   '/importstudent',
   [middle.checkAuthenticated, middle.checkRole([2]), middle.checkAccessDate],
-  multer.uploadUser.array('files', 10),
+  multer.uploadUser.single('files'),
   UserControllers.uploadfile
 )
 
@@ -56,7 +56,7 @@ userRouter.post(
 userRouter.post(
   '/importteacher',
   [middle.checkAuthenticated, middle.checkRole([99])],
-  multer.upload.single('file'),
+  multer.uploadUser.single('file'),
   UserControllers.uploadfileteacher
 )
 

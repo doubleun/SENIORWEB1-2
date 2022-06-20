@@ -11,8 +11,8 @@
         justify="right"
         dark
         color="blue darken-4"
-        :loading="isSelectingFile"
         @click="handleBrowseFile"
+        :loading="isSelectingFile"
       >
         <v-icon dark-blue> mdi-application-import </v-icon>
         Import
@@ -64,9 +64,7 @@
 export default {
   layout: 'admin',
   data: () => ({
-    selectedMajor: {},
-    selectedYear: null,
-    selectedSemester: null,
+
     selectedFile: null,
     selectedRole: null,
     isSelectingFile: false,
@@ -170,11 +168,11 @@ export default {
       try {
         if (!!e.target.files[0]) {
           this.selectedFile = e.target.files[0]
-          console.log('e.target', e.target)
-          console.log('e.target.val', e.target?.value)
-          console.log('e.target.files', e.target?.files)
+          // console.log('e.target', e.target)
+          // console.log('e.target.val', e.target?.value)
+          // console.log('e.target.files', e.target?.files)
         } else {
-          console.log('no file selected')
+          // console.log('no file selected')
           return
         }
         // Get date
@@ -185,12 +183,17 @@ export default {
 
         // Get senior from state
         const selectedSenior = this.$store.getters['auth/currentUser'].senior
+        const year = this.$store.getters['auth/currentUser'].academicYear
+        const semester = this.$store.getters['auth/currentUser'].semester
+
         if (!selectedSenior) return
 
         formData.append('file', this.selectedFile)
 
-        // Add senior to formData
+        // Add year, semester, senior to formData
         formData.append('senior', selectedSenior)
+        formData.append('year', year)
+        formData.append('semester', semester)
 
         // console.log('FormData', [...formData])
 
@@ -212,29 +215,11 @@ export default {
                 'user/importteacher',
                 formData
               )
-              // console.log(res)
-              if (!res) {
-                this.$swal.fire('Error! some thing went wrong', '', 'warning')
-              } else {
-                if (res === 'success') {
-                  this.$swal.fire('Saved!', '', 'success')
-                  // Update UI
-                  await this.$nuxt.refresh()
-                } else if (res === 'someproblem') {
-                  this.$swal.fire(
-                    'Success',
-                    'Success with condition some field are not inserted',
-                    'warning'
-                  )
-                  // Update UI
-                  await this.$nuxt.refresh()
-                } else {
-                  this.$swal.fire(
-                    'Error! some thing went wrong',
-                    'User will not inserted',
-                    'warning'
-                  )
-                }
+              // console.log('res', res)
+              if (res && res.status == 200) {
+                this.$swal.fire('Saved!', res.msg, 'success')
+                // Update UI
+                await this.$nuxt.refresh()
               }
             }
           })
