@@ -830,7 +830,7 @@ getAllFinalDoc = (req, res) => {
   // console.log(req.body);
 
   const finalDco =
-    'SELECT gp.Group_ID, gp.Group_Name_Eng,gp.Group_Name_Thai, fl.File_Name,fl.Path,ass.Submit_Date,fl.Type, ass.Assignment_ID FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE ass.Progress_ID = IF(gp.Is_Re_Eval=0, 8 , 10)'
+    "SELECT gp.Group_ID, gp.Group_Name_Eng,gp.Group_Name_Thai, fl.File_Name,fl.Path,ass.Submit_Date,fl.Type, ass.Assignment_ID FROM files fl INNER JOIN assignments ass ON fl.Assignment_ID=ass.Assignment_ID INNER JOIN groups gp ON ass.Group_ID=gp.Group_ID WHERE ass.Progress_ID = IF(gp.Is_Re_Eval=0, 8 , 10) AND fl.Type='Document' AND gp.Grade NOT IN('I','U','F')"
 
   con.query(finalDco, (err, result, fields) => {
     if (err) {
