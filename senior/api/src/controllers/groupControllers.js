@@ -171,7 +171,7 @@ getGroupWithID = async (req, res) => {
       return
     })
   } catch (err) {
-    console.error(err)
+    console.log(err)
     res.status(500).json({ msg: err, status: 500 })
     return
   }
@@ -188,7 +188,7 @@ getGroupInfo = (req, res) => {
     [req.user.email, req.user.projectOnTerm],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         res.status(200).json(result)
@@ -204,7 +204,7 @@ getGroupMajor = (req, res) => {
     'SELECT DISTINCT Major_ID, Major_Name FROM `majors` WHERE `Major_ID` IN (SELECT `Major_ID` FROM `users` WHERE `User_Email` IN (SELECT `User_Email` FROM `groupmembers` WHERE `Group_ID`= ? AND `User_Status` !=2 AND (`Group_Role` = 3 or `Group_Role` = 2)))'
   con.query(sql, [Group_ID], (err, result, fields) => {
     if (err) {
-      console.error(err)
+      console.log(err)
       res.status(500).send('Internal Server Error')
     } else {
       res.status(200).json(result)
@@ -218,7 +218,7 @@ getGroupMembers = (req, res) => {
     'SELECT gm.Group_Member_ID, u.User_Email, u.User_Identity_ID, u.User_Name, u.User_Role, gm.Group_Role, gm.User_Phone, gm.User_Status FROM `groupmembers` gm INNER JOIN `users` u ON gm.User_Email = u.User_Email AND gm.Project_on_term_ID = u.Project_on_term_ID WHERE gm.Group_ID = ? AND NOT gm.User_Status = 2 ORDER BY gm.Group_Role DESC'
   con.query(sql, [Group_ID], (err, result, fields) => {
     if (err) {
-      console.error(err)
+      console.log(err)
       res.status(500).send('Internal Server Error')
     } else {
       res.status(200).json(result)
@@ -236,7 +236,7 @@ getAllGroupsAdmin = (req, res) => {
     [Major, Major, Year, Semester, Senior, Major],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         res.status(200).json(result)
@@ -254,7 +254,7 @@ getGroupsFinalDoc = (req, res) => {
     [Academic_Year, Academic_Term, Senior],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         res.status(200).json(result)
@@ -282,7 +282,7 @@ getTeachersWithGroupID = (req, res) => {
       }
     )
   } catch (err) {
-    console.error(err)
+    console.log(err)
     res.status(500).send('Internal Server Error')
     return
   }
@@ -346,7 +346,7 @@ getTeachersEval = (req, res) => {
       }
     )
   } catch (err) {
-    console.error(err)
+    console.log(err)
     res.status(500).send('Internal Server Error')
     return
   }
@@ -360,7 +360,7 @@ getByMajor = (req, res) => {
   const sql = 'SELECT * FROM `groups` WHERE Major = ?'
   con.query(sql, [major], (err, result, fields) => {
     if (err) {
-      console.error(err)
+      console.log(err)
       res.status(500).send('Internal Server Error')
     } else {
       res.status(200).json(result)
@@ -375,7 +375,7 @@ getByRole = (req, res) => {
     'SELECT COUNT(Group_Member_ID) AS commitee,(SELECT COUNT(Group_Member_ID) FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 0) AS advicee FROM `groupmembers` WHERE User_Email = ? AND Group_Role = 1;'
   con.query(sql, [Email, Email], (err, result, fields) => {
     if (err) {
-      console.error(err)
+      console.log(err)
       res.status(500).send('Internal Server Error')
     } else {
       res.status(200).json(result)
@@ -394,7 +394,7 @@ deletes = (req, res) => {
     [data.map((itm) => Object.values(itm))],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         const deleteIDs = data.map((itm) => itm.Group_ID)
@@ -410,7 +410,7 @@ deleteById = (req, res) => {
   const sql = 'UPDATE `groups` SET `Group_Status` = 0 WHERE `Group_ID` = ?'
   con.query(sql, [Group_ID], (err, result, fields) => {
     if (err) {
-      console.error(err)
+      console.log(err)
       res.status(500).send('Internal Server Error')
     } else {
       res.status(200).json({ msg: 'deleted', status: 200 })
@@ -428,7 +428,7 @@ getOnlyGroupWithID = (req, res) => {
       return
     })
   } catch (err) {
-    console.error(err)
+    console.log(err)
     res.status(500).json({ msg: err, status: 500 })
     return
   }
@@ -440,7 +440,7 @@ statusgroup = (req, res) => {
     'UPDATE groupmembers SET User_Status =? WHERE User_Email = ? AND Group_ID = ?;'
   con.query(sql, [User_Status, User_Email, Group_Id], (err, result, fields) => {
     if (err) {
-      console.error(err)
+      console.log(err)
       res.status(500).send('Internal Server Error')
     } else {
       res.status(200).json(result)
@@ -452,24 +452,45 @@ statusgroup = (req, res) => {
 /**
  * @param Status - status = 1 is join, status = 2 is left
  */
-updateMemberStatus = (req, res) => {
-  const { Status, Group_Id, User_Email } = req.body
+updateMemberStatus = async (req, res) => {
+  const { Status, Group_Id, Major, User_Email } = req.body
+  // console.log(Status, User_Email, Group_Id, Major)
+  // const updateStatus =
+  //   'UPDATE `groupmembers` SET `User_Status`= ? WHERE Group_ID = ? AND User_Email = ?'
+  // const memberJoin =
+  //   'UPDATE `groupmembers` SET `User_Status`= 1 WHERE Group_Member_ID = ?'
   const memberJoin =
     'UPDATE `groupmembers` SET `User_Status`= 1 WHERE Group_ID = ? AND User_Email = ?'
   const memberLeft =
     'DELETE FROM groupmembers WHERE Group_ID = ? AND User_Email = ?'
+  const updateGroup = 'UPDATE `groups` SET `Major`= ? WHERE `Group_ID` = ?;'
   try {
-    con.query(
+    await conPromise.beginTransaction((err) => {
+      if (err) throw err
+    })
+
+    // ========== task 1: update group member status ============
+    await conPromise.query(
       Status === 1 ? memberJoin : memberLeft,
       [Group_Id, User_Email],
-      (err, result) => {
+      (err) => {
         if (err) throw err
-        // TODO: check affected row
-        res.status(200).json({ msg: 'Success', status: 200 })
       }
     )
+
+    // ========== task 2: update group major ============
+
+    if (Major && Status === 1) {
+      con.query(updateGroup, [Major, Group_Id], (err) => {
+        if (err) throw err
+      })
+    }
+
+    await conPromise.commit()
+    res.status(200).json({ msg: 'Success', status: 200 })
   } catch (err) {
-    console.error(err)
+    console.log(err)
+    conPromise.rollback()
     res.status(500).json(
       createErrorJSON({
         msg: 'Join group fail',
@@ -493,7 +514,7 @@ getScoreCoor = (req, res) => {
     [Academic_Year, Academic_Term, senior, Major],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         result = result.map(
@@ -543,7 +564,7 @@ getGroupScore = (req, res) => {
     ],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         res.status(200).json(result)
@@ -567,7 +588,7 @@ listOwnGroup = (req, res) => {
     [email, Group_Role, academicYear, semester, senior],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         res.status(200).json(result)
@@ -596,7 +617,7 @@ listrequestGroup = (req, res) => {
     [User_Email, Group_Role, Group_Role2, User_Status, req.user.projectOnTerm],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         res.status(200).json(result)
@@ -611,7 +632,7 @@ getMyGroup = (req, res) => {
     'SELECT gmb.Group_Member_ID, gp.Group_ID,gp.Major,gp.Project_on_term_ID,gp.Group_Name_Thai,gp.Group_Name_Eng,gp.Grade,gp.Is_Re_Eval,gp.Co_Advisor,usr.User_Name,gmb.Group_Role,usr.User_Email,usr.User_Identity_ID,gmb.User_Phone,gmb.User_Status FROM groups gp INNER JOIN groupmembers gmb ON gp.Group_ID=gmb.Group_ID INNER JOIN users usr ON gmb.User_Email=usr.User_Email AND gmb.Project_on_term_ID=usr.Project_on_term_ID WHERE gmb.Group_ID=? AND gmb.User_Status=1 ORDER BY gmb.Group_Member_ID'
   con.query(sql, [groupId], (err, result, fields) => {
     if (err) {
-      console.error(err)
+      console.log(err)
       res.status(500).send('Internal Server Error')
     } else {
       res.status(200).json(result)
@@ -695,7 +716,7 @@ grading = async (req, res) => {
     res.status(200).json({ msg: 'Insert successfully', status: 200 })
     return
   } catch (err) {
-    console.error(err)
+    console.log(err)
     conPromise.rollback()
     console.log('Rollback successfully')
     res.status(500).json({ msg: 'Interal Server Error', status: 500 })
@@ -718,7 +739,7 @@ grading = async (req, res) => {
   //   [Grade, Group_ID],
   //   (err, result, fields) => {
   //     if (err) {
-  //       console.error(err);
+  //       console.log(err);
   //       res.status(500).json({ msg: "Internal Server Error", status: 500 });
   //     } else {
   //       con.query(
@@ -726,7 +747,7 @@ grading = async (req, res) => {
   //         [Comment, Group_ID],
   //         (err, result, fields) => {
   //           if (err) {
-  //             console.error(err);
+  //             console.log(err);
   //             res
   //               .status(500)
   //               .json({ msg: "Internal Server Error", status: 500 });
@@ -760,7 +781,7 @@ countTeachergroup = (req, res) => {
     ],
     (err, result, fields) => {
       if (err) {
-        console.error(err)
+        console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
         res.status(200).json(result)
@@ -776,7 +797,7 @@ countProgressGroup = (req, res) => {
     'SELECT COUNT(Major_ID) as numberPro , Major_ID FROM `scorecriterias` WHERE Project_on_term_ID = ? GROUP BY Major_ID ORDER BY numberPro DESC'
   con.query(sql, [req.user.projectOnTerm], (err, result, fields) => {
     if (err) {
-      console.error(err)
+      console.log(err)
       res.status(500).send('Internal Server Error')
     } else {
       res.status(200).json(result)
