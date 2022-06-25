@@ -114,23 +114,12 @@ uploadAssignments = async (req, res) => {
 
           // how abstract file name is saved is a bit wierd, just take a look at the console
           console.log('Abstract File: ', abstractFile)
-
-          // 2.1) Query to insert abstract file into database
-          const abstractSql =
-            'INSERT INTO `abstracts`(`Abstract_Name`, `Group_ID`, `Project_on_term_ID`) VALUES (?, ?, ?)'
-          con.query(
-            abstractSql,
-            [abstractFile[0], Group_ID, req.user.projectOnTerm],
-            (err) => {
-              if (err) throw err
-            }
-          )
         }
 
         // Combine links and files array, before insert into the database
         const combinedFiles = [...links, ...allFiles]
 
-        // 2.2) Insert all files into database
+        // 2.1) Insert all files into database
         con.query(filesSql, [combinedFiles], (err, filesResult, fields) => {
           if (err) throw err
         })
