@@ -260,9 +260,10 @@ export default {
   watch: {
     files(val) {
       const latestFile = val.at(-1)
+      console.log('latestFile', latestFile)
 
       // If the latest file alrady have a selected type (like when render after submit files) do not re-set the default type
-      if (latestFile?.selectedType) 
+      if (!latestFile || latestFile?.selectedType) 
         return
 
       const latestFileIndex = val.findIndex((file) => file === latestFile)
