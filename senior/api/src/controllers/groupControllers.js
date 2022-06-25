@@ -910,7 +910,7 @@ moveGroup = async (req, res) => {
     console.log(currentId, previousId)
 
     // task 1.3 get summer project on term if exists
-    let summerProjectOnTerm
+    let summerProjectOnTerm = []
     if (Semester === 2) {
       summerProjectOnTerm = await conPromise.query(
         getProjectOnTermId,
@@ -922,7 +922,7 @@ moveGroup = async (req, res) => {
         }
       )
     }
-
+    
     // Check if summer semester exists
     const isSummerExists =
       Array.isArray(summerProjectOnTerm[0]) && summerProjectOnTerm[0].length > 0
