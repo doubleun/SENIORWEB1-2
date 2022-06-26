@@ -157,7 +157,6 @@ export default {
       Grade_Criteria_Name: criteria,
       Grade_Criteria_Pass: 0,
       Major_ID: this.$store.state.auth.currentUser.major,
-      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
     }))
 
     // Criterias option B which are A to F
@@ -165,7 +164,6 @@ export default {
       Grade_Criteria_Name: criteria,
       Grade_Criteria_Pass: 0,
       Major_ID: this.$store.state.auth.currentUser.major,
-      Project_on_term_ID: this.$store.state.auth.currentUser.projectOnTerm
     }))
   },
   methods: {

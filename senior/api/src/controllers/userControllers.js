@@ -159,16 +159,16 @@ uploadfile = async (req, res) => {
   try {
     // begin transaction
     await conPromise.beginTransaction((err) => {
-      if (err) throw { message: 'Interal server error', status: 500 }
+      if (err) throw { msg: 'Interal server error', status: 500 }
     })
 
     if (!req.file) {
-      throw { message: 'No file uploaded', status: 400 }
+      throw { msg: 'No file uploaded', status: 400 }
     }
 
     let rows = await readXlsxFile(req.file.path).catch((err) => {
       console.log('real excel file failed')
-      throw { message: 'Interal server error', status: 500 }
+      throw { msg: 'Interal server error', status: 500 }
     })
 
     if (rows[0][0] !== 'MAE FAH LUANG UNIVERSITY') {
@@ -205,7 +205,7 @@ uploadfile = async (req, res) => {
       (err) => {
         if (err) {
           console.log('insert error')
-          throw { message: 'Interal server error', status: 500 }
+          throw { msg: 'Interal server error', status: 500 }
         }
       }
     )
@@ -233,18 +233,18 @@ uploadfileteacher = async (req, res) => {
   try {
     // begin transaction
     await conPromise.beginTransaction((err) => {
-      if (err) throw { message: 'Interal server error', status: 500 }
+      if (err) throw { msg: 'Interal server error', status: 500 }
     })
 
     // console.log('File: ', req.file)
     if (!req.file) {
-      throw { message: 'No file uploaded', status: 400 }
+      throw { msg: 'No file uploaded', status: 400 }
     }
 
     // read excel file
     let rows = await readXlsxFile(req.file.path).catch((err) => {
       console.log('real excel file failed')
-      throw { message: 'Interal server error', status: 500 }
+      throw { msg: 'Interal server error', status: 500 }
     })
 
     if (
@@ -257,7 +257,7 @@ uploadfileteacher = async (req, res) => {
     // get majors to mapping with excel
     let queryMajors = 'SELECT * FROM `majors`'
     let [majors] = await conPromise.query(queryMajors).catch((err) => {
-      throw { message: 'Interal server error', status: 500 }
+      throw { msg: 'Interal server error', status: 500 }
     })
 
     // get project_on_term_ID to mapping with excel
@@ -268,10 +268,17 @@ uploadfileteacher = async (req, res) => {
       [year, semester, senior],
       (err) => {
         if (err) {
-          throw { message: 'Interal server error', status: 500 }
+          throw { msg: 'Interal server error', status: 500 }
         }
       }
     )
+
+    if (!project_on_term_ID || project_on_term_ID.length === 0) {
+      throw {
+        msg: 'Invalid acidemic term infomation (Year, Semester, Senior)',
+        status: 400
+      }
+    }
 
     // use start index with 4 because user information start at index 4
     rows = rows.slice(4)
@@ -301,7 +308,7 @@ uploadfileteacher = async (req, res) => {
       importUsers,
       [users],
       (err) => {
-        if (err) throw { message: 'Interal server error', status: 500 }
+        if (err) throw { msg: 'Interal server error', status: 500 }
       }
     )
 
@@ -319,7 +326,7 @@ uploadfileteacher = async (req, res) => {
     })
   } catch (err) {
     console.log(err)
-    res.status(err.status).json(
+    res.status(err.status || 500).json(
       createErrorJSON({
         msg: err.msg,
         errDialog: { enabled: true, redirect: false }
