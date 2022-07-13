@@ -229,7 +229,7 @@ export default {
       // window.location.href = "/api/" + item["Path"];
     },
     hancelClearSearch() {
-      console.log('reset')
+      // console.log('reset')
       this.textRule = []
       this.$refs.entryForm.reset()
     },
@@ -252,7 +252,13 @@ export default {
       this.abstracts = this.rawAbstracts.filter(
         (el) => el.Major == this.selectedMajor.Major_ID
       )
-      console.log(this.rawAbstracts)
+      this.search = ''
+      this.$refs.entryForm.reset()
+      this.filterBtnActive = this.filterBtnActive.map((el) => false)
+
+      // console.log(this.search)
+      // console.log('show',this.abstracts)
+      // console.log(this.rawAbstracts)
     },
 
     handelSearch(event) {
