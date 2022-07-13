@@ -268,11 +268,17 @@ getTeachersWithGroupID = (req, res) => {
   // const { Group_ID, Progress_ID, Project_on_term_ID } = req.body;
   const { Group_ID, Progress_ID } = req.body
   const getTeachersProgressSql =
-    'SELECT gm.Group_Member_ID, gm.User_Email, gm.Group_Role, sc.Score, sc.Max_Score, sc.Comment, (SELECT `User_Name` FROM `users` WHERE `User_Email` = gm.User_Email) AS `User_Name` FROM `groupmembers` gm LEFT JOIN `scores` sc ON sc.Group_Member_ID = gm.Group_Member_ID WHERE gm.Group_ID = ? AND sc.Assignment_ID = (SELECT `Assignment_ID` FROM `assignments` WHERE `Progress_ID` = ? AND `Group_ID` = ?) AND gm.Project_on_term_ID = ? AND gm.Group_Role IN (0,1)'
+    'SELECT gm.Group_Member_ID, gm.User_Email, gm.Group_Role, sc.Score, sc.Max_Score, sc.Comment, (SELECT `User_Name` FROM `users` WHERE `User_Email` = gm.User_Email AND Project_on_term_ID=?) AS `User_Name` FROM `groupmembers` gm LEFT JOIN `scores` sc ON sc.Group_Member_ID = gm.Group_Member_ID WHERE gm.Group_ID = ? AND sc.Assignment_ID = (SELECT `Assignment_ID` FROM `assignments` WHERE `Progress_ID` = ? AND `Group_ID` = ?) AND gm.Project_on_term_ID = ? AND gm.Group_Role IN (0,1)'
   try {
     con.query(
       getTeachersProgressSql,
-      [Group_ID, Progress_ID, Group_ID, req.user.projectOnTerm],
+      [
+        req.user.projectOnTerm,
+        Group_ID,
+        Progress_ID,
+        Group_ID,
+        req.user.projectOnTerm
+      ],
       (err, result, fields) => {
         if (err) throw err
         res.status(200).json({
@@ -303,7 +309,7 @@ getTeachersEval = (req, res) => {
     // Check if 'Single' is true, if it is then query for single teacher eval comment using email
     const getTeachersEval = `SELECT ec.Comment, ec.File_Name, gm.Group_Role, gm.Group_Member_ID, u.User_Name FROM groupmembers gm INNER JOIN evalcomment ec ON gm.Group_Member_ID = ec.Group_Member_ID INNER JOIN users u ON gm.User_Email = u.User_Email WHERE ${
       Single ? 'gm.User_Email = ? AND' : ''
-    } ec.Group_ID = ? ${
+    } ec.Group_ID = ? AND u.Project_on_term_ID = ? ${
       reEvalComment ? 'AND ec.Re_Eval = 1' : 'AND ec.Re_Eval = 0'
     }`
     // console.log("GetTeachersEvalSQL: ", getTeachersEval);
@@ -312,7 +318,7 @@ getTeachersEval = (req, res) => {
     // Here rest parameter syntax is used for conditionally spread element in the array
     con.query(
       getTeachersEval,
-      [...(Single ? [Email] : []), Group_ID],
+      [...(Single ? [Email] : []), Group_ID, req.user.projectOnTerm],
       (err, evalResult) => {
         if (err) throw err
         console.log('Eval result: ', evalResult)
@@ -922,7 +928,7 @@ moveGroup = async (req, res) => {
         }
       )
     }
-    
+
     // Check if summer semester exists
     const isSummerExists =
       Array.isArray(summerProjectOnTerm[0]) && summerProjectOnTerm[0].length > 0

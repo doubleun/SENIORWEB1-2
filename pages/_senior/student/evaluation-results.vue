@@ -22,41 +22,41 @@ export default {
     // If currentUserGroup is missing, fetch it first
     if (store.state.group.currentUserGroup === null)
       // Dispatch event to store current user group info
-      await store.dispatch("group/storeGroupInfo");
+      await store.dispatch('group/storeGroupInfo')
 
     // Get group id from state
-    const groupId = store.state.group.currentUserGroup.Group_ID;
+    const groupId = store.state.group.currentUserGroup.Group_ID
 
     // Fetch evaluation scores
     const fetchScoresRes = await $axios.$post(
-      "/assignment/getEvaluationScores",
+      '/assignment/getEvaluationScores',
       {
-        Group_ID: groupId,
+        Group_ID: groupId
       }
-    );
-    console.log("Fetched eval scores: ", fetchScoresRes);
+    )
+    console.log('Fetched eval scores: ', fetchScoresRes)
     // Calculate total score
     fetchScoresRes.total = Object.values(fetchScoresRes).reduce(
       (prev, current) =>
         parseFloat(prev) + (!current ? 0 : parseFloat(current)),
       0
-    );
+    )
 
     // Fetch given evaluation comments
-    const evalComments = await $axios.$post("/group/getTeachersEval", {
+    const evalComments = await $axios.$post('/group/getTeachersEval', {
       Email: store.state.auth.currentUser.email,
       Group_ID: groupId,
       Single: false,
       Group_Info: false,
       reEvalComment: false,
-      filterTeachersRole: false,
-    });
-    console.log("Student eval comments: ", evalComments);
+      filterTeachersRole: false
+    })
+    console.log('Student eval comments: ', evalComments)
     return {
       fetchScoresRes,
       Group_ID: groupId,
-      evalComments: evalComments.eval,
-    };
-  },
-};
+      evalComments: evalComments.eval
+    }
+  }
+}
 </script>
