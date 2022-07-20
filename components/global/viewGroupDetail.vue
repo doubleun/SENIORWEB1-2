@@ -228,13 +228,16 @@ export default {
       // this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
     }
 
-    this.selectedMajor = this.documents
+    this.selectedMajor = this.majors
       ? this.majors[0]
       : this.$store.state.auth.currentUser.major
+
     this.selectedYear = this.yearNSemsters[0].Academic_Year
     this.selectedSemester = this.yearNSemsters[0].Academic_Term
 
     this.handleChangeRenderGroups()
+
+    console.log('this log major', this.majors)
   },
   methods: {
     handleChangeRenderGroups() {
