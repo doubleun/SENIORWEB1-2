@@ -87,6 +87,20 @@
                       />
                     </v-col>
                   </v-row>
+                  <v-row>
+                    <v-col md="3">
+                      <p>Senior</p>
+                    </v-col>
+                    <v-col md="9">
+                      <v-select
+                        v-model="selectedSenior"
+                        :items="senior"
+                        dense
+                        solo
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
                 </div>
               </v-card-text>
 
@@ -213,9 +227,12 @@ export default {
     filterFromState: Boolean
   },
   data: () => ({
+    senior: [1, 2],
     selectedMajor: {},
+    selectedSenior: null,
     selectedYear: null,
     selectedSemester: null,
+    selectedRole: null,
     dialog: false,
     selectedTeacher: {
       User_Name: '',
@@ -228,11 +245,7 @@ export default {
       { label: 'Coordinator', value: 2 }
     ],
     search: '',
-    dialogFilter: false,
-    selectedMajor: {},
-    selectedYear: null,
-    selectedSemester: null,
-    selectedRole: null
+    dialogFilter: false
   }),
 
   mounted() {
@@ -248,20 +261,25 @@ export default {
 
     // selectedRole.Role_ID = null for co and admin manage student
     this.selectedRole = this.manageTeacher ? this.roles[0] : null
+    this.selectedSemester = this.$store.getters['auth/currentUser'].semester
+    this.selectedSenior = this.$store.getters['auth/currentUser'].senior
 
     this.handelchangeRenderUser()
   },
   methods: {
     handelchangeRenderUser() {
+      console.log('selected senior', this.selectedSenior)
       if (!!this.filterFromState) {
         this.selectedYear = this.$store.getters['auth/currentUser'].academicYear
         this.selectedSemester = this.$store.getters['auth/currentUser'].semester
+        this.selectedSenior = this.$store.getters['auth/currentUser']?.senior
       }
       this.$emit(
         'on-filtering',
         this.selectedYear,
         this.selectedSemester,
-        this.$store.getters['auth/currentUser']?.senior || 1,
+        this.selectedSenior,
+        // this.$store.getters['auth/currentUser']?.senior || 1,
         this.majors ? this.selectedMajor.Major_ID : null,
 
         // selectedRole.Role_ID = null for co and admin manage student

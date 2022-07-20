@@ -64,7 +64,6 @@
 export default {
   layout: 'admin',
   data: () => ({
-
     selectedFile: null,
     selectedRole: null,
     isSelectingFile: false,
@@ -95,12 +94,14 @@ export default {
     try {
       // Fetch all majors
       majors = await $axios.$get('/major/getAllActiveMajors')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
 
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
 
       // Fetch teacher's roles
       roles = await $axios.$get('/user/getTeacherRole')
+      roles.unshift({ Role_ID: 101, Role_Name: 'All' })
     } catch (error) {
       console.log(error)
     }
@@ -134,10 +135,28 @@ export default {
           User_Role: role
         })
         // Add user_role_name based on user_role (Should fetch role name from the database ?)
-        this.teachers = this.teachers.map((teacher) => ({
-          ...teacher,
-          User_Role_Name: teacher.User_Role === 0 ? 'Teacher' : 'Coordinator'
-        }))
+        // this.teachers = this.teachers.map((teacher) => ({
+        //   ...teacher,
+        //   User_Role_Name: teacher.User_Role === 0 ? 'Teacher' : 'Coordinator'
+        // }))
+
+        // console.log('before filter', this.teachers)
+
+        // fillter user
+        // role 101 is mean all
+
+        this.teachers = this.teachers.filter(
+          (user) =>
+            (role === 101
+              ? user.User_Role === 0 || user.User_Role === 2
+              : role === 0
+              ? user.User_Role === 0
+              : user.User_Role === 2) &&
+            (majorId === 0 || user.Major_ID === majorId)
+        )
+
+        // console.log('filtered', this.teachers)
+        // console.log(majorId)
       } catch (error) {
         console.log(error)
       }

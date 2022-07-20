@@ -50,7 +50,6 @@
 <script>
 // import AdminDataTable from "@/components/admin/adminDataTable";
 
-// import UserDataTable from "@/components/coordinator/userDataTable";
 export default {
   data: () => ({
     files: [],
@@ -169,22 +168,28 @@ export default {
         return
       }
     },
-    async handelchangeRenderStudents(year, semester) {
-      console.log(year, semester + ' hhh')
+    async handelchangeRenderStudents(year, semester, senior) {
+      console.log(year, semester, senior)
       this.loading = true
       try {
         this.students = await this.$axios.$post('/user/getAllUserWithMajor', {
           Major_ID: this.$store.state.auth.currentUser.major,
           Academic_Year: year,
           Academic_Term: semester,
-          Senior: this.$store.state.auth.currentUser.senior,
+          Senior: senior,
           User_Role: '1'
         })
+
+        this.students = this.students.filter(
+          (user) =>
+            user.User_Role === 1 &&
+            user.Major_ID === this.$store.state.auth.currentUser.major
+        )
+        console.log('this.students', this.students)
       } catch (error) {
         console.log(error)
       }
 
-      console.log('this.students', this.students)
       this.loading = false
     }
   },

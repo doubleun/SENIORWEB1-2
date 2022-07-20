@@ -50,11 +50,11 @@
 <script>
 // // import LongTableCard from "@/components/admin/longTableCard";
 // import AdminDataTable from "@/components/admin/adminDataTable";
-import exportXLSX from "@/mixins/exportXLSX";
+import exportXLSX from '@/mixins/exportXLSX'
 
 export default {
   mixins: [exportXLSX],
-  layout: "admin",
+  layout: 'admin',
   data: () => ({
     selectedMajor: {},
     selectedYear: null,
@@ -66,22 +66,23 @@ export default {
     students: [],
     headers: [
       ,
-      { text: "ID", align: "center", value: "User_Identity_ID" },
-      { text: "NAME", align: "center", value: "User_Name" },
-      { text: "EMAIL", align: "center", value: "User_Email" },
-      { text: "MAJOR", align: "center", value: "Major_Name" },
+      { text: 'ID', align: 'center', value: 'User_Identity_ID' },
+      { text: 'NAME', align: 'center', value: 'User_Name' },
+      { text: 'EMAIL', align: 'center', value: 'User_Email' },
+      { text: 'MAJOR', align: 'center', value: 'Major_Name' }
       // { text: "SEM", align: "center", value: "Committee" },
-    ],
+    ]
   }),
 
   async asyncData({ $axios }) {
-    let majors, yearNSemsters;
+    let majors, yearNSemsters
     try {
       // Fetch all majors
-      majors = await $axios.$get("/major/getAllActiveMajors");
+      majors = await $axios.$get('/major/getAllActiveMajors')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
 
       // Fetch all years and semesters
-      yearNSemsters = await $axios.$get("/date/allYearsSemester");
+      yearNSemsters = await $axios.$get('/date/allYearsSemester')
 
       // // Fetch initial students
       // students = await $axios.$post("/user/getAllUserWithMajor", {
@@ -91,9 +92,9 @@ export default {
       //   User_Role: "1",
       // });
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error)
     }
-    return { majors, yearNSemsters };
+    return { majors, yearNSemsters }
   },
 
   async fetch() {
@@ -102,47 +103,51 @@ export default {
      * @todo Refactor use a more universal way of fetching initial data
      */
     this.handelchangeRenderStudents(
-      this.$store.getters["auth/currentUser"].academicYear,
-      this.$store.getters["auth/currentUser"].semester,
-      this.$store.getters["auth/currentUser"].senior,
+      this.$store.getters['auth/currentUser'].academicYear,
+      this.$store.getters['auth/currentUser'].semester,
+      this.$store.getters['auth/currentUser'].senior,
       this.majors[0].Major_ID,
-      "1"
-    );
+      '1'
+    )
   },
 
   mounted() {
     // Set the default value
-    this.selectedMajor = this.majors[0];
-    this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+    // this.selectedMajor = this.majors[0];
+    // this.selectedYear = this.yearNSemsters[0].Academic_Year;
+    // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
   },
 
   methods: {
     async handelchangeRenderStudents(year, semester, senior, majorId, role) {
-      console.log("majorId", majorId);
-      console.log("year", year);
-      console.log("semester", semester);
-      console.log("senior", senior);
-      console.log("role", role);
+      // console.log('majorId', majorId)
+      // console.log('year', year)
+      // console.log('semester', semester)
+      // console.log('senior', senior)
+      // console.log('role', role)
 
-      this.loading = true;
+      this.loading = true
       try {
-        this.students = await this.$axios.$post("/user/getAllUserWithMajor", {
+        this.students = await this.$axios.$post('/user/getAllUserWithMajor', {
           Major_ID: majorId,
           Academic_Year: year,
           Academic_Term: semester,
           Senior: senior,
-          User_Role: "1",
-        });
+          User_Role: 1
+        })
+        this.students = this.students.filter(
+          (user) =>
+            user.User_Role === 1 && (majorId === 0 || user.Major_ID === majorId)
+        )
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
 
-      console.log(this.students);
-      this.loading = false;
-    },
-  },
-};
+      console.log(this.students)
+      this.loading = false
+    }
+  }
+}
 </script>
 
 <style>
