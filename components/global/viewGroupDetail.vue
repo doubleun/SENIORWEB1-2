@@ -237,7 +237,7 @@ export default {
 
     this.handleChangeRenderGroups()
 
-    console.log('this log major', this.majors)
+    // console.log('this log major', this.majors)
   },
   methods: {
     handleChangeRenderGroups() {

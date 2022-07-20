@@ -228,23 +228,19 @@ getGroupMembers = (req, res) => {
 
 // Get group based on project on term (ie. academic year and semester)
 getAllGroupsAdmin = (req, res) => {
-  const { Year, Semester, Major, Senior } = req.body
+  const { Year, Semester, Senior } = req.body
   // const sql =
   //   'SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, (SELECT Major_Name FROM majors WHERE Major_ID = ?)AS Major_Name,(SELECT Major_ID FROM majors WHERE Major_ID = ?)AS Major_ID, (SELECT users.User_Name FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Advisor, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email AND users.Project_on_term_ID = gm.Project_on_term_ID WHERE gm.User_Status = 1 AND (gm.Group_Role = 2 OR gm.Group_Role = 3) AND gm.Group_ID=gp.Group_ID) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM users INNER JOIN groupmembers gm ON users.User_Email = gm.User_Email WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=gp.Group_ID) AS Committee, gp.Project_on_term_ID FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?) AND Major = ? AND Group_Status = 1'
   const listGroup =
     'SELECT subquery.Group_ID, subquery.Group_Name_Thai, subquery.Group_Name_Eng, subquery.Co_Advisor, subquery.Group_Status,subquery.Project_on_term_ID ,(SELECT Major_Name FROM majors WHERE Major_ID = subquery.Major)AS Major_Name, (SELECT Major_ID FROM majors WHERE Major_ID = subquery.Major)AS Major_ID,(SELECT GROUP_CONCAT(User_Name) FROM groupmembers gm INNER JOIN users usr ON gm.User_Email=usr.User_Email AND gm.Project_on_term_ID=usr.Project_on_term_ID  WHERE gm.Group_Role = 0 AND gm.User_Status = 1 AND gm.Group_ID=subquery.Group_ID AND gm.Project_on_term_ID=subquery.Project_on_term_ID) AS Advisor,(SELECT GROUP_CONCAT(User_Name) FROM groupmembers gm INNER JOIN users usr ON gm.User_Email=usr.User_Email AND gm.Project_on_term_ID=usr.Project_on_term_ID  WHERE (gm.Group_Role = 2 OR gm.Group_Role = 3) AND gm.User_Status = 1 AND gm.Group_ID=subquery.Group_ID AND gm.Project_on_term_ID=subquery.Project_on_term_ID) AS Students, (SELECT GROUP_CONCAT(User_Name) FROM groupmembers gm INNER JOIN users usr ON gm.User_Email=usr.User_Email AND gm.Project_on_term_ID=usr.Project_on_term_ID  WHERE gm.Group_Role = 1 AND gm.User_Status = 1 AND gm.Group_ID=subquery.Group_ID AND gm.Project_on_term_ID=subquery.Project_on_term_ID) AS Committee FROM (SELECT gp.Group_ID, gp.Group_Name_Thai, gp.Group_Name_Eng, gp.Co_Advisor, gp.Group_Status, gp.Project_on_term_ID, gp.Major FROM `groups` gp WHERE Project_on_term_ID = (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year = ? AND Academic_Term = ? AND Senior = ?) AND Group_Status = 1) AS subquery'
-  con.query(
-    listGroup,
-    [ Year, Semester, Senior],
-    (err, result, fields) => {
-      if (err) {
-        console.log(err)
-        res.status(500).send('Internal Server Error')
-      } else {
-        res.status(200).json(result)
-      }
+  con.query(listGroup, [Year, Semester, Senior], (err, result, fields) => {
+    if (err) {
+      console.log(err)
+      res.status(500).send('Internal Server Error')
+    } else {
+      res.status(200).json(result)
     }
-  )
+  })
 }
 
 getGroupsFinalDoc = (req, res) => {
