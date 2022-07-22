@@ -63,12 +63,12 @@ export default {
       // manageTeacher: false
     }
   },
-  mounted() {
-    // Set the default value
-    // this.selectedMajor = this.majors[0];
-    // this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
-  },
+  // mounted() {
+  //   // Set the default value
+  //   // this.selectedMajor = this.majors[0];
+  //   // this.selectedYear = this.yearNSemsters[0].Academic_Year;
+  //   // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+  // },
   async asyncData({ $axios, store }) {
     let majors, yearNSemsters
 

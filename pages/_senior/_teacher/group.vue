@@ -68,6 +68,8 @@ export default {
     return { yearNSemsters, role }
   },
   async fetch() {
+    console.log('call fetch')
+
     /**
      * Set inital value from state
      * @todo Refactor use a more universal way of fetching initial data
@@ -75,13 +77,14 @@ export default {
     this.handleChangeRenderGroups(
       this.$store.getters['auth/currentUser'].academicYear,
       this.$store.getters['auth/currentUser'].semester,
-      this.majors[0].Major_ID,
+      this.$store.state.auth.currentUser.major,
       this.$store.getters['auth/currentUser'].senior
     )
   },
 
   methods: {
     async handleChangeRenderGroups(year, semester, major, senior) {
+      console.log(year, semester, major, senior)
       this.loading = true
       this.allGroups = await this.$axios.$post('group/getAllAdmin', {
         Year: year,
@@ -89,6 +92,8 @@ export default {
         Senior: senior
       })
       this.allGroups = this.allGroups.filter((group) => group.Major_ID == major)
+      console.log('all gorups',this.allGroups)
+
       this.loading = false
     }
   }

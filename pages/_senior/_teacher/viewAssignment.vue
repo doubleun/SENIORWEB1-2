@@ -70,10 +70,25 @@ export default {
       documents = await $axios.$get('/group/getAllFinalDoc')
     } catch (err) {
       console.log(err)
-      return { yearNSemsters: [] }
+      return { yearNSemsters: [], majors: [] }
     }
 
     return { yearNSemsters, role, documents, majors }
+  },
+
+  async fetch() {
+    console.log('call fetch')
+    /**
+     * Set inital value from state
+     * @todo Refactor use a more universal way of fetching initial data
+     */
+    this.handleChangeRenderGroups(
+      this.$store.getters['auth/currentUser'].academicYear,
+      this.$store.getters['auth/currentUser'].semester,
+      this.$store.state.auth.currentUser.major,
+      this.$store.getters['auth/currentUser'].senior
+    )
+    // this.mainMajor = majors[0]
   },
 
   methods: {
