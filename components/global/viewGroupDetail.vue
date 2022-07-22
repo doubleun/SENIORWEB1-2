@@ -140,24 +140,29 @@
               <v-card-text>
                 <v-container>
                   <!-- <div > -->
-                  <v-row
-                    v-for="(files, index) in finalDoc"
-                    :key="index"
-                    class="my-3"
-                  >
-                    <v-col md="2" sm="2">
-                      <v-icon
-                        @click="download(files)"
-                        x-large
-                        color="blue darken-2"
-                      >
-                        mdi-file
-                      </v-icon>
-                    </v-col>
-                    <v-col md="9" sm="10" class="text-left">
-                      {{ files.File_Name }}
-                    </v-col>
-                  </v-row>
+                  <div v-if="finalDoc.length == 0">
+                    <h3>No file</h3>
+                  </div>
+                  <div v-else>
+                    <v-row
+                      v-for="(files, index) in finalDoc"
+                      :key="index"
+                      class="my-3"
+                    >
+                      <v-col md="2" sm="2">
+                        <v-icon
+                          @click="download(files)"
+                          x-large
+                          color="blue darken-2"
+                        >
+                          mdi-file
+                        </v-icon>
+                      </v-col>
+                      <v-col md="9" sm="10" class="text-left">
+                        {{ files.File_Name }}
+                      </v-col>
+                    </v-row>
+                  </div>
                   <!-- </div> -->
                 </v-container>
                 <!-- <small>*indicates required field</small> -->

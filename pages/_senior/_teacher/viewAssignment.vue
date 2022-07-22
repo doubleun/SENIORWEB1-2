@@ -39,12 +39,13 @@ export default {
   data() {
     return {
       loading: false,
-      manageTeacher: false
+      manageTeacher: false,
+      allGroups: []
     }
   },
 
   async asyncData({ $axios, store }) {
-    let yearNSemsters, allGroups, documents, majors
+    let yearNSemsters, documents, majors
 
     const senior = store.getters['auth/currentUser'].senior
     const role = store.getters['auth/currentUser'].role
@@ -60,19 +61,19 @@ export default {
       majors.unshift({ Major_ID: 0, Major_Name: 'All' })
 
       /// Fetch initial group
-      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
-        Academic_Year: store.getters['auth/currentUser'].academicYear,
-        Academic_Term: store.getters['auth/currentUser'].semester,
-        Senior: store.getters['auth/currentUser'].senior
-      })
+      // allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
+      //   Academic_Year: store.getters['auth/currentUser'].academicYear,
+      //   Academic_Term: store.getters['auth/currentUser'].semester,
+      //   Senior: store.getters['auth/currentUser'].senior
+      // })
 
       documents = await $axios.$get('/group/getAllFinalDoc')
     } catch (err) {
       console.log(err)
-      return { yearNSemsters: [], allGroups: [] }
+      return { yearNSemsters: [] }
     }
 
-    return { yearNSemsters, allGroups, role, documents, majors }
+    return { yearNSemsters, role, documents, majors }
   },
 
   methods: {
