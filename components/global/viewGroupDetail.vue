@@ -30,7 +30,7 @@
                     <v-col md="9">
                       <v-select
                         v-model="selectedMajor"
-                        :items="majors"
+                        :items="majorsOptions"
                         item-text="Major_Name"
                         item-value="Major_ID"
                         return-object
@@ -200,7 +200,8 @@ export default {
     isAdmin: Boolean,
     manageTeacher: Boolean,
     documents: Array,
-    title: String
+    title: String,
+    mainMajor: Object
   },
   data() {
     return {
@@ -227,14 +228,38 @@ export default {
       ]
     }
   },
+  computed: {
+    majorsOptions() {
+      return this.majors
+    }
+  },
+  watch: {
+    async majorsOptions(newOptions) {
+      // console.log('Watcher')
+      this.selectedMajor = newOptions[0]
+    }
+  },
   mounted() {
     if (this.documents) {
       this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
     }
+    // console.log('major init', Object.keys(this.selectedMajor).length === 0)
 
-    this.selectedMajor = this.majors
-      ? this.majors[0]
-      : this.$store.state.auth.currentUser.major
+    // way keep filter when change yesr semster senior of admin
+    // this.selectedMajor =
+    //   Object.keys(this.selectedMajor).length === 0
+    //     ? this.majors
+    //       ? this.majors[0]
+    //       : this.$store.state.auth.currentUser.major
+    //     : this.selectedMajor
+
+    // TODO: way keep major all when change yesr semster senior of admin
+    // this.selectedMajor =
+    //   Object.keys(this.selectedMajor).length !== 0
+    //     ? this.majors
+    //       ? this.majors[0]
+    //       : this.$store.state.auth.currentUser.major
+    //     : this.majors[0]
 
     this.selectedYear = this.$store.getters['auth/currentUser'].academicYear
     this.selectedSemester = this.$store.getters['auth/currentUser'].semester
@@ -246,6 +271,7 @@ export default {
 
     // console.log('this log major', this.majors)
   },
+
   methods: {
     handleChangeRenderGroups() {
       this.$emit(

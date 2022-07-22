@@ -34,6 +34,7 @@
       isAdmin
       @on-filtering="handleChangeRenderGroups"
     />
+      <!-- :mainMajor="mainMajor" -->
     <!-- </main> -->
   </v-container>
 </template>
@@ -51,7 +52,7 @@ export default {
     return {
       searchGroup: '',
       allGroups: [],
-      // selectedMajor: {},
+      selectedMajor: {},
       // selectedYear: null,
       // selectedSemester: null,
       loading: false,
@@ -98,6 +99,7 @@ export default {
   },
 
   async fetch() {
+    console.log('call fetch')
     /**
      * Set inital value from state
      * @todo Refactor use a more universal way of fetching initial data
@@ -108,6 +110,7 @@ export default {
       this.majors[0].Major_ID,
       this.$store.getters['auth/currentUser'].senior
     )
+    // this.mainMajor = majors[0]
   },
 
   methods: {
@@ -140,7 +143,7 @@ export default {
       await this.$nuxt.refresh()
     },
     async handleChangeRenderGroups(year, semester, major, senior) {
-      // console.log(year, semester, major, senior)
+      console.log(year, semester, major, senior)
       this.loading = true
       this.allGroups = await this.$axios.$post('group/getAllAdmin', {
         Year: year,
