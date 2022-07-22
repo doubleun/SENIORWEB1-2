@@ -254,7 +254,7 @@ export default {
     // deep: true
     // }
 
-    majors(newOptions, oldQuestion) {
+    majors(newOptions, oldOptions) {
       // console.log('Watcher view group detail component')
       console.log('new options', newOptions)
       // this.majors && (this.selectedMajor = newOptions[0])

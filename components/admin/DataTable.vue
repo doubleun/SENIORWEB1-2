@@ -248,6 +248,15 @@ export default {
     dialogFilter: false
   }),
 
+  watch: {
+    majors(newOptions, oldOptions) {
+      this.selectedMajor = newOptions[0]
+    },
+    roles(newOptions, oldOptions) {
+      this.selectedRole = newOptions[0]
+    }
+  },
+
   mounted() {
     // console.log(this.items);
     this.majors ? (this.selectedMajor = this.majors[0]) : null
