@@ -150,7 +150,7 @@ export default {
       this.allGroups = this.allGroups.filter(
         (group) => major === 0 || group.Major_ID == major
       )
-      console.log(this.allGroups)
+      // console.log(this.allGroups)
       this.loading = false
     }
   }

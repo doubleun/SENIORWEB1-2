@@ -84,11 +84,11 @@ export default {
     async handleChangeRenderGroups(year, semester, major, senior) {
       this.loading = true
       this.allGroups = await this.$axios.$post('group/getAllAdmin', {
-        Major: major,
         Year: year,
         Semester: semester,
         Senior: senior
       })
+      this.allGroups = this.allGroups.filter((group) => group.Major_ID == major)
       this.loading = false
     }
   }

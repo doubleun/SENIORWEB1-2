@@ -69,7 +69,7 @@
                       />
                     </v-col>
                   </v-row>
-                  <v-row v-if="!isAdmin && documents">
+                  <v-row v-if="!isAdmin">
                     <v-col md="3">
                       <p>Senior</p>
                     </v-col>
@@ -206,7 +206,7 @@ export default {
       searchGroup: '',
       viewDocDialog: false,
       finalDoc: [],
-      senior: [1, 2, 3],
+      senior: [1, 2],
       selectedSenior: 1,
       headers: [
         {
@@ -225,15 +225,17 @@ export default {
   mounted() {
     if (this.documents) {
       this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
-      // this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
     }
 
     this.selectedMajor = this.majors
       ? this.majors[0]
       : this.$store.state.auth.currentUser.major
 
-    this.selectedYear = this.yearNSemsters[0].Academic_Year
-    this.selectedSemester = this.yearNSemsters[0].Academic_Term
+    this.selectedYear = this.$store.getters['auth/currentUser'].academicYear
+    this.selectedSemester = this.$store.getters['auth/currentUser'].semester
+    this.selectedSenior = this.$store.getters['auth/currentUser'].senior
+    // this.selectedYear = this.yearNSemsters[0].Academic_Year
+    // this.selectedSemester = this.yearNSemsters[0].Academic_Term
 
     this.handleChangeRenderGroups()
 
