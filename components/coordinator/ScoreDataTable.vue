@@ -208,10 +208,10 @@ export default {
       })
     },
     handelChangeRenderScore() {
-      console.log('year', this.selectedYear)
-      console.log('sem', this.selectedSemester)
-      console.log('senior', this.selectedSenior)
-      console.log('selectedGrade', this.selectedGrade)
+      // console.log('year', this.selectedYear)
+      // console.log('sem', this.selectedSemester)
+      // console.log('senior', this.selectedSenior)
+      // console.log('selectedGrade', this.selectedGrade)
       this.$emit(
         'on-filter-score',
         this.selectedYear,

@@ -41,7 +41,7 @@ export default {
       // Fetch all years and semesters
       let yearNSemsters = []
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
-      console.log('year and semester', yearNSemsters)
+      // console.log('year and semester', yearNSemsters)
 
       // Fetch student score
       // let score = await $axios.$post("/group/getScoreCoor", {
@@ -62,7 +62,7 @@ export default {
       ]
 
       // header
-      console.log('progression', allProgresses)
+      // console.log('progression', allProgresses)
       // mapping progression
       var header = allProgresses.map((el) => ({
         text: el.Progress_Name,
@@ -85,7 +85,7 @@ export default {
         { text: 'GRADE', value: 'Grade', align: 'center' }
       )
 
-      console.log('header', header)
+      // console.log('header', header)
 
       // Fetch grade criteria
       var gradeCriteria = await $axios.$post('/criteria/gradeMajor', {
@@ -147,7 +147,7 @@ export default {
       // console.log('year', year)
       // console.log('sem', semester)
       // console.log('senior', senior)
-      console.log('selectedGrade root page', selectedGrade)
+      // console.log('selectedGrade root page', selectedGrade)
 
       this.loading3 = true
       try {
@@ -163,7 +163,7 @@ export default {
         selectedGrade == 'All'
           ? (this.filterGrade = score)
           : (this.filterGrade = score.filter((el) => el.Grade == selectedGrade))
-        console.log('filtered grade', this.filterGrade)
+        // console.log('filtered grade', this.filterGrade)
       } catch (error) {
         console.log(error)
       }
