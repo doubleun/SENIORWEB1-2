@@ -24,166 +24,153 @@
 </template>
 <script>
 // import scoreDataTable from "@/components/coordinator/scoreDataTable";
-import exportXLSX from "@/mixins/exportXLSX";
+import exportXLSX from '@/mixins/exportXLSX'
 export default {
   data: () => ({
     loading3: false,
-    sem: ["1/2564", "2/2564"],
-    // filterGrade: [],
+    // sem: ['1/2564', '2/2564'],
+    filterGrade: [],
     selectedYear: null,
     selectedSemester: null,
-    selectedGrade: {},
+    selectedGrade: {}
   }),
   mixins: [exportXLSX],
-  layout: "coordinatorsidebar",
+  layout: 'coordinatorsidebar',
   async asyncData({ $axios, store }) {
     try {
       // Fetch all years and semesters
-      let yearNSemsters = [];
-      yearNSemsters = await $axios.$get("/date/allYearsSemester");
-      console.log("year and semester", yearNSemsters);
+      let yearNSemsters = []
+      yearNSemsters = await $axios.$get('/date/allYearsSemester')
+      console.log('year and semester', yearNSemsters)
 
       // Fetch student score
-      let score = await $axios.$post("/group/getScoreCoor", {
-        Major: store.state.auth.currentUser.major,
-        Academic_Year: yearNSemsters[0].Academic_Year,
-        Academic_Term: yearNSemsters[0].Academic_Term,
-      });
+      // let score = await $axios.$post("/group/getScoreCoor", {
+      //   Major: store.state.auth.currentUser.major,
+      //   Academic_Year: yearNSemsters[0].Academic_Year,
+      //   Academic_Term: yearNSemsters[0].Academic_Term,
+      // });
 
-      console.log("score", score);
+      // console.log("score", score);
       const allProgresses = [
-        { Progress_Name: "Proposal" },
-        { Progress_Name: "Progress 1" },
-        { Progress_Name: "Progress 2" },
-        { Progress_Name: "Progress 3" },
-        { Progress_Name: "Progress 4" },
-        { Progress_Name: "Final Presentation" },
-        { Progress_Name: "Final Documentation" },
-      ];
+        { Progress_Name: 'Proposal' },
+        { Progress_Name: 'Progress 1' },
+        { Progress_Name: 'Progress 2' },
+        { Progress_Name: 'Progress 3' },
+        { Progress_Name: 'Progress 4' },
+        { Progress_Name: 'Final Presentation' },
+        { Progress_Name: 'Final Documentation' }
+      ]
 
       // header
-      console.log("progression", allProgresses);
+      console.log('progression', allProgresses)
       // mapping progression
       var header = allProgresses.map((el) => ({
         text: el.Progress_Name,
-        value: el.Progress_Name.replace(/\s+/g, ""),
-        align: "center",
-      }));
+        value: el.Progress_Name.replace(/\s+/g, ''),
+        align: 'center'
+      }))
 
       header.unshift(
         {
-          text: "ID",
-          align: "center",
+          text: 'ID',
+          align: 'center',
           filterable: false,
-          value: "Id",
+          value: 'Id'
         },
-        { text: "NAME", value: "Name", align: "center" }
-      );
+        { text: 'NAME', value: 'Name', align: 'center' }
+      )
 
       header.push(
-        { text: "TOTAL", value: "Total", align: "center" },
-        { text: "GRADE", value: "Grade", align: "center" }
-      );
+        { text: 'TOTAL', value: 'Total', align: 'center' },
+        { text: 'GRADE', value: 'Grade', align: 'center' }
+      )
 
-      console.log("header", header);
+      console.log('header', header)
 
       // Fetch grade criteria
-      var gradeCriteria = await $axios.$post("/criteria/gradeMajor", {
-        Major_ID: store.state.auth.currentUser.major,
-      });
+      var gradeCriteria = await $axios.$post('/criteria/gradeMajor', {
+        Major_ID: store.state.auth.currentUser.major
+      })
 
       // sorting grade criteria
       gradeCriteria.sort((a, b) =>
         a.Grade_Criteria_Pass < b.Grade_Criteria_Pass ? 1 : -1
-      );
+      )
 
       // add display all grades option to v-select for sorting by grade (All)
-      gradeCriteria.unshift({ Grade_Criteria_Name: "All" });
+      gradeCriteria.unshift({ Grade_Criteria_Name: 'All' })
 
-      gradeCriteria.length == 3
-        ? (gradeCriteria = [
-            ...gradeCriteria,
-            { Grade_Criteria_Name: "A" },
-            { Grade_Criteria_Name: "B+" },
-            { Grade_Criteria_Name: "B" },
-            { Grade_Criteria_Name: "C+" },
-            { Grade_Criteria_Name: "C" },
-            { Grade_Criteria_Name: "D+" },
-            { Grade_Criteria_Name: "D" },
-            { Grade_Criteria_Name: "F" },
-          ])
-        : (gradeCriteria = [
-            ...gradeCriteria,
-            { Grade_Criteria_Name: "S" },
-            { Grade_Criteria_Name: "U" },
-            ,
-          ]);
-
-      const filterGrade = score.filter((el) => el.Grade !== "All");
+      if (gradeCriteria.length == 3) {
+        gradeCriteria = [
+          ...gradeCriteria,
+          { Grade_Criteria_Name: 'A' },
+          { Grade_Criteria_Name: 'B+' },
+          { Grade_Criteria_Name: 'B' },
+          { Grade_Criteria_Name: 'C+' },
+          { Grade_Criteria_Name: 'C' },
+          { Grade_Criteria_Name: 'D+' },
+          { Grade_Criteria_Name: 'D' },
+          { Grade_Criteria_Name: 'F' }
+        ]
+      } else {
+        gradeCriteria = [
+          ...gradeCriteria,
+          { Grade_Criteria_Name: 'S' },
+          { Grade_Criteria_Name: 'U' }
+        ]
+      }
 
       return {
         yearNSemsters,
-        grade: score,
         gradeCriteria,
-        header,
-        filterGrade,
-      };
+        header
+      }
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   },
-  mounted() {
-    this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    this.selectedSemester = this.yearNSemsters[0].Academic_Term;
-    this.selectedGrade = this.gradeCriteria[0];
-
-    console.log("filterGrade", this.filterGrade);
+  async fetch() {
+    /**
+     * Set inital value from state
+     * @todo Refactor use a more universal way of fetching initial data
+     */
+    this.handelFilterScore(
+      this.$store.getters['auth/currentUser'].academicYear,
+      this.$store.getters['auth/currentUser'].semester,
+      this.$store.getters['auth/currentUser'].senior,
+      this.gradeCriteria[0]
+    )
   },
+  mounted() {},
   methods: {
-    async handelFilterScore(year, semester, selectedGrade) {
-      console.log("year", year);
-      console.log("sem", semester);
-      console.log("selectedGrade", selectedGrade);
+    async handelFilterScore(year, semester, senior, selectedGrade) {
+      // console.log('year', year)
+      // console.log('sem', semester)
+      // console.log('senior', senior)
+      console.log('selectedGrade root page', selectedGrade)
 
-      this.loading3 = true;
+      this.loading3 = true
       try {
         // Fetch student score
-        let score = await this.$axios.$post("/group/getScoreCoor", {
+        let score = await this.$axios.$post('/group/getScoreCoor', {
           Major: this.$store.state.auth.currentUser.major,
           Academic_Year: year,
           Academic_Term: semester,
-        });
+          Senior: senior
+        })
 
-        this.grade = score;
-        this.filterGrade = this.grade.filter((el) =>
-          selectedGrade.Grade_Criteria_Name == "All"
-            ? el.grade != "All"
-            : el.grade == selectedGrade.Grade_Criteria_Name
-        );
+        // this.grade = score
+        selectedGrade == 'All'
+          ? (this.filterGrade = score)
+          : (this.filterGrade = score.filter((el) => el.Grade == selectedGrade))
+        console.log('filtered grade', this.filterGrade)
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-      this.loading3 = false;
-    },
-    // async handelFilterWithGrade(selectedGrade) {
-    //   // console.log("filter", this.selectedGrade.Grade_Criteria_Name == "All");
-    //   // console.log(" grade", this.grade);
-    //   // let grade = this.selectedGrade.Grade_Criteria_Name;
-    //   this.loading3 = true;
-    //   try {
-    //     this.filterGrade = this.grade.filter((el) =>
-    //       selectedGrade.Grade_Criteria_Name == "All"
-    //         ? el.grade != "All"
-    //         : el.grade == selectedGrade.Grade_Criteria_Name
-    //     );
-    //     // console.log("filter grade", this.filterGrade);
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    //   this.loading3 = false;
-    // },
-  },
-};
+      this.loading3 = false
+    }
+  }
+}
 </script>
 <style scoped>
 .v-btn:hover {
