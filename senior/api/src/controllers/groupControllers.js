@@ -507,17 +507,17 @@ updateMemberStatus = async (req, res) => {
 }
 
 getScoreCoor = (req, res) => {
-  const { Major, Academic_Year, Academic_Term } = req.body
+  const { Major, Academic_Year, Academic_Term, Senior } = req.body
   console.log(req.body)
-  const { senior } = req.user
+  // const { senior } = req.user
   // const major = req.body.Major;
-  console.log('senior', senior)
+  // console.log('senior', Senior)
   // const Projectonterm = req.body.Projectonterm;\
   const sql =
     'SELECT usr.User_Identity_ID as Id, usr.User_Name AS Name,(SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=2 AND ass.Group_ID=gmb.Group_ID) AS Proposal, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=3 AND ass.Group_ID=gmb.Group_ID) AS Progress1, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=4 AND ass.Group_ID=gmb.Group_ID) AS Progress2, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=5 AND ass.Group_ID=gmb.Group_ID) AS Progress3, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=6 AND ass.Group_ID=gmb.Group_ID) AS Progress4,  (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=7 AND ass.Group_ID=gmb.Group_ID) AS FinalPresentation, (SELECT SUM( sc.Score) FROM scores sc INNER JOIN assignments ass ON sc.Assignment_ID=ass.Assignment_ID WHERE ass.Progress_ID=8 AND ass.Group_ID=gmb.Group_ID) AS FinalDocumentation, (SELECT Grade FROM groups WHERE Group_ID = gmb.Group_ID )AS Grade FROM users usr INNER JOIN groupmembers gmb  ON usr.User_Email = gmb.User_Email AND usr.Project_on_term_ID = gmb.Project_on_term_ID WHERE gmb.Project_on_term_ID= (SELECT Project_on_term_ID FROM projectonterm WHERE Academic_Year=? AND Academic_Term=? AND Senior=?) AND (gmb.Group_Role=3 OR gmb.Group_Role=2) AND usr.Major_ID=?'
   con.query(
     sql,
-    [Academic_Year, Academic_Term, senior, Major],
+    [Academic_Year, Academic_Term, Senior, Major],
     (err, result, fields) => {
       if (err) {
         console.log(err)

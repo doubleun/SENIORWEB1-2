@@ -200,7 +200,8 @@ export default {
     isAdmin: Boolean,
     manageTeacher: Boolean,
     documents: Array,
-    title: String
+    title: String,
+    mainMajor: Object
   },
   data() {
     return {
@@ -213,6 +214,7 @@ export default {
       finalDoc: [],
       senior: [1, 2],
       selectedSenior: 1,
+      // majorsOptions: [],
       headers: [
         {
           text: 'GROUP NAME',
@@ -227,14 +229,99 @@ export default {
       ]
     }
   },
+  // computed: {
+  //   majorsOptions() {
+  //     console.log('compute view group detail component')
+  //     return this.majors
+  //   }
+  //   // majorsOptions: {
+  //   //   get() {
+  //   //     return this.majors
+  //   //   },
+  //   //   set() {
+  //   //     return this.majors
+  //   //   }
+  //   // }
+  // },
+  watch: {
+    // majorsOptions: {
+    // handel(newOptions) {
+    // console.log('Watcher view group detail component')
+    // this.selectedMajor = newOptions[0]
+    // this.majors && (this.selectedMajor = newOptions[0])
+    // }
+    // immediate: true
+    // deep: true
+    // }
+
+    majors(newOptions, oldOptions) {
+      // console.log('Watcher view group detail component')
+      console.log('new options', newOptions)
+      // this.majors && (this.selectedMajor = newOptions[0])
+      this.selectedMajor = newOptions[0]
+    }
+
+    // searchGroup: {
+    //   immediate: true,
+    //   handler(newVal, oldVal) {
+    //     console.log(newVal, oldVal)
+    //     this.searchGroup = 'abccc'
+    //   }
+    // },
+
+    // majorsOptions: {
+    //   // immediate: true,
+    //   deep: true,
+    //   handler(newVal, oldVal) {
+    //     // console.log(newVal, oldVal)
+    //     console.log('new', newVal[0])
+    //     // this.majorsOptions = this.majors
+    //     // if (!this.selectedMajor) {
+    //       this.selectedMajor = newVal[0]
+    //     // }
+    //   }
+    // }
+
+    // majorsOptions: {
+    //   immediate: true,
+    //   handler(newVal, oldVal) {
+    //     // console.log(newVal, oldVal)
+    //     console.log('new', newVal[0])
+    //     this.majorsOptions = this.majors
+    //     if (typeof this.selectedMajor === 'object') {
+    //       this.selectedMajor = newVal[0]
+    //     }
+    //   }
+    // }
+  },
   mounted() {
     if (this.documents) {
       this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
     }
+    console.log('mounted view group detail component')
+    // console.log('major init', Object.keys(this.selectedMajor).length === 0)
 
-    this.selectedMajor = this.majors
-      ? this.majors[0]
-      : this.$store.state.auth.currentUser.major
+    if (!this.isAdmin && this.documents) {
+      this.selectedMajor = this.majors[0]
+    }
+    // way keep filter when change yesr semster senior of admin
+    // this.selectedMajor =
+    //   Object.keys(this.selectedMajor).length === 0
+    //     ? this.majors
+    //       ? this.majors[0]
+    //       : this.$store.state.auth.currentUser.major
+    //     : this.selectedMajor
+
+    // this.selectedMajor = this.majors[0]
+    // console.log('major', this.majors)
+
+    // TODO: way keep major all when change yesr semster senior of admin
+    // this.selectedMajor =
+    //   Object.keys(this.selectedMajor).length !== 0
+    //     ? this.majors
+    //       ? this.majors[0]
+    //       : this.$store.state.auth.currentUser.major
+    //     : this.majors[0]
 
     this.selectedYear = this.$store.getters['auth/currentUser'].academicYear
     this.selectedSemester = this.$store.getters['auth/currentUser'].semester
@@ -246,6 +333,7 @@ export default {
 
     // console.log('this log major', this.majors)
   },
+
   methods: {
     handleChangeRenderGroups() {
       this.$emit(
@@ -257,7 +345,9 @@ export default {
           ? this.$store.getters['auth/currentUser'].semester
           : this.selectedSemester,
         this.isAdmin || this.documents
-          ? this.selectedMajor.Major_ID
+          ? Object.keys(this.selectedMajor).length === 0
+            ? this.majors[0].Major_ID
+            : this.selectedMajor.Major_ID
           : this.$store.state.auth.currentUser.major,
         this.isAdmin
           ? this.$store.getters['auth/currentUser'].senior

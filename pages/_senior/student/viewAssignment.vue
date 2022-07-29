@@ -33,7 +33,8 @@ export default {
   data() {
     return {
       loading: false,
-      manageTeacher: false
+      manageTeacher: false,
+      allGroups: []
     }
   },
 
@@ -54,20 +55,35 @@ export default {
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
 
       // Fetch initial group
-      allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
-        Academic_Year: store.getters['auth/currentUser'].academicYear,
-        Academic_Term: store.getters['auth/currentUser'].semester,
-        Senior: store.getters['auth/currentUser'].senior
-      })
+      // allGroups = await $axios.$post('/group/getGroupsFinalDoc', {
+      //   Academic_Year: store.getters['auth/currentUser'].academicYear,
+      //   Academic_Term: store.getters['auth/currentUser'].semester,
+      //   Senior: store.getters['auth/currentUser'].senior
+      // })
 
       // Fetch all finaldoc
       documents = await $axios.$get('/group/getAllFinalDoc')
     } catch (err) {
       console.log(err)
-      return { yearNSemsters: [], allGroups: [] }
+      return { yearNSemsters: [] }
     }
 
-    return { yearNSemsters, allGroups, role, documents, majors }
+    return { yearNSemsters, role, documents, majors }
+  },
+
+  async fetch() {
+    console.log('call fetch')
+    /**
+     * Set inital value from state
+     * @todo Refactor use a more universal way of fetching initial data
+     */
+    this.handleChangeRenderGroups(
+      this.$store.getters['auth/currentUser'].academicYear,
+      this.$store.getters['auth/currentUser'].semester,
+      this.$store.state.auth.currentUser.major,
+      this.$store.getters['auth/currentUser'].senior
+    )
+    // this.mainMajor = majors[0]
   },
 
   methods: {
