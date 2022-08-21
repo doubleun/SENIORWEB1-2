@@ -210,11 +210,11 @@ export default {
     try {
       majors = await $axios.$get('/major/getAllActiveMajors')
       abstracts = await $axios.$get('/assignment/abstracts')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
       console.log('abstarct', abstracts)
     } catch (error) {
       console.log(error)
     }
-    majors.unshift({ Major_ID: 0, Major_Name: 'All' })
     const rawAbstracts = abstracts
     return { majors, abstracts, rawAbstracts }
   },

@@ -3,6 +3,13 @@
   <v-app-bar app :elevation="0" :color="theme" absolute>
     <!-- Hamberbur -->
     <!-- <v-app-bar-nav-icon @click.stop="toggleDrawer" /> -->
+    <!-- @click="toggleDrawer = true" -->
+    <v-app-bar-nav-icon
+      v-if="!drawerState"
+      @click="toggleDrawer"
+      color="white"
+    ></v-app-bar-nav-icon>
+    <!-- class="d-flex d-sm-none" -->
     <v-spacer></v-spacer>
     <!-- Menu -->
     <v-menu offset-y offset-x :nudge-bottom="10" :max-width="200">
@@ -48,11 +55,13 @@
 </template>
 <script>
 export default {
+  props: ['theme'],
   data: () => ({
     items: [{ icon: 'mdi-logout', title: 'Logout' }],
     userName: '',
     userInitial: '',
     userImage: null
+    // toggleDrawer: null
   }),
   mounted() {
     this.userName = this.$store.getters['auth/currentUser'].name
@@ -66,6 +75,16 @@ export default {
       userNameArr.length > 0
         ? `${userNameArr[0][0]}${userNameArr[1][0]}`
         : `${fullName[0]}${fullName[1]}`
+  },
+  computed: {
+    drawerState: {
+      get() {
+        return this.$store.state.drawer.drawerState
+      },
+      set(newValue) {
+        this.$store.dispatch('setDrawerState', newValue)
+      }
+    }
   },
   // computed: {
   // userInitial() {
@@ -83,13 +102,13 @@ export default {
   //   return this.$store.getters['auth/currentUser'].photo
   // }
   // },
-  props: ['theme'],
   methods: {
-    // toggleDrawer() {
-    //   this.$store.commit("set_drawer", !this.$store.state.drawer);
-    // }
+    toggleDrawer() {
+      // this.$store.commit('set_drawer', !this.$store.state.drawer)
+      this.$store.dispatch('drawer/setDrawerState', !this.drawerState)
+    },
     test() {
-      console.log(this.$store.state.auth.currentUser)
+      // console.log(this.$store.state.auth.currentUser)
     },
     async logout() {
       await this.$store.dispatch('auth/logout')
