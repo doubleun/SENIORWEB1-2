@@ -50,7 +50,6 @@
 <script>
 // import AdminDataTable from "@/components/admin/adminDataTable";
 
-// import UserDataTable from "@/components/coordinator/userDataTable";
 export default {
   data: () => ({
     files: [],
@@ -69,7 +68,7 @@ export default {
   async asyncData({ app, $axios, store }) {
     let students, yearNSemsters
 
-    console.log(store.getters['group/availableProgress'])
+    // console.log(store.getters['group/availableProgress'])
     try {
       // First check if atleast criteria is set
       if (
@@ -77,7 +76,7 @@ export default {
         store.getters['group/availableProgress']?.length === 0
       ) {
         app.$swal.fire(
-          'No score criterias available',
+          'No score or grade criterias available',
           'You need to enable atleast one score criteria',
           'warning'
         )
@@ -94,15 +93,39 @@ export default {
     return { students, yearNSemsters }
   },
   async fetch() {
+    console.log('call fetch')
     this.handelchangeRenderStudents(
-      // 2021,
-      // 1
-      this.yearNSemsters[0].Academic_Year,
-      this.yearNSemsters[0].Academic_Term
+      this.$store.getters['auth/currentUser'].academicYear,
+      this.$store.getters['auth/currentUser'].semester,
+      this.$store.getters['auth/currentUser'].senior
     )
   },
 
   methods: {
+    async handelchangeRenderStudents(year, semester, senior) {
+      console.log(year, semester, senior)
+      // this.loading = true
+      try {
+        this.students = await this.$axios.$post('/user/getAllUserWithMajor', {
+          Major_ID: this.$store.state.auth.currentUser.major,
+          Academic_Year: year,
+          Academic_Term: semester,
+          Senior: senior,
+          User_Role: '1'
+        })
+
+        this.students = this.students.filter(
+          (user) =>
+            user.User_Role === 1 &&
+            user.Major_ID === this.$store.state.auth.currentUser.major
+        )
+        console.log('this.students', this.students)
+      } catch (error) {
+        console.log(error)
+      }
+
+      // this.loading = false
+    },
     downloadtemplete() {
       window.location.href = '/api/public_senior/templete/studentsTemplete.xlsx'
     },
@@ -153,9 +176,22 @@ export default {
                 formData
               )
               if (res && res.status == 200) {
-                this.$swal.fire('Saved!', res.msg, 'success')
-                // Update UI
-                await this.$nuxt.refresh()
+                this.$swal
+                  .fire({
+                    title: 'Successed',
+                    text: res.msg,
+                    icon: 'success',
+                    // confirmButtonColor: '#3085d6',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                  })
+                  .then((result) => {
+                    if (result.isConfirmed) {
+                      // this.$emit('refresh')
+                      // this.$nuxt.refresh()
+                      window.location.reload()
+                    }
+                  })
               }
             }
           })
@@ -168,24 +204,6 @@ export default {
         e.target.value = null
         return
       }
-    },
-    async handelchangeRenderStudents(year, semester) {
-      console.log(year, semester + ' hhh')
-      this.loading = true
-      try {
-        this.students = await this.$axios.$post('/user/getAllUserWithMajor', {
-          Major_ID: this.$store.state.auth.currentUser.major,
-          Academic_Year: year,
-          Academic_Term: semester,
-          Senior: this.$store.state.auth.currentUser.senior,
-          User_Role: '1'
-        })
-      } catch (error) {
-        console.log(error)
-      }
-
-      console.log('this.students', this.students)
-      this.loading = false
     }
   },
   layout: 'coordinatorsidebar'

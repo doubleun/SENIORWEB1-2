@@ -34,6 +34,7 @@
       isAdmin
       @on-filtering="handleChangeRenderGroups"
     />
+      <!-- :mainMajor="mainMajor" -->
     <!-- </main> -->
   </v-container>
 </template>
@@ -50,64 +51,67 @@ export default {
   data() {
     return {
       searchGroup: '',
-      // allGroups: [],
-      // selectedMajor: {},
+      allGroups: [],
+      selectedMajor: {},
       // selectedYear: null,
       // selectedSemester: null,
       loading: false,
       dialog1: false,
-      singleSelect: false,
-      selected: [],
-      selectedgroupid: [],
-      manageTeacher: false
+      // singleSelect: false,
+      selected: []
+      // selectedgroupid: [],
+      // manageTeacher: false
     }
   },
-  mounted() {
-    // Set the default value
-    // this.selectedMajor = this.majors[0];
-    // this.selectedYear = this.yearNSemsters[0].Academic_Year;
-    // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
-  },
+  // mounted() {
+  //   // Set the default value
+  //   // this.selectedMajor = this.majors[0];
+  //   // this.selectedYear = this.yearNSemsters[0].Academic_Year;
+  //   // this.selectedSemester = this.yearNSemsters[0].Academic_Term;
+  // },
   async asyncData({ $axios, store }) {
-    let majors, yearNSemsters, allGroups
+    let majors, yearNSemsters
 
     const senior = store.getters['auth/currentUser'].senior
     try {
       if (!senior) throw new Error('Cannot find senior')
       // Fetch all majors
       majors = await $axios.$get('/major/getAllActiveMajors')
+      majors.unshift({ Major_ID: 0, Major_Name: 'All' })
 
       // Fetch all years and semesters
       yearNSemsters = await $axios.$get('/date/allYearsSemester')
 
-      console.log('yearNSemsters', yearNSemsters)
+      // console.log('yearNSemsters', yearNSemsters)
 
       // Fetch initial group
-      allGroups = await $axios.$post('/group/getAllAdmin', {
-        Major: majors[0].Major_ID,
-        Year: store.getters['auth/currentUser'].academicYear,
-        Semester: store.getters['auth/currentUser'].semester,
-        Senior: senior
-      })
+      // allGroups = await $axios.$post('/group/getAllAdmin', {
+      //   Year: store.getters['auth/currentUser'].academicYear,
+      //   Semester: store.getters['auth/currentUser'].semester,
+      //   Senior: senior
+      // })
     } catch (err) {
       console.log(err)
-      return { majors: [], yearNSemsters: [], allGroups: [] }
+      return { majors: [], yearNSemsters: [] }
     }
 
-    return { majors, yearNSemsters, allGroups }
+    return { majors, yearNSemsters }
   },
-  // async fetch() {
-  //   /**
-  //    * Set inital value from state
-  //    * @todo Refactor use a more universal way of fetching initial data
-  //    */
-  //   this.handleChangeRenderGroups(
-  //     this.$store.getters['auth/currentUser'].academicYear,
-  //     this.$store.getters['auth/currentUser'].semester,
-  //     this.majors[0].Major_ID,
-  //     this.$store.getters['auth/currentUser'].senior
-  //   )
-  // },
+
+  async fetch() {
+    console.log('call fetch')
+    /**
+     * Set inital value from state
+     * @todo Refactor use a more universal way of fetching initial data
+     */
+    this.handleChangeRenderGroups(
+      this.$store.getters['auth/currentUser'].academicYear,
+      this.$store.getters['auth/currentUser'].semester,
+      this.majors[0].Major_ID,
+      this.$store.getters['auth/currentUser'].senior
+    )
+    // this.mainMajor = majors[0]
+  },
 
   methods: {
     checkdia() {
@@ -139,13 +143,17 @@ export default {
       await this.$nuxt.refresh()
     },
     async handleChangeRenderGroups(year, semester, major, senior) {
+      console.log(year, semester, major, senior)
       this.loading = true
       this.allGroups = await this.$axios.$post('group/getAllAdmin', {
-        Major: major,
         Year: year,
         Semester: semester,
         Senior: senior
       })
+      this.allGroups = this.allGroups.filter(
+        (group) => major === 0 || group.Major_ID == major
+      )
+      // console.log(this.allGroups)
       this.loading = false
     }
   }

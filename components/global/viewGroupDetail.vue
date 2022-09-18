@@ -69,7 +69,7 @@
                       />
                     </v-col>
                   </v-row>
-                  <v-row v-if="!isAdmin && documents">
+                  <v-row v-if="!isAdmin">
                     <v-col md="3">
                       <p>Senior</p>
                     </v-col>
@@ -140,24 +140,29 @@
               <v-card-text>
                 <v-container>
                   <!-- <div > -->
-                  <v-row
-                    v-for="(files, index) in finalDoc"
-                    :key="index"
-                    class="my-3"
-                  >
-                    <v-col md="2" sm="2">
-                      <v-icon
-                        @click="download(files)"
-                        x-large
-                        color="blue darken-2"
-                      >
-                        mdi-file
-                      </v-icon>
-                    </v-col>
-                    <v-col md="9" sm="10" class="text-left">
-                      {{ files.File_Name }}
-                    </v-col>
-                  </v-row>
+                  <div v-if="finalDoc.length == 0">
+                    <h3>No file</h3>
+                  </div>
+                  <div v-else>
+                    <v-row
+                      v-for="(files, index) in finalDoc"
+                      :key="index"
+                      class="my-3"
+                    >
+                      <v-col md="2" sm="2">
+                        <v-icon
+                          @click="download(files)"
+                          x-large
+                          color="blue darken-2"
+                        >
+                          mdi-file
+                        </v-icon>
+                      </v-col>
+                      <v-col md="9" sm="10" class="text-left">
+                        {{ files.File_Name }}
+                      </v-col>
+                    </v-row>
+                  </div>
                   <!-- </div> -->
                 </v-container>
                 <!-- <small>*indicates required field</small> -->
@@ -195,7 +200,8 @@ export default {
     isAdmin: Boolean,
     manageTeacher: Boolean,
     documents: Array,
-    title: String
+    title: String,
+    mainMajor: Object
   },
   data() {
     return {
@@ -206,8 +212,9 @@ export default {
       searchGroup: '',
       viewDocDialog: false,
       finalDoc: [],
-      senior: [1, 2, 3],
+      senior: [1, 2],
       selectedSenior: 1,
+      // majorsOptions: [],
       headers: [
         {
           text: 'GROUP NAME',
@@ -222,20 +229,111 @@ export default {
       ]
     }
   },
+  // computed: {
+  //   majorsOptions() {
+  //     console.log('compute view group detail component')
+  //     return this.majors
+  //   }
+  //   // majorsOptions: {
+  //   //   get() {
+  //   //     return this.majors
+  //   //   },
+  //   //   set() {
+  //   //     return this.majors
+  //   //   }
+  //   // }
+  // },
+  watch: {
+    // majorsOptions: {
+    // handel(newOptions) {
+    // console.log('Watcher view group detail component')
+    // this.selectedMajor = newOptions[0]
+    // this.majors && (this.selectedMajor = newOptions[0])
+    // }
+    // immediate: true
+    // deep: true
+    // }
+
+    majors(newOptions, oldOptions) {
+      // console.log('Watcher view group detail component')
+      console.log('new options', newOptions)
+      // this.majors && (this.selectedMajor = newOptions[0])
+      this.selectedMajor = newOptions[0]
+    }
+
+    // searchGroup: {
+    //   immediate: true,
+    //   handler(newVal, oldVal) {
+    //     console.log(newVal, oldVal)
+    //     this.searchGroup = 'abccc'
+    //   }
+    // },
+
+    // majorsOptions: {
+    //   // immediate: true,
+    //   deep: true,
+    //   handler(newVal, oldVal) {
+    //     // console.log(newVal, oldVal)
+    //     console.log('new', newVal[0])
+    //     // this.majorsOptions = this.majors
+    //     // if (!this.selectedMajor) {
+    //       this.selectedMajor = newVal[0]
+    //     // }
+    //   }
+    // }
+
+    // majorsOptions: {
+    //   immediate: true,
+    //   handler(newVal, oldVal) {
+    //     // console.log(newVal, oldVal)
+    //     console.log('new', newVal[0])
+    //     this.majorsOptions = this.majors
+    //     if (typeof this.selectedMajor === 'object') {
+    //       this.selectedMajor = newVal[0]
+    //     }
+    //   }
+    // }
+  },
   mounted() {
     if (this.documents) {
       this.headers.push({ text: 'ACTION', align: 'center', value: 'action' })
-      // this.majors.unshift({ Major_ID: 0, Major_Name: 'All' })
     }
+    console.log('mounted view group detail component')
+    // console.log('major init', Object.keys(this.selectedMajor).length === 0)
 
-    this.selectedMajor = this.documents
-      ? this.majors[0]
-      : this.$store.state.auth.currentUser.major
-    this.selectedYear = this.yearNSemsters[0].Academic_Year
-    this.selectedSemester = this.yearNSemsters[0].Academic_Term
+    if (!this.isAdmin && this.documents) {
+      this.selectedMajor = this.majors[0]
+    }
+    // way keep filter when change yesr semster senior of admin
+    // this.selectedMajor =
+    //   Object.keys(this.selectedMajor).length === 0
+    //     ? this.majors
+    //       ? this.majors[0]
+    //       : this.$store.state.auth.currentUser.major
+    //     : this.selectedMajor
+
+    // this.selectedMajor = this.majors[0]
+    // console.log('major', this.majors)
+
+    // TODO: way keep major all when change yesr semster senior of admin
+    // this.selectedMajor =
+    //   Object.keys(this.selectedMajor).length !== 0
+    //     ? this.majors
+    //       ? this.majors[0]
+    //       : this.$store.state.auth.currentUser.major
+    //     : this.majors[0]
+
+    this.selectedYear = this.$store.getters['auth/currentUser'].academicYear
+    this.selectedSemester = this.$store.getters['auth/currentUser'].semester
+    this.selectedSenior = this.$store.getters['auth/currentUser'].senior
+    // this.selectedYear = this.yearNSemsters[0].Academic_Year
+    // this.selectedSemester = this.yearNSemsters[0].Academic_Term
 
     this.handleChangeRenderGroups()
+
+    // console.log('this log major', this.majors)
   },
+
   methods: {
     handleChangeRenderGroups() {
       this.$emit(
@@ -247,7 +345,9 @@ export default {
           ? this.$store.getters['auth/currentUser'].semester
           : this.selectedSemester,
         this.isAdmin || this.documents
-          ? this.selectedMajor.Major_ID
+          ? Object.keys(this.selectedMajor).length === 0
+            ? this.majors[0].Major_ID
+            : this.selectedMajor.Major_ID
           : this.$store.state.auth.currentUser.major,
         this.isAdmin
           ? this.$store.getters['auth/currentUser'].senior

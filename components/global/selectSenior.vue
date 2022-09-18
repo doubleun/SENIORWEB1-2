@@ -87,14 +87,23 @@ export default {
     // Sets default filter for year, semester and senior, when year is changed
     async academicDataOptions(newOptions) {
       console.log('Watcher')
-      this.selectedAcademicData.semester = newOptions[0].Academic_Term
-      this.selectedAcademicData.senior = newOptions[0].Senior
+      // console.log('newOptions', newOptions)
+      // this.selectedAcademicData.semester = newOptions[0].Academic_Term
+      // this.selectedAcademicData.senior = newOptions[0].Senior
 
-      this.$store.commit('auth/SET_USER_SENIOR', {
-        academicYear: this.selectedAcademicData.year,
-        semester: this.selectedAcademicData.semester,
-        senior: this.selectedAcademicData.senior
-      })
+      // this.$store.commit('auth/SET_USER_SENIOR', {
+      //   academicYear: this.selectedAcademicData.year,
+      //   semester: this.selectedAcademicData.semester,
+      //   senior: this.selectedAcademicData.senior
+      // })
+
+      // new test
+      this.selectedAcademicData.year =
+        this.$store.getters['auth/currentUser'].academicYear
+      this.selectedAcademicData.semester =
+        this.$store.getters['auth/currentUser'].semester
+      this.selectedAcademicData.senior =
+        this.$store.getters['auth/currentUser'].senior
 
       await this.$nuxt.refresh()
     }

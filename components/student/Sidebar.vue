@@ -1,5 +1,6 @@
 <template>
   <v-navigation-drawer
+    v-model="drawerState"
     fixed
     app
     :color="theme === 'default' ? '#253B6E' : 'white'"
@@ -15,7 +16,7 @@
       </v-row>
       <v-row class="justify-center"
         ><h4>
-          SENIOR PROJECT {{ !!displaySemester && !!senior ? senior : "" }}
+          SENIOR PROJECT {{ !!displaySemester && !!senior ? senior : '' }}
         </h4></v-row
       >
       <v-row class="justify-center"
@@ -63,40 +64,47 @@ export default {
   props: {
     items: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     theme: {
       type: String,
-      default: () => "default",
+      default: () => 'default'
     },
     displaySemester: {
       type: Boolean,
-      default: () => true,
+      default: () => true
     },
+    drawer: {
+      type: Boolean
+      // default: () => false
+    }
   },
   data: () => ({
     academicYear: null,
     semester: null,
     senior: null,
+    toggleDrawer: null
   }),
   mounted() {
     if (!!this.displaySemester) {
-      this.academicYear = this.$store.getters["auth/currentUser"].academicYear;
-      this.semester = this.$store.getters["auth/currentUser"].semester;
-      this.senior = this.$store.getters["auth/currentUser"].senior;
+      this.academicYear = this.$store.getters['auth/currentUser'].academicYear
+      this.semester = this.$store.getters['auth/currentUser'].semester
+      this.senior = this.$store.getters['auth/currentUser'].senior
     }
+    this.toggleDrawer = this.drawer
   },
-  // computed: {
-  //   drawer: {
-  //     get() {
-  //       return this.$store.state.drawer;
-  //     },
-  //     set(newVal) {
-  //       this.$store.commit("set_drawer", newVal);
-  //     }
-  //   }
-  // }
-};
+  computed: {
+    drawerState: {
+      get() {
+        console.log('drawer satae', this.$store.state.drawer.drawerState)
+        return this.$store.state.drawer.drawerState
+      },
+      set(newValue) {
+        this.$store.dispatch('drawer/setDrawerState', newValue)
+      }
+    }
+  }
+}
 </script>
 
 <style scoped>
