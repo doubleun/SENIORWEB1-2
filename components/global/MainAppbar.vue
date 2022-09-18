@@ -7,7 +7,7 @@
     <v-app-bar-nav-icon
       v-if="!drawerState"
       @click="toggleDrawer"
-      color="white"
+       :color="theme === 'white' ? '#253B6E' : 'white'"
     ></v-app-bar-nav-icon>
     <!-- class="d-flex d-sm-none" -->
     <v-spacer></v-spacer>
