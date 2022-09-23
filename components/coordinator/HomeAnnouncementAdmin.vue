@@ -67,7 +67,7 @@
         <v-card class="content mt-5">
           <div class="carousel pa-5">
             <v-alert color="indigo lighten-5">
-              <h3 class="font-weight-bold">Announcement</h3>
+              <h3 class="font-weight-bold text-uppercase ">Announcement</h3>
             </v-alert>
 
             <!-- Card result of announcement -->

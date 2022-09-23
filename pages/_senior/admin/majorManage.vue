@@ -20,7 +20,7 @@
 
     <v-card>
       <v-card-title>
-        <h3>Major</h3>
+        <h3 class="text-uppercase">Major</h3>
         <v-spacer></v-spacer>
         <v-row class="d-flex justify-end">
           <v-col md="6">

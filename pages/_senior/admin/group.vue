@@ -30,7 +30,7 @@
       :majors="majors"
       :yearNSemsters="yearNSemsters"
       :allGroups="allGroups"
-      :title="'Group'"
+      :title="'GROUP'"
       isAdmin
       @on-filtering="handleChangeRenderGroups"
     />

@@ -15,7 +15,7 @@
 
     <!-- Data table here -->
     <AdminDataTable
-      :tableTitle="'Student'"
+      :tableTitle="'STUDENT'"
       :headers="headers"
       itemKey="User_Email"
       :items="students"

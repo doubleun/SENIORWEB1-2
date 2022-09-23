@@ -1,6 +1,6 @@
 <template>
   <v-card class="score-criteria-card">
-    <v-card-title>
+    <v-card-title class="text-uppercase">
       <h4>Score Criteria</h4>
       <h4>Total: {{ allScoresTotal }}/100</h4>
     </v-card-title>

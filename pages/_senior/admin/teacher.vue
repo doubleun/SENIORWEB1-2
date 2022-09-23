@@ -40,7 +40,7 @@
     </div>
 
     <AdminDataTable
-      :tableTitle="'Teacher'"
+      :tableTitle="'TEACHER'"
       :headers="headers"
       itemKey="User_Email"
       :items="teachers"

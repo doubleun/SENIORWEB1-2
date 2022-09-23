@@ -14,7 +14,7 @@
       :documents="documents"
       :majors="majors"
       isAdmin
-      :title="'Document'"
+      :title="'DOCUMENT'"
       @on-filtering="handleChangeRenderGroups"
     />
     <!-- </main> -->

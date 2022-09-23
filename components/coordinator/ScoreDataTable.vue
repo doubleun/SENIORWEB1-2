@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      <h3>Student Score</h3>
+      <h3 class="text-uppercase">Student Score</h3>
       <v-spacer></v-spacer>
       <v-row class="d-flex justify-end">
         <v-col md="2" class="d-flex justify-end">
@@ -18,7 +18,7 @@
               </v-btn>
             </template>
             <v-card>
-              <v-card-title> Filter </v-card-title>
+              <v-card-title class="text-uppercase"> Filter </v-card-title>
               <v-card-text>
                 <v-row>
                   <v-col md="3">
@@ -102,12 +102,12 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="dialogFilter = false">
+                <v-btn color="primary" text @click="dialogFilter = false">
                   Close
                 </v-btn>
                 <v-btn
-                  color="blue darken-1"
-                  text
+                  color="primary"
+                  dark
                   @click="handelChangeRenderScore"
                 >
                   Save
