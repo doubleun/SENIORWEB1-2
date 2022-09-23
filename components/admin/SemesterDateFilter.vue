@@ -37,14 +37,14 @@
       <template v-slot:activator="{ on, attrs }">
         <v-col sm="4" md="2">
           <v-btn color="primary" v-bind="attrs" v-on="on">
-            Add new semester</v-btn
+            Add semester</v-btn
           >
         </v-col>
       </template>
 
       <v-card>
         <v-card-title>
-          <span class="text-h5">Add new semester</span>
+          <span class="text-h6 text-uppercase font-weight-bold">Create a New Semester</span>
         </v-card-title>
 
         <!-- Add new semester card modal -->
@@ -54,7 +54,7 @@
             <v-row>
               <v-col cols="12">
                 <v-select
-                  label="Senior name"
+                  label="Senior Name"
                   item-text="text"
                   item-value="senior"
                   :items="selectableSeniors"

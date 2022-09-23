@@ -13,7 +13,7 @@
             </template>
             <v-card>
               <v-card-title>
-                <span class="text-h6 font-weight-bold">Add Announcement</span>
+                <span class="text-h6 text-uppercase font-weight-bold">Add a new Announcement</span>
               </v-card-title>
               <v-card-text>
                 <v-container>
@@ -56,8 +56,8 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="red" text @click="dialog = false"> Cancel </v-btn>
-                <v-btn color="green" text @click="handleAddNewAnnounce">
+                <v-btn color="primary" text @click="dialog = false"> Cancel </v-btn>
+                <v-btn color="primary" dark @click="handleAddNewAnnounce">
                   Save
                 </v-btn>
               </v-card-actions>
@@ -119,7 +119,7 @@
                     <!-- Edit announcement dialog -->
                     <v-icon
                       large
-                      color="green darken-2"
+                      color="blue darken-2"
                       @click="editItem(announcement)"
                     >
                       mdi-square-edit-outline
@@ -147,8 +147,8 @@
                 </template> -->
                 <v-card>
                   <v-card-title>
-                    <span class="text-h6 font-weight-bold"
-                      >Edit Announcement</span
+                    <span class="text-h6 font-weight-bold text-uppercase"
+                      >Edit a Announcement</span
                     >
                   </v-card-title>
                   <v-card-text>
@@ -196,10 +196,10 @@
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="red" text @click="editedItem.modal = false">
+                    <v-btn color="primary" text @click="editedItem.modal = false">
                       Cancel
                     </v-btn>
-                    <v-btn color="green" text @click="handleUpdateAnnouncement">
+                    <v-btn color="primary" dark @click="handleUpdateAnnouncement">
                       Save
                     </v-btn>
                   </v-card-actions>

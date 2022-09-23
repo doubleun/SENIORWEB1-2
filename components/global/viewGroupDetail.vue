@@ -88,15 +88,15 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn
-                    color="blue darken-1"
+                    color="primary"
                     text
                     @click="dialogFilter = false"
                   >
                     Close
                   </v-btn>
                   <v-btn
-                    color="blue darken-1"
-                    text
+                    color="primary"
+                    dark
                     @click="handleChangeRenderGroups"
                   >
                     Save

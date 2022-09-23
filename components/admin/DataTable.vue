@@ -20,7 +20,7 @@
 
             <!-- Action buttons -->
             <v-card>
-              <v-card-title> Filter </v-card-title>
+              <v-card-title  class="text-h6 font-weight-bold text-uppercase"> Filter </v-card-title>
               <v-card-text>
                 <v-row v-if="majors">
                   <v-col md="3">
@@ -106,12 +106,11 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="dialogFilter = false">
+                <v-btn color="primary" text @click="dialogFilter = false">
                   Close
                 </v-btn>
                 <v-btn
-                  color="blue darken-1"
-                  text
+                 color="primary" dark
                   @click="handelchangeRenderUser"
                 >
                   Save

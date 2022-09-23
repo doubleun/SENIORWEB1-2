@@ -78,10 +78,10 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="dialogFilter = false">
+          <v-btn color="primary" text @click="dialogFilter = false">
             Close
           </v-btn>
-          <v-btn color="blue darken-1" text @click="handelchangeRender">
+          <v-btn color="primary" dark @click="handelchangeRender">
             Save
           </v-btn>
         </v-card-actions>
