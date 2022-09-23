@@ -88,7 +88,7 @@ export default {
         },
         {
           icon: "mdi-clipboard-text",
-          title: "Doucment",
+          title: "Document",
           to: `/senior${this.$store.state.auth.currentUser.senior}/${
             this.$store.state.auth.currentUser.role === 2
               ? "coordinator"

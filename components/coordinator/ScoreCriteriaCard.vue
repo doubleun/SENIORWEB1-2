@@ -226,7 +226,7 @@ export default {
           sortable: false,
         },
         {
-          text: "Due-date",
+          text: "Due date",
           align: "center",
           value: "DueDate_Start",
           sortable: false,
@@ -243,7 +243,7 @@ export default {
           value: "Committee_Score",
           sortable: false,
         },
-        { text: "Toggle", value: "toggle", align: "center", sortable: false },
+        { text: "On/Off", value: "toggle", align: "center", sortable: false },
         { text: "Edit", value: "edit", align: "center", sortable: false },
       ],
       editedIndex: -1,

@@ -126,7 +126,7 @@ export default {
         { text: 'MAJOR NAME', align: 'center', value: 'Major_Name' },
         { text: 'ACRONYM', align: 'center', value: 'Acronym' },
         {
-          text: 'TOGGLE',
+          text: 'On/Off',
           align: 'center',
           value: 'Major_Status',
           sortable: false

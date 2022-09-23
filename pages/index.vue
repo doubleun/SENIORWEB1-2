@@ -51,7 +51,7 @@
                     <div class="myDiv2" align-center justify-center>
                       <v-text-field
                         v-model="search"
-                        label="Search topic something"
+                        label="Search topic"
                         prepend-inner-icon="mdi-magnify"
                         filled
                         rounded

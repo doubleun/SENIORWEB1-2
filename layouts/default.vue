@@ -116,7 +116,7 @@ export default {
         {
           id: 0,
           icon: 'mdi-clipboard-text',
-          title: 'Doucment',
+          title: 'Document',
           to: `/senior${this.$store.state.auth.currentUser.senior}/student/viewAssignment`,
           disabled: false
         }

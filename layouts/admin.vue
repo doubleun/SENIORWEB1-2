@@ -58,7 +58,7 @@ export default {
         // },
         {
           icon: 'mdi-clipboard-text',
-          title: 'Doucment',
+          title: 'Document',
           to: '/senior/admin/viewAssignment'
         },
         {
