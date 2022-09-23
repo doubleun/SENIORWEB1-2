@@ -705,7 +705,7 @@ export default {
 
                 if (res.status == 200) {
                   this.$swal.fire(
-                    'Successed',
+                    'Successed!',
                     'Grade has been saved.',
                     'success'
                   )

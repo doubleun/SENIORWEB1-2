@@ -645,7 +645,7 @@ export default {
               if (res.status === 200) {
                 this.$swal
                   .fire({
-                    title: 'Successed',
+                    title: 'Successed!',
                     text: `Group has been ${
                       this.groupCreated ? 'updated' : 'created'
                     }.`,
@@ -703,7 +703,7 @@ export default {
               if (res.status === 200) {
                 this.$swal
                   .fire({
-                    title: 'Successed',
+                    title: 'Successed!',
                     text: `${response === 1 ? 'Join' : 'Decline'} successfully`,
                     icon: 'success',
                     // confirmButtonColor: '#3085d6',

@@ -354,7 +354,7 @@ export default {
 
         // Show success popup
         this.$swal.fire(
-          "Success",
+          "Successed!",
           "Update score criterias successfully",
           "success"
         );

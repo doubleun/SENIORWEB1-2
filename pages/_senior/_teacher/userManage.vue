@@ -178,7 +178,7 @@ export default {
               if (res && res.status == 200) {
                 this.$swal
                   .fire({
-                    title: 'Successed',
+                    title: 'Successed!',
                     text: res.msg,
                     icon: 'success',
                     // confirmButtonColor: '#3085d6',

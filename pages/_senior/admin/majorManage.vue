@@ -191,7 +191,7 @@ export default {
           )
         }
         this.$swal.fire(
-          'Success',
+          'Successed!',
           `${this.isAdd ? 'Add' : 'Update'} Major successfully`,
           'success'
         )
@@ -215,7 +215,7 @@ export default {
             'Failed to update status major, please try again later'
           )
         }
-        this.$swal.fire('Success', 'Update status successfully', 'success')
+        this.$swal.fire('Successed!', 'Update status successfully', 'success')
         this.dialog = false
         this.$nuxt.refresh()
       } catch (error) {}
