@@ -448,7 +448,7 @@ export default {
 
         this.$swal.fire(
           'Successed!',
-          'A announcement has been added.',
+          'A announcement has been edited.',
           'success'
         )
       } else {
